@@ -115,60 +115,89 @@ switch ($step) {
     // -------------------------------------------------------------
     // 2) COMPOSER INSTALL
     // -------------------------------------------------------------
-    case "composer":
+    case 'composer':
 
-        $projectPath = $base;
-        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        try {
+            out("Running Composer operation...");
+            ini_set('max_execution_time', 3000);
+            ini_set('memory_limit', '2G');
+            set_time_limit(0);
 
-        // Detect Composer
-        $composer = find_composer();
-        if (!$composer) {
-            send([
-                "success" => false,
-                "output"  => "❌ Composer not found",
-                "percent" => 10,
-                "next"    => "composer"
-            ]);
+            $projectPath = realpath(__DIR__ . '/..');
+            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+            // --- Required PHP extensions check ---
+            $requiredExtensions = ['curl', 'gd', 'mbstring', 'xml', 'zip', 'bcmath', 'pdo_mysql'];
+            $missingExtensions = [];
+            foreach ($requiredExtensions as $ext) {
+                if (!extension_loaded($ext)) {
+                    $missingExtensions[] = $ext;
+                }
+            }
+            if (!empty($missingExtensions)) {
+                fail("Missing required PHP extensions: " . implode(', ', $missingExtensions));
+            }
+
+            // --- Detect Composer path dynamically ---
+            $composerCmd = null;
+            $pathsToTry = $isWindows
+                ? ['composer', 'composer.bat', 'composer.phar']
+                : ['composer', '/usr/local/bin/composer', '/usr/bin/composer'];
+
+            foreach ($pathsToTry as $path) {
+                $test = @shell_exec("$path --version 2>&1");
+                if ($test && stripos($test, 'Composer') !== false) {
+                    $composerCmd = $path;
+                    break;
+                }
+            }
+
+            if (!$composerCmd) {
+                fail("Composer not found. Install globally and ensure it is in PATH.");
+            }
+
+            out("Using Composer: <b>$composerCmd</b><br>");
+
+            // --- Ensure vendor/ is ready ---
+            $vendorPath = $projectPath . '/vendor';
+            if (file_exists($vendorPath) && !is_dir($vendorPath)) {
+                unlink($vendorPath); // remove file if vendor exists as file
+            }
+            if (!is_dir($vendorPath)) mkdir($vendorPath, 0775, true);
+
+            // --- Ensure /tmp/composer exists for HOME ---
+            if (!$isWindows && !is_dir('/tmp/composer')) mkdir('/tmp/composer', 0777, true);
+
+            // --- Prepare command ---
+            if ($isWindows) {
+                $cmd = "cd /d \"$projectPath\" && $composerCmd install --no-interaction --prefer-dist";
+            } else {
+                $cmd = "HOME=/tmp COMPOSER_HOME=/tmp cd \"$projectPath\" && $composerCmd install --no-interaction --prefer-dist";
+            }
+
+            out("Executing:<br><pre>$cmd</pre>");
+
+            $output = shell_exec($cmd);
+
+            if ($output === null) {
+                fail("shell_exec returned NULL — composer cannot run (disabled or permission).");
+            }
+
+            out("<pre>$output</pre>");
+
+            // --- Check success ---
+            if (
+                stripos($output, "Generating optimized autoload files") !== false ||
+                stripos($output, "Nothing to install") !== false ||
+                stripos($output, "Package operations") !== false
+            ) {
+                out("✔ Composer operation completed successfully.");
+            } else {
+                fail("Composer failed. Output:<br><pre>$output</pre>");
+            }
+        } catch (Exception $e) {
+            fail("Composer error: " . $e->getMessage());
         }
-
-        // Run Composer install
-        $cmd = $isWindows
-            ? "cd /d \"$projectPath\" && $composer install --no-interaction --prefer-dist"
-            : "cd \"$projectPath\" && $composer install --no-interaction --prefer-dist";
-
-        // Run synchronously and capture output
-        $output = [];
-        $returnVar = 0;
-        exec($cmd . " 2>&1", $output, $returnVar);
-
-        $outText = implode("\n", $output);
-
-        if ($returnVar !== 0) {
-            send([
-                "success" => false,
-                "output"  => "❌ Composer install failed:<br><pre>" . htmlspecialchars($outText) . "</pre>",
-                "percent" => 10,
-                "next"    => "composer"
-            ]);
-        }
-
-        // Ensure vendor folder exists
-        if (!is_dir($projectPath . "/vendor")) {
-            send([
-                "success" => false,
-                "output"  => "❌ Vendor folder not created.<br>Check server permissions.",
-                "percent" => 10,
-                "next"    => "composer"
-            ]);
-        }
-
-        send([
-            "success" => true,
-            "output"  => "✔ Composer installed successfully.<br><pre>" . htmlspecialchars($outText) . "</pre>",
-            "percent" => 40,
-            "next"    => "db_config",
-            "show_db_form" => true
-        ]);
         break;
 
 
