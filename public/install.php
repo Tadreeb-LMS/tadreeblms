@@ -213,54 +213,49 @@ try {
 
         case 'composer':
 
-
             try {
                 out("Running Composer install...");
-                ini_set('max_execution_time', 3000);  // 50 minutes
+                ini_set('max_execution_time', 3000);
                 ini_set('memory_limit', '1G');
                 set_time_limit(0);
-                $publicPath   = __DIR__;                    // public/
-                $projectPath  = realpath(__DIR__ . '/..');  // project root
-                $composerPath = $publicPath . '/composer.phar';
 
-                // Ensure composer home exists
-                $composerHome = $projectPath . '/.composer';
-                if (!is_dir($composerHome)) {
-                    mkdir($composerHome, 0777, true);
-                }
+                $projectPath  = realpath(__DIR__ . '/..');
 
-                // Set COMPOSER_HOME variable so composer runs properly
-                putenv('COMPOSER_HOME=' . $composerHome);
+                // OS Detection
+                $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-                // Run composer install
-                $cmd = "cd /d \"$projectPath\" && php \"$composerPath\" install --no-interaction --prefer-dist 2>&1";
+                // Global composer command
+                // Windows uses "composer", Linux usually uses "/usr/bin/composer"
+                $composerCmd = $isWindows ? "composer" : "composer";
 
-                // Execute and get output
-                exec($cmd, $output, $return_var);
+                // Build correct CD command
+                $cd = $isWindows ? "cd /d \"$projectPath\"" : "cd \"$projectPath\"";
 
-                out("Executing: <pre>$cmd</pre>");
+                // Final command (globally installed Composer)
+                $cmd = "$cd && $composerCmd install --no-interaction --prefer-dist 2>&1";
+
+                out("Executing:<br><pre>$cmd</pre>");
 
                 $output = shell_exec($cmd);
 
                 if ($output === null) {
-                    //file_put_contents($projectPath.'/install-log.txt', implode("\n", $output));
-                    throw new Exception("shell_exec returned NULL — command not allowed by server.");
+                    throw new Exception("shell_exec() returned NULL — command may be blocked or disabled.");
                 }
 
                 out("<pre>$output</pre>");
 
-                if (str_contains($output, "Generating optimized autoload files")) {
+                if (strpos($output, "Generating optimized autoload files") !== false) {
                     out("✔ Composer install completed successfully.");
                 } else {
-                    out("<div style='color: orange; font-weight: bold;'>⚠ Composer executed but output looks incomplete.</div>");
+                    out("<div style='color: orange;'>⚠ Composer executed, but did not finish cleanly.</div>");
                 }
             } catch (Exception $e) {
-                out("<div style='color: red; font-weight: bold;'>❌ Error: " . $e->getMessage() . "</div>");
+                out("<div style='color:red'>❌ Composer error: " . $e->getMessage() . "</div>");
                 exit;
             }
 
-
             break;
+
 
         case 'db_config':
             echo "
