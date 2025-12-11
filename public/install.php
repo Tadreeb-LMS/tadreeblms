@@ -26,9 +26,9 @@ input{width:100%;padding:8px;margin-bottom:10px;}
     <div id="dbform" class="hidden">
         <h3>Database Settings</h3>
         <input type="text" id="db_host" placeholder="DB Host" value="127.0.0.1">
-        <input type="text" id="db_name" placeholder="Database Name">
-        <input type="text" id="db_user" placeholder="DB Username">
-        <input type="password" id="db_pass" placeholder="DB Password">
+        <input type="text" id="db_database" placeholder="Database Name">
+        <input type="text" id="db_username" placeholder="DB Username">
+        <input type="password" id="db_password" placeholder="DB Password">
         <button onclick="saveDB()" class="button">Save & Continue</button>
     </div>
 
@@ -41,23 +41,38 @@ let currentIndex = 0;
 
 function runStep(step){
     document.getElementById("startBtn").classList.add("hidden");
+    let isDBStep = step === "db_config";
 
-    fetch("install_ajax.php", {
-        method: "POST",
-        body: new URLSearchParams({step: step})
+    fetch("install_ajax.php?step="+step, {
+        method: isDBStep ? "POST" : "GET",
+        body: isDBStep ? new URLSearchParams({
+            db_host: document.getElementById("db_host").value,
+            db_database: document.getElementById("db_database").value,
+            db_username: document.getElementById("db_username").value,
+            db_password: document.getElementById("db_password").value,
+        }) : null
     })
     .then(res => res.json())
     .then(res => {
-        appendLog(res.output);
-        updateBar(res.percent);
+        appendLog(res.message || JSON.stringify(res));
 
-        if(res.show_db_form){
+        // Progress bar
+        currentIndex = steps.indexOf(step);
+        let percent = Math.round((currentIndex+1)/steps.length*100);
+        updateBar(percent);
+
+        // Show DB form if needed
+        if(step === "db_config" && !res.status === "ok"){
             document.getElementById("dbform").classList.remove("hidden");
-            return; // wait for DB input
+            return;
+        } else {
+            document.getElementById("dbform").classList.add("hidden");
         }
 
+        // Next step
         if(step !== "finish"){
-            setTimeout(()=>runStep(res.next),500);
+            let nextStep = steps[currentIndex+1];
+            setTimeout(()=>runStep(nextStep), 500);
         }
     })
     .catch(err=>{
@@ -66,24 +81,7 @@ function runStep(step){
 }
 
 function saveDB(){
-    let formData = new URLSearchParams({
-        step: "db_save",
-        db_host: document.getElementById("db_host").value,
-        db_name: document.getElementById("db_name").value,
-        db_user: document.getElementById("db_user").value,
-        db_pass: document.getElementById("db_pass").value,
-    });
-
-    fetch("install_ajax.php", {method:"POST", body:formData})
-    .then(res => res.json())
-    .then(res => {
-        appendLog(res.output);
-        document.getElementById("dbform").classList.add("hidden");
-        runStep(res.next);
-    })
-    .catch(err=>{
-        appendLog("❌ AJAX error: " + err);
-    });
+    runStep("db_config");
 }
 
 function appendLog(msg){
