@@ -42,34 +42,39 @@ $step = $_REQUEST['step'] ?? 'check';
 // Handle DB save
 // --------------------
 if ($step === 'db_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db_host = $_POST['db_host'] ?? '';
-    $db_database = $_POST['db_database'] ?? '';
-    $db_username = $_POST['db_username'] ?? '';
+
+    $db_host = trim($_POST['db_host'] ?? '');
+    $db_database = trim($_POST['db_database'] ?? '');
+    $db_username = trim($_POST['db_username'] ?? '');
     $db_password = $_POST['db_password'] ?? '';
 
-    if (!$db_host || !$db_database || !$db_username) {
+    if ($db_host === '' || $db_database === '' || $db_username === '') {
         echo json_encode([
-            'message' => 'Please fill all DB fields',
-            'show_db_form' => true,
-            'next' => 'db_config'
+            'success' => false,
+            'message' => '❌ All database fields are required',
+            'show_db_form' => true
         ]);
         exit;
     }
 
-    file_put_contents($dbConfigFile, json_encode([
+    $data = [
         'host' => $db_host,
         'database' => $db_database,
         'username' => $db_username,
         'password' => $db_password
-    ]));
+    ];
+
+    file_put_contents($dbConfigFile, json_encode($data, JSON_PRETTY_PRINT));
 
     echo json_encode([
-        'message' => 'Database config saved ✔',
+        'success' => true,
+        'message' => '✔ Database configuration saved',
         'show_db_form' => false,
         'next' => 'env'
     ]);
     exit;
 }
+
 
 // --------------------
 // Steps
@@ -80,6 +85,18 @@ try {
             $msg = "<strong>Checking system requirements...</strong><br>";
             $allGood = true;
 
+            $resetFiles = [
+                $envFile,
+                $dbConfigFile,
+                $migrationDoneFile,
+                $seedDoneFile,
+            ];
+
+            foreach ($resetFiles as $file) {
+                if (file_exists($file)) {
+                    @unlink($file);
+                }
+            }
             // PHP version
             if (
                 version_compare(PHP_VERSION, '8.2.0', '>=')
