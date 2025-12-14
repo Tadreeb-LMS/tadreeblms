@@ -1,3 +1,8 @@
+@php
+    if (is_string($contact_data)) {
+        $contact_data = json_decode($contact_data, true);
+    }
+@endphp
 <section id="contact-area" class="contact-area-section backgroud-style">
     <div class="container">
         <div class="contact-area-content">
