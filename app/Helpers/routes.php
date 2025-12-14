@@ -77,3 +77,11 @@ if (!function_exists('app_name')) {
         return config('app.name');
     }
 }
+
+
+if (!function_exists('contact_data')) {
+    function contact_data()
+    {
+        return config('contact_data');
+    }
+}
