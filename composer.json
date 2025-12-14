@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.1",
         "laravel/framework": "^9.52",
-        "laravelcollective/html": "^6.3",
+        "spatie/laravel-html": "^2.30",
         "barryvdh/laravel-dompdf": "^2.0",
         "yajra/laravel-datatables-oracle": "^9.0",
         "yajra/laravel-datatables-buttons": "^4.13",
@@ -37,7 +37,7 @@
             "App\\": "app/"
         },
         "classmap": [
-            "database/seeds",
+            "database/seeders",
             "database/factories"
         ]
     },
