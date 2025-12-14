@@ -1,5 +1,7 @@
 <?php
 
+dd('auth.php loaded');
+
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Http\Controllers\Frontend\Auth\RegisterController;
 use App\Http\Controllers\Frontend\Auth\SocialLoginController;
