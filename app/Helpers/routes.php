@@ -70,3 +70,10 @@ if (!function_exists('getCurrency')) {
         }
     }
 }
+
+if (!function_exists('app_name')) {
+    function app_name()
+    {
+        return config('app.name');
+    }
+}
