@@ -13,6 +13,7 @@ use App\Http\Controllers\UserCourseRequestController;
 use App\Jobs\SendEmailJob;
 use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
@@ -42,7 +43,7 @@ Route::get('email-test', function () {
 Route::get('lang/{lang}', [LanguageController::class, 'swap']);
 
 
-Route::get('/sitemap-' . str_slug(config('app.name')) . '/{file?}', 'SitemapController@index');
+Route::get('/sitemap-' . Str::slug(config('app.name')) . '/{file?}', 'SitemapController@index');
 
 
 //============ Remove this  while creating zip for Envato ===========//
