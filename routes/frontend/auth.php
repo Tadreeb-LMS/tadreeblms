@@ -14,7 +14,7 @@ use App\Http\Controllers\Frontend\Auth\TeacherRegisterController;
  * Frontend Access Controllers
  * All route names are prefixed with 'frontend.auth'.
  */
-Route::group(['namespace' => 'Auth', 'as' => 'auth.'], function () {
+Route::group(['namespace' => 'Auth', 'as' => 'frontend.auth.'], function () {
 
     /*
     * These routes require the user to be logged in
