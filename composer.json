@@ -46,7 +46,6 @@
         "skyraptor/chatter": "^0.5.11",
         "spatie/laravel-backup": "^6.13",
         "spatie/laravel-cookie-consent": "^3.0",
-        "spatie/laravel-html": "^2.30.0",
         "spatie/laravel-newsletter": "^4.8.0",
         "spatie/laravel-permission": "^5.5",
         "torann/geoip": "^3.0.1",
