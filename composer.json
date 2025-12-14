@@ -5,8 +5,9 @@
     "keywords": ["laravel", "LMS"],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.4",
         "laravel/framework": "^9.52",
+        "spatie/laravel-html": "^2.30",
         "barryvdh/laravel-dompdf": "^2.0",
         "yajra/laravel-datatables-oracle": "^9.0",
         "yajra/laravel-datatables-buttons": "^4.13",
@@ -21,7 +22,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.4.15"
+        }
     },
     "extra": {
         "laravel": {
