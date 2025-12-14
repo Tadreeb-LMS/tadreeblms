@@ -24,7 +24,7 @@ use App\Models\WishList;
 use App\Models\Earning;
 use App\Models\TeacherProfile;
 use App\Models\Withdraw;
-
+use Spatie\Permission\Traits\HasRoles;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Notifications\Notifiable;
@@ -49,7 +49,7 @@ use App\Models\Auth\Traits\Relationship\UserRelationship;
  */
 class User extends Authenticatable
 {
-    use Notifiable,
+    use HasRoles,Notifiable,
         SendUserPasswordReset,
         SoftDeletes,
         UserAttribute,
