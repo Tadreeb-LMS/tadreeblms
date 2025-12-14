@@ -363,7 +363,7 @@
             {!! config('custom_js') !!}
         </script>
     @endif
-
+    @include('cookieConsent::index')   
 </body>
 
 </html>
