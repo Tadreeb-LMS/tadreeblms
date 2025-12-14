@@ -328,7 +328,7 @@
 
                     $.ajax({
                         type: $this.attr('method'),
-                        url: "{{  route('register')}}",
+                        url: "{{  route('frontend.auth.register.post')}}",
                         data: $this.serializeArray(),
                         dataType: $this.data('type'),
                         success: function (data) {

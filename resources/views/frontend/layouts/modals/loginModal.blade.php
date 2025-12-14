@@ -1,13 +1,13 @@
 <style>
-.modal-dialog {
-    margin: 1.75em auto;
-    min-height: calc(100vh - 60px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+    .modal-dialog {
+        margin: 1.75em auto;
+        min-height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 
-.modal_close {
+  .modal_close {
     position: absolute;
     top: -13px;
     right: -4px;
@@ -25,42 +25,46 @@
     padding: inherit !important;
 }
 
-.g-recaptcha div {
-    margin: auto;
-}
-
-.modal-body .contact_form input[type='radio'] {
-    width: auto;
-    height: auto;
-}
-
-.modal-body .contact_form textarea {
-    background-color: #eeeeee;
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    width: 100%;
-    border: none;
-}
-
-@media (max-width: 768px) {
-    .modal-dialog {
-        min-height: calc(100vh - 20px);
+    .g-recaptcha div {
+        margin: auto;
     }
 
-    #myModal .modal-body {
+    .modal-body .contact_form input[type='radio'] {
+        width: auto;
+        height: auto;
+    }
+    .modal-body .contact_form textarea{
+        background-color: #eeeeee;
         padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        width: 100%;
+        border: none
     }
-}
-</style>
 
+    @media (max-width: 768px) {
+        .modal-dialog {
+            min-height: calc(100vh - 20px);
+        }
+
+        #myModal .modal-body {
+            padding: 15px;
+        }
+    }
+
+</style>
+<?php
+//$fields = json_decode(config('registration_fields'));
+//$inputs = ['text','number','date','gender'];
+//dd($fields);
+?>
 @if(!auth()->check())
 
-<!-- LOGIN MODAL -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <!-- Header -->
+
+            <!-- Modal Header -->
             <div class="backgroud-style">
                 <div class="popup-logo">
                     <img src="{{ asset('storage/logos/' . config('logo_popup')) }}" alt="">
@@ -72,7 +76,7 @@
                 <button type="button" class="close modal_close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
 
-            <!-- Body -->
+            <!-- Modal body -->
             <div class="modal-body">
                 <div class="tab-content">
                     <div class="tab-pane container active" id="login">
@@ -82,8 +86,10 @@
 
                         <form id="loginForm" class="contact_form"
                               action="{{ route('frontend.auth.login.post') }}"
-                              method="POST">
+                              method="POST" enctype="multipart/form-data">
+
                             @csrf
+
                             <input type="hidden" name="redirect_url" id="redirect_url">
 
                             <div class="contact-info mb-2">
@@ -122,12 +128,13 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- REGISTER MODAL -->
-<div class="modal fade" id="myRegisterModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal fade" id="myRegisterModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -139,8 +146,9 @@
                 <div class="popup-text text-center">
                     <h2>@lang('Register')</h2>
                     <p>@lang('Please register yourself')</p>
+                    {{-- {{ $default_admin_email }} --}}
                     @if($default_admin_email->email == 'admin@seeder.com')
-                        <p>@lang('Please register an user as administrator')</p>
+                    <p>@lang('Please register an user as administrator')</p>
                     @endif
                 </div>
                 <button type="button" class="close modal_close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -151,13 +159,11 @@
                 <div class="tab-content">
                     <div class="tab-pane container active" id="register">
 
-                        <form id="registerForm" class="contact_form" method="POST"
-                              action="{{ route('frontend.auth.register.post') }}">
+                        <form id="registerForm" class="contact_form" method="POST" action="#">
                             @csrf
                             @if($default_admin_email->email == 'admin@seeder.com')
-                                <input type="hidden" name="default_admin" value="1" />
+                            <input type="hidden" name="default_admin" value="1" />
                             @endif
-
                             <div class="contact-info mb-2">
                                 <input type="text" name="first_name" class="form-control mb-0"
                                        maxlength="191"
@@ -193,16 +199,18 @@
                             <!-- Language Select -->
                             <div class="contact-info mb-2">
                                 <label>Preferred Language</label><br>
+
                                 <label class="radio-inline mr-3 mb-0">
                                     <input type="radio" name="fav_lang" value="english" checked> {{ __('English') }}
                                 </label>
+
                                 <label class="radio-inline mr-3 mb-0">
                                     <input type="radio" name="fav_lang" value="arabic"> {{ __('Arabic') }}
                                 </label>
                             </div>
 
                             <!-- Dynamic fields -->
-                            @if(config('registration_fields'))
+                            @if(config('registration_fields') != NULL)
                                 @php
                                     $fields = json_decode(config('registration_fields'));
                                     $inputs = ['text','number','date'];
@@ -217,21 +225,25 @@
                                                    value="{{ old($item->name) }}"
                                                    placeholder="{{ __('labels.backend.general_settings.user_registration_settings.fields.' . $item->name) }}">
                                         </div>
+
                                     @elseif($item->type == 'radio')
                                         <div class="contact-info mb-2">
                                             <label class="radio-inline mr-3 mb-0">
                                                 <input type="radio" name="{{ $item->name }}" value="male">
                                                 {{ __('validation.attributes.frontend.male') }}
                                             </label>
+
                                             <label class="radio-inline mr-3 mb-0">
                                                 <input type="radio" name="{{ $item->name }}" value="female">
                                                 {{ __('validation.attributes.frontend.female') }}
                                             </label>
+
                                             <label class="radio-inline mr-3 mb-0">
                                                 <input type="radio" name="{{ $item->name }}" value="other">
                                                 {{ __('validation.attributes.frontend.other') }}
                                             </label>
                                         </div>
+
                                     @elseif($item->type == 'textarea')
                                         <div class="contact-info mb-2">
                                             <textarea class="form-control mb-0"
@@ -276,103 +288,226 @@
 @endif
 
 @push('after-scripts')
-@if(session('openModel'))
-<script>
-    $('#myModal').modal('show');
-</script>
-@endif
-
-@if(config('access.captcha.registration'))
-    {{ no_captcha()->script() }}
-@endif
-
-<script>
-$(function () {
-    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-
-    $(document).ready(function () {
-
-        // Toggle between login/register
-        $(document).on('click', '.go-login', function () {
-            $('#myRegisterModal').modal('hide');
+    @if (session('openModel'))
+        <script>
             $('#myModal').modal('show');
-        });
+        </script>
+    @endif
 
-        $(document).on('click', '.go-register', function () {
-            $('#myModal').modal('hide');
-            $('#myRegisterModal').modal('show');
-        });
 
-        // Login AJAX
-        $('#loginForm').on('submit', function (e) {
-            e.preventDefault();
-            var $this = $(this);
-            $('.success-response, .error-response, #login-email-error, #login-password-error, #login-captcha-error').empty();
+        <script>
+             hrefurl=$(location).attr("href");
+                last_part=hrefurl.substr(hrefurl.lastIndexOf('/') + 1)
+        // console.log(last_part);
+        if(last_part == '?openModal'){
+            $('#myModal').modal('show');
+        }
+        </script>
 
-            $.ajax({
-                type: $this.attr('method'),
-                url: $this.attr('action'),
-                data: $this.serialize(),
-                success: function (response) {
-                    if (response.errors) {
-                        if (response.errors.email) $('#login-email-error').html(response.errors.email[0]);
-                        if (response.errors.password) $('#login-password-error').html(response.errors.password[0]);
-                        if (response.errors['g-recaptcha-response']) $('#login-captcha-error').html(response.errors['g-recaptcha-response'][0]);
-                    }
-                    if (response.success) {
-                        window.location.href = response.redirect;
-                    }
-                },
-                error: function (jqXHR) {
-                    var response = jqXHR.responseJSON;
-                    if (response.message) $('#login').find('span.error-response').html(response.message);
+
+
+    @if(config('access.captcha.registration'))
+        {{ no_captcha()->script() }}
+
+    @endif
+
+    <script>
+        $(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-        });
 
-        // Register AJAX
-        $('#registerForm').on('submit', function (e) {
-            e.preventDefault();
-            var $this = $(this);
-            var $button = $this.find('#registerButton');
-            $button.text("{{ __('alerts.processing') }}").prop('disabled', true);
+            $(document).ready(function () {
+                $(document).on('click', '.go-login', function () {
+                     $('#myRegisterModal').modal('hide');
+                     $('#myModal').modal('show');
+                    // $('#register').removeClass('active').addClass('fade')
+                    // $('#login').addClass('active').removeClass('fade')
 
-            $.ajax({
-                type: $this.attr('method'),
-                url: $this.attr('action'),
-                data: $this.serialize(),
-                success: function (data) {
-                    // Clear errors
-                    $('#first-name-error, #last-name-error, #email-error, #password-error, #captcha-error').empty();
+                });
+                $(document).on('click', '.go-register', function () {
+                    $('#login').removeClass('active').addClass('fade')
+                    $('#register').addClass('active').removeClass('fade')
+                });
 
-                    if (data.errors) {
-                        if (data.errors.first_name) $('#first-name-error').html(data.errors.first_name[0]);
-                        if (data.errors.last_name) $('#last-name-error').html(data.errors.last_name[0]);
-                        if (data.errors.email) $('#email-error').html(data.errors.email[0]);
-                        if (data.errors.password) $('#password-error').html(data.errors.password[0]);
-                        if (data.errors['g-recaptcha-response']) $('#captcha-error').html(data.errors['g-recaptcha-response'][0]);
-                    }
+                $(document).on('click', '#openLoginModal', function (e) {
+                    
+                    
 
-                    if (data.success) {
-                        $('#registerForm')[0].reset();
-                        const alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-                            Registration is done successfully!
-                        </div>`;
-                        $('#registerForm').prepend(alertHtml);
-                        setTimeout(() => $('.alert').alert('close'), 3000);
+                    $.ajax({
+                        type: "GET",
+                        url: "{{route('frontend.auth.login')}}",
+                        success: function (response) {
+                            $('#socialLinks').html(response.socialLinks)
+                            const $modal = $('#myModal');
 
-                        if (data.redirect == 'back') {
-                            location.reload();
-                        } else {
-                            window.location.href = data.redirect || "{{ route('admin.dashboard') }}";
+                            
+                            const form = $modal.find('form')[0];
+                            if (form) form.reset();
+                            $modal.find('.text-danger').text('');
+
+                            
+                            $modal.find('input[type=radio], input[type=checkbox]').prop('checked', false);
+
+                            
+                            $modal.modal('show');
+                        },
+                    });
+                });
+
+                $(document).on('click', '#openRegisterModal', function (e) {
+                    //alert("hi")
+                    $.ajax({
+                        type: "GET",
+                        url: "{{route('frontend.auth.register')}}",
+                        success: function (response) {
+                            $('#socialLinks').html(response.socialLinks);
+
+            
+                            let form = $('#myRegisterModal').find('form')[0];
+                            if (form) form.reset();
+
+                            $('#myRegisterModal').find('.text-danger').text('');
+                            $('#myRegisterModal').modal('show');
+                        },
+                    });
+                });
+
+
+
+                $('#loginForm').on('submit', function (e) {
+                    e.preventDefault();
+
+                    const redirect_url = localStorage.getItem('redirect_url');
+                    localStorage.removeItem('redirect_url');
+
+                    var $this = $(this);
+                    $('.success-response').empty();
+                    $('.error-response').empty();
+
+                    $.ajax({
+                        type: $this.attr('method'),
+                        url: $this.attr('action'),
+                        data: $this.serializeArray(),
+                        dataType: $this.data('type'),
+                        success: function (response) {                            
+                            $('#login-email-error').empty();
+                            $('#login-password-error').empty();
+                            $('#login-captcha-error').empty();
+
+                            if (response.errors) {
+                                if (response.errors.email) {
+                                    $('#login-email-error').html(response.errors.email[0]);
+                                }
+                                if (response.errors.password) {
+                                    $('#login-password-error').html(response.errors.password[0]);
+                                }
+
+                                var captcha = "g-recaptcha-response";
+                                if (response.errors[captcha]) {
+                                    $('#login-captcha-error').html(response.errors[captcha][0]);
+                                }
+                            }
+
+                            if (response.success) {
+                                window.location.href = response.redirect;
+
+                                location.reload();
+
+                                // $('#loginForm')[0].reset();
+                                // if (response.redirect == 'back') {
+                                //     if (redirect_url) {
+                                //         window.location.href = redirect_url;
+                                //         return;
+                                //     }else{
+                                //         location.reload();
+                                //     }
+                                // } else {
+                                //     window.location.href = "{{route('admin.dashboard')}}"
+                                // }
+                            }
+                        },
+                        error: function (jqXHR) {
+                            var response = $.parseJSON(jqXHR.responseText);
+                            console.log(jqXHR)
+                            if (response.message) {
+                                $('#login').find('span.error-response').html(response.message)
+                            }
                         }
-                    }
-                    $button.text("@lang('labels.frontend.modal.register_now')").prop('disabled', false);
-                }
-            });
-        });
+                    });
+                });
 
-    });
-});
-</script>
+                $(document).on('submit','#registerForm', function (e) {
+                    e.preventDefault();
+                    
+                    var $this = $(this);
+                    //var $form = $(this);
+                    var $button = $this.find('#registerButton');
+                    $button.text("{{ __('alerts.processing') }}").prop('disabled', true);
+
+                    $.ajax({
+                        type: $this.attr('method'),
+                        url: "{{  route('frontend.auth.register.post')}}",
+                        data: $this.serializeArray(),
+                        dataType: $this.data('type'),
+                        success: function (data) {
+                            //alert(data.redirect)
+                            $('#first-name-error').empty()
+                            $('#last-name-error').empty()
+                            $('#email-error').empty()
+                            $('#password-error').empty()
+                            $('#captcha-error').empty()
+                            if (data.errors) {
+                                if (data.errors.first_name) {
+                                    $('#first-name-error').html(data.errors.first_name[0]);
+                                }
+                                if (data.errors.last_name) {
+                                    $('#last-name-error').html(data.errors.last_name[0]);
+                                }
+                                if (data.errors.email) {
+                                    $('#email-error').html(data.errors.email[0]);
+                                }
+                                if (data.errors.password) {
+                                    $('#password-error').html(data.errors.password[0]);
+                                }
+
+                                var captcha = "g-recaptcha-response";
+                                if (data.errors[captcha]) {
+                                    $('#captcha-error').html(data.errors[captcha][0]);
+                                }
+                            }
+                            if (data.success) {
+                                
+                                $('#registerForm')[0].reset();
+
+                                
+                                const alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    ${ 'Registration is done successfully !' }
+                                </div>`;
+
+                                
+                                $('#registerForm').prepend(alertHtml);
+
+                                
+                                setTimeout(() => {
+                                    $('.alert').alert('close');
+                                }, 3000);
+
+                                
+                                if (data.redirect == 'back') {
+                                    location.reload();
+                                } else {
+                                    window.location.href = "{{ route('admin.dashboard') }}";
+                                }
+                            }
+
+                        }
+                    });
+                });
+            });
+
+        });
+    </script>
 @endpush
