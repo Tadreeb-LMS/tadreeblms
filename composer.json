@@ -27,7 +27,7 @@
         "hieu-le/active": "v8.0.0",
         "jenssegers/agent": "^2.6",
         "laravel/cashier": "^13.17",
-        "laravel/framework": "^8.0",
+        "laravel/framework": "^9.0",
         "laravel/helpers": "^1.4",
         "laravel/legacy-factories": "^1.1",
         "laravel/passport": "^10.0",
