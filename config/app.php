@@ -214,8 +214,8 @@ return [
         //Harimayco\Menu\MenuServiceProvider::class,
 
 
-        Barryvdh\TranslationManager\ManagerServiceProvider::class,
-        Barryvdh\DomPDF\ServiceProvider::class,
+        //Barryvdh\TranslationManager\ManagerServiceProvider::class,
+        //Barryvdh\DomPDF\ServiceProvider::class,
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
         BC\Laravel\DropboxDriver\ServiceProvider::class,
