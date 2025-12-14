@@ -6,7 +6,7 @@ use App\Mail\ResetPassword;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendEmailJob;
 use Carbon\Carbon;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+//use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +25,7 @@ use PHPMailer\PHPMailer\Exception;
  */
 class ForgotPasswordController extends Controller
 {
-    use SendsPasswordResetEmails;
+    //use SendsPasswordResetEmails;
 
     /**
      * Display the form to request a password reset link.
