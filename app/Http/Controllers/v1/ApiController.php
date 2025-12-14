@@ -52,7 +52,7 @@ use App\Repositories\Frontend\Auth\UserRepository;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Carbon\Carbon;
 use Harimayco\Menu\Models\MenuItems;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+//use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -79,7 +79,7 @@ use JWTAuth;
 class ApiController extends Controller
 {
     use FileUploadTrait;
-    use SendsPasswordResetEmails;
+    //use SendsPasswordResetEmails;
 
 
     public function __construct(UserRepository $userRepository)
