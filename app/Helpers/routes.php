@@ -80,8 +80,19 @@ if (!function_exists('app_name')) {
 
 
 if (!function_exists('contact_data')) {
-    function contact_data()
+    function contact_data(): array
     {
-        return config('contact_data');
+        $data = config('contact_data');
+
+        if (empty($data)) {
+            return [];
+        }
+
+        if (is_string($data)) {
+            $decoded = json_decode($data, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($data) ? $data : [];
     }
 }
