@@ -1,6 +1,12 @@
 @php
+    $contact_data = contact_data(); // ALWAYS defined
+
     if (is_string($contact_data)) {
-        $contact_data = json_decode($contact_data, true);
+        $contact_data = json_decode($contact_data, true) ?? [];
+    }
+
+    if (!is_array($contact_data)) {
+        $contact_data = [];
     }
 @endphp
 <section id="contact-area" class="contact-area-section backgroud-style">
