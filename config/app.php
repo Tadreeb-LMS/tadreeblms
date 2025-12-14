@@ -219,7 +219,7 @@ return [
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
         //BC\Laravel\DropboxDriver\ServiceProvider::class,
-        Mtownsend\ReadTime\Providers\ReadTimeServiceProvider::class,
+        //Mtownsend\ReadTime\Providers\ReadTimeServiceProvider::class,
 
 
         /*
