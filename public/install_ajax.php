@@ -92,7 +92,7 @@ try {
             foreach ($resetFiles as $file) if (file_exists($file)) @unlink($file);
 
             // PHP version
-            if (version_compare(PHP_VERSION, '8.4.0', '>=')) {
+            if (version_compare(PHP_VERSION, '8.2.0', '>=')) {
                 $msg .= "✔ PHP " . PHP_VERSION . " OK<br>";
             } else {
                 $msg .= "❌ PHP 8.4+ required, current: " . PHP_VERSION . "<br>";
