@@ -214,7 +214,7 @@ return [
         //Harimayco\Menu\MenuServiceProvider::class,
 
 
-        //Barryvdh\TranslationManager\ManagerServiceProvider::class,
+        Barryvdh\TranslationManager\ManagerServiceProvider::class,
         //Barryvdh\DomPDF\ServiceProvider::class,
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
