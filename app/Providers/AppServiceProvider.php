@@ -8,6 +8,8 @@ use App\Models\Locale;
 use App\Models\Blog;
 use App\Models\Config;
 use App\Models\Course;
+use App\Models\Menu\Menu;
+use App\Models\Menu\MenuItems;
 use App\Models\Slider;
 use Barryvdh\TranslationManager\Manager;
 use Barryvdh\TranslationManager\Models\Translation;
@@ -118,7 +120,7 @@ class AppServiceProvider extends ServiceProvider
             $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
                 ->orderBy('sort')
                 ->get();
-            $menu_name = Menus::find((int)config('nav_menu'));
+            $menu_name = Menu::find((int)config('nav_menu'));
             $menu_name = ($menu_name != NULL) ? $menu_name->name : NULL;
             $custom_menus = menuList($custom_menus);
             $max_depth = MenuItems::max('depth');
