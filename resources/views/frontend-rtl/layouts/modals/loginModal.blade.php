@@ -68,7 +68,7 @@
 
                             <span class="error-response text-danger"></span>
                             <span class="success-response text-success"></span>
-                            <form class="contact_form" id="loginForm" action="{{route('login')}}"
+                            <form class="contact_form" id="loginForm" action="{{route('frontend.auth.login')}}"
                                   method="POST" enctype="multipart/form-data">
                                 <!--a href="#" class="go-register float-left text-info pl-0">
                                     @lang('labels.frontend.modal.new_user_note')

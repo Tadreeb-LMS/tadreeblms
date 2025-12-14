@@ -85,7 +85,7 @@
                         <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
 
                         <form id="loginForm" class="contact_form"
-                              action="{{ route('login') }}"
+                              action="{{ route('frontend.auth.login') }}"
                               method="POST" enctype="multipart/form-data">
 
                             @csrf
@@ -338,7 +338,7 @@
 
                     $.ajax({
                         type: "GET",
-                        url: "{{route('login')}}",
+                        url: "{{route('frontend.auth.login')}}",
                         success: function (response) {
                             $('#socialLinks').html(response.socialLinks)
                             const $modal = $('#myModal');
@@ -361,7 +361,7 @@
                     //alert("hi")
                     $.ajax({
                         type: "GET",
-                        url: "{{route('register')}}",
+                        url: "{{route('frontend.auth.register')}}",
                         success: function (response) {
                             $('#socialLinks').html(response.socialLinks);
 
