@@ -9,11 +9,16 @@ class AddForeignKeyToFaqs extends Migration
     public function up()
     {
         Schema::table('faqs', function (Blueprint $table) {
-            // Ensure the column exists and is unsigned integer
+            // Ensure column exists and matches categories.id type
             if (!Schema::hasColumn('faqs', 'category_id')) {
                 $table->unsignedInteger('category_id');
+            } else {
+                // Drop existing column and recreate it if type mismatch
+                $table->dropColumn('category_id');
+                $table->unsignedInteger('category_id');
             }
-            // Add the foreign key
+
+            // Add foreign key
             $table->foreign('category_id')
                   ->references('id')
                   ->on('categories')
@@ -25,6 +30,7 @@ class AddForeignKeyToFaqs extends Migration
     {
         Schema::table('faqs', function (Blueprint $table) {
             $table->dropForeign(['category_id']);
+            $table->dropColumn('category_id');
         });
     }
 }
