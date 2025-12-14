@@ -12,8 +12,6 @@
         "yajra/laravel-datatables-oracle": "^9.0",
         "yajra/laravel-datatables-buttons": "^4.13",
         "yajra/laravel-datatables-html": "^4.41",
-        "macsidigital/laravel-zoom": "^5.0",
-        "harimayco/laravel-menu": "^2.0",
         "appstract/laravel-blade-directives": "^1.14"
     },
     "require-dev": {
