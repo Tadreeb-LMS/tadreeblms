@@ -202,7 +202,7 @@ return [
          * Package Service Providers that aren't auto-discover...
          */
         //UniSharp\LaravelFilemanager\LaravelFilemanagerServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
+        //\Image\ImageServiceProvider::class,
         Yajra\Datatables\DatatablesServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         Yajra\DataTables\ButtonsServiceProvider::class,
