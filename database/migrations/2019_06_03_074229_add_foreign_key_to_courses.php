@@ -6,28 +6,22 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddForeignKeyToCourses extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->integer('category_id')->unsigned()->change();
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            // Only add the foreign key without changing the column type
+            // Make sure the column is already integer and unsigned
+            $table->foreign('category_id')
+                ->references('id')
+                ->on('categories')
+                ->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->dropForeign('courses_category_id_foreign');
+            $table->dropForeign(['category_id']);
         });
     }
 }
