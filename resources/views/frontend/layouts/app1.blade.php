@@ -285,7 +285,7 @@
 
         @include('frontend.layouts.partials.footer')
 
-        @include('cookieConsent::index')
+        <x-cookie-consent />
     </div><!-- #app -->
 
     <!-- Scripts -->

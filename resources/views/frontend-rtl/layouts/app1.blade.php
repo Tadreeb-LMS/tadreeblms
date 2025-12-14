@@ -277,12 +277,11 @@
 
 
         @yield('content')
-        @include('cookieConsent::index')
-
+        
 
         @include('frontend.layouts.partials.footer')
 
-        @include('cookieConsent::index')
+        <x-cookie-consent />
 
     </div><!-- #app -->
 
