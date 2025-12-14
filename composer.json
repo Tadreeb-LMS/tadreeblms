@@ -30,11 +30,9 @@
         "laravel/socialite": "^5.1.1",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
-        "laravelcollective/html": "6.2.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "league/omnipay": "^3",
         "maatwebsite/excel": "^3.1",
-        "macsidigital/laravel-zoom": "^4.0",
         "madnest/madzipper": "^1.0",
         "mtownsend/read-time": "^2.0",
         "omnipay/paypal": "^3.0",
@@ -62,7 +60,7 @@
         "facade/ignition": "^2.3.6",
         "filp/whoops": "^2.14",
         "friendsofphp/php-cs-fixer": "^3.0",
-        "fzaninotto/faker": "^1.9",
+        "fakerphp/faker": "^1.21",
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^6.4",
         "phpunit/phpunit": "^9.5"
@@ -73,9 +71,7 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
-        "files": [
-            "app/helpers.php"
-        ]
+        "files": ["app/helpers.php"]
     },
     "autoload-dev": {
         "psr-4": {
