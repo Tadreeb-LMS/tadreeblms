@@ -136,7 +136,7 @@ try {
             if ($composerOutput && preg_match('/version\s+([0-9\.]+)/i', $composerOutput, $m)) {
                 $composerVersion = $m[1];
 
-                if ($composerVersion === '2.7.8') {
+                if ($composerVersion === '2.9.2') {
                     $msg .= "✔ Composer $composerVersion OK<br>";
                 } else {
                     $msg .= "❌ Composer EXACT 2.7.8 required, current: $composerVersion<br>";
