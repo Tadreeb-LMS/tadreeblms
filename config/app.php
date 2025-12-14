@@ -211,7 +211,7 @@ return [
         //Jenssegers\Agent\AgentServiceProvider::class,
         //Darryldecode\Cart\CartServiceProvider::class,
         //ConsoleTVs\Invoices\InvoicesServiceProvider::class,
-        Harimayco\Menu\MenuServiceProvider::class,
+        //Harimayco\Menu\MenuServiceProvider::class,
 
 
         Barryvdh\TranslationManager\ManagerServiceProvider::class,
