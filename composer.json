@@ -29,12 +29,12 @@
         "laravel/passport": "^10.0",
         "laravel/socialite": "^5.1.1",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.0",
-        "laravelcollective/html": "6.2.0",
-        "league/flysystem-aws-s3-v3": "^1.0",
+        "laravel/ui": "^3.4",
+        "laravelcollective/html": "^6.3",
+        "league/flysystem-aws-s3-v3": "^1.1",
         "league/omnipay": "^3",
         "maatwebsite/excel": "^3.1",
-        "macsidigital/laravel-zoom": "4.1.9",
+        "macsidigital/laravel-zoom": "^4.1.10",
         "madnest/madzipper": "^1.0",
         "mtownsend/read-time": "^2.0",
         "omnipay/paypal": "^3.0",
@@ -53,16 +53,16 @@
         "torann/geoip": "^3.0.1",
         "unisharp/laravel-filemanager": "^2.3",
         "yajra/laravel-datatables-buttons": "^4.13",
-        "yajra/laravel-datatables-oracle": "^9.0",
-        "yajra/laravel-datatables-html": "^4.41"
+        "yajra/laravel-datatables-oracle": "^9.20"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",
-        "barryvdh/laravel-ide-helper": "^2.4",
+        "barryvdh/laravel-ide-helper": "^2.10",
         "beyondcode/laravel-dump-server": "*",
-        "facade/ignition": "^2.3.6",
+        "facade/ignition": "^2.17",
         "filp/whoops": "^2.14",
         "friendsofphp/php-cs-fixer": "^3.0",
+        "fakerphp/faker": "^1.21",
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^6.4",
         "phpunit/phpunit": "^9.5"
@@ -119,9 +119,6 @@
         "optimize-autoloader": true,
         "allow-plugins": {
             "php-http/discovery": false
-        },
-        "audit": {
-            "block-insecure": false
         }
     }
 }
