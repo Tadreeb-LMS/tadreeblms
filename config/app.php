@@ -235,7 +235,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         //Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
-
+        Spatie\CookieConsent\CookieConsentServiceProvider::class,
     ],
 
     /*
