@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Menu;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,7 +32,7 @@ class Menu extends Model
      */
     public function items()
     {
-        return $this->hasMany(MenuItem::class, 'menu')
+        return $this->hasMany(MenuItems::class, 'menu')
             ->where('parent', 0)
             ->with('children')
             ->orderBy('sort', 'ASC');
