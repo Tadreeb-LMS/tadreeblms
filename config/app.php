@@ -208,7 +208,7 @@ return [
         Yajra\DataTables\ButtonsServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
 //        Gerardojbaez\Messenger\MessengerServiceProvider::class,
-        Jenssegers\Agent\AgentServiceProvider::class,
+        //Jenssegers\Agent\AgentServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
         //ConsoleTVs\Invoices\InvoicesServiceProvider::class,
         Harimayco\Menu\MenuServiceProvider::class,
