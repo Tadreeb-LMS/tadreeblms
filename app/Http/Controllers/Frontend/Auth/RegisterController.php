@@ -10,7 +10,7 @@ use App\Mail\Frontend\Auth\AdminRegistered;
 use App\Models\Auth\User;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Foundation\Auth\RegistersUsers;
+//use Illuminate\Foundation\Auth\RegistersUsers;
 use App\Repositories\Frontend\Auth\UserRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Frontend\Auth\Session;
@@ -31,7 +31,7 @@ use PHPMailer\PHPMailer\Exception;
  */
 class RegisterController extends Controller
 {
-    use RegistersUsers;
+    //use RegistersUsers;
 
     /**
      * @var UserRepository
