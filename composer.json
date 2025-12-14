@@ -43,7 +43,6 @@
         "razorpay/razorpay": "^2.5",
         "sendgrid/sendgrid": "~7",
         "simplesoftwareio/simple-qrcode": "^4.2",
-        "skyraptor/chatter": "^0.5.11",
         "spatie/laravel-backup": "^6.13",
         "spatie/laravel-cookie-consent": "^3.0",
         "spatie/laravel-newsletter": "^4.8.0",
