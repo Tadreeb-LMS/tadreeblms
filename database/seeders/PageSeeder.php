@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class PageSeeder extends Seeder
 {
@@ -20,13 +21,13 @@ Mauris posuere sem at arcu commodo lobortis. Suspendisse sollicitudin dapibus co
 imperdiet congue blandit. Cras quis tortor quis nunc porttitor pulvinar id id lacus. Curabitur dapibus augue orci. Praesent varius, dolor ut ultricies faucibus, ante nunc fringilla nulla, vitae egestas lorem erat eu libero. Praesent cursus tortor non gravida elementum. Praesent et arcu molestie, faucibus ligula sed, euismod urna. Praesent vitae orci metus. Nulla varius diam nec iaculis pulvinar. Sed mi enim, cursus nec urna a, interdum lobortis nisi.';
 
         foreach ($pagesTitles as $item){
-            $page = \App\Models\Page::where('slug','=',str_slug($item))->first();
+            $page = \App\Models\Page::where('slug','=',Str::slug($item))->first();
            $user_id = \App\Models\Auth\User::role('administrator')->first()->id;
             if($page == ""){
                 $page = new \App\Models\Page();
             }
             $page->title = $item;
-            $page->slug = str_slug($item);
+            $page->slug = Str::slug($item);
             $page->content = $content;
             $page->user_id = $user_id;
             $page->sidebar = 1;
