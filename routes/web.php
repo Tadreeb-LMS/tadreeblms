@@ -71,7 +71,7 @@ require_once "delta_academy_custom_routes.php";
  * Namespaces indicate folder structure
  */
 Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
-    include_route_files(__DIR__ . '/frontend/');
+    include __DIR__ . '/frontend/auth.php';
 });
 
 /*
