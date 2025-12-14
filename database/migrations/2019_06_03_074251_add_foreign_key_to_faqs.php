@@ -1,36 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 class AddForeignKeyToFaqs extends Migration
 {
     public function up()
     {
-        Schema::table('faqs', function (Blueprint $table) {
-            // Ensure column exists and matches categories.id type
-            if (!Schema::hasColumn('faqs', 'category_id')) {
-                $table->unsignedInteger('category_id');
-            } else {
-                // Drop existing column and recreate it if type mismatch
-                $table->dropColumn('category_id');
-                $table->unsignedInteger('category_id');
-            }
+        // Ensure the column is unsigned (using raw SQL to avoid DBAL)
+        DB::statement('ALTER TABLE faqs MODIFY category_id INT UNSIGNED');
 
-            // Add foreign key
-            $table->foreign('category_id')
-                  ->references('id')
-                  ->on('categories')
-                  ->onDelete('cascade');
-        });
+        // Add the foreign key, ignore if it already exists
+        $foreignKeys = DB::select("SELECT CONSTRAINT_NAME 
+                                   FROM information_schema.KEY_COLUMN_USAGE 
+                                   WHERE TABLE_NAME = 'faqs' 
+                                     AND COLUMN_NAME = 'category_id' 
+                                     AND CONSTRAINT_SCHEMA = DATABASE()");
+
+        if (empty($foreignKeys)) {
+            DB::statement('ALTER TABLE faqs ADD CONSTRAINT faqs_category_id_foreign FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE');
+        }
     }
 
     public function down()
     {
-        Schema::table('faqs', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
-            $table->dropColumn('category_id');
-        });
+        DB::statement('ALTER TABLE faqs DROP FOREIGN KEY IF EXISTS faqs_category_id_foreign');
     }
 }
