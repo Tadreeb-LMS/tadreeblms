@@ -85,7 +85,7 @@
                         <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
 
                         <form id="loginForm" class="contact_form"
-                              action="{{ route('frontend.auth.login') }}"
+                              action="{{ route('frontend.auth.login.post') }}"
                               method="POST" enctype="multipart/form-data">
 
                             @csrf
