@@ -32,6 +32,9 @@
         }
     },
     "autoload": {
+        "files": [
+            "app/Helpers/routes.php"
+        ],
         "psr-4": {
             "App\\": "app/"
         },
