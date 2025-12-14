@@ -218,7 +218,7 @@ return [
         //Barryvdh\DomPDF\ServiceProvider::class,
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        BC\Laravel\DropboxDriver\ServiceProvider::class,
+        //BC\Laravel\DropboxDriver\ServiceProvider::class,
         Mtownsend\ReadTime\Providers\ReadTimeServiceProvider::class,
 
 
