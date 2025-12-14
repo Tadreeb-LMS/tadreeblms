@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\Frontend\Auth\Socialite;
 use App\Events\Frontend\Auth\UserLoggedIn;
 use App\Events\Frontend\Auth\UserLoggedOut;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+//use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\App;
  */
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
+    //use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login.
