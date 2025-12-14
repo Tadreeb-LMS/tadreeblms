@@ -285,6 +285,7 @@
 
         @include('frontend.layouts.partials.footer')
 
+        @include('cookieConsent::index')
     </div><!-- #app -->
 
     <!-- Scripts -->
@@ -366,7 +367,7 @@
             {!! config('custom_js') !!}
         </script>
     @endif
-    @include('cookieConsent::index')    
+        
 </body>
 
 </html>
