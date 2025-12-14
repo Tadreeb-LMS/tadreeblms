@@ -31,7 +31,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-use Spatie\Permission\Traits\HasRoles;
+//use Spatie\Permission\Traits\HasRoles;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,8 +49,7 @@ use App\Models\Auth\Traits\Relationship\UserRelationship;
  */
 class User extends Authenticatable
 {
-    use HasRoles,
-        Notifiable,
+    use Notifiable,
         SendUserPasswordReset,
         SoftDeletes,
         UserAttribute,
