@@ -1,5 +1,8 @@
 <?php
+
 use Illuminate\Support\Collection;
+
+use App\Models\Currency;
 
 if (!function_exists('include_route_files')) {
     /**
@@ -55,3 +58,15 @@ if (!function_exists('menuList')) {
     }
 }
 
+
+if (!function_exists('getCurrency')) {
+    if (!function_exists('getCurrency')) {
+
+        function getCurrency(?string $code = null): ?array
+        {
+            $code = $code ?: config('currency.default');
+
+            return config("currency.list.$code");
+        }
+    }
+}
