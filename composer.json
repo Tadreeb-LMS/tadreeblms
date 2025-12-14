@@ -30,11 +30,11 @@
         "laravel/socialite": "^5.1.1",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
-        "laravelcollective/html": "^6.2",
+        "laravelcollective/html": "6.2.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "league/omnipay": "^3",
         "maatwebsite/excel": "^3.1",
-        "macsidigital/laravel-zoom": "^4.0",
+        "macsidigital/laravel-zoom": "^4.1",
         "madnest/madzipper": "^1.0",
         "mtownsend/read-time": "^2.0",
         "omnipay/paypal": "^3.0",
@@ -47,6 +47,7 @@
         "skyraptor/chatter": "^0.5.11",
         "spatie/laravel-backup": "^6.13",
         "spatie/laravel-cookie-consent": "^3.0",
+        "spatie/laravel-html": "^2.30",
         "spatie/laravel-newsletter": "^4.8.0",
         "spatie/laravel-permission": "^5.5",
         "torann/geoip": "^3.0.1",
@@ -115,6 +116,9 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true,
+        "platform": {
+            "php": "8.1.0"
+        },
         "allow-plugins": {
             "php-http/discovery": false
         },
