@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Collection;
 
 if (!function_exists('include_route_files')) {
     /**
@@ -28,3 +29,29 @@ if (!function_exists('include_route_files')) {
         }
     }
 }
+
+
+
+
+
+if (!function_exists('menuList')) {
+    function menuList(Collection $items, int $parent = 0): array
+    {
+        $menu = [];
+
+        foreach ($items as $item) {
+            if ((int)$item->parent === $parent) {
+                $children = menuList($items, $item->id);
+
+                if ($children) {
+                    $item->children = $children;
+                }
+
+                $menu[] = $item;
+            }
+        }
+
+        return $menu;
+    }
+}
+
