@@ -30,7 +30,7 @@
         "laravel/socialite": "^5.1.1",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
-        "laravelcollective/html": "6.2.0",
+        "laravelcollective/html": "^6.3",
         "league/flysystem-aws-s3-v3": "^1.0",
         "league/omnipay": "^3",
         "maatwebsite/excel": "^3.1",
