@@ -29,12 +29,12 @@
         "laravel/passport": "^10.0",
         "laravel/socialite": "^5.1.1",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.0",
-        "laravelcollective/html": "^6.3",
-        "league/flysystem-aws-s3-v3": "^1.0",
+        "laravel/ui": "^3.4",
+        "laravelcollective/html": "^7.0",
+        "league/flysystem-aws-s3-v3": "^1.1",
         "league/omnipay": "^3",
         "maatwebsite/excel": "^3.1",
-        "macsidigital/laravel-zoom": "^4.1",
+        "macsidigital/laravel-zoom": "^4.1.10",
         "madnest/madzipper": "^1.0",
         "mtownsend/read-time": "^2.0",
         "omnipay/paypal": "^3.0",
@@ -47,7 +47,7 @@
         "skyraptor/chatter": "^0.5.11",
         "spatie/laravel-backup": "^6.13",
         "spatie/laravel-cookie-consent": "^3.0",
-        "spatie/laravel-html": "^2.30",
+        "spatie/laravel-html": "^3.0",
         "spatie/laravel-newsletter": "^4.8.0",
         "spatie/laravel-permission": "^5.5",
         "torann/geoip": "^3.0.1",
@@ -62,6 +62,7 @@
         "facade/ignition": "^2.3.6",
         "filp/whoops": "^2.14",
         "friendsofphp/php-cs-fixer": "^3.0",
+        "fakerphp/faker": "^1.24",
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^6.4",
         "phpunit/phpunit": "^9.5"
@@ -118,6 +119,9 @@
         "optimize-autoloader": true,
         "allow-plugins": {
             "php-http/discovery": false
+        },
+        "platform": {
+            "php": "8.3.28"
         },
         "audit": {
             "block-insecure": false
