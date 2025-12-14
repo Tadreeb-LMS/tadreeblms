@@ -1,87 +1,38 @@
 {
-    "name": "rappasoft/laravel-5-boilerplate",
-    "description": "The Laravel Boilerplate Project.",
-    "keywords": ["framework", "laravel", "boilerplate"],
-    "license": "MIT",
+    "name": "yourname/tadreeblms",
     "type": "project",
+    "description": "Tadreeb LMS",
     "require": {
         "php": "^8.0",
-        "appstract/laravel-blade-directives": "^1.14.0",
-        "barryvdh/laravel-dompdf": "^2.0",
-        "barryvdh/laravel-translation-manager": "^0.6.0",
-        "benjamincrozat/laravel-dropbox-driver": "^2.0",
-        "coderello/laravel-passport-social-grant": "^3.0.2",
-        "creativeorange/gravatar": "~1.0.20",
-        "darryldecode/cart": "~4.2.0",
-        "davejamesmiller/laravel-breadcrumbs": "5.3.2",
-        "divineomega/laravel-password-exposed-validation-rule": "^2.3.0",
-        "doctrine/dbal": "^3.4",
-        "dompdf/dompdf": "^2.0",
-        "fideloper/proxy": "^4.4",
-        "guzzlehttp/guzzle": "^7.0.1",
-        "harimayco/laravel-menu": "^1.4.5",
-        "hashids/hashids": "^4.1.0",
-        "jenssegers/agent": "^2.6",
-        "laravel/cashier": "^13.17",
         "laravel/framework": "^9.52",
-        "laravel/helpers": "^1.4",
-        "laravel/legacy-factories": "^1.1",
-        "laravel/passport": "^10.0",
-        "laravel/socialite": "^5.1.1",
-        "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.0",
-        "laravelcollective/html": "^6.2",
-        "league/flysystem-aws-s3-v3": "^1.0",
-        "maatwebsite/excel": "^3.1",
-        "macsidigital/laravel-zoom": "^4.1",
-        "madnest/madzipper": "^1.0",
-        "mtownsend/read-time": "^2.0",
-        "omnipay/paypal": "^3.0",
-        "omnipay/stripe": "^3.1",
-        "paragonie/certainty": "^2",
-        "phpmailer/phpmailer": "^6.9",
-        "razorpay/razorpay": "^2.5",
-        "sendgrid/sendgrid": "~7",
-        "simplesoftwareio/simple-qrcode": "^4.2",
-        "spatie/laravel-backup": "^6.13",
-        "spatie/laravel-cookie-consent": "^3.0",
-        "spatie/laravel-newsletter": "^4.8.0",
-        "spatie/laravel-permission": "^5.5",
-        "torann/geoip": "^3.0.1",
-        "unisharp/laravel-filemanager": "^2.3",
+        "laravel/sanctum": "^3.2",
+        "laravel/tinker": "^2.8",
+        "guzzlehttp/guzzle": "^7.7",
+        "spatie/laravel-permission": "^6.0",
+        "yajra/laravel-datatables-oracle": "^9.21",
         "yajra/laravel-datatables-buttons": "^4.13",
-        "yajra/laravel-datatables-oracle": "^9.0"
+        "yajra/laravel-datatables-html": "^4.41",
+        "macsidigital/laravel-zoom": "^5.0",
+        "barryvdh/laravel-dompdf": "^1.2",
+        "spatie/laravel-activitylog": "^4.4"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.7",
-        "barryvdh/laravel-ide-helper": "^2.4",
-        "beyondcode/laravel-dump-server": "*",
-        "facade/ignition": "^2.3.6",
-        "filp/whoops": "^2.14",
-        "friendsofphp/php-cs-fixer": "^3.0",
-        "fzaninotto/faker": "^1.9",
-        "mockery/mockery": "^1.5",
-        "nunomaduro/collision": "^6.4",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^10.2",
+        "fakerphp/faker": "^1.22",
+        "nunomaduro/collision": "^7.5"
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
-            "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "App\\": "app/"
         },
-        "files": [
-            "app/helpers.php"
+        "classmap": [
+            "database/seeders",
+            "database/factories"
         ]
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "dont-discover": []
         }
     },
     "scripts": {
@@ -94,29 +45,16 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
-        ],
-        "clear-all": [
-            "@php artisan clear-compiled",
-            "@php artisan cache:clear",
-            "@php artisan route:clear",
-            "@php artisan view:clear",
-            "@php artisan config:clear",
-            "composer dumpautoload -o"
-        ],
-        "cache-all": [
-            "@php artisan config:cache",
-            "@php artisan route:cache"
         ]
     },
     "config": {
+        "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true,
-        "allow-plugins": {
-            "php-http/discovery": false
-        },
-        "audit": {
-            "block-insecure": false
+        "platform": {
+            "php": "8.3.28"
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
