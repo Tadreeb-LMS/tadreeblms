@@ -31,10 +31,9 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
         "laravelcollective/html": "^6.2",
-        "league/flysystem-aws-s3-v3": "^1.1",
-        "league/omnipay": "^3",
+        "league/flysystem-aws-s3-v3": "^1.0",
         "maatwebsite/excel": "^3.1",
-        "macsidigital/laravel-zoom": "dev-master",
+        "macsidigital/laravel-zoom": "^4.1",
         "madnest/madzipper": "^1.0",
         "mtownsend/read-time": "^2.0",
         "omnipay/paypal": "^3.0",
@@ -53,7 +52,7 @@
         "torann/geoip": "^3.0.1",
         "unisharp/laravel-filemanager": "^2.3",
         "yajra/laravel-datatables-buttons": "^4.13",
-        "yajra/laravel-datatables-oracle": "~9.0"
+        "yajra/laravel-datatables-oracle": "^9.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",
@@ -96,8 +95,6 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan ide-helper:generate",
-            "@php artisan ide-helper:meta",
             "@php artisan package:discover --ansi"
         ],
         "clear-all": [
@@ -120,6 +117,8 @@
         "allow-plugins": {
             "php-http/discovery": false
         },
-        "block-insecure": false
+        "audit": {
+            "block-insecure": false
+        }
     }
 }
