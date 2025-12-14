@@ -39,7 +39,7 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
     //======= External Courses =======/
-    Route::get('payments', ['uses' => 'PaymentController@index', 'as' => 'admin.externalcourses.index']);
+    //Route::get('payments', ['uses' => 'PaymentController@index', 'as' => 'admin.externalcourses.index']);
 
 });
 
