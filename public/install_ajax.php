@@ -143,7 +143,7 @@ try {
             }
 
             // Extensions
-            $exts = ['pdo','pdo_mysql','openssl','mbstring','tokenizer','xml','ctype','json','bcmath','curl','gd','zip'];
+            $exts = ['pdo', 'pdo_mysql', 'openssl', 'mbstring', 'tokenizer', 'xml', 'ctype', 'json', 'bcmath', 'curl', 'gd', 'zip'];
             foreach ($exts as $e) {
                 if (!extension_loaded($e)) {
                     $msg .= "❌ Missing extension: $e<br>";
@@ -153,7 +153,7 @@ try {
 
             // Composer version
             $composerVersion = trim(shell_exec("$phpBin $composerBin --version 2>&1"));
-            if (strpos($composerVersion, '2.7') !== false) {
+            if (strpos($composerVersion, '2.7.8') !== false) {
                 $msg .= "✔ Composer $composerVersion OK<br>";
             } else {
                 $msg .= "❌ Composer 2.7 required, found $composerVersion<br>";
@@ -165,7 +165,7 @@ try {
             echo json_encode(['success' => true, 'message' => $msg . "✔ All requirements OK", 'next' => 'composer']);
             exit;
 
-        /*
+            /*
         | COMPOSER INSTALL
         */
         case 'composer':
@@ -173,7 +173,8 @@ try {
                 fail("Permission issue. Run:<br><pre>sudo chown -R \$USER:www-data $basePath\nsudo chmod -R 775 $basePath</pre>");
             }
 
-            $cmd = "$phpBin $composerBin install --no-interaction --prefer-dist 2>&1";
+            // Use PHP 8.2 + Composer 2.7 with HOME and COMPOSER_HOME
+            $cmd = "cd \"$basePath\" && COMPOSER_HOME=/tmp HOME=/tmp $phpBin $composerBin install --no-interaction --prefer-dist 2>&1";
             $output = shell_exec($cmd);
 
             if (!vendorExists($basePath)) {
@@ -183,14 +184,15 @@ try {
             echo json_encode(['success' => true, 'message' => "✔ Dependencies installed", 'next' => 'db_config']);
             exit;
 
-        /*
+
+            /*
         | DB CONFIG FORM
         */
         case 'db_config':
             echo json_encode(['message' => 'Please enter database info', 'show_db_form' => true, 'next' => 'env']);
             exit;
 
-        /*
+            /*
         | ENV SETUP
         */
         case 'env':
@@ -202,73 +204,71 @@ try {
             if (!is_writable($envFile)) fail(".env not writable. Run: sudo chown \$USER:www-data $envFile && sudo chmod 664 $envFile");
 
             $env = file_get_contents($envFile);
-            $env = preg_replace('/DB_HOST=.*/', 'DB_HOST='.$config['host'], $env);
-            $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE='.$config['database'], $env);
-            $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME='.$config['username'], $env);
-            $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="'.$config['password'].'"', $env);
+            $env = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $config['host'], $env);
+            $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=' . $config['database'], $env);
+            $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME=' . $config['username'], $env);
+            $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="' . $config['password'] . '"', $env);
             file_put_contents($envFile, $env);
 
             echo json_encode(['message' => '.env created ✔', 'next' => 'key']);
             exit;
 
-        /*
+            /*
         | APP KEY
         */
         case 'key':
             blockIfNoVendor($basePath);
             exec("$phpBin \"$basePath/artisan\" key:generate --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("APP_KEY generation failed:\n".implode("\n",$out));
+            if ($ret !== 0) fail("APP_KEY generation failed:\n" . implode("\n", $out));
             echo json_encode(['message' => '✔ APP_KEY generated', 'next' => 'migrate']);
             exit;
 
-        /*
+            /*
         | MIGRATE
         */
         case 'migrate':
             blockIfNoVendor($basePath);
             exec("$phpBin \"$basePath/artisan\" migrate --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("Migration failed:\n".implode("\n",$out));
+            if ($ret !== 0) fail("Migration failed:\n" . implode("\n", $out));
             file_put_contents($migrationDoneFile, 'done');
             echo json_encode(['message' => '✔ Migrations completed', 'next' => 'seed']);
             exit;
 
-        /*
+            /*
         | SEED
         */
         case 'seed':
             blockIfNoVendor($basePath);
             exec("$phpBin \"$basePath/artisan\" db:seed --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("Seeding failed:\n".implode("\n",$out));
+            if ($ret !== 0) fail("Seeding failed:\n" . implode("\n", $out));
             file_put_contents($seedDoneFile, 'done');
             echo json_encode(['message' => '✔ Database seeded', 'next' => 'permissions']);
             exit;
 
-        /*
+            /*
         | PERMISSIONS
         */
         case 'permissions':
-            foreach (['storage','bootstrap/cache'] as $dir) {
+            foreach (['storage', 'bootstrap/cache'] as $dir) {
                 if (!is_writable("$basePath/$dir")) fail("$dir is not writable");
             }
             echo json_encode(['message' => '✔ Permissions OK', 'next' => 'finish']);
             exit;
 
-        /*
+            /*
         | FINISH
         */
         case 'finish':
-            file_put_contents($installedFlag,'installed');
+            file_put_contents($installedFlag, 'installed');
             $env = file_get_contents($envFile);
-            if (!str_contains($env,'APP_INSTALLED=true')) $env .= "\nAPP_INSTALLED=true\n";
+            if (!str_contains($env, 'APP_INSTALLED=true')) $env .= "\nAPP_INSTALLED=true\n";
             file_put_contents($envFile, $env);
-            echo json_encode(['message'=>"✔ Installation complete! <a href='/'>Open Application</a>", 'next'=>null]);
+            echo json_encode(['message' => "✔ Installation complete! <a href='/'>Open Application</a>", 'next' => null]);
             exit;
 
         default:
             fail("Invalid step");
-
     }
-
 } catch (Throwable $e) {
     fail($e->getMessage());
 }
