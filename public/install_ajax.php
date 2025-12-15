@@ -376,7 +376,7 @@ sudo chmod 664 $envFile
         default:
             fail("Invalid step");
 
-    }
+    } 
 
 } catch (Throwable $e) {
     fail($e->getMessage());
