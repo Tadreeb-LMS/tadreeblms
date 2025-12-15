@@ -44,6 +44,21 @@ function nextStep($current)
     return $steps[$i + 1] ?? 'finish';
 }
 
+function checkPermissions(array $paths)
+{
+    $errors = [];
+
+    foreach ($paths as $path) {
+        if (!file_exists($path)) {
+            $errors[] = "$path does not exist";
+        } elseif (!is_writable($path)) {
+            $errors[] = "$path is not writable";
+        }
+    }
+
+    return $errors;
+}
+
 // --------------------
 // Get step
 // --------------------
@@ -133,7 +148,7 @@ try {
             if ($composerOutput && preg_match('/version\s+([0-9\.]+)/i', $composerOutput, $m)) {
                 $composerVersion = $m[1];
 
-                if ($composerVersion === '2.7.8') {
+                if ($composerVersion == '2.7.8') {
                     $msg .= "✔ Composer $composerVersion OK<br>";
                 } else {
                     $msg .= "❌ Composer EXACT 2.7.8 required, current: $composerVersion<br>";
@@ -159,6 +174,29 @@ try {
         case 'composer':
             ini_set('max_execution_time', 3000);
             ini_set('memory_limit', '2G');
+
+            $permissionErrors = checkPermissions([
+                $basePath,
+                $basePath . '/composer.lock',
+                $basePath . '/vendor'
+            ]);
+
+            if ($permissionErrors) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "
+                    ❌ Permission issue detected<br><br>
+                    <strong>Please run the following command on your server:</strong><br>
+                    <pre>
+                    sudo chown -R \$USER:www-data $basePath
+                    sudo chmod -R 775 $basePath
+                    </pre>
+                    Then click <b>Retry</b>.",
+                    'show_db_form' => false,
+                    'next' => $step
+                ]);
+                exit;
+            }
 
             $projectPath = $basePath;
             $composerCmd = '/usr/local/bin/composer';
@@ -215,6 +253,22 @@ try {
 
             $envExample = $basePath . '/.env.example';
             if (!file_exists($envExample)) fail(".env.example not found");
+
+            if (!file_exists($envFile) || !is_readable($envFile) || !is_writable($envFile)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "
+                    ❌ <strong>.env permission issue</strong><br><br>
+                    Please run:<br>
+                    <pre>
+                    sudo chown \$USER:www-data $envFile
+                    sudo chmod 664 $envFile
+                    </pre>
+                    Then retry.",
+                    'show_db_form' => false
+                ]);
+                exit;
+            }
 
             $env = file_get_contents($envExample);
             $env = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $config['host'], $env);
