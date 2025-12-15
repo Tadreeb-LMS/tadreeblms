@@ -21,7 +21,7 @@ $installedFlag     = $basePath . '/installed';
 
 /*
 |--------------------------------------------------------------------------
-| Prevent reinstall
+| Block reinstall
 |--------------------------------------------------------------------------
 */
 if (file_exists($installedFlag) && ($_GET['step'] ?? '') !== 'check') {
@@ -34,46 +34,31 @@ if (file_exists($installedFlag) && ($_GET['step'] ?? '') !== 'check') {
 | Helpers
 |--------------------------------------------------------------------------
 */
-function fail($msg)
-{
+function fail($msg) {
     echo json_encode(['success' => false, 'message' => "❌ $msg", 'show_db_form' => false]);
     exit;
 }
 
-function nextStep($current)
-{
-    $steps = ["check", "composer", "db_config", "env", "key", "migrate", "seed", "permissions", "finish"];
+function nextStep($current) {
+    $steps = ["check","composer","db_config","env","key","migrate","seed","permissions","finish"];
     $i = array_search($current, $steps);
-    return $steps[$i + 1] ?? null;
+    return $steps[$i+1] ?? null;
 }
 
-function vendorExists($basePath)
-{
+function vendorExists($basePath) {
     return file_exists($basePath . '/vendor/autoload.php');
 }
 
-function blockIfNoVendor($basePath)
-{
+function blockIfNoVendor($basePath) {
     if (!vendorExists($basePath)) {
         echo json_encode([
             'success' => false,
-            'message' => "❌ Dependencies not installed.<br><pre>composer install</pre>",
+            'message' => "❌ Dependencies not installed. Run 'composer install' in Docker and retry.",
             'next' => 'composer'
         ]);
         exit;
     }
 }
-
-/*
-|--------------------------------------------------------------------------
-| PHP & Composer Binaries
-|--------------------------------------------------------------------------
-*/
-$phpBin = trim(shell_exec('which php8.2'));  // <-- ensure PHP 8.2 is installed
-if (!$phpBin) fail("PHP 8.2 CLI not found. Please install php8.2-cli");
-
-$composerBin = '/usr/local/bin/composer'; // adjust if composer 2.7 is installed elsewhere
-if (!file_exists($composerBin)) fail("Composer not found at $composerBin");
 
 /*
 |--------------------------------------------------------------------------
@@ -84,17 +69,17 @@ $step = $_REQUEST['step'] ?? 'check';
 
 /*
 |--------------------------------------------------------------------------
-| Handle DB Config Save
+| Save DB Config
 |--------------------------------------------------------------------------
 */
 if ($step === 'db_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db_host     = trim($_POST['db_host'] ?? '');
+    $db_host = trim($_POST['db_host'] ?? '');
     $db_database = trim($_POST['db_database'] ?? '');
     $db_username = trim($_POST['db_username'] ?? '');
     $db_password = $_POST['db_password'] ?? '';
 
     if ($db_host === '' || $db_database === '' || $db_username === '') {
-        echo json_encode(['success' => false, 'message' => '❌ All database fields are required', 'show_db_form' => true]);
+        echo json_encode(['success' => false,'message' => '❌ All database fields are required','show_db_form' => true]);
         exit;
     }
 
@@ -105,7 +90,7 @@ if ($step === 'db_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         'password' => $db_password
     ], JSON_PRETTY_PRINT));
 
-    echo json_encode(['success' => true, 'message' => '✔ Database configuration saved', 'show_db_form' => false, 'next' => 'env']);
+    echo json_encode(['success' => true,'message' => '✔ Database configuration saved','show_db_form' => false,'next' => 'env']);
     exit;
 }
 
@@ -115,12 +100,8 @@ if ($step === 'db_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 |--------------------------------------------------------------------------
 */
 try {
-
     switch ($step) {
 
-        /*
-        | CHECK SYSTEM
-        */
         case 'check':
             @unlink($envFile);
             @unlink($dbConfigFile);
@@ -130,20 +111,14 @@ try {
             $msg = "<strong>Checking system requirements...</strong><br>";
             $ok = true;
 
-            // PHP version
-            $version = trim(shell_exec("$phpBin -v"));
-            preg_match('/PHP\s+([0-9\.]+)/', $version, $matches);
-            $phpVer = $matches[1] ?? 'unknown';
-
-            if (version_compare($phpVer, '8.2.0', '>=')) {
-                $msg .= "✔ PHP $phpVer OK (8.2.x)<br>";
+            if (version_compare(PHP_VERSION, '8.2.0', '>=')) {
+                $msg .= "✔ PHP " . PHP_VERSION . " OK (8.2.x)<br>";
             } else {
-                $msg .= "❌ PHP 8.2+ required, found $phpVer<br>";
+                $msg .= "❌ PHP 8.2+ required<br>";
                 $ok = false;
             }
 
-            // Extensions
-            $exts = ['pdo', 'pdo_mysql', 'openssl', 'mbstring', 'tokenizer', 'xml', 'ctype', 'json', 'bcmath', 'curl', 'gd', 'zip'];
+            $exts = ['pdo','pdo_mysql','openssl','mbstring','tokenizer','xml','ctype','json','bcmath','curl','gd','zip'];
             foreach ($exts as $e) {
                 if (!extension_loaded($e)) {
                     $msg .= "❌ Missing extension: $e<br>";
@@ -151,123 +126,100 @@ try {
                 }
             }
 
-            // Composer version
-            $composerVersion = trim(shell_exec("$phpBin $composerBin --version 2>&1"));
-            if (strpos($composerVersion, '2.7.8') !== false) {
-                $msg .= "✔ Composer $composerVersion OK<br>";
-            } else {
-                $msg .= "❌ Composer 2.7 required, found $composerVersion<br>";
+            // Composer version check (inside Docker)
+            $composerVersion = shell_exec("docker exec laravel_app composer --version 2>&1");
+            if (!$composerVersion) {
+                $msg .= "❌ Composer not found in Docker<br>";
                 $ok = false;
+            } else {
+                $msg .= "✔ $composerVersion<br>";
             }
 
             if (!$ok) fail($msg . "<br>Fix errors and reload");
 
-            echo json_encode(['success' => true, 'message' => $msg . "✔ All requirements OK", 'next' => 'composer']);
+            echo json_encode(['success'=>true,'message'=>$msg . "✔ All requirements OK",'next'=>'composer']);
             exit;
 
-            /*
-        | COMPOSER INSTALL
-        */
         case 'composer':
             if (!is_writable($basePath)) {
-                fail("Permission issue. Run:<br><pre>sudo chown -R \$USER:www-data $basePath\nsudo chmod -R 775 $basePath</pre>");
+                fail("Permission issue detected. Run: sudo chown -R \$USER:www-data $basePath && sudo chmod -R 775 $basePath");
             }
 
-            // Use PHP 8.2 + Composer 2.7 with HOME and COMPOSER_HOME
-            $cmd = "cd \"$basePath\" && COMPOSER_HOME=/tmp HOME=/tmp $phpBin $composerBin install --no-interaction --prefer-dist 2>&1";
+            $cmd = "docker exec laravel_app composer install --no-interaction --prefer-dist 2>&1";
             $output = shell_exec($cmd);
 
             if (!vendorExists($basePath)) {
                 fail("Composer failed:<br><pre>$output</pre>");
             }
 
-            echo json_encode(['success' => true, 'message' => "✔ Dependencies installed", 'next' => 'db_config']);
+            echo json_encode(['success'=>true,'message'=>"✔ Dependencies installed",'next'=>'db_config']);
             exit;
 
-
-            /*
-        | DB CONFIG FORM
-        */
         case 'db_config':
-            echo json_encode(['message' => 'Please enter database info', 'show_db_form' => true, 'next' => 'env']);
+            echo json_encode(['message'=>'Please enter database info','show_db_form'=>true,'next'=>'env']);
             exit;
 
-            /*
-        | ENV SETUP
-        */
         case 'env':
             if (!file_exists($dbConfigFile)) fail("DB config missing");
-            $config = json_decode(file_get_contents($dbConfigFile), true);
 
+            $config = json_decode(file_get_contents($dbConfigFile), true);
             if (!file_exists($basePath . '/.env.example')) fail(".env.example not found");
+
             if (!file_exists($envFile)) copy($basePath . '/.env.example', $envFile);
+
             if (!is_writable($envFile)) fail(".env not writable. Run: sudo chown \$USER:www-data $envFile && sudo chmod 664 $envFile");
 
             $env = file_get_contents($envFile);
-            $env = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $config['host'], $env);
-            $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=' . $config['database'], $env);
-            $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME=' . $config['username'], $env);
-            $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="' . $config['password'] . '"', $env);
+            $env = preg_replace('/DB_HOST=.*/', 'DB_HOST='.$config['host'], $env);
+            $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE='.$config['database'], $env);
+            $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME='.$config['username'], $env);
+            $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="'.$config['password'].'"', $env);
             file_put_contents($envFile, $env);
 
-            echo json_encode(['message' => '.env created ✔', 'next' => 'key']);
+            echo json_encode(['message'=>'.env created ✔','next'=>'key']);
             exit;
 
-            /*
-        | APP KEY
-        */
         case 'key':
             blockIfNoVendor($basePath);
-            exec("$phpBin \"$basePath/artisan\" key:generate --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("APP_KEY generation failed:\n" . implode("\n", $out));
-            echo json_encode(['message' => '✔ APP_KEY generated', 'next' => 'migrate']);
+            exec("docker exec laravel_app php artisan key:generate --force 2>&1", $out, $ret);
+            if ($ret !== 0) fail(implode("\n", $out));
+            echo json_encode(['message'=>'✔ APP_KEY generated','next'=>'migrate']);
             exit;
 
-            /*
-        | MIGRATE
-        */
         case 'migrate':
             blockIfNoVendor($basePath);
-            exec("$phpBin \"$basePath/artisan\" migrate --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("Migration failed:\n" . implode("\n", $out));
-            file_put_contents($migrationDoneFile, 'done');
-            echo json_encode(['message' => '✔ Migrations completed', 'next' => 'seed']);
+            exec("docker exec laravel_app php artisan migrate --force 2>&1", $out, $ret);
+            if ($ret !== 0) fail(implode("\n", $out));
+            file_put_contents($migrationDoneFile,'done');
+            echo json_encode(['message'=>'✔ Migrations completed','next'=>'seed']);
             exit;
 
-            /*
-        | SEED
-        */
         case 'seed':
             blockIfNoVendor($basePath);
-            exec("$phpBin \"$basePath/artisan\" db:seed --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("Seeding failed:\n" . implode("\n", $out));
-            file_put_contents($seedDoneFile, 'done');
-            echo json_encode(['message' => '✔ Database seeded', 'next' => 'permissions']);
+            exec("docker exec laravel_app php artisan db:seed --force 2>&1", $out, $ret);
+            if ($ret !== 0) fail(implode("\n", $out));
+            file_put_contents($seedDoneFile,'done');
+            echo json_encode(['message'=>'✔ Database seeded','next'=>'permissions']);
             exit;
 
-            /*
-        | PERMISSIONS
-        */
         case 'permissions':
-            foreach (['storage', 'bootstrap/cache'] as $dir) {
+            foreach (['storage','bootstrap/cache'] as $dir) {
                 if (!is_writable("$basePath/$dir")) fail("$dir is not writable");
             }
-            echo json_encode(['message' => '✔ Permissions OK', 'next' => 'finish']);
+            echo json_encode(['message'=>'✔ Permissions OK','next'=>'finish']);
             exit;
 
-            /*
-        | FINISH
-        */
         case 'finish':
-            file_put_contents($installedFlag, 'installed');
+            file_put_contents($installedFlag,'installed');
             $env = file_get_contents($envFile);
-            if (!str_contains($env, 'APP_INSTALLED=true')) $env .= "\nAPP_INSTALLED=true\n";
-            file_put_contents($envFile, $env);
-            echo json_encode(['message' => "✔ Installation complete! <a href='/'>Open Application</a>", 'next' => null]);
+            if (!str_contains($env,'APP_INSTALLED=')) $env .= "\nAPP_INSTALLED=true\n";
+            file_put_contents($envFile,$env);
+            echo json_encode(['message'=>"✔ Installation complete! <a href='/'>Open Application</a>",'next'=>null]);
             exit;
 
         default:
             fail("Invalid step");
+
     }
 } catch (Throwable $e) {
     fail($e->getMessage());
