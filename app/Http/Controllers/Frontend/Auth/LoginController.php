@@ -14,22 +14,16 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Illuminate\Support\Facades\Cache;
 use Session;
 use Illuminate\Support\Facades\App;
 
-/**
- * Class LoginController.
- */
 class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login.
-     *
-     * @return string
      */
     public function redirectPath()
     {
@@ -37,143 +31,145 @@ class LoginController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * Show login form with simple captcha
      */
     public function showLoginForm()
     {
-        if(request()->ajax()){
-            return ['socialLinks' => (new Socialite)->getSocialLinks()];
+        $a = rand(1, 9);
+        $b = rand(1, 9);
+
+        Session::put('captcha_answer', $a + $b);
+
+        if (request()->ajax()) {
+            return [
+                'socialLinks' => (new Socialite)->getSocialLinks(),
+                'captcha_question' => "$a + $b = ?"
+            ];
         }
 
-        return redirect('/')->with('show_login', true);
+        return redirect('/')->with([
+            'show_login' => true,
+            'captcha_question' => "$a + $b = ?"
+        ]);
     }
 
     /**
-     * Get the login username to be used by the controller.
-     *
-     * @return string
+     * Get login username field
      */
     public function username()
     {
         return config('access.users.username');
     }
 
-
-
+    /**
+     * Handle login request
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
             'password' => 'required|min:6',
-            'g-recaptcha-response' => (config('access.captcha.registration') ? ['required',new CaptchaRule] : ''),
-        ],[
-            'g-recaptcha-response.required' => __('validation.attributes.frontend.captcha'),
+            'captcha' => 'required'
+        ], [
+            'captcha.required' => 'Please solve the captcha'
         ]);
 
-        if($validator->passes()){
+        if ($validator->passes()) {
+
+            // ✅ CAPTCHA CHECK
+            if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
+                return response([
+                    'success' => false,
+                    'message' => 'Invalid captcha answer'
+                ], Response::HTTP_FORBIDDEN);
+            }
+
             $credentials = $request->only($this->username(), 'password');
-            $authSuccess = \Illuminate\Support\Facades\Auth::attempt($credentials, $request->has('remember'));
-            if($authSuccess) {
+            $authSuccess = \Illuminate\Support\Facades\Auth::attempt(
+                $credentials,
+                $request->has('remember')
+            );
+
+            if ($authSuccess) {
                 $request->session()->regenerate();
-                if(auth()->user()->active > 0){
-                    //echo '<pre>';print_r(auth()->user()->employee_type);die;
 
-                    if(isset(auth()->user()->employee_type)){
-                        if((string)auth()->user()->employee_type == ''){
-                        Session::put('setvaluesession', 1);
-                        }elseif(auth()->user()->employee_type == 'internal'){
-                        Session::put('setvaluesession', 2);
+                if (auth()->user()->active > 0) {
 
-                        //set the default language
-                        $default_language = auth()->user()->fav_lang ?? 'english';
-                        if($default_language == 'arabic') {
-                            App::setLocale('ar');
-                            session(['locale' => 'ar']);
-                        }
+                    if (isset(auth()->user()->employee_type)) {
+                        if ((string) auth()->user()->employee_type == '') {
+                            Session::put('setvaluesession', 1);
+                        } elseif (auth()->user()->employee_type == 'internal') {
+                            Session::put('setvaluesession', 2);
 
-                        }elseif(auth()->user()->employee_type == 'external'){
-                        Session::put('setvaluesession', 3);
+                            $default_language = auth()->user()->fav_lang ?? 'english';
+                            if ($default_language == 'arabic') {
+                                App::setLocale('ar');
+                                session(['locale' => 'ar']);
+                            }
+                        } elseif (auth()->user()->employee_type == 'external') {
+                            Session::put('setvaluesession', 3);
                         }
                     }
 
+                    $redirect = auth()->user()->isAdmin()
+                        ? '/user/dashboard'
+                        : ($request->redirect_url ?? '/');
 
-                    if(auth()->user()->isAdmin()){
-                        $redirect = '/user/dashboard';
-                    }else{
-                        $redirect = $request->redirect_url ?? '/';                        
-                    }
                     auth()->user()->update([
                         'last_login_at' => Carbon::now()->toDateTimeString(),
                         'last_login_ip' => $request->getClientIp()
                     ]);
-                    if($request->ajax()){
 
-                        if(auth()->user()->isAdmin()){
-                            $redirect = '/user/dashboard';
-                        }else{
-                            $redirect = $request->redirect_url ?? redirect()->intended($redirect)->getTargetUrl();                        
-                        }
-                        //$redirect = redirect()->intended($redirect)->getTargetUrl();
-                        return response(['success' => true,'redirect' => $redirect], Response::HTTP_OK);
-                    }else{
-
-                        
-
-                        return redirect('/user/dashboard');
+                    if ($request->ajax()) {
+                        return response([
+                            'success' => true,
+                            'redirect' => $redirect
+                        ], Response::HTTP_OK);
                     }
-                }else{
-                    \Illuminate\Support\Facades\Auth::logout();
 
-                    return
-                        response([
-                            'success' => false,
-                            'message' => 'Login failed. Account is not active'
-                        ], Response::HTTP_FORBIDDEN);
+                    return redirect('/user/dashboard');
                 }
-            }else{
-                return
-                    response([
-                        'success' => false,
-                        'message' => 'Login failed. Account not found'
-                    ], Response::HTTP_FORBIDDEN);
+
+                \Illuminate\Support\Facades\Auth::logout();
+
+                return response([
+                    'success' => false,
+                    'message' => 'Login failed. Account is not active'
+                ], Response::HTTP_FORBIDDEN);
             }
 
+            return response([
+                'success' => false,
+                'message' => 'Login failed. Account not found'
+            ], Response::HTTP_FORBIDDEN);
         }
 
-
-        return response(['success'=>false,'errors' => $validator->errors()]);
-
+        return response([
+            'success' => false,
+            'errors' => $validator->errors()
+        ]);
     }
 
-
-
-
-
     /**
-     * The user has been authenticated.
-     *
-     * @param Request $request
-     * @param         $user
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws GeneralException
+     * After authentication hook
      */
     protected function authenticated(Request $request, $user)
     {
-        /*
-         * Check to see if the users account is confirmed and active
-         */
         if (! $user->isConfirmed()) {
             auth()->logout();
 
-            // If the user is pending (account approval is on)
             if ($user->isPending()) {
                 throw new GeneralException(__('exceptions.frontend.auth.confirmation.pending'));
             }
 
-            // Otherwise see if they want to resent the confirmation e-mail
-
-            throw new GeneralException(__('exceptions.frontend.auth.confirmation.resend', ['url' => route('frontend.auth.account.confirm.resend', $user->{$user->getUuidName()})]));
+            throw new GeneralException(
+                __('exceptions.frontend.auth.confirmation.resend', [
+                    'url' => route(
+                        'frontend.auth.account.confirm.resend',
+                        $user->{$user->getUuidName()}
+                    )
+                ])
+            );
         } elseif (! $user->isActive()) {
             auth()->logout();
             throw new GeneralException(__('exceptions.frontend.auth.deactivated'));
@@ -181,7 +177,6 @@ class LoginController extends Controller
 
         event(new UserLoggedIn($user));
 
-        // If only allowed one session at a time
         if (config('access.users.single_login')) {
             resolve(UserSessionRepository::class)->clearSessionExceptCurrent($user);
         }
@@ -190,73 +185,21 @@ class LoginController extends Controller
     }
 
     /**
-     * Log the user out of the application.
-     *
-     * @param Request $request
-     *
-     * @return \Illuminate\Http\Response
+     * Logout
      */
     public function logout(Request $request)
     {
-        
-        /*
-         * Remove the socialite session variable if exists
-         */
         if (app('session')->has(config('access.socialite_session_name'))) {
             app('session')->forget(config('access.socialite_session_name'));
         }
 
-        /*
-         * Remove any session data from backend
-         */
         app()->make(Auth::class)->flushTempSession();
-
-        /*
-         * Fire event, Log out user, Redirect
-         */
         event(new UserLoggedOut($request->user()));
 
-        /*
-         * Laravel specific logic
-         */
-
-        Cache::flush(); 
+        Cache::flush();
         $this->guard()->logout();
         $request->session()->invalidate();
 
         return redirect()->route('frontend.index');
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function logoutAs()
-    {
-        // If for some reason route is getting hit without someone already logged in
-        if (! auth()->user()) {
-            return redirect()->route('frontend.auth.login');
-        }
-
-        // If admin id is set, relogin
-        if (session()->has('admin_user_id') && session()->has('temp_user_id')) {
-            // Save admin id
-            $admin_id = session()->get('admin_user_id');
-
-            app()->make(Auth::class)->flushTempSession();
-
-            // Re-login admin
-            auth()->loginUsingId((int) $admin_id);
-
-            // Redirect to backend user page
-            return redirect()->route('admin.auth.user.index');
-        } else {
-            app()->make(Auth::class)->flushTempSession();
-
-            // Otherwise logout and redirect to login
-            Cache::flush(); 
-            auth()->logout();
-
-            return redirect()->route('frontend.auth.login');
-        }
     }
 }
