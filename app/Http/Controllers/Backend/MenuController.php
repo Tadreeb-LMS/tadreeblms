@@ -177,7 +177,7 @@ class MenuController extends Controller
             foreach ($arraydata as $value) {
                 $menuitem = AdminMenuItem::find($value['id']);
                 $menuitem->label = $value['label'];
-                $menuitem->label_ar = $value['label_ar'];
+                //$menuitem->label_ar = $value['label_ar'];
                 $menuitem->link = $value['link'];
                 $menuitem->class = $value['class'];
                 $menuitem->save();
@@ -185,7 +185,7 @@ class MenuController extends Controller
         } else {
             $menuitem = AdminMenuItem::find(request()->input("id"));
             $menuitem->label = request()->input("label");
-            $menuitem->label_ar = request()->input("label_ar");
+            //$menuitem->label_ar = request()->input("label_ar");
             $menuitem->link = request()->input("url");
             $menuitem->class = request()->input("class");
             $menuitem->save();

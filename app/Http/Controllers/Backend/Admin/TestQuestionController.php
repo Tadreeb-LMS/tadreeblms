@@ -251,6 +251,11 @@ class TestQuestionController extends Controller
 
     public function update(Request $request)
     {
+
+        return json_encode(array(
+            'code' => 200,
+            'message' => 'Question Updated is not option'
+        ));
         
         if($request->question_type ==1) {
             $options = isset($request->options) ? json_decode($request->options) : [];

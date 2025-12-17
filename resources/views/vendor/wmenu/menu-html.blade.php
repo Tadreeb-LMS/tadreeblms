@@ -108,14 +108,14 @@ if (config('nav_menu') != 0) {
                                                                         class="form-control">
                                                                 </label>
 
-                                                                <label class="mt-2">
+                                                                {{-- <label class="mt-2">
                                                                     {{ __('strings.backend.menu_manager.label') }} (AR)
                                                                     <input type="text"
                                                                         id="idlabelmenu_ar_{{ $m->id }}"
                                                                         value="{{ $m->label_ar ?? '' }}"
                                                                         class="form-control"
                                                                         dir="rtl">
-                                                                </label>
+                                                                </label> --}}
 
                                                 <label class="mt-2">
                                                     {{ __('strings.backend.menu_manager.url') }}
