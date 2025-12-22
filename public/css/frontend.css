@@ -417,7 +417,7 @@ h6 {
 }
  
 
-.breadcrumb-section .blakish-overlay {
+.breadcrumb-section .blakish-overlay { 
   opacity: 1;
   visibility: visible;
 }
