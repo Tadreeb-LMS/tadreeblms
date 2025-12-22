@@ -35,13 +35,13 @@ class ConfigSeeder extends Seeder
             3 =>
                 array(
                     'name' => 'primary_phone',
-                    'value' => '(91) 9867 65754',
+                    'value' => '(+91) 9989317437',
                     'status' => 1,
                 ),
             4 =>
                 array(
                     'name' => 'secondary_phone',
-                    'value' => '(91) 7656 4353',
+                    'value' => '(+91) 8686700634',
                     'status' => 1,
                 ),
             5 =>
