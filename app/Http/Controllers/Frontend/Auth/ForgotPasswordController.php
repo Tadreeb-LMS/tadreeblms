@@ -94,6 +94,7 @@ class ForgotPasswordController extends Controller
             ? $this->sendResetLinkResponse($request, $response)
             : $this->sendResetLinkFailedResponse($request, $response);
     }
+
     public function sendUserMail($user)
     {
         $to = $user->email;
@@ -138,7 +139,8 @@ class ForgotPasswordController extends Controller
         
     }
     public function sendResetLinkEmail(Request $request)
-        {
+    {
+        //dd("hh");
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'string', 'email', 'max:255', 'exists:users,email'],
         ]);
