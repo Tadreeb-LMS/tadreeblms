@@ -4,6 +4,26 @@
 @section('title', 'Subscription'.' | '.app_name())
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css">
 
+@push('after-styles')
+<style>
+    .userheading .btn-primary, 
+    .modal-footer .btn-success {
+        background: linear-gradient(45deg, #233e74 0%, #c1902d 100%) !important;
+        border: none !important;
+        color: #fff !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .userheading .btn-primary:hover, 
+    .modal-footer .btn-success:hover {
+        background: linear-gradient(45deg, #c1902d 0%, #233e74 100%) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        color: #fff !important;
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div class="userheading">
