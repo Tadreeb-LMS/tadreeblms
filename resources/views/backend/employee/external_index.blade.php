@@ -292,7 +292,7 @@ initComplete: function () {
 
 
         });
-        $(document).on('click', '.switch-input', function (e) {
+        $(document).on('click', '.status-toggle', function (e) {
             var id = $(this).data('id');
             $.ajax({
                 type: "POST",
