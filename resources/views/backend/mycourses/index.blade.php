@@ -160,19 +160,6 @@ top: 7px !important;
 .dt-buttons a:hover svg {
     color: #007bff !important;
 }
-
-#advance-search-btn {
-    background: linear-gradient(45deg, #233e74 0%, #c1902d 100%);
-    border: none;
-    color: #fff;
-    transition: all 0.3s ease;
-}
-
-#advance-search-btn:hover {
-    background: linear-gradient(45deg, #c1902d 0%, #233e74 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
 </style>
 @endpush
 @php
