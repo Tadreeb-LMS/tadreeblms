@@ -162,14 +162,14 @@ top: 7px !important;
 }
 
 #advance-search-btn {
-    background: linear-gradient(267deg, #5da10a, #3b4188);
+    background: linear-gradient(45deg, #233e74 0%, #c1902d 100%);
     border: none;
     color: #fff;
     transition: all 0.3s ease;
 }
 
 #advance-search-btn:hover {
-    background: linear-gradient(267deg, #3b4188, #5da10a);
+    background: linear-gradient(45deg, #c1902d 0%, #233e74 100%);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
