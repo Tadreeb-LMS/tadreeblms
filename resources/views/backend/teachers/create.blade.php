@@ -39,7 +39,7 @@
 
                 <!-- ID Number -->
                 <div class="col-lg-6 col-sm-12 mt-3">
-                    <label>Id Number</label>
+                    <label>Id Number <span style="color: red;">*</span></label>
                     <input class="form-control border-focus"
                            type="text"
                            name="id_number"
@@ -49,7 +49,7 @@
 
                 <!-- First Name -->
                 <div class="col-lg-6 col-sm-12 mt-3">
-                    <label>@lang('labels.backend.teachers.fields.first_name')</label>
+                    <label>@lang('labels.backend.teachers.fields.first_name') <span style="color: red;">*</span></label>
                     <input class="form-control border-focus"
                            type="text"
                            name="first_name"
@@ -60,7 +60,7 @@
 
                 <!-- Last Name -->
                 <div class="col-lg-6 col-sm-12 mt-3">
-                    <label>@lang('labels.backend.teachers.fields.last_name')</label>
+                    <label>@lang('labels.backend.teachers.fields.last_name') <span style="color: red;">*</span></label>
                     <input class="form-control border-focus"
                            type="text"
                            name="last_name"
@@ -71,7 +71,7 @@
 
                 <!-- Email -->
                 <div class="col-lg-6 col-sm-12 mt-3">
-                    <label>@lang('labels.backend.teachers.fields.email')</label>
+                    <label>@lang('labels.backend.teachers.fields.email') <span style="color: red;">*</span></label>
                     <input class="form-control"
                            type="email"
                            name="email"
@@ -83,7 +83,7 @@
 
                 <!-- Password -->
                 <div class="col-lg-6 col-sm-12 mt-3">
-                    <label>@lang('labels.backend.teachers.fields.password')</label>
+                    <label>@lang('labels.backend.teachers.fields.password') <span style="color: red;">*</span></label>
                     <div class="position-relative">
                         <input class="form-control"
                                type="password"
@@ -97,6 +97,26 @@
                               onclick="togglePassword()"
                               style="position:absolute; top:50%; right:10px; transform:translateY(-50%); cursor:pointer;">
                             <i class="fa fa-eye" style="color:#ccc;" id="toggle-icon"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-lg-6 col-sm-12 mt-3">
+                    <label>Confirm Password <span style="color: red;">*</span></label>
+                    <div class="position-relative">
+                        <input class="form-control"
+                               type="password"
+                               name="password_confirmation"
+                               id="password-confirmation-field"
+                               placeholder="Confirm Password"
+                               autocomplete="new-password"
+                               required>
+
+                        <span class="password-toggle"
+                              onclick="togglePasswordConfirmation()"
+                              style="position:absolute; top:50%; right:10px; transform:translateY(-50%); cursor:pointer;">
+                            <i class="fa fa-eye" style="color:#ccc;" id="toggle-icon-confirmation"></i>
                         </span>
                     </div>
                 </div>
@@ -131,11 +151,12 @@
 
                 <!-- Classification Number -->
                 <div class="col-lg-6 col-sm-12 mt-3">
-                    <label>Classification Number</label>
+                    <label>Classification Number <span style="color: red;">*</span></label>
                     <input class="form-control"
                            type="text"
                            name="classfi_number"
-                           placeholder="Classification Number">
+                           placeholder="Classification Number"
+                           required>
                 </div>
 
                 <!-- Nationality -->
@@ -320,6 +341,38 @@ $(document).on('submit', '#addTeacher', function (e) {
             icon.classList.add("fa-eye");
         }
     }
+
+    function togglePasswordConfirmation() {
+        var passwordField = document.getElementById("password-confirmation-field");
+        var icon = document.getElementById("toggle-icon-confirmation");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
+    // Add password confirmation validation
+    document.getElementById('password-confirmation-field').addEventListener('input', function() {
+        var password = document.getElementById('password-field').value;
+        var confirmation = this.value;
+        if (password !== confirmation) {
+            this.setCustomValidity('Passwords do not match');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    document.getElementById('password-field').addEventListener('input', function() {
+        var confirmation = document.getElementById('password-confirmation-field');
+        if (confirmation.value) {
+            confirmation.dispatchEvent(new Event('input'));
+        }
+    });
 </script>
 <script>
     document.querySelectorAll('.custom-file-input').forEach(function(input) {

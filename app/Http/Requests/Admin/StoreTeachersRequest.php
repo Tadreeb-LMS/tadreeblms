@@ -26,10 +26,12 @@ class StoreTeachersRequest extends FormRequest
         return [
             'first_name' => 'required',
             'last_name' => 'required',
+            'id_number' => 'required',
+            'classfi_number' => 'required',
             // 'email' => 'required|email',
             // 'email' => 'required|email|'. Rule::unique('users')->where(function ($query) {$query->whereNull('deleted_at');}),
             'email' => ['required','email',Rule::unique('users')->where(function ($query) {$query->whereNull('deleted_at');})],
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
             'gender'              => ['required', 'in:male,female,other'],
             //'image'               => ['required', 'image'],
             'facebook_link'       => ['nullable', 'url'],

@@ -246,7 +246,8 @@ class TeachersController extends Controller
         ];
         TeacherProfile::create($data);
 
-        return redirect()->route('admin.courses.create')->withFlashSuccess(__('Please add course here...'));
+        return redirect()->route('admin.teachers.show', ['teacher' => $teacher->id])->withFlashSuccess(trans('alerts.backend.general.created'));
+        // return redirect()->route('admin.courses.create')->withFlashSuccess(__('Please add course here...'));
         // return redirect()->route('admin.teachers.index')->withFlashSuccess(trans('alerts.backend.general.created'));
     }
 
