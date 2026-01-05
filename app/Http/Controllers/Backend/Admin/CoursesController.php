@@ -521,7 +521,9 @@ class CoursesController extends Controller
         if (!Gate::allows('course_create')) {
             return abort(401);
         }
-
+        $request->validate([
+            'start_date' => 'required|date|after_or_equal:today',
+        ]);
         DB::beginTransaction();
 
         try {
