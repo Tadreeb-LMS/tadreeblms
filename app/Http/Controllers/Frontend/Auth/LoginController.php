@@ -26,9 +26,14 @@ class LoginController extends Controller
      * Where to redirect users after login.
      */
     public function redirectPath()
-    {
-        return route(home_route());
+{
+    if (auth()->check() && auth()->user()->isAdmin()) {
+        return '/admin/dashboard';
     }
+
+    return route(home_route());
+}
+
 
     /**
      * Show login form with simple captcha
@@ -114,7 +119,8 @@ class LoginController extends Controller
                     if (auth()->user()->isAdmin()) {
                         $redirect = '/admin/dashboard';
                     } else {
-                        $redirect = $request->redirect_url ?? '/user/dashboard';
+                        // This uses the project's existing redirect logic if no specific URL is provided
+                        $redirect = $request->redirect_url ?? $this->redirectPath();
                     }
 
                     auth()->user()->update([
