@@ -111,9 +111,11 @@ class LoginController extends Controller
                         }
                     }
 
-                    $redirect = auth()->user()->isAdmin()
-                        ? '/user/dashboard'
-                        : ($request->redirect_url ?? '/');
+                    if (auth()->user()->isAdmin()) {
+                        $redirect = '/admin/dashboard';
+                    } else {
+                        $redirect = $request->redirect_url ?? '/user/dashboard';
+                    }
 
                     auth()->user()->update([
                         'last_login_at' => Carbon::now()->toDateTimeString(),
@@ -127,7 +129,8 @@ class LoginController extends Controller
                         ], Response::HTTP_OK);
                     }
 
-                    return redirect('/user/dashboard');
+                    return redirect($redirect);
+
                 }
 
                 \Illuminate\Support\Facades\Auth::logout();
