@@ -11,6 +11,30 @@
     width: 20px;
     height: 20px;
 }
+
+/* Column visibility dropdown checkbox styles */
+.dt-button-collection .dt-button {
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+.dt-button-collection .dt-button:hover {
+    background: #f5f5f5 !important;
+}
+
+.dt-button-collection .dt-button label {
+    cursor: pointer;
+    display: block;
+    padding: 8px 12px;
+    margin: 0;
+    width: 100%;
+    user-select: none;
+}
+
+.dt-button-collection .dt-button input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
     </style>
     
 @endpush
@@ -137,7 +161,16 @@
     },
       {extend: 'colvis',
     text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>',
-    className: ''},
+    className: '',
+    columns: ':not(:first-child)',
+    columnText: function ( dt, idx, title ) {
+        var column = dt.column( idx );
+        return '<label style="cursor: pointer; display: block; padding: 5px 10px; margin: 0;">' +
+               '<input type="checkbox" style="margin-right: 8px;" ' + (column.visible() ? 'checked' : '') + '> ' +
+               title +
+               '</label>';
+    }
+},
 ],
                 ajax: route,
                 columns: [
