@@ -26,14 +26,13 @@ class LoginController extends Controller
      * Where to redirect users after login.
      */
     public function redirectPath()
-{
-    if (auth()->check() && auth()->user()->isAdmin()) {
-        return '/admin/dashboard';
+    {
+        if (auth()->check() && auth()->user()->isAdmin()) {
+            return '/admin/dashboard';
+        }
+
+        return route(home_route());
     }
-
-    return route(home_route());
-}
-
 
     /**
      * Show login form with simple captcha
@@ -79,110 +78,70 @@ class LoginController extends Controller
             'captcha.required' => 'Please solve the captcha'
         ]);
 
-        if ($validator->passes()) {
+        if ($validator->fails()) {
+            return response(['success' => false, 'errors' => $validator->errors()], 422);
+        }
 
-            // ✅ CAPTCHA CHECK
-            if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
-                return response([
-                    'success' => false,
-                    'message' => 'Invalid captcha answer'
-                ], Response::HTTP_FORBIDDEN);
-            }
-
-            $credentials = $request->only($this->username(), 'password');
-            $authSuccess = \Illuminate\Support\Facades\Auth::attempt(
-                $credentials,
-                $request->has('remember')
-            );
-
-            if ($authSuccess) {
-                $request->session()->regenerate();
-
-                if (auth()->user()->active > 0) {
-
-                    if (isset(auth()->user()->employee_type)) {
-                        if ((string) auth()->user()->employee_type == '') {
-                            Session::put('setvaluesession', 1);
-                        } elseif (auth()->user()->employee_type == 'internal') {
-                            Session::put('setvaluesession', 2);
-
-                            $default_language = auth()->user()->fav_lang ?? 'english';
-                            if ($default_language == 'arabic') {
-                                App::setLocale('ar');
-                                session(['locale' => 'ar']);
-                            }
-                        } elseif (auth()->user()->employee_type == 'external') {
-                            Session::put('setvaluesession', 3);
-                        }
-                    }
-
-                    if (auth()->user()->isAdmin()) {
-                        $redirect = '/admin/dashboard';
-                    } else {
-                        // This uses the project's existing redirect logic if no specific URL is provided
-                        $redirect = $request->redirect_url ?? $this->redirectPath();
-                    }
-
-                    auth()->user()->update([
-                        'last_login_at' => Carbon::now()->toDateTimeString(),
-                        'last_login_ip' => $request->getClientIp()
-                    ]);
-
-                    if ($request->ajax()) {
-                        return response([
-                            'success' => true,
-                            'redirect' => $redirect
-                        ], Response::HTTP_OK);
-                    }
-
-                    return redirect($redirect);
-
-                }
-
-                \Illuminate\Support\Facades\Auth::logout();
-
-                return response([
-                    'success' => false,
-                    'message' => 'Login failed. Account is not active'
-                ], Response::HTTP_FORBIDDEN);
-            }
-
+        // ✅ CAPTCHA CHECK
+        if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
             return response([
                 'success' => false,
-                'message' => 'Login failed. Account not found'
+                'message' => 'Invalid captcha answer'
             ], Response::HTTP_FORBIDDEN);
+        }
+
+        // Standard Laravel Authentication Attempt
+        $credentials = $request->only($this->username(), 'password');
+        
+        if (\Illuminate\Support\Facades\Auth::attempt($credentials, $request->has('remember'))) {
+            return $this->sendLoginResponse($request);
         }
 
         return response([
             'success' => false,
-            'errors' => $validator->errors()
-        ]);
+            'message' => 'Login failed. Account not found'
+        ], Response::HTTP_FORBIDDEN);
     }
 
     /**
-     * After authentication hook
+     * The user has been authenticated.
+     * Logic for "Login Redirection based on Type" goes here.
      */
     protected function authenticated(Request $request, $user)
     {
+        // 1. Security Checks (Confirmation & Active Status)
         if (! $user->isConfirmed()) {
             auth()->logout();
+            throw new GeneralException(__('exceptions.frontend.auth.confirmation.pending'));
+        }
 
-            if ($user->isPending()) {
-                throw new GeneralException(__('exceptions.frontend.auth.confirmation.pending'));
-            }
-
-            throw new GeneralException(
-                __('exceptions.frontend.auth.confirmation.resend', [
-                    'url' => route(
-                        'frontend.auth.account.confirm.resend',
-                        $user->{$user->getUuidName()}
-                    )
-                ])
-            );
-        } elseif (! $user->isActive()) {
+        if (! $user->isActive()) {
             auth()->logout();
             throw new GeneralException(__('exceptions.frontend.auth.deactivated'));
         }
+
+        // Set Session Values based on Login Type
+        if (isset($user->employee_type)) {
+            if (empty($user->employee_type)) {
+                Session::put('setvaluesession', 1);
+            } elseif ($user->employee_type == 'internal') {
+                Session::put('setvaluesession', 2);
+                
+                // Handle Arabic Locale
+                if (($user->fav_lang ?? 'english') == 'arabic') {
+                    App::setLocale('ar');
+                    session(['locale' => 'ar']);
+                }
+            } elseif ($user->employee_type == 'external') {
+                Session::put('setvaluesession', 3);
+            }
+        }
+
+        //  Update User Stats & Fire Event
+        $user->update([
+            'last_login_at' => Carbon::now()->toDateTimeString(),
+            'last_login_ip' => $request->getClientIp()
+        ]);
 
         event(new UserLoggedIn($user));
 
@@ -190,7 +149,28 @@ class LoginController extends Controller
             resolve(UserSessionRepository::class)->clearSessionExceptCurrent($user);
         }
 
-        return redirect()->intended($this->redirectPath());
+        // Final Redirection Logic
+        if ($user->isAdmin()) {
+            $redirect = '/admin/dashboard';
+        } else {
+            $redirect = $request->redirect_url ?? $this->redirectPath();
+        }
+
+        if ($request->ajax()) {
+            return response([
+                'success' => true,
+                'redirect' => $redirect
+            ], Response::HTTP_OK);
+        }
+
+        // IF STILL ISSUE PLEASE REMOVE 'IF BLOCK'
+        //--------------------------------------
+        if ($user->isAdmin()) {
+            return redirect('/admin/dashboard');
+        }
+        //--------------------------------------
+        return redirect()->intended($redirect);
+
     }
 
     /**
