@@ -25,6 +25,7 @@ class TeachersController extends Controller
      */
     public function index()
     {
+        //dd("hhfh");
         return view('backend.teachers.index');
     }
 
@@ -53,123 +54,52 @@ class TeachersController extends Controller
             $has_delete = true;
         }
 
-        //    $query = str_replace(array('?'), array('\'%s\''), $teachers->toSql());
-        //    $query = vsprintf($query, $teachers->getBindings());
-        //    dump($query);
-        //    die;
+        $has_view   = Gate::allows('trainer_view');
+        $has_edit   = Gate::allows('trainer_edit');
+        $has_delete = Gate::allows('trainer_delete');
+        
 
         return DataTables::of($teachers)
             ->addIndexColumn()
-            // ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-            //     $view = "";
-            //     $edit = "";
-            //     $delete = "";
-            //     if ($request->show_deleted == 1) {
-            //         return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.teachers', 'label' => 'id', 'value' => $q->id]);
-            //     }
-
-            //     if ($has_view) {
-            //         $view = view('backend.datatable.action-view')
-            //             ->with(['route' => route('admin.teachers.show', ['teacher' => $q->id])])->render();
-            //     }
-
-            //     if ($has_edit) {
-            //         $edit = view('backend.datatable.action-edit')
-            //             ->with(['route' => route('admin.teachers.edit', ['teacher' => $q->id])])
-            //             ->render();
-            //         $view .= $edit;
-            //     }
-
-            //     if ($has_delete) {
-            //         $delete = view('backend.datatable.action-delete')
-            //             ->with(['route' => route('admin.teachers.destroy', ['teacher' => $q->id])])
-            //             ->render();
-            //         $view .= $delete;
-            //     }
-
-            //     $view .= '<a class="btn btn-warning text-white mb-1" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">' . trans('labels.backend.courses.title') . '</a>';
-
-            //     return $view;
-            // })
+            
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-    if ($request->show_deleted == 1) {
-        return view('backend.datatable.action-trashed')->with([
-            'route_label' => 'admin.teachers',
-            'label' => 'id',
-            'value' => $q->id
-        ]);
-    }
+            if ($request->show_deleted == 1) {
+                return view('backend.datatable.action-trashed')->with([
+                    'route_label' => 'admin.teachers',
+                    'label' => 'id',
+                    'value' => $q->id
+                ]);
+            }
 
-    $view = '';
-    $edit = '';
-    $delete = '';
+            $view = '';
+            $edit = '';
+            $delete = '';
 
-    if ($has_view) {
-        $view = view('backend.datatable.action-view')
-            ->with(['route' => route('admin.teachers.show', ['teacher' => $q->id])])
-            ->render();
-    }
+            if ($has_view) {
+                $view = view('backend.datatable.action-view')
+                    ->with(['route' => route('admin.teachers.show', ['teacher' => $q->id])])
+                    ->render();
+            }
 
-    if ($has_edit) {
-        $edit = view('backend.datatable.action-edit')
-            ->with(['route' => route('admin.teachers.edit', ['teacher' => $q->id])])
-            ->render();
-    }
+            if ($has_edit) {
+                $edit = view('backend.datatable.action-edit')
+                    ->with(['route' => route('admin.teachers.edit', ['teacher' => $q->id])])
+                    ->render();
+            }
 
-    if ($has_delete) {
-        $delete = view('backend.datatable.action-delete')
-            ->with(['route' => route('admin.teachers.destroy', ['teacher' => $q->id])])
-            ->render();
-    }
+            if ($has_delete) {
+                $delete = view('backend.datatable.action-delete')
+                    ->with(['route' => route('admin.teachers.destroy', ['teacher' => $q->id])])
+                    ->render();
+            }
 
-    $courseLink = '<a title="Courses" class="" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">
+        $courseLink = '<a title="Courses" class="" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">
          <i class="fa fa-address-book" aria-hidden="true"></i>  </a>';
 
     // Wrap all actions in a flexbox container with spacing
     return '<div class="action-pill" >' . $view . $edit . $delete . $courseLink . '</div>';
 })
-//             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-//     if ($request->show_deleted == 1) {
-//         return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.teachers', 'label' => 'id', 'value' => $q->id]);
-//     }
 
-//     $dropdown = '<div class="dropdown">
-//         <a class="dropdown-toggle" type="button" id="dropdownMenuButton'.$q->id.'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-//             <i class="fa fa-ellipsis-v action-icon" aria-hidden="true"></i>
-//         </a>
-//         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton'.$q->id.'">';
-
-//     if ($has_view) {
-//         $dropdown .= view('backend.datatable.action-view')
-//             ->with(['route' => route('admin.teachers.show', ['teacher' => $q->id])])
-//             ->render();
-//     }
-
-//     if ($has_edit) {
-//         $dropdown .= view('backend.datatable.action-edit')
-//             ->with(['route' => route('admin.teachers.edit', ['teacher' => $q->id])])
-//             ->render();
-//     }
-
-//     if ($has_delete) {
-//         $dropdown .= view('backend.datatable.action-delete')
-//             ->with(['route' => route('admin.teachers.destroy', ['teacher' => $q->id])])
-//             ->render();
-//     }
-
-//     $dropdown .= '<a class="dropdown-item pt-2 pl-3" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">' . trans('labels.backend.courses.title') . '</a>';
-    
-//     $dropdown .= '</div></div>';
-
-//     return $dropdown;
-// })
-
-            // ->addColumn('status', function ($q) {
-            //     $html = html()->label(html()->checkbox('')->id($q->id)
-            //         ->checked(($q->active == 1) ? true : false)->class('switch-input')->attribute('data-id', $q->id)->value(($q->active == 1) ? 1 : 0) . '<span class="switch-label"></span><span class="switch-handle"></span>')->class('switch switch-lg switch-3d switch-primary');
-            //     return $html;
-            //     // return ($q->active == 1) ? "Enabled" : "Disabled";
-            // })
             ->addColumn('status', function ($q) {
     $checked = $q->active == 1 ? 'checked' : '';
     $html = '<div class="custom-control custom-switch">
@@ -276,7 +206,7 @@ class TeachersController extends Controller
     {
         //        $request = $this->saveFiles($request);
 
-        $teacher = User::findOrFail($id);
+        $teacher = User::with('teacherProfile')->findOrFail($id);
         $teacher->update($request->except('email'));
         if ($request->has('image')) {
             $teacher->avatar_type = 'storage';
@@ -290,6 +220,9 @@ class TeachersController extends Controller
         $teacher->classfi_number = $request->classfi_number;
         $teacher->nationality = $request->nationality;
         $teacher->active = isset($request->active) ? 1 : 0;
+
+        
+
         $teacher->save();
 
         /*
@@ -310,7 +243,12 @@ class TeachersController extends Controller
             //'payment_details'   => json_encode($payment_details),
             'description'       => request()->description,
         ];
-        $teacher->teacherProfile->update($data);
+       
+        if ($teacher->teacherProfile) {
+            $teacher->teacherProfile->update($data);
+        } else {
+            $teacher->teacherProfile()->create($data);
+        }
 
 
         return redirect()->route('admin.teachers.index')->withFlashSuccess(trans('alerts.backend.general.updated'));

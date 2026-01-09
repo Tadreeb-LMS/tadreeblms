@@ -107,7 +107,7 @@ $local_lang = App::getLocale() ?? 'en';
 @section('content')
 
 
-@if(auth()->user()->hasRole('administrator'))
+@if(auth()->user()->hasRole('administrator') || !auth()->user()->hasRole('student'))
 <div class="row">
 
     <div class="col-12 mb-3">
@@ -706,9 +706,7 @@ $local_lang = App::getLocale() ?? 'en';
     @elseif(auth()->user()->hasRole('administrator'))
     
     @else
-    <div class="col-12">
-        <h1>@lang('labels.backend.dashboard.title')</h1>
-    </div>
+    
     @endif
 
     <!--card-body-->

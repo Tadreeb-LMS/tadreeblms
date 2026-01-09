@@ -19,7 +19,8 @@ class UsersController extends Controller
      */
     public function index()
     {
-        if (!Gate::allows('user_access')) {
+        
+        if (!Gate::allows('user_management_access')) {
             return abort(401);
         }
 
@@ -34,7 +35,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        if (!Gate::allows('user_create')) {
+        if (!Gate::allows('user_management_create')) {
             return abort(401);
         }
         $roles = Role::get()->pluck('title', 'id');
@@ -50,7 +51,7 @@ class UsersController extends Controller
      */
     public function store(StoreUsersRequest $request)
     {
-        if (!Gate::allows('user_create')) {
+        if (!Gate::allows('user_management_create')) {
             return abort(401);
         }
         $user = User::create($request->all());
@@ -69,7 +70,7 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        if (!Gate::allows('user_edit')) {
+        if (!Gate::allows('user_management_edit')) {
             return abort(401);
         }
         $roles = Role::get()->pluck('title', 'id');
@@ -88,7 +89,7 @@ class UsersController extends Controller
      */
     public function update(UpdateUsersRequest $request, $id)
     {
-        if (!Gate::allows('user_edit')) {
+        if (!Gate::allows('user_management_edit')) {
             return abort(401);
         }
         $user = User::findOrFail($id);
@@ -108,7 +109,7 @@ class UsersController extends Controller
      */
     public function show($id)
     {
-        if (!Gate::allows('user_view')) {
+        if (!Gate::allows('user_management_view')) {
             return abort(401);
         }
         $roles = Role::get()->pluck('title', 'id');
@@ -131,7 +132,7 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        if (!Gate::allows('user_delete')) {
+        if (!Gate::allows('user_management_delete')) {
             return abort(401);
         }
         $user = User::findOrFail($id);
@@ -147,7 +148,7 @@ class UsersController extends Controller
      */
     public function massDestroy(Request $request)
     {
-        if (!Gate::allows('user_delete')) {
+        if (!Gate::allows('user_management_delete')) {
             return abort(401);
         }
         if ($request->input('ids')) {

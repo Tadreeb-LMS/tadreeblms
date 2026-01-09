@@ -105,7 +105,7 @@ class LearningPathwayController extends Controller
             // Return success response
             return response()->json([
                 'message' => "$lp->title learning pathway created successfully",
-                'redirect_route' => '/user/learning-pathways'
+                'redirect_route' => route('admin.learning-pathways.index')
             ]);
         } catch (ValidationException $e) {
             // Rollback the transaction in case of validation error
@@ -276,7 +276,7 @@ class LearningPathwayController extends Controller
             // Return success response
             return response()->json([
                 'message' => "$learningPathway->title learning pathway updated successfully",
-                'redirect_route' => '/user/learning-pathways'
+                'redirect_route' => route('admin.learning-pathways.index')
             ]);
         } catch (ValidationException $e) {
             // Rollback the transaction in case of validation error

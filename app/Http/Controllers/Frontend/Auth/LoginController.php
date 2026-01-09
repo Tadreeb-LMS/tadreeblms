@@ -90,8 +90,12 @@ class LoginController extends Controller
                 $request->has('remember')
             );
 
+            //dd($this->username(), $authSuccess);
+
             if ($authSuccess) {
                 $request->session()->regenerate();
+
+                //dd(auth()->user()->active);
 
                 if (auth()->user()->active > 0) {
 

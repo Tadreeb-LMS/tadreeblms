@@ -31,7 +31,7 @@ width: 44% !important;
         <div class="grow">
             <h4 class="text-20">Trainee</h4>
         </div>
-        @can('course_create')
+        @can('trainee_create')
         <div>
             <a href="{{ route('admin.employee.external.create') }}">
 
@@ -207,13 +207,7 @@ width: 44% !important;
                 // ],
                 ajax: route,
                 columns: [
-                        @if(request('show_deleted') != 1)
-                    {
-                        "data": function (data) {
-                            return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
-                        }, "orderable": false, "searchable": false, "name": "id"
-                    },
-                        @endif
+                        
                     // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
                     {data: "id", name: 'id'},
                     {data: "first_name", name: 'first_name'},
@@ -224,12 +218,7 @@ width: 44% !important;
                     {data: "status", name: 'status'},
                     {data: "actions", name: 'actions'}
                 ],
-                @if(request('show_deleted') != 1)
-                columnDefs: [
-                    {"width": "5%", "targets": 0},
-                    {"className": "text-center", "targets": [0]}
-                ],
-                @endif
+                
 initComplete: function () {
                     let $searchInput = $('#myTable_filter input[type="search"]');
     $searchInput

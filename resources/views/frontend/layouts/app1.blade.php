@@ -201,7 +201,7 @@
                             <li class="menu-item-has-children ul-li-block px-1 sm-tb-space">
                                 <a href="#!" class="addminlink">{{ $logged_in_user->name }}</a>
                                 <ul class="sub-menu">
-                                    @can('view backend')
+                                    @can('backend_view')
                                         <li>
                                             <a href="{{ route('admin.dashboard') }}">@lang('navs.frontend.dashboard')</a>
                                         </li>

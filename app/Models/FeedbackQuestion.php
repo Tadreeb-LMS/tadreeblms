@@ -51,4 +51,9 @@ class FeedbackQuestion extends Model
     {
         return $this->hasMany(CourseFeedback::class, 'feedback_question_id');
     }
+
+    public function tests()
+    {
+        return $this->hasMany(CourseFeedback::class, 'feedback_question_id');
+    }
 }

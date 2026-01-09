@@ -24,9 +24,10 @@ class RolesController extends Controller
         }
 
 
-                $roles = Role::all();
+        $roles = Role::all();
+        //dd($roles);
 
-        return view('backend..roles.index', compact('roles'));
+        return view('backend.roles.index', compact('roles'));
     }
 
     /**
@@ -39,9 +40,12 @@ class RolesController extends Controller
         if (! Gate::allows('role_create')) {
             return abort(401);
         }
-        $permissions = Permission::get()->pluck('title', 'id');
 
-        return view('backend..roles.create', compact('permissions'));
+        $permissions = Permission::all()->groupBy(function ($perm) {
+            return explode('_', $perm->name)[0]; // e.g., 'user', 'course', 'lesson'
+        });
+
+        return view('backend.roles.create', compact('permissions'));
     }
 
     /**
@@ -55,9 +59,15 @@ class RolesController extends Controller
         if (! Gate::allows('role_create')) {
             return abort(401);
         }
-        $role = Role::create($request->all());
-        $role->permission()->sync(array_filter((array)$request->input('permission')));
+        $role = Role::create([
+                'name' => $request->name,
+                'guard_name' => 'web',
+            ]);
+        //dd($request->all());
+        $permissionIds = $request->input('permissions', []);
+        $permissions = Permission::whereIn('id', $permissionIds)->get();
 
+        $role->syncPermissions($permissions);
 
 
         return redirect()->route('admin.roles.index');
@@ -75,11 +85,41 @@ class RolesController extends Controller
         if (! Gate::allows('role_edit')) {
             return abort(401);
         }
-        $permissions = Permission::get()->pluck('title', 'id');
+        $permissions = Permission::all()->groupBy(function ($perm) {
+            return explode('_', $perm->name)[0];
+        });
 
         $role = Role::findOrFail($id);
+        //dd($role);
+        if ($role->name == 'student') {
+            $permissions = $permissions->reject(function ($group, $module) {
+                return in_array($module, [
+                    'trainer',
+                    'trainee',
+                    'calender',
+                    'learning_pathway',
+                    'reports',
+                    'site_management',
+                    'access_management',
+                    'settings',
+                    'send_email_notification',
+                    'user',
+                    'permission',
+                    'role',
+                    'course',
+                    'lesson',
+                    'question',
+                    'backend',
+                    'test',
+                    'questions',
+                    'feedback',
+                    'assesment',
+                    'manual_assesment'
+                ]);
+            });
+        }
 
-        return view('backend..roles.edit', compact('role', 'permissions'));
+        return view('backend.roles.edit', compact('role', 'permissions'));
     }
 
     /**
@@ -91,14 +131,17 @@ class RolesController extends Controller
      */
     public function update(UpdateRolesRequest $request, $id)
     {
+        //dd($request->all());
         if (! Gate::allows('role_edit')) {
             return abort(401);
         }
         $role = Role::findOrFail($id);
         $role->update($request->all());
-        $role->permission()->sync(array_filter((array)$request->input('permission')));
 
+        $permissionIds = $request->input('permissions', []);
+        $permissions = Permission::whereIn('id', $permissionIds)->get();
 
+        $role->syncPermissions($permissions);
 
         return redirect()->route('admin.roles.index');
     }
@@ -115,14 +158,17 @@ class RolesController extends Controller
         if (! Gate::allows('role_view')) {
             return abort(401);
         }
-        $permissions = Permission::get()->pluck('title', 'id');$users = \App\Models\Auth\User::whereHas('role',
-                    function ($query) use ($id) {
-                        $query->where('id', $id);
-                    })->get();
+        $permissions = Permission::get()->pluck('title', 'id');
+        $users = \App\Models\Auth\User::whereHas(
+            'role',
+            function ($query) use ($id) {
+                $query->where('id', $id);
+            }
+        )->get();
 
         $role = Role::findOrFail($id);
 
-        return view('backend..roles.show', compact('role', 'users'));
+        return view('backend.roles.show', compact('role', 'users'));
     }
 
 
@@ -161,5 +207,4 @@ class RolesController extends Controller
             }
         }
     }
-
 }

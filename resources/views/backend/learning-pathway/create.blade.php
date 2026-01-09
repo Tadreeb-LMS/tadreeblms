@@ -38,7 +38,7 @@
     <div class="card">
 
         <div class="card-body">
-            <form class="ajax" action="/user/learning-pathways" method="POST"
+            <form class="ajax" action="{{ route("admin.learning-pathways.store") }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="course_with_order">
@@ -119,7 +119,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js"></script>
-    <script src="/js/helpers/form-submit.js"></script>
+    <script src="{{ asset('/js/helpers/form-submit.js') }}"></script>
     <script>
         new Sortable(pathwayCourses, {
             animation: 150,
