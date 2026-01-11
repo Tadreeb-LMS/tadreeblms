@@ -117,7 +117,7 @@ width: 58% !important;
                 //     'colvis'
                 // ],
                 ajax: {
-                    url: '/user/course-feedback-questions',
+                    url: '{{ route("admin.course-feedback-questions.index") }}',
                     data: function(d) {
                         d.course_id = course_id; // Pass the course_id parameter to the server
                     },

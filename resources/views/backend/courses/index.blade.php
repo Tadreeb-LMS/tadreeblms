@@ -140,7 +140,7 @@
                 processing: true,
                 serverSide: true,
                 iDisplayLength: 10,
-                retrieve: true,
+                //retrieve: true,
                 dom: "<'table-controls'lfB>" +
                      "<'table-responsive't>" +
                      "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
@@ -200,48 +200,7 @@
                     text: '<i class="fa fa-eye icon-styles" aria-hidden="" ></i>',
                 },
             ],
-                // buttons: [{
-                //         extend: 'csv',
-                //         action: function(e, dt, button, config) {
-
-                //             $.ajax({
-                //                 url: `/user/exportCourseAsCsv`,
-                //                 method: "GET",
-                //                 xhrFields: {
-                //                     responseType: "blob",
-                //                 },
-                //                 beforeSend: function() {
-                //                     $("#loader").removeClass("d-none");
-                //                 },
-                //                 complete: function() {
-                //                     $("#loader").addClass("d-none");
-                //                 },
-                //                 success: function(data, status, xhr) {
-                //                     var blob = new Blob([data], {
-                //                         type: xhr.getResponseHeader(
-                //                             "Content-Type"),
-                //                     });
-                //                     var link = document.createElement("a");
-                //                     link.href = window.URL.createObjectURL(blob);
-                //                     link.download = "courses.csv";
-                //                     document.body.appendChild(link);
-                //                     link.click();
-                //                     document.body.removeChild(link);
-                //                 },
-                //                 error: function(xhr, status, error) {
-                //                     console.error("Error downloading file:", error);
-                //                 },
-                //             });
-                //         }
-                //     },
-                //     {
-                //         extend: 'pdf',
-                //         exportOptions: {
-                //             columns: [1, 2, 3, 4, 5, 6]
-                //         }
-                //     },
-                //     'colvis'
-                // ],
+               
                 ajax: route,
                 columns: [
                     @if (request('show_deleted') != 1)
@@ -357,17 +316,10 @@
                         csv: '{{ trans('datatable.csv') }}',
                     },
                     search:"",
-    //                 paginate: {
-    //     previous: '<i class="fa fa-angle-left"></i>',
-    //     next: '<i class="fa fa-angle-right"></i>'
-    // },
+    
                 }
-            });
-            {{-- @can('course_delete') --}}
-            {{-- @if (request('show_deleted') != 1) --}}
-            {{-- $('.actions').html('<a href="' + '{{ route('admin.courses.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>'); --}}
-            {{-- @endif --}}
-            {{-- @endcan --}}
+            }); 
+           
         });
 
         $(document).on('click', '.copy-offline-link', function (e) {

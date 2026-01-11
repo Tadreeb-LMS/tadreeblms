@@ -353,209 +353,58 @@ class DashboardController extends Controller
             if (auth()->user()->hasRole('teacher')) {
                 //IF logged in user is teacher
 
-                try {
-                    $subscribe_courses = Cache::remember(
-                        "subscribe_courses_user_{$userId}",
-                        now()->addMinutes($cache_duration),
-                        function () use ($user, $userId) {
-                            return auth()->user()->subscribeCourses($userId);
-                        }
-                    );
-                } catch (\Throwable $e) {
+                
 
-                    // Fallback (no cache)
-                    $subscribe_courses = auth()->user()->subscribeCourses($userId);
-                }
-
-
-
-
-                try {
-                    $learning_pathways = Cache::remember(
-                        "learning_pathways_user_{$userId}",
-                        now()->addMinutes($cache_duration),
-                        function () use ($userId) {
-                            $items = UserLearningPathway::where('user_id', $userId)
-                                ->with('learningPathwayCoursesOrdered')
-                                ->get();
-
-                            return $items->groupBy('pathway_id');
-                        }
-                    );
-                } catch (\Throwable $e) {
-
-                    // Fallback (no cache)
-                    $items = UserLearningPathway::where('user_id', $userId)
-                        ->with('learningPathwayCoursesOrdered')
-                        ->get();
-
-                    $learning_pathways = $items->groupBy('pathway_id');
-                }
-
-
-                try {
-                    $course_completion_data = Cache::remember("course_completion_data_user_{$userId}", now()->addMinutes($cache_duration), function () use ($userId) {
-                        return DB::table('subscribe_courses as s')
-                            ->whereNull('s.deleted_at')
-                            ->where('s.user_id', $userId)
-                            ->selectRaw('
-                            COUNT(CASE WHEN s.is_completed = 1 THEN 1 END) as completed_count,
-                            COUNT(CASE WHEN s.is_completed = 0 THEN 1 END) as not_completed_count
-                        ')
-                            ->first();
-                    });
-                } catch (\Throwable $e) {
-                    $course_completion_data = DB::table('subscribe_courses as s')
-                        ->whereNull('s.deleted_at')
-                        ->where('s.user_id', $userId)
-                        ->selectRaw('
-                            COUNT(CASE WHEN s.is_completed = 1 THEN 1 END) as completed_count,
-                            COUNT(CASE WHEN s.is_completed = 0 THEN 1 END) as not_completed_count
-                        ')
-                        ->first();
-                }
-
-                $students_count = Course::whereHas('teachers', function ($query) {
-                    $query->where('user_id', '=', auth()->user()->id);
-                })
-                    ->withCount('students')
-                    ->get()
-                    ->sum('students_count');
-
-
-                $courses_id = auth()->user()->courses()->has('reviews')->pluck('id')->toArray();
-                $recent_reviews = Review::where('reviewable_type', '=', 'App\Models\Course')
-                    ->whereIn('reviewable_id', $courses_id)
-                    ->orderBy('created_at', 'desc')
-                    ->take(10)
-                    ->get();
-
-
-                // Ensure safe defaults
-                $completedCount    = $course_completion_data->completed_count ?? 0;
-                $notCompletedCount = $course_completion_data->not_completed_count ?? 0;
-
-                $total_rows = $completedCount + $notCompletedCount;
-
-                // Avoid division by zero
-                $av_completion_rate = $total_rows > 0
-                    ? round(($completedCount / $total_rows) * 100, 0)
-                    : 0;
-
-                $av_rem_completion_rate = 100 - $av_completion_rate;
-
-                $total_completed = $completedCount;
-                $total_pending   = $notCompletedCount;
-
-
-                // $totalScoreData = Cache::remember("total_score_data_{$userId}", now()->addMinutes($cache_duration), function () use ($user, $userId) {
-                //     return SubscribeCourse::where('user_id', $userId)
-                //             ->whereHas('course.courseAssignments')
-                //             ->get();
-                // });
-
-                try {
-
-                    $assessmentStats = Cache::remember(
-                        "assessment_stats_{$userId}",
-                        now()->addMinutes($cache_duration),
-                        function () use ($userId) {
-
-                            $totalScore = 0;
-                            $totalAssessmentsTaken = 0;
-
-                            $subscriptions = SubscribeCourse::where('user_id', $userId)
-                                ->whereHas('course.courseAssignments')
-                                ->select('assesment_taken', 'assignment_score')
-                                ->get();
-
-                            $totalAssessments = $subscriptions->count();
-
-                            foreach ($subscriptions as $subscription) {
-
-                                if ($subscription->assesment_taken) {
-                                    $totalAssessmentsTaken++;
-
-                                    // Extract numeric score safely
-                                    $score = (int) filter_var(
-                                        $subscription->assignment_score,
-                                        FILTER_SANITIZE_NUMBER_INT
-                                    );
-
-                                    $totalScore += $score;
-                                }
-                            }
-
-                            $completedAssessments = $totalAssessmentsTaken;
-                            $notCompletedAssessments = $totalAssessments - $totalAssessmentsTaken;
-
-                            $av_completed_score = $totalAssessmentsTaken
-                                ? round($totalScore / $totalAssessmentsTaken, 0)
-                                : 0;
-
-                            return [
-                                'completed'      => $completedAssessments,
-                                'not_completed'  => $notCompletedAssessments,
-                                'avg_score'      => $av_completed_score,
-                                'total'          => $totalAssessments,
-                            ];
-                        }
-                    );
-                } catch (\Throwable $e) {
-
-                    // Fallback without cache
-                    $subscriptions = SubscribeCourse::where('user_id', $userId)
-                        ->whereHas('course.courseAssignments')
-                        ->select('assesment_taken', 'assignment_score')
-                        ->get();
-
-                    $totalScore = 0;
-                    $totalAssessmentsTaken = 0;
-                    $totalAssessments = $subscriptions->count();
-
-                    foreach ($subscriptions as $subscription) {
-                        if ($subscription->assesment_taken) {
-                            $totalAssessmentsTaken++;
-
-                            $score = (int) filter_var(
-                                $subscription->assignment_score,
-                                FILTER_SANITIZE_NUMBER_INT
-                            );
-                            $totalScore += $score;
-                        }
+                if (Cache::has('admin_dashboard_stats_system')) {
+                    $adminStats = Cache::get('admin_dashboard_stats_system');
+                    if ($adminStats) {
+                        extract($adminStats);
                     }
+                } else {
+                    $adminStats = self::buildDashboardCache(10);
+                    if ($adminStats) {
+                        extract($adminStats);
+                    }
+                }    
 
-                    $assessmentStats = [
-                        'completed'      => $totalAssessmentsTaken,
-                        'not_completed'  => $totalAssessments - $totalAssessmentsTaken,
-                        'avg_score'      => $totalAssessmentsTaken
-                            ? round($totalScore / $totalAssessmentsTaken, 0)
-                            : 0,
-                        'total'          => $totalAssessments,
-                    ];
-                }
-
-
-                // Access cached values directly
-                $completedAssessments     = $assessmentStats['completed'];
-                $notCompletedAssessments  = $assessmentStats['not_completed'];
-                $av_completed_score       = $assessmentStats['avg_score'];
-                $totalAssessments         = $assessmentStats['total'];
-
-
-
-                $unreadThreads = [];
+                $recent_reviews = [];
                 $threads = [];
-                if (auth()->user()->threads) {
-                    foreach (auth()->user()->threads as $item) {
-                        if ($item->unreadMessagesCount > 0) {
-                            $unreadThreads[] = $item;
-                        } else {
-                            $threads[] = $item;
-                        }
-                    }
-                    $threads = Collection::make(array_merge($unreadThreads, $threads))->take(10);
-                }
+
+                $av_completion_rate       = $adminStats['course_completion']['avg_completion_rate'] ?? 0;
+                $total_completed          = $adminStats['course_completion']['completed'] ?? 0;
+                $total_pending            = $adminStats['course_completion']['not_completed'] ?? 0;
+
+                $av_completed_score        = $adminStats['assessment_stats']['avg_score'] ?? 0;
+                $completed_assesment       = $adminStats['assessment_stats']['completed'] ?? 0;
+                $not_completed_assesment   = $adminStats['assessment_stats']['not_completed'] ?? 0;
+
+                return view('backend.dashboard', array_merge(
+                    compact('adminStats'),
+                    compact(
+                        'threads',
+                        'recent_reviews',
+                        'departments',
+                        'internal_users',
+                        'students_count',
+                        'teachers_count',
+                        'published_courses',
+                        'categories',
+                        'courses_count',
+                        'recent_orders',
+                        'recent_subscriptions',
+                        'recent_contacts',
+                        'total_assignments',
+                        'total_certificate_issued',
+                        'assigned_users_count',
+                        'av_completion_rate',
+                        'total_completed',
+                        'total_pending',
+                        'av_completed_score',
+                        'completed_assesment',
+                        'not_completed_assesment'
+                    )
+                ));
+                
             } elseif (auth()->user()->hasRole('administrator')) {
 
                 //dd("admin");
@@ -757,6 +606,54 @@ class DashboardController extends Controller
                 $av_completed_score       = $assessmentStats['avg_score'];
                 $totalAssessments         = $assessmentStats['total'];
                 $total_certificate_issued = $assessmentStats['total_certificate_issued'];
+            }else {
+                //dd("admin");
+                if (Cache::has('admin_dashboard_stats_system')) {
+                    $adminStats = Cache::get('admin_dashboard_stats_system');
+                    if ($adminStats) {
+                        extract($adminStats);
+                    }
+                } else {
+                    $adminStats = self::buildDashboardCache(10);
+                    if ($adminStats) {
+                        extract($adminStats);
+                    }
+                }
+
+                //dd($adminStats);
+
+                $av_completion_rate       = $adminStats['course_completion']['avg_completion_rate'] ?? 0;
+                $total_completed          = $adminStats['course_completion']['completed'] ?? 0;
+                $total_pending            = $adminStats['course_completion']['not_completed'] ?? 0;
+
+                $av_completed_score        = $adminStats['assessment_stats']['avg_score'] ?? 0;
+                $completed_assesment       = $adminStats['assessment_stats']['completed'] ?? 0;
+                $not_completed_assesment   = $adminStats['assessment_stats']['not_completed'] ?? 0;
+
+                return view('backend.dashboard', array_merge(
+                    compact('adminStats'),
+                    compact(
+                        'departments',
+                        'internal_users',
+                        'students_count',
+                        'teachers_count',
+                        'published_courses',
+                        'categories',
+                        'courses_count',
+                        'recent_orders',
+                        'recent_subscriptions',
+                        'recent_contacts',
+                        'total_assignments',
+                        'total_certificate_issued',
+                        'assigned_users_count',
+                        'av_completion_rate',
+                        'total_completed',
+                        'total_pending',
+                        'av_completed_score',
+                        'completed_assesment',
+                        'not_completed_assesment'
+                    )
+                ));
             }
         }
 

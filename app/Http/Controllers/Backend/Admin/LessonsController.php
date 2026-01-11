@@ -35,7 +35,7 @@ class LessonsController extends Controller
         if (!Gate::allows('lesson_access')) {
             return abort(401);
         }
-        $courses = $courses = Course::has('category')->ofTeacher()->pluck('title', 'id')->prepend('Please select', '');
+        $courses = $courses = Course::has('category')->pluck('title', 'id')->prepend('Please select', '');
 
         return view('backend.lessons.index', compact('courses'));
     }
@@ -51,7 +51,7 @@ class LessonsController extends Controller
         $has_delete = false;
         $has_edit = false;
         $lessons = "";
-        $lessons = Lesson::query()->with('attendance_list')->where('live_lesson', '=', 0)->whereIn('course_id', Course::ofTeacher()->pluck('id'));
+        $lessons = Lesson::query()->with('attendance_list')->where('live_lesson', '=', 0)->whereIn('course_id', Course::pluck('id'));
 
 
 
@@ -223,7 +223,7 @@ class LessonsController extends Controller
         if (!Gate::allows('lesson_create')) {
             return abort(401);
         }
-        $courses = Course::has('category')->ofTeacher()->get()->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
         $course_id = $request->course_id;
 
         $temp_id = $request->uuid ?? null;
@@ -239,7 +239,7 @@ class LessonsController extends Controller
             return $data;
         }
 
-        $courses_all = Course::has('category')->ofTeacher()->get()->pluck('title', 'category_id')->prepend('Please select', '');
+        $courses_all = Course::has('category')->get()->pluck('title', 'category_id')->prepend('Please select', '');
         return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id'));
     }
 
@@ -447,7 +447,7 @@ class LessonsController extends Controller
             return abort(401);
         }
         $videos = '';
-        $courses = Course::has('category')->ofTeacher()->get()->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
 
         $lesson = Lesson::with(['media','mediaVideo'])->findOrFail($id);
 

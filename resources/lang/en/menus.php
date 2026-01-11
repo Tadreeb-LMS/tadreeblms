@@ -5,6 +5,7 @@ return array(
   array(
     'sidebar' =>
     array(
+      'roles_mgt' => 'Permission Setting',
       'Invitations' => 'Invitations',
       'Send-Email-Notification' => 'Send Email Notification',
       'My-Assignments' => 'My Assignments',

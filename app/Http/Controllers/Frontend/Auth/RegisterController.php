@@ -254,6 +254,13 @@ class RegisterController extends Controller
             $mail->Username = env('MAIL_USERNAME');
             $mail->Password = env('MAIL_PASSWORD');
 
+            // use Illuminate\Support\Facades\Mail;
+
+            // Mail::raw('Tinker SMTP test successful ✅', function ($message) {
+            //     $message->to('anupdeveloper07@gmail.com')
+            //             ->subject('Laravel Tinker Mail Test');
+            // });
+
             // $mail->Host = env('MAIL_HOST');             //  smtp host
             // $mail->SMTPAuth = true;
             // $mail->Username = env('MAIL_USERNAME');  //  sender username

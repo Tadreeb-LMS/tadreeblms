@@ -31,6 +31,8 @@ class UpdateUserRequest extends FormRequest
             'first_name'  => ['required', 'max:191'],
             'last_name'  => ['required', 'max:191'],
             'roles' => ['required', 'array'],
+            'change_password' => ['nullable'],
+            'password'   => ['nullable', 'min:6'],
         ];
     }
 }

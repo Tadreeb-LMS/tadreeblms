@@ -34,6 +34,7 @@ return array(
     ),
     'sidebar' =>
     array(
+      'roles_mgt' => 'إعدادات الأذونات',
       'Invitations' => 'الدعوات',
       'Send-Email-Notification' => 'إرسال إشعار البريد الإلكتروني',
       'My-Assignments' => 'مهامي',

@@ -23,8 +23,7 @@ class StoreRolesRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required',
-            'permission' => 'required',
+            'name' => 'required',
             'permission.*' => 'exists:permissions,id',
         ];
     }

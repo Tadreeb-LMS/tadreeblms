@@ -145,7 +145,7 @@
         // alert('ho');
         setTimeout(() => {
             let data = $('#addFeedbackQue').serialize();
-            let url = '/user/course-feedback-questions/update';
+            let url = '{{ route("admin.course-feedback-questions.update") }}';
             var redirect_url = $("#final_index").val();
             var redirect_url_course = $("#feedback_index").val();
             // alert(redirect_url_course);
@@ -156,7 +156,7 @@
                 datatype: "json",
                 success: function(res) {
                     alert('Course feedback question updated successfully');
-                    window.location.href = '/user/course-feedback-questions';
+                    window.location.href = {{ route("admin.course-feedback-questions.index") }};
                 }
             })
         }, 100);

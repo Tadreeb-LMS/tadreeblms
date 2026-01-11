@@ -58,7 +58,7 @@ storage/logs/*.log
 Thumbs.db
 
 # --------------------------
-# Node / Build
+# Node / Build .
 # --------------------------
 
 npm-debug.log

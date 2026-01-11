@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Backend\Admin\TestsController;
 use App\Http\Controllers\Backend\DashboardController;
-
+use App\Http\Controllers\Backend\Admin\RolesController;
 use App\Http\Controllers\Backend\Auth\User\AccountController;
 use App\Http\Controllers\Backend\Auth\User\ProfileController;
 use \App\Http\Controllers\Backend\Auth\User\UpdatePasswordController;
@@ -28,12 +28,14 @@ Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard'
 
 Route::get('setvaluesession/{type}', [DashboardController::class, 'setvaluesession'])->name('setvaluesession');
 
-
+Route::group(['middleware' => ['role:administrator']], function () {
+    Route::resource('roles', 'Admin\RolesController');
+});
 
 Route::group(['middleware' => 'role:teacher|administrator'], function () {
     Route::resource('orders', 'Admin\OrderController');
 });
-Route::group(['middleware' => 'role:administrator'], function () {
+Route::group(['middleware' => 'permission:trainer_access'], function () {
 
     //===== Teachers Routes =====//
     Route::resource('teachers', 'Admin\TeachersController');
@@ -325,7 +327,7 @@ Route::get('bundle-publish/{id}', ['uses' => 'Admin\BundlesController@publish', 
 Route::resource('lessons', 'Admin\LessonsController');
 Route::resource('course-feedback-questions', 'Admin\CourseFeebackController');
 Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeebackController@destroy');
-Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeebackController@edit');
+Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeebackController@edit')->name('course.coursefeedbackquestion.edit');
 Route::post('course-feedback-questions/update', 'Admin\CourseFeebackController@update');
 Route::get('get-lessons-data', ['uses' => 'Admin\LessonsController@getData', 'as' => 'lessons.get_data']);
 Route::post('lessons_mass_destroy', ['uses' => 'Admin\LessonsController@massDestroy', 'as' => 'lessons.mass_destroy']);
@@ -655,7 +657,7 @@ Route::post('user-responses-store', 'Admin\FeedbackController@storeUserResponses
 
 Route::delete('feedback/{id}', ['uses' => 'Admin\FeedbackController@destroy', 'as' => 'feedback.destroy']);
 
-Route::get('get-feedback-detail/{id}', 'Admin\UserFeebackAnswersController@feedback_detail');
+Route::get('get-feedback-detail/{id}', 'Admin\UserFeebackAnswersController@feedback_detail')->name('feedback.detail');
 
 // feebback with multiple choice questions
 Route::get('feedback-question-multiple/{id?}', 'Admin\FeedbackController@feedback_questions')->name('feedback.feedback-question-multiple');

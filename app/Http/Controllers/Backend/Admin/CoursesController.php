@@ -221,9 +221,10 @@ class CoursesController extends Controller
                 ->whereHas('category')
                 ->where('category_id', '=', $id)->orderBy('created_at', 'desc');
         } else {
-            $courses = Course::query()->ofTeacher()
+            $courses = Course::query()
                 ->whereHas('category')
                 ->orderBy('created_at', 'desc');
+            //dd("jlj");
         }
 
         $courses = $courses->with('courseFeedback');

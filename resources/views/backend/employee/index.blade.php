@@ -47,7 +47,7 @@
             <h4 class="text-20">@lang('Trainee')</h4>
         </div>
 
-        @can('course_create')
+        @can('trainee_create')
         <div>
             <a href="{{ route('admin.employee.create') }}">
                 <button type="button" class="add-btn">
@@ -129,6 +129,7 @@
                         <th style="text-align:center;">@lang('strings.backend.general.actions')</th>
                     </tr>
                 </thead>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -213,60 +214,10 @@
     text: '<i class="fa fa-eye icon-styles" aria-hidden="" ></i>',
     },
 ],
-                // buttons: [{
-                //         extend: 'csv',
-                //         action: function(e, dt, button, config) {
-                //             $.ajax({
-                //                 url: `/user/export-trainees-as-csv`,
-                //                 method: "GET",
-                //                 xhrFields: {
-                //                     responseType: "blob",
-                //                 },
-                //                 beforeSend: function() {
-                //                     $("#loader").removeClass("d-none");
-                //                 },
-                //                 complete: function() {
-                //                     $("#loader").addClass("d-none");
-                //                 },
-                //                 success: function(data, status, xhr) {
-                //                     var blob = new Blob([data], {
-                //                         type: xhr.getResponseHeader(
-                //                             "Content-Type"),
-                //                     });
-                //                     var link = document.createElement("a");
-                //                     link.href = window.URL.createObjectURL(blob);
-                //                     link.download = "trainees.csv";
-                //                     document.body.appendChild(link);
-                //                     link.click();
-                //                     document.body.removeChild(link);
-                //                 },
-                //                 error: function(xhr, status, error) {
-                //                     console.error("Error downloading file:", error);
-                //                 },
-                //             });
-                //         }
-                //     },
-                //     {
-                //         extend: 'pdf',
-                //         exportOptions: {
-                //             columns: [1, 2, 3, 4, 5],
-                //         }
-                //     },
-                //     'colvis'
-                // ],
+                
                 ajax: route,
                 columns: [
-                    @if (request('show_deleted') != 1)
-                        {
-                            "data": function(data) {
-                                return '<input type="checkbox" class="single" name="id[]" value="' +
-                                    data.id + '" />';
-                            },
-                            "orderable": false,
-                            "searchable": false,
-                            "name": "id"
-                        },
-                    @endif
+                    
                     // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
                     {
                         data: "id",
@@ -346,9 +297,9 @@
 
             });
             @if (auth()->user()->isAdmin())
-                $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' +
-                    '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>'
-                );
+                // $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' +
+                //     '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>'
+                // );
             @endif
 
 

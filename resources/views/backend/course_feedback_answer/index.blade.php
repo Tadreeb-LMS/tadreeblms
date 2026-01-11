@@ -85,7 +85,7 @@
                 //     'colvis'
                 // ],
                 ajax: {
-                    url: '/user/user-feedback-answers',
+                    url: '{{ route("admin.user-feedback-answers.index") }}',
                     beforeSend: function() {
                         $("#loader").removeClass("d-none");
                     },
@@ -175,13 +175,14 @@
             $("#feedback-content").html("loading ...");
             // get data-id attribute
             var id = $(this).data("id"); // or $(this).attr("data-id")
-
+            var url = "{{ route('admin.feedback.detail', ':id') }}";
+            url = url.replace(':id', id);
             // show modal
             $("#feedbackModal").modal("show");
 
             // Example: load content via AJAX
             $.ajax({
-                url: "/user/get-feedback-detail/" + id, // your route
+                url:  url,
                 type: "GET",
                 success: function (response) {
                     $("#feedback-content").html(response.html);

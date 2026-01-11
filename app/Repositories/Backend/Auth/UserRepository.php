@@ -129,7 +129,7 @@ class UserRepository extends BaseRepository
                 $user->syncPermissions($data['permissions']);
 
                 if(in_array('teacher',$data['roles'])){
-                    $user->teacherProfile()->create();
+                    //$user->teacherProfile()->create();
                 }
 
                 //Send confirmation email if requested and account approval is off
@@ -157,6 +157,7 @@ class UserRepository extends BaseRepository
      */
     public function update(User $user, array $data) : User
     {
+        //dd($data);
         $this->checkUserByEmail($user, $data['email']);
 
         // See if adding any additional permissions
@@ -173,15 +174,8 @@ class UserRepository extends BaseRepository
             ])) {
                 // Add selected roles/permissions
                 $user->syncRoles($data['roles']);
-                $user->syncPermissions($data['permissions']);
+                //$user->syncPermissions($data['permissions']);
 
-                if(in_array('teacher',$data['roles'])){
-                    $user->teacherProfile()->create();
-                }else{
-                    if($user->teacherProfile){
-                        $user->teacherProfile()->delete();
-                    }
-                }
                 event(new UserUpdated($user));
 
                 return $user;
