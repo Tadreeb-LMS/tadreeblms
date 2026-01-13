@@ -14,6 +14,9 @@
     width: 20px;
     height: 20px;
 }
+#password-field::-ms-reveal {
+    display: none;
+}
     </style>
 @endpush
 @section('content')

@@ -5,6 +5,18 @@
 @endpush
 @section('content')
     <style>
+
+        .float-right.gap-20 {
+            gap: 20px;
+            justify-content: right;
+        }
+
+        span.course-type-desc {
+            padding: 0 0 0 20px;
+            font-size: 12px;
+            font-weight: bold;
+            font-style: italic;
+        }
         .create_done {
             padding: 10px 40px;
             font-size: 16px;
@@ -67,6 +79,14 @@
     -webkit-user-select: none;
 }
     </style>
+
+    <div id="main-flow">
+        @include('backend.includes.partials.course-steps', ['step' => 1])
+    </div>
+    <div id="online-flow" style="display: none;">
+        @include('backend.includes.partials.course-steps-online', ['step' => 1])
+    </div>
+
 
     {!! Form::open(['route' => ['admin.courses.store'], 'id' => 'addCourse', 'method' => 'POST', 'files' => true]) !!}
 
@@ -171,7 +191,8 @@
             </div>
 
             <div class="row">
-                <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+
+                <div class="col-sm-12 col-lg-3 col-md-12 form-group">
                     {!! Form::label('course_code', 'Course Code' . ' *', ['class' => 'control-label']) !!}
                     {!! Form::text('course_code', old('course_code'), [
                         'class' => 'form-control',
@@ -179,31 +200,7 @@
                         'required' => false,
                     ]) !!}
                 </div>
-                <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                    {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.courses.fields.title'),
-                        'required' => false,
-                    ]) !!}
-                </div>
-                <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                    {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('arabic_title', old('arabic_title'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('Arabic Title'),
-                    ]) !!}
-
-                </div>
-                <div class="col-md-12 col-lg-6 form-group">
-                    {!! Form::label('slug', trans('labels.backend.courses.fields.slug'), ['class' => 'control-label']) !!}
-                    {!! Form::text('slug', old('slug'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.courses.slug_placeholder'),
-                    ]) !!}
-
-                </div>
-                <div class="col-md-12 col-lg-6 form-group">
+                <div class="col-md-12 col-lg-3 form-group">
                     <div>
 
                         {!! Form::label('slug', trans('Course Language'), ['class' => 'control-label']) !!}
@@ -214,11 +211,37 @@
                             <option value="english">English</option>
                             <option value="arabic">Arabic</option>
                         </select>
-                                               <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
+                        <span class="custom-select-icon">
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
                     </div>
                 </div>
+                
+                <div class="col-sm-12 col-lg-6 col-md-12 form-group">
+                    {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
+                    {!! Form::text('title', old('title'), [
+                        'class' => 'form-control',
+                        'placeholder' => trans('labels.backend.courses.fields.title'),
+                        'required' => false,
+                    ]) !!}
+                </div>
+                {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                    {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
+                    {!! Form::text('arabic_title', old('arabic_title'), [
+                        'class' => 'form-control',
+                        'placeholder' => trans('Arabic Title'),
+                    ]) !!}
+
+                </div> --}}
+                {{-- <div class="col-md-12 col-lg-6 form-group">
+                    {!! Form::label('slug', trans('labels.backend.courses.fields.slug'), ['class' => 'control-label']) !!}
+                    {!! Form::text('slug', old('slug'), [
+                        'class' => 'form-control',
+                        'placeholder' => trans('labels.backend.courses.slug_placeholder'),
+                    ]) !!}
+
+                </div> --}}
+                
             </div>
             <div class="row">
 
@@ -232,7 +255,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                {{-- <div class="col-sm-12 col-lg-2 col-md-12 form-group">
                     {!! Form::label('price', trans('labels.backend.courses.fields.price'), [
                         'class' => 'control-label',
                     ]) !!}
@@ -242,12 +265,8 @@
                         'step' => 'any',
                         'pattern' => '[0-9]',
                     ]) !!}
-                </div>
-                <div class="col-sm-12 col-lg-4 col-md-12">
-                    <label for="control-label">@lang('Minimum percentage required to qualify')</label>
-                    <input type="number" name="marks_required" class="form-control"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value > 100) this.value = 100; if(this.value < 1 && this.value != '') this.value = 1;">
-                </div>
+                </div> --}}
+                
                 <!--div class="col-12 col-lg-4 form-group">
                                 {!! Form::label(
                                     'strike',
@@ -261,7 +280,7 @@
                                     'pattern' => '[0-9]',
                                 ]) !!}
                             </div-->
-                <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                <div class="col-sm-12 col-lg-3 col-md-12 form-group">
                     <div style="margin-bottom: 8px;">
                         Course Image
                     </div>
@@ -274,22 +293,23 @@
 </div>
 
                 </div>
-                <div class="col-sm-12 col-lg-6 col-md-12  form-group">
+                <div class="col-sm-12 col-lg-4 col-md-12  form-group">
                     {!! Form::label('start_date', trans('labels.backend.courses.fields.start_date') . ' (yyyy-mm-dd) *', [
                         'class' => 'control-label',
                     ]) !!}
 
-                    {!! Form::text('start_date', old('start_date'), [
-                        'class' => 'form-control date',
-                        'pattern' =>
-                            '(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))',
-                        'placeholder' => trans('labels.backend.courses.fields.start_date') . ' (Ex . 2019-01-01)',
-                        'autocomplete' => 'off',
-                    ]) !!}
+                    <input
+                      type="date"
+                      name="start_date"
+                      id="start_date"
+                      class="form-control"
+                      min="{{ date('Y-m-d') }}"
+                      value="{{ old('start_date') }}"
+                    >
 
                 </div>
                 @if (Auth::user()->isAdmin())
-                    <div class="col-sm-12 col-lg-6 col-md-12 form-group">
+                    <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                         {!! Form::label('expire_at', trans('labels.backend.courses.fields.expire_at') . ' (yyyy-mm-dd) *', [
                             'class' => 'control-label',
                         ]) !!}
@@ -325,36 +345,49 @@
                     <input class="course-type ml-2 mr-2" type="radio" name="course_type" value="Offline" /> Live-Online
                     <input class="course-type ml-2 mr-2" type="radio" name="course_type" value="Live-Classroom" /> Live-Classroom
                 </div>
+                <span class="course-type-desc">
+                    <span id="e-learning">
+                        E-Learning type course is a course which can be taken online.
+                    </span>
+                    <span id="live-online" style="display: none;">
+                        Live-Online type course is a course can be done on goole meet/Zoom link.
+                    </span>
+                    <span id="live-classroom" style="display: none;">
+                        Live-Classroom type course is a course can be happen on a specific classroom location.
+                    </span>
+                </span>
             </div>
+            
+            
 
-            <div class="row" id="online-course-material">
+            {{-- <div class="row" id="online-course-material">
                 <div class="col-md-12 form-group">
 
                    <div class="mt-2 custom-select-wrapper">
-    <select name="media_type" class="form-control custom-select-box" id="media_type">
-        <option value="">Select One</option>
-        <option value="youtube" @if(old('media_type') == 'youtube') selected @endif>Youtube</option>
-        <option value="vimeo" @if(old('media_type') == 'vimeo') selected @endif>Video</option>
-        <option value="upload" @if(old('media_type') == 'upload') selected @endif>Upload</option>
-        <option value="embed" @if(old('media_type') == 'embed') selected @endif>Embed</option>
-    </select>
-    <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
-</div>
-
-<!-- Video URL Input (YouTube, Vimeo, Embed) -->
-<input type="text" name="video" id="video"
-       value="{{ old('video') }}"
-       class="form-control mt-3 d-none"
-       placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}">
-
-<!-- Video Upload Input -->
-<input type="file" name="video_file" id="video_file"
-       class="form-control mt-3 d-none"
-       accept="video/mp4"
-       placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}">
+                    <select name="media_type" class="form-control custom-select-box" id="media_type">
+                        <option value="">Select One</option>
+                        <option value="youtube" @if(old('media_type') == 'youtube') selected @endif>Youtube</option>
+                        <option value="vimeo" @if(old('media_type') == 'vimeo') selected @endif>Video</option>
+                        <option value="upload" @if(old('media_type') == 'upload') selected @endif>Upload</option>
+                        <option value="embed" @if(old('media_type') == 'embed') selected @endif>Embed</option>
+                    </select>
+                    <span class="custom-select-icon">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
                 </div>
+
+                <!-- Video URL Input (YouTube, Vimeo, Embed) -->
+                <input type="text" name="video" id="video"
+                    value="{{ old('video') }}"
+                    class="form-control mt-3 d-none"
+                    placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}">
+
+                    <!-- Video Upload Input -->
+                    <input type="file" name="video_file" id="video_file"
+                        class="form-control mt-3 d-none"
+                        accept="video/mp4"
+                        placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}">
+            </div> --}}
                 {{-- <div class="col-md-12 form-group d-none" id="video_subtitle_box"> --}}
 
                 {{-- {!! Form::label('add_subtitle', trans('labels.backend.lessons.fields.add_subtitle'), ['class' => 'control-label']) !!} --}}
@@ -362,63 +395,20 @@
                 {{-- {!! Form::file('video_subtitle', ['class' => 'form-control', 'placeholder' => trans('labels.backend.lessons.video_subtitle'),'id'=>'video_subtitle'  ]) !!} --}}
 
                 {{-- </div> --}}
-                <div class="col-md-12 form-group">
+                {{-- <div class="col-md-12 form-group">
 
                     @lang('labels.backend.lessons.video_guide')
-                </div>
+                </div> --}}
+                
             </div>
             <div class="row">
-                <div class="col-12 form-group">
-                    <div class="checkbox d-inline mr-3">
-                        {!! Form::hidden('published', 0) !!}
-                        <input type="checkbox" name="published" value="1">
-                        {!! Form::label('published', trans('labels.backend.courses.fields.published'), [
-                            'class' => 'checkbox control-label font-weight-bold',
-                        ]) !!}
-                    </div>
-                    @if (Auth::user()->isAdmin())
-                        <div class="checkbox d-inline mr-3">
-                            {!! Form::hidden('featured', 0) !!}
-                            <input type="checkbox" name="featured" value="1">
-                            {!! Form::label('featured', trans('labels.backend.courses.fields.featured'), [
-                                'class' => 'checkbox control-label font-weight-bold',
-                            ]) !!}
-                        </div>
-                        <div class="checkbox d-inline mr-3">
-                            {!! Form::hidden('trending', 0) !!}
-                            <input type="checkbox" name="trending" value="1">
-                            {!! Form::label('trending', trans('labels.backend.courses.fields.trending'), [
-                                'class' => 'checkbox control-label font-weight-bold',
-                            ]) !!}
-                        </div>
-                        <div class="checkbox d-inline mr-3">
-                            {!! Form::hidden('popular', 0) !!}
-                            <input type="checkbox" name="popular" value="1">
-                            {!! Form::label('popular', trans('labels.backend.courses.fields.popular'), [
-                                'class' => 'checkbox control-label font-weight-bold',
-                            ]) !!}
-                        </div>
-                    @endif
-                    <div class="checkbox d-inline mr-3">
-                        {!! Form::hidden('free', 0) !!}
-                        <input type="checkbox" name="free" value="1">
-                        {!! Form::label('free', trans('labels.backend.courses.fields.free'), [
-                            'class' => 'checkbox control-label font-weight-bold',
-                        ]) !!}
-                    </div>
-
-                    <div class="checkbox d-inline mr-3">
-                        {!! Form::hidden('cms', 0) !!}
-                        <input type="checkbox" name="cms" value="1">
-                        {!! Form::label('cms', trans('CME'), ['class' => 'checkbox control-label font-weight-bold']) !!}
-                    </div>
-                </div>
-                <div class="col-12 d-flex justify-content-between">
+                
+                <div class="col-12 d-flex float-right gap-20">
                     <!-- <div class="col-12 text-center form-group">
                                 {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
                             </div> -->
                             <div class="form-group">
-                                {!! Form::submit(trans('Done'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
+                                {!! Form::submit(trans('Save As Draft'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
                             </div>
                             <div class="form-group">
                                 {!! Form::submit(trans('Next'), [
@@ -428,7 +418,7 @@
                             </div>
     
                 </div>
-            </div>
+            </div> 
         </div>
         <input type="hidden" id="course_index" value="{{ route('admin.courses.index') }}">
         <input type="hidden" id="lesson" value="{{ route('admin.lessons.create') }}">
@@ -446,7 +436,43 @@
     <script src="/js/helpers/form-submit.js"></script>
     <script>
         
-    
+    // Validate total weightage <= 100
+function validateWeightage() {
+    let total = 0;
+    document.querySelectorAll('.sm-input').forEach(function(input) {
+        let val = parseInt(input.value) || 0;
+        total += val;
+    });
+
+    if (total > 100) {
+        alert('Total module weightage cannot exceed 100%.');
+        return false;
+    }
+    return true;
+}
+
+// Bind to form submit
+$('#addCourse').on('submit', function(e) {
+    if (!validateWeightage()) {
+        e.preventDefault(); // stop submission
+        return false;
+    }
+});
+
+
+document.querySelectorAll('.sm-input').forEach(function(input) {
+    input.addEventListener('input', function() {
+        let total = 0;
+        document.querySelectorAll('.sm-input').forEach(function(i) {
+            total += parseInt(i.value) || 0;
+        });
+        if (total > 100) {
+            input.value = ''; // reset last input
+            alert('Total module weightage cannot exceed 100%');
+        }
+    });
+});
+
 
 
 
@@ -496,17 +522,51 @@
         })
 
 
-        $(document).on('change', '.course-type', function() {
-            if ($(this).val()) {
-                //console.log($(this).val())
-                if ($(this).val() == 'Online') {
-                    $('#online-course-material').show()
-                } else {
-                    $('#online-course-material').hide()
-                }
+       $(document).on('change', '.course-type', function () {
+    const type = $(this).val();
 
-            }
-        })
+    if (type === 'Live-Classroom') {
+        $('#e-learning').hide();
+        $('#live-online').hide();
+        $('#live-classroom').show();
+
+        $('#lesson-module-block')
+            .hide()
+            .find('input')
+            .prop('disabled', true);
+
+            $('#main-flow').hide()
+            $('#online-flow').show()
+
+    } else if (type === 'Offline') {
+        $('#e-learning').hide();
+        $('#live-online').show();
+        $('#live-classroom').hide();
+
+        $('#lesson-module-block')
+            .hide()
+            .find('input')
+            .prop('disabled', true);
+
+             $('#main-flow').hide()
+            $('#online-flow').show()
+
+    } else {
+        // E-Learning
+        $('#e-learning').show();
+        $('#live-online').hide();
+        $('#live-classroom').hide();
+
+        $('#lesson-module-block')
+            .show()
+            .find('input')
+            .prop('disabled', false);
+
+            $('#main-flow').show()
+            $('#online-flow').hide()
+    }
+});
+
 
         $(document).on('change', '#media_type', function() {
             if ($(this).val()) {
@@ -585,11 +645,17 @@
                             if (nxt_url_val == 'Done') {
                                 window.location.href = redirect_url_course;
                                 return;
+                            } else {
+                                window.location.href = redirect_url_course;
+                                return;
                             }
                         }
 
                         if (nxt_url_val == 'Done' && last_part == 'course_new') {
                             window.location.href = redirect_url_assi;
+                            return;
+                        } else {
+                            window.location.href = redirect_url_course;
                             return;
                         }
 
@@ -597,7 +663,7 @@
                     error: function(xhr, status, error) {
                         console.log(xhr)
                         res = JSON.parse(xhr.responseText)
-                        alert(res.clientmsg);
+                        //alert(res.clientmsg);
                         let submitbtn = obj.find("[type=submit]");
                         submitbtn.prop("disabled", false);
                         showErrorMessage(obj, xhr)

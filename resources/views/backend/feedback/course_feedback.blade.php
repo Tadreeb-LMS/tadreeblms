@@ -46,11 +46,14 @@
 }
 </style>
 
+
+@include('backend.includes.partials.course-steps', ['step' => 4, 'course_id' => $_GET['course_id'], 'course' => null])
+
 {!! Form::open(['method' => 'POST', 'id' => 'addFeedbackQue', 'files' => true]) !!}
 <div class="">
     <div class="pb-3">
 <div class="grow">
-                <h4 class="text-20">Add Feedback Courses</h4>
+                <h4 class="text-20">Add Feedback Courses </h4>
               </div>
     </div>
     <div class="card">
@@ -138,7 +141,7 @@
             </div>
         </div> -->
     </div>
-    <input type="hidden" id="final_index" value="{{ route('admin.assessment_accounts.final-submit') }}">
+    <input type="hidden" id="final_index" value="{{ route('admin.assessment_accounts.final-submit', [$_GET['course_id']]) }}"> 
     <input type="hidden" id="feedback_index" value="{{ route('admin.feedback_question.index') }}">
 </div>
     

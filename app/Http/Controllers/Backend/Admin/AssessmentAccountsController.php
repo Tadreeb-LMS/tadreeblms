@@ -33,8 +33,10 @@ use Illuminate\Support\Carbon;
 use App\Helpers\CustomValidation;
 use App\Models\CourseAssignmentToUser;
 use App\Models\courseInvitationAssignment;
+use App\Models\CourseModuleWeightage;
 use App\Models\Test;
 use Illuminate\Support\Facades\DB as FacadesDB;
+use Illuminate\Support\Facades\Validator;
 
 class AssessmentAccountsController extends Controller
 {
@@ -464,14 +466,86 @@ class AssessmentAccountsController extends Controller
         return view('backend.assessment_accounts.add_new_account', compact('teachers', 'assignment', 'courses', 'category', 'questions', 'departments'));
     }
 
-    public function final_submit()
+    public function final_submit(Request $request, $id = null)
     {
-        return view('backend.assessment_accounts.final_submit');
+        $course = Course::find($id);
+        return view('backend.assessment_accounts.final_submit', [
+            'course_id' => $id ?? null,
+            'course' => $course ?? null
+        ]);
     }
 
-    public function final_submit_store()
+    public function final_submit_store(Request $request)
     {
-        return redirect()->route('admin.courses.index')->withFlashSuccess(trans('You completed all the flow for Courses...'));
+        $course_id = $request->course_id;
+
+        if (!$course_id) {
+            return redirect()
+                ->back()
+                ->withErrors(['course_id' => 'Invalid course'])
+                ->withInput();
+        }
+
+        // ---------------- Base Validation ----------------
+        $validator = Validator::make($request->all(), [
+            'marks_required' => 'nullable|integer|min:1|max:100',
+            'course_module_weight' => 'required|array',
+            'course_module_weight.*' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        // ---------------- Custom Total Validation ----------------
+        $validator->after(function ($validator) use ($request) {
+
+            $weights = array_filter(
+                $request->course_module_weight ?? [],
+                fn ($value) => $value !== null && $value !== ''
+            );
+
+            $total = array_sum($weights);
+
+            if ($total > 100) {
+                $validator->errors()->add(
+                    'course_module_weight',
+                    'Total module weightage must not exceed 100%'
+                );
+            }
+
+            // Uncomment if EXACTLY 100 is required
+            /*
+            if ($total !== 100) {
+                $validator->errors()->add(
+                    'course_module_weight',
+                    'Total module weightage must be exactly 100%'
+                );
+            }
+            */
+        });
+
+        // ---------------- Stop if validation fails ----------------
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // ---------------- Save Data ----------------
+        CourseModuleWeightage::updateOrCreate(
+            ['course_id' => $course_id],
+            [
+                'weightage' => $request->course_module_weight,
+                'minimun_qualify_marks' => $request->marks_required ?? 70,
+            ]
+        );
+
+        Course::where('id', $course_id)->update([
+            'current_step' => 'feedback-added',
+            'published' => 1,
+        ]);
+
+        return redirect()
+            ->route('admin.courses.index')
+            ->withFlashSuccess('You completed all the flow for Courses...');
     }
 
 

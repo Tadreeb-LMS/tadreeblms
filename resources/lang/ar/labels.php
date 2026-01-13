@@ -200,6 +200,7 @@ return array(
         'trending' => 'الدورات الحديثة',
         'free' => 'حر',
         'unpublished' => 'غير منشور',
+        'draft' => 'مسودة'
       ),
       'add_categories' => 'إضافة فئات',
       'add_teachers' => 'إضافة المعلمين',

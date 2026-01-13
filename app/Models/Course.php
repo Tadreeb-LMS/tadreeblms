@@ -34,7 +34,7 @@ class Course extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online'];
+    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step'];
 
     protected $appends = ['image'];
 
@@ -69,6 +69,13 @@ class Course extends Model
     }
 
 
+
+    public function latestModuleWeightage()
+    {
+        return $this->hasOne(CourseModuleWeightage::class)->latestOfMany();
+    }
+
+
     
     public function getCourseImageAttribute($value)
     {
@@ -80,7 +87,7 @@ class Course extends Model
 
         $storage = config('filesystems.default');
         if( $storage == 'local') {
-            return $value;
+            return asset('storage/uploads/' . $value);
         } else {
             return Storage::disk('s3')->temporaryUrl(
                 $value,

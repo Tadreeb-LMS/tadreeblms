@@ -9,7 +9,7 @@ use App\Models\Course;
 use App\Models\Category;
 use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
-use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, EmployeeProfile, Test, TestQuestion, UserCourseDetail};
+use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
 use Auth;
 use DB;
@@ -86,11 +86,13 @@ class CustomHelper
                 foreach ($rows as $row) {
                     $progress = self::getCourseProgress($row->course,  $row, $row->user_id);
 
-                    //dd($progress, $course_id);
+                    $course_weightage = CourseModuleWeightage::where('course_id',$course_id)->first();
 
-                    if ($progress > 0 && $progress < 70) {
+                    $min_passing_marks = $course_weightage->minimun_qualify_marks ?? 70;
+
+                    if ($progress > 0 && $progress < $min_passing_marks) {
                         $progress_status =  'In progress';
-                    } elseif ($progress >= 70) {
+                    } elseif ($progress >= $min_passing_marks) {
                         $progress_status =  'Completed';
                     }
 
@@ -119,11 +121,13 @@ class CustomHelper
 
             $progress =  $helper->getCourseProgress($sub_course->course,  $sub_course, $user_id);
 
-            // dd($progress);
+            $course_weightage = CourseModuleWeightage::where('course_id',$course_id)->first();
 
-            if ($progress > 0 && $progress < 70) {
+            $min_passing_marks = $course_weightage->minimun_qualify_marks ?? 70;
+
+            if ($progress > 0 && $progress < $min_passing_marks) {
                 $progress_status =  'In progress';
-            } elseif ($progress >= 70) {
+            } elseif ($progress >= $min_passing_marks) {
                 $progress_status =  'Completed';
             }
 
@@ -175,7 +179,12 @@ class CustomHelper
 
         $score = @$user_id ? @$sub_data->assignmentRawScore($user_id) : 0;
 
-        if ($score >= 70) {
+        $course_weightage = CourseModuleWeightage::where('course_id',$course->id)->first();
+
+        $min_passing_marks = $course_weightage->minimun_qualify_marks ?? 70;
+
+
+        if ($score >= $min_passing_marks) {
             $assignment_status = 'Passed';
         } else {
             $assignment_status = 'Failed';
@@ -190,17 +199,17 @@ class CustomHelper
 
         // 3️⃣ Lesson weight rules
         if ($has_assessment && $has_feedback) {
-            $lesson_weight = 75;
+            $lesson_weight = $course_weightage->weightage['LessonModule'] ?? 75;
         } elseif ($has_assessment && !$has_feedback) {
-            $lesson_weight = 85;
+            $lesson_weight = $course_weightage->weightage['LessonModule'] ?? 85;
         } elseif (!$has_assessment && $has_feedback) {
-            $lesson_weight = 90;
+            $lesson_weight = $course_weightage->weightage['LessonModule'] ?? 90;
         } else {
             $lesson_weight = 100;  // no assessment + no feedback
         }
 
-        $assessment_weight = $has_assessment ? 15 : 0;
-        $feedback_weight   = $has_feedback ? 10 : 0;
+        $assessment_weight = $has_assessment ? $course_weightage->weightage['QuestionModule'] : 0;
+        $feedback_weight   = $has_feedback ? $course_weightage->weightage['FeedbackModule'] : 0;
 
         // 4️⃣ Fetch lessons
         $lessons = Lesson::where('course_id', $course->id)

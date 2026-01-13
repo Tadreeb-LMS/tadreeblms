@@ -239,8 +239,12 @@ class LessonsController extends Controller
             return $data;
         }
 
+        $course = Course::with('latestModuleWeightage')->where('id',$course_id)->first();
+
+        //dd( $course);
+
         $courses_all = Course::has('category')->get()->pluck('title', 'category_id')->prepend('Please select', '');
-        return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id'));
+        return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id', 'course'));
     }
 
     /**
@@ -260,19 +264,17 @@ class LessonsController extends Controller
 
         DB::beginTransaction();
 
+        //dd($request->all());
+
         //dd($request->all(), );
 
         try {
             for ($i = 0; $i < $count; $i++) {
                 $slug = "";
                 
-                if (($request->slug[$i] == "") || $request->slug[$i] == null) {
-                    $slug = str_slug($request->title[$i]);
-                } elseif ($request->slug[$i] != null) {
-                    $slug = $request->slug[$i];
-                }
-
-                $slug = uniqid() . $slug;
+                
+                $slug = uniqid() . $request->title[$i];
+                
 
                 $slug_lesson = Lesson::where('slug', '=', $slug)->first();
                 if ($slug_lesson != null) {
@@ -417,7 +419,16 @@ class LessonsController extends Controller
                 
             }
 
-            
+            //dd();
+
+            //Update Course step
+            Course::where('id',$request->course_id)->update([
+                'current_step' => 'lesson-added'
+            ]);
+
+            $course = Course::with('latestModuleWeightage')->find($request->course_id);
+
+            //dd("kk");
 
             DB::commit();
 

@@ -3,6 +3,20 @@
 
 @section('content')
 <!-- {!! Form::open(['method' => 'POST', 'route' => ['admin.questions.store'], 'files' => true,]) !!} -->
+<style>
+.col-12.mt-5.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+.frm_submit {
+    cursor: pointer;
+}
+</style>
+
+
+
+@include('backend.includes.partials.course-steps', ['step' => 3, 'course_id' => $course_id, 'course' => $course ?? null ])
+
 
 <div class="pb-3 d-flex justify-content-between align-items-center">
        <h4>
@@ -48,8 +62,8 @@
 
                     <select class="form-control custom-select-box" name="question_type" id="question_type">
                         <option value="1"> Single Choice </option>
-                        <option value="2"> Multiple Choice </option>
-                        <option value="3"> Short Answer </option>
+                        {{-- <option value="2"> Multiple Choice </option>
+                        <option value="3"> Short Answer </option> --}}
                     </select>
                      <span class="custom-select-icon">
         <i class="fa fa-chevron-down"></i>
@@ -95,10 +109,27 @@
             </div>
         </div>
     </div>
-    <div class="col-12 text-right">
-        {!! Form::button(trans('strings.backend.general.app_save'), ['class' => 'frm_submit cancel-btn mb-4 form-group', 'id'=>'save', 'value'=>'save']) !!}
-        {!! Form::button('Save & Add More', ['class' => 'frm_submit add-btn form-group', 'id'=>'save_and_add_more', 'value'=>'save_and_add_more']) !!}
+    <div class="col-12 mt-5 buttons">
+     {!! Form::button('Save & Add More', ['class' => 'frm_submit add-btn form-group', 'id'=>'save_and_add_more', 'value'=>'save_and_add_more']) !!}
+     <div class="text-right">
+        <button
+            type="button"
+            class="frm_submit cancel-btn mb-4 form-group"
+            id="save_as_draft"
+            value="Save As Draft">
+            Save As Draft
+        </button>
+
+        <button
+            type="button"
+            class="frm_submit add-btn form-group"
+            id="save"
+            value="Next">
+            Next
+        </button>
     </div>
+    </div>
+    
 </div>
 
 
@@ -112,213 +143,13 @@
     });
 
     CKEDITOR.replace('question');
-    // CKEDITOR.replace('question', {
-    //     toolbar: [{
-    //             name: 'clipboard',
-    //             groups: ['clipboard', 'undo'],
-    //             items: ['PasteFromWord', '-', 'Undo', 'Redo']
-    //         },
-    //         {
-    //             name: 'editing',
-    //             groups: ['find', 'selection', 'spellchecker'],
-    //             items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt']
-    //         },
-    //         {
-    //             name: 'forms',
-    //             items: ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField']
-    //         },
-    //         {
-    //             name: 'basicstyles',
-    //             groups: ['basicstyles', 'cleanup'],
-    //             items: ['Bold', 'Italic', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-    //         },
-    //         {
-    //             name: 'paragraph',
-    //             groups: ['list', 'indent', 'blocks', 'bidi'],
-    //             items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'BidiLtr', 'BidiRtl', 'Language']
-    //         },
-    //         {
-    //             name: 'links',
-    //             items: ['Link', 'Unlink']
-    //         },
-    //         {
-    //             name: 'insert',
-    //             items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'Iframe']
-    //         },
-    //         {
-    //             name: 'colors',
-    //             items: ['TextColor', 'BGColor']
-    //         },
-    //         {
-    //             name: 'tools',
-    //             items: ['Maximize', 'ShowBlocks']
-    //         },
-    //         {
-    //             name: 'others',
-    //             items: ['-']
-    //         },
-    //         {
-    //             name: 'about',
-    //             items: ['About']
-    //         }
-    //     ]
-    // });
+    
     CKEDITOR.replace('option');
-    // CKEDITOR.replace('option', {
-    //     toolbar: [{
-    //             name: 'clipboard',
-    //             groups: ['clipboard', 'undo'],
-    //             items: ['PasteFromWord', '-', 'Undo', 'Redo']
-    //         },
-    //         {
-    //             name: 'editing',
-    //             groups: ['find', 'selection', 'spellchecker'],
-    //             items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt']
-    //         },
-    //         {
-    //             name: 'forms',
-    //             items: ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField']
-    //         },
-    //         {
-    //             name: 'basicstyles',
-    //             groups: ['basicstyles', 'cleanup'],
-    //             items: ['Bold', 'Italic', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-    //         },
-    //         {
-    //             name: 'paragraph',
-    //             groups: ['list', 'indent', 'blocks', 'bidi'],
-    //             items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'BidiLtr', 'BidiRtl', 'Language']
-    //         },
-    //         {
-    //             name: 'links',
-    //             items: ['Link', 'Unlink']
-    //         },
-    //         {
-    //             name: 'insert',
-    //             items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'Iframe']
-    //         },
-    //         {
-    //             name: 'colors',
-    //             items: ['TextColor', 'BGColor']
-    //         },
-    //         {
-    //             name: 'tools',
-    //             items: ['Maximize', 'ShowBlocks']
-    //         },
-    //         {
-    //             name: 'others',
-    //             items: ['-']
-    //         },
-    //         {
-    //             name: 'about',
-    //             items: ['About']
-    //         }
-    //     ]
-    // });
+    
     CKEDITOR.replace('solution');
-    // CKEDITOR.replace('solution', {
-    //     toolbar: [{
-    //             name: 'clipboard',
-    //             groups: ['clipboard', 'undo'],
-    //             items: ['PasteFromWord', '-', 'Undo', 'Redo']
-    //         },
-    //         {
-    //             name: 'editing',
-    //             groups: ['find', 'selection', 'spellchecker'],
-    //             items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt']
-    //         },
-    //         {
-    //             name: 'forms',
-    //             items: ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField']
-    //         },
-    //         {
-    //             name: 'basicstyles',
-    //             groups: ['basicstyles', 'cleanup'],
-    //             items: ['Bold', 'Italic', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-    //         },
-    //         {
-    //             name: 'paragraph',
-    //             groups: ['list', 'indent', 'blocks', 'bidi'],
-    //             items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'BidiLtr', 'BidiRtl', 'Language']
-    //         },
-    //         {
-    //             name: 'links',
-    //             items: ['Link', 'Unlink']
-    //         },
-    //         {
-    //             name: 'insert',
-    //             items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'Iframe']
-    //         },
-    //         {
-    //             name: 'colors',
-    //             items: ['TextColor', 'BGColor']
-    //         },
-    //         {
-    //             name: 'tools',
-    //             items: ['Maximize', 'ShowBlocks']
-    //         },
-    //         {
-    //             name: 'others',
-    //             items: ['-']
-    //         },
-    //         {
-    //             name: 'about',
-    //             items: ['About']
-    //         }
-    //     ]
-    // });
+    
     CKEDITOR.replace('comment')
-    // CKEDITOR.replace('comment', {
-    //     toolbar: [{
-    //             name: 'clipboard',
-    //             groups: ['clipboard', 'undo'],
-    //             items: ['PasteFromWord', '-', 'Undo', 'Redo']
-    //         },
-    //         {
-    //             name: 'editing',
-    //             groups: ['find', 'selection', 'spellchecker'],
-    //             items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt']
-    //         },
-    //         {
-    //             name: 'forms',
-    //             items: ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField']
-    //         },
-    //         {
-    //             name: 'basicstyles',
-    //             groups: ['basicstyles', 'cleanup'],
-    //             items: ['Bold', 'Italic', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-    //         },
-    //         {
-    //             name: 'paragraph',
-    //             groups: ['list', 'indent', 'blocks', 'bidi'],
-    //             items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'BidiLtr', 'BidiRtl', 'Language']
-    //         },
-    //         {
-    //             name: 'links',
-    //             items: ['Link', 'Unlink']
-    //         },
-    //         {
-    //             name: 'insert',
-    //             items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'Iframe']
-    //         },
-    //         {
-    //             name: 'colors',
-    //             items: ['TextColor', 'BGColor']
-    //         },
-    //         {
-    //             name: 'tools',
-    //             items: ['Maximize', 'ShowBlocks']
-    //         },
-    //         {
-    //             name: 'others',
-    //             items: ['-']
-    //         },
-    //         {
-    //             name: 'about',
-    //             items: ['About']
-    //         }
-    //     ]
-    // });
+    
 </script>
 @stop
 @push('after-scripts')

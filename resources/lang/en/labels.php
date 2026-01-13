@@ -15,6 +15,7 @@ return array(
       'title' => 'Courses',
       'fields' =>
       array(
+        'draft' => 'draft',
         'published' => 'Published',
         'unpublished' => 'Not Published',
         'featured' => 'Featured',

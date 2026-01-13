@@ -20,7 +20,7 @@ use App\Http\Requests\Admin\UpdateCoursesRequest;
 use App\Http\Controllers\Traits\FileUploadTrait;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\CustomHelper;
-use App\Models\{Assignment, courseAssignment, CourseAssignmentToUser, CourseFeedback, Department};
+use App\Models\{Assignment, courseAssignment, CourseAssignmentToUser, CourseFeedback, CourseModuleWeightage, Department};
 use App\Models\Stripe\SubscribeCourse;
 use App\Jobs\SendEmailJob;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -434,7 +434,14 @@ class CoursesController extends Controller
 })
             ->addColumn('status', function ($q) {
                 $text = "";
-                $text = ($q->published == 1) ? "<p class='pill-publish' >" . trans('labels.backend.courses.fields.published') . "</p>" : "<p class='pill-unpublish' >" . trans('labels.backend.courses.fields.unpublished') . "</p>";
+               if ($q->published == 1) {
+                    $text = "<p class='pill-publish'>" . trans('labels.backend.courses.fields.published') . "</p>";
+                } elseif ($q->published == 0) {
+                    $text = "<p class='pill-draft'>" . trans('labels.backend.courses.fields.draft') . "</p>";
+                } else { // -1
+                    $text = "<p class='pill-unpublish'>" . trans('labels.backend.courses.fields.unpublished') . "</p>";
+                }
+
                 if (auth()->user()->isAdmin()) {
                     $text .= ($q->featured == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-warning p-1 mr-1' >" . trans('labels.backend.courses.fields.featured') . "</p>" : "";
                     $text .= ($q->trending == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-success p-1 mr-1' >" . trans('labels.backend.courses.fields.trending') . "</p>" : "";
@@ -516,12 +523,14 @@ class CoursesController extends Controller
 
     public function store(StoreCoursesRequest $request)
     {
-        //dd("yes");
+        //dd($request->all());
         $media = '';
         if (!Gate::allows('course_create')) {
             return abort(401);
         }
-
+        $request->validate([
+            'start_date' => 'required|date|after_or_equal:today',
+        ]);
         DB::beginTransaction();
 
         try {
@@ -577,7 +586,7 @@ class CoursesController extends Controller
             $course->course_lang = $request->course_lang ?? 'english';
             $course->is_online = $request->course_type ?? 'Online';
 
-            
+            $course->current_step = 'course-added';
 
             $course->temp_id = $uniqueId;
             $course->save();
@@ -698,6 +707,28 @@ class CoursesController extends Controller
                 $course->save();
             }
 
+            //save course weitage
+
+            $course_module_weight = $request->course_module_weight ?? [];
+            $last_module_array = $request->course_module_inc ?? ['QuestionModule'];
+
+            //dd($last_module_array);
+
+            $last_module = end($last_module_array);
+
+            CourseModuleWeightage::create([
+                'course_id' => $course->id,
+                'minimun_qualify_marks' => $request->marks_required ?? 100,
+                'weightage' => [
+                    'LessonModule'   => isset($course_module_weight['LessonModule']) ? (int)$course_module_weight['LessonModule'] : 0,
+                    'QuestionModule' => isset($course_module_weight['QuestionModule']) ? (int)$course_module_weight['QuestionModule'] : 0,
+                    'FeedbackModule' => isset($course_module_weight['FeedbackModule']) ? (int)$course_module_weight['FeedbackModule'] : 0,
+                ],
+                'module_included' => $last_module_array,
+                'last_module' => $last_module,
+            ]);
+
+            //dd("jj");
 
             $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
 
@@ -777,7 +808,8 @@ class CoursesController extends Controller
 
         $already_assigned_internal_users = SubscribeCourse::where('course_id', $id)->get()->pluck('user_id');
 
-        $course = Course::findOrFail($id);
+        $course = Course::with('latestModuleWeightage')->findOrFail($id);
+        //dd($course);
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments'));
     }
@@ -813,8 +845,10 @@ class CoursesController extends Controller
 
 
         $storage = config('filesystems.default');
+        //dd($storage);
         if( $storage == 'local') {
             $request = $this->saveFiles($request);
+            //dd( $request);
         } else {
             $request = $this->saveFiles_s3($request);
         }
@@ -879,9 +913,13 @@ class CoursesController extends Controller
             }
         }
 
-        //dd($request->all());
+        //dd( $course, $request->all());
 
+        
         $course->update($request->all());
+
+        $course->is_online = $request->course_type ?? 'Online';
+
         if (($request->slug == "") || $request->slug == null) {
             $course->slug = str_slug($request->title);
             $course->save();
@@ -891,25 +929,66 @@ class CoursesController extends Controller
             $course->save();
         }
 
-        $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
-        $course->teachers()->sync($teachers);
+        // $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
+        // $course->teachers()->sync($teachers);
 
-        $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
-        $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
+        // $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
+        // $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
         //dd($internalStudents);
 
-        $students = array_merge($internalStudents, $externalStudents);
-        // Auto subscribe into courses
-        foreach ($students as $id) {
-            $data = [
-                'user_id' => $id,
-                'course_id' =>  $course->id,
-                'status' => 1
-            ];
-            SubscribeCourse::updateOrCreate($data);
+        // $students = array_merge($internalStudents, $externalStudents);
+        // // Auto subscribe into courses
+        // foreach ($students as $id) {
+        //     $data = [
+        //         'user_id' => $id,
+        //         'course_id' =>  $course->id,
+        //         'status' => 1
+        //     ];
+        //     SubscribeCourse::updateOrCreate($data);
+        // }
+
+        //dd("g");
+        //dd($request->all());
+        $next_btn = $request->submit_btn;
+        //dd($next_btn);
+
+        if($course->published == 1) {
+             return redirect()->route('admin.courses.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
         }
 
-        return redirect()->route('admin.courses.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
+        if($next_btn == 'Save As Draft') {
+            return redirect()->route('admin.courses.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
+            //dd("hh");
+        } else {
+
+            if($course->current_step == 'course-added') {
+                if ($request->course_type === 'Online') {
+                    return redirect()
+                        ->route('admin.lessons.create', ['course_id' => $course->id])
+                        ->withFlashSuccess(trans('alerts.backend.general.updated'));
+                } 
+                
+                
+                return redirect()
+                    ->route('admin.test_questions.create', ['course_id' => $course->id])
+                    ->withFlashSuccess(trans('alerts.backend.general.updated'));
+            }
+
+            if($course->current_step == 'lesson-added') {
+                return redirect()
+                    ->route('admin.test_questions.create', ['course_id' => $course->id])
+                    ->withFlashSuccess(trans('alerts.backend.general.updated'));
+            }
+                
+            if($course->current_step == 'question-added') {
+                //course-feedback-create
+                return redirect()
+                    ->route('admin.feedback.create_course_feedback', ['course_id' => $course->id])
+                    ->withFlashSuccess(trans('alerts.backend.general.updated'));
+            }
+
+        }
+
     }
 
 
@@ -1101,9 +1180,11 @@ class CoursesController extends Controller
 
         $course = Course::findOrFail($id);
         if ($course->published == 1) {
-            $course->published = 0;
+            $course->published = -1;
         } else {
-            $course->published = 1;
+            if($course->published == -1) {
+                $course->published = 1;
+            }
         }
         $course->save();
 

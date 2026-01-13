@@ -29,7 +29,7 @@ class StoreCoursesRequest extends FormRequest
             'title' => 'required|max:200',
             'category_id' => 'required',
             'course_code' => 'required|max:100',
-            'arabic_title' => 'required|max:200',
+            //'arabic_title' => 'required|max:200',
             // 'marks_required' => 'required',
             //'start_date' => 'date_format:'.config('app.date_format'),
         ];

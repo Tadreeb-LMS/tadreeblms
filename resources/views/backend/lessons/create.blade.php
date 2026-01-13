@@ -72,6 +72,8 @@
 
 @section('content')
 
+@include('backend.includes.partials.course-steps', ['step' => 2, 'course_id' => $course->id, 'course' => $course ])
+
 <form method="POST" id="addLesson" enctype="multipart/form-data" autocomplete="off">
 @csrf()
 
@@ -157,13 +159,13 @@
             
         </div> --}}
 
-        <div class="col-12 col-lg-12 form-group">
+        {{-- <div class="col-12 col-lg-12 form-group">
                 <label for="slug" class="control-label">
                     {{ trans('labels.backend.lessons.fields.slug') }}
                 </label>
                 <input type="text" name="slug[]" value="{{ old('slug') }}" class="form-control" placeholder="{{ trans('labels.backend.lessons.slug_placeholder') }}" />
                 
-         </div>
+         </div> --}}
         </div>
 
 
@@ -316,12 +318,14 @@
 
                 <div>
                     
-                    <button type="submit" class="btn cancel-btn next frm_submit" id="nextBtn">
+
+                    <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
+                        Save As Draft
+                    </button>
+                    <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
                         Next
                     </button>
-                    <button type="submit" class="btn add-btn" id="doneBtn">
-                        Done
-                    </button>
+                    
                     <span class="loading"></span>
                 </div>
             </div>
@@ -466,7 +470,7 @@
                 timeout: 6000000,
                 success: function(res) {
                     $('.loading').text('');
-                    console.log(nxt_url_val)
+                    //alert(nxt_url_val)
                     if (nxt_url_val == 'nextBtn') {
                         //window.location.href = redirect_url + "&course_id=" + course_id;
                         window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
