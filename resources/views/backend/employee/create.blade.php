@@ -31,6 +31,9 @@
         <div class="d-flex justify-content-between align-items-center pb-3">
             <div>
                 <h4 class="text-20">Create</h4>
+                <p class="form-note mb-2">
+    <span class="text-danger">*</span> Indicates required fields
+</p>
             </div>
 
             <div>
@@ -44,9 +47,10 @@
             <div class="card-body pt-0">
                 <div class="row">
 
+
                     <!-- First Name -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label" for="first_name">
+                        <label class="form-control-label required" for="first_name">
                             {{ __('labels.backend.teachers.fields.first_name') }}
                         </label>
                         <input type="text" name="first_name" id="first_name"
@@ -56,7 +60,7 @@
 
                     <!-- Last Name -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label" for="last_name">
+                        <label class="form-control-label required" for="last_name">
                             {{ __('labels.backend.teachers.fields.last_name') }}
                         </label>
                         <input type="text" name="last_name" id="last_name"
@@ -68,13 +72,13 @@
 
                     <!-- Employee ID -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label" for="emp_id">Employee ID</label>
+                        <label class="form-control-label required" for="emp_id">Employee ID</label>
                         <input type="text" name="emp_id" id="emp_id" class="form-control" placeholder="Employee Id" required>
                     </div>
 
                     <!-- Email -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label" for="email">
+                        <label class="form-control-label required" for="email">
                             {{ __('labels.backend.teachers.fields.email') }}
                         </label>
                         <input type="email" name="email" id="email" class="form-control" maxlength="191"
@@ -84,7 +88,7 @@
 
                     <!-- Password -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label" for="password">Password</label>
+                        <label class="form-control-label required" for="password">Password</label>
 
                         <div class="position-relative">
                             <input type="password" name="password" id="password-field" class="form-control"
@@ -101,7 +105,7 @@
 
                     <!-- Department -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label">Select Department</label>
+                        <label class="form-control-label required">Select Department</label>
                         <select name="department" class="form-control custom-select-box" required>
                             <option value="">Select One</option>
                             @foreach ($departments as $row)
@@ -112,7 +116,7 @@
 
                     <!-- Position -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label">Select Position</label>
+                        <label class="form-control-label required">Select Position</label>
                         <select name="position" class="form-control custom-select-box" required>
                             <option value="">Select One</option>
                             @foreach ($positions as $row)
@@ -123,7 +127,7 @@
 
                     <!-- Image -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label" for="employeeImage">
+                        <label class="form-control-label required" for="employeeImage">
                             {{ __('labels.backend.teachers.fields.image') }}
                         </label>
 

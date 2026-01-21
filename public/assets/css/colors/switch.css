@@ -194,6 +194,16 @@ a.rtl-v {
 }
 
 
+.required::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.form-note {
+    font-size: 13px;
+    color: #6c757d;
+}
 
 
 
