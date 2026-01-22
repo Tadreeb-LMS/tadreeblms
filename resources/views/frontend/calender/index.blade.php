@@ -3,6 +3,7 @@
 
 @section('title', 'Subscription'.' | '.app_name())
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css">
+<link rel="stylesheet" href="{{ asset('frontend/css/calendar.css') }}">
 
 @push('after-styles')
 <style>

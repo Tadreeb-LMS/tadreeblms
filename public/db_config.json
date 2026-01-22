@@ -1,6 +1,6 @@
 {
     "host": "127.0.0.1",
-    "database": "delta_db",
+    "database": "tadreeblms",
     "username": "root",
-    "password": ""
+    "password": "root"
 }
