@@ -44,18 +44,18 @@
 </div>
 
 {{-- Arabic First Name --}}
-<!-- <div class="col-lg-6 mt-3">
+<div class="col-lg-6 mt-3">
     <label class="form-control-label">First Name (Arabic)</label>
     <input type="text" name="arabic_first_name" class="form-control"
            value="{{ $teacher->arabic_first_name }}" required>
-</div> -->
+</div>
 
 {{-- Arabic Last Name --}}
-<!-- <div class="col-lg-6 mt-3">
+<div class="col-lg-6 mt-3">
     <label class="form-control-label">Last Name (Arabic)</label>
     <input type="text" name="arabic_last_name" class="form-control"
            value="{{ $teacher->arabic_last_name }}" required>
-</div> -->
+</div>
 
 {{-- Employee ID --}}
 <div class="col-lg-6 mt-3">
