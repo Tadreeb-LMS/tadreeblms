@@ -3,7 +3,44 @@
 @push('after-styles')
     <link rel="stylesheet" href="{{ asset('assets/css/colors/switch.css') }}">
        <style>
-          .switch.switch-3d.switch-lg {
+        /* Actions column layout fix */
+.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+/* Normalize all buttons & icons */
+.actions-cell a,
+.actions-cell button,
+.actions-cell form {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Icon size */
+.actions-cell i {
+    font-size: 14px;
+}
+/* Increase space after Edit icon */
+#myTable td:last-child .fa-edit {
+    margin-right: 10px; /* adjust as needed */
+}
+ 
+/* HARD reset for reset-password form */
+#myTable td:last-child form {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.switch.switch-3d.switch-lg {
     width: 40px;
     height: 20px;
 }
@@ -260,11 +297,11 @@
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
-                            "targets": 0
+                            "targets": -1
                         },
                         {
                             "className": "text-center",
-                            "targets": [0]
+                            "targets": -1
                         }
                     ],
                 @endif

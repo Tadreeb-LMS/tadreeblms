@@ -212,44 +212,38 @@ class EmployeeController extends Controller
         return DataTables::of($teachers)
             ->addIndexColumn()
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $has_reset, $request) {
-                $view = "";
-                $edit = "";
-                $delete = "";
-                $reset = "";
                 if ($request->show_deleted == 1) {
                     return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.employee', 'label' => 'id', 'value' => $q->id]);
                 }
 
+                   $actions = '';
                 if ($has_view) {
-                    $view = view('backend.datatable.action-view')
+                       $actions .= view('backend.datatable.action-view')
                         ->with(['route' => route('admin.employee.show', ['id' => $q->id])])->render();
                 }
 
                 if ($has_edit) {
 
-                    $edit = view('backend.datatable.action-edit')
+                       $actions .= view('backend.datatable.action-edit')
                         ->with(['route' => route('admin.employee.edit', ['id' => $q->id])])
                         ->render();
-                    $view .= $edit;
                 }
 
                 if ($has_delete) {
-                    $delete = view('backend.datatable.action-delete')
+                       $actions .= view('backend.datatable.action-delete')
                         ->with(['route' => route('admin.employee.destroy', ['id' => $q->id])])
                         ->render();
-                    $view .= $delete;
                 }
 
                 if ($has_reset) {
-                    $reset = view('backend.datatable.action-reset-password')
+                       $actions .= view('backend.datatable.action-reset-password')
                         ->with(['route' => route('admin.employee.reset-pass', ['id' => $q->id]), 'email' => $q->email])
                         ->render();
-                    $view .= $reset;
                 }
 
                 //$view .= '<a class="btn btn-warning mb-1" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">' . trans('labels.backend.courses.title') . '</a>';
 
-                return $view;
+                  return '<div class="actions-cell">' . $actions . '</div>';
             })
             ->addColumn('department', function ($q) {
                 $deaprt = $q->getDepartment();
