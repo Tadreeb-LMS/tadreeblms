@@ -98,7 +98,21 @@
         display: flex; gap:20px;
         text-align: center;
         align-items: center; font-weight: 400;
-    }  
+    } 
+/* Force Search button to match Average Completion Rate */
+#advance-search-btn {
+    background: linear-gradient(90deg, #2f3e74 0%, #c79a2d 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+
+    border-radius: 6px;
+    font-weight: 600;
+}
+#advance-search-btn:hover {
+    filter: brightness(0.95);
+}
+
+
 </style>
 @endpush
 @php
@@ -267,9 +281,9 @@ $local_lang = App::getLocale() ?? 'en';
 
 
                                             </select>
-                                            <span class="custom-select-icon">
+                                            <!-- <span class="custom-select-icon">
                                                 <i class="fa fa-chevron-down"></i>
-                                            </span>
+                                            </span> -->
                                         </div>
                                     </div>
                                     <div class="col-lg-4 mt-2">
@@ -285,9 +299,9 @@ $local_lang = App::getLocale() ?? 'en';
                                                     <option value="{{ $row->id }}">{{  $row->title }}</option>
                                                 @endforeach
                                             </select>
-                                            <span class="custom-select-icon">
+                                            <!-- <span class="custom-select-icon">
                                                 <i class="fa fa-chevron-down"></i>
-                                            </span>
+                                            </span> -->
                                         </div>
                                     </div>
                                     <div class="col-lg-4 mt-2">
@@ -303,9 +317,9 @@ $local_lang = App::getLocale() ?? 'en';
                                                 @endforeach
 
                                             </select>
-                                            <span class="custom-select-icon">
+                                            <!-- <span class="custom-select-icon">
                                                 <i class="fa fa-chevron-down"></i>
-                                            </span>
+                                            </span> -->
                                         </div>
                                     </div>
                                     <div class="col-lg-4 mt-3">
@@ -329,16 +343,16 @@ $local_lang = App::getLocale() ?? 'en';
                                                 @endforeach
 
                                             </select>
-                                            <span class="custom-select-icon">
+                                            <!-- <span class="custom-select-icon">
                                                 <i class="fa fa-chevron-down"></i>
-                                            </span>
+                                            </span> -->
                                         </div>
                                     </div>
 
                                     <div class="col-lg-2" style="margin-top:28px">
                                         <div class="d-flex justify-content-between mt-3">
                                             <div>
-                                                <button class="btn btn-primary pl-4 pr-4" id="advance-search-btn" type="submit"> @lang('strings.backend.dashboard.search')</button>
+                                                <button class="btn pl-4 pr-4 " id="advance-search-btn" type="submit"> @lang('strings.backend.dashboard.search')</button>
                                             </div>
                                             <div>
                                                 <button class="btn btn-danger ml-3" id="reset" type="button"> @lang('strings.backend.dashboard.reset')</button>
