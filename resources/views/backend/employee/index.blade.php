@@ -340,22 +340,40 @@
             @endif
 
 
+$(document).on('click', '.switch-input', function (e) {
+    e.preventDefault();
 
+    let checkbox = $(this);
+    let id = checkbox.data('id');
+    let isChecked = checkbox.is(':checked');
 
-            $(document).on('click', '.switch-input', function(e) {
-                var id = $(this).data('id');
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('admin.employee.status') }}",
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: id,
-                    },
-                }).done(function() {
-                    var table = $('#myTable').DataTable();
-                    table.ajax.reload();
-                });
-            })
+    let message = isChecked
+        ? 'Do you want to activate this user?'
+        : 'Do you want to deactivate this user?';
+
+    if (!confirm(message)) {
+        // revert toggle state if cancelled
+        checkbox.prop('checked', !isChecked);
+        return false;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "{{ route('admin.employee.status') }}",
+        data: {
+            _token: '{{ csrf_token() }}',
+            id: id,
+        },
+        success: function () {
+            $('#myTable').DataTable().ajax.reload(null, false);
+        },
+        error: function () {
+            alert('Something went wrong');
+            checkbox.prop('checked', !isChecked);
+        }
+    });
+});
+
 
             $(document).on('click', '.send-reset-password-link', function(e) {
                 e.preventDefault();
