@@ -22,6 +22,14 @@
             <div class="mb-3">
                 <h6>Permissions</h6>
 
+                <div class="form-check mb-2">
+    <input type="checkbox" class="form-check-input" id="select_all_permissions">
+    <label class="form-check-label fw-bold" for="select_all_permissions">
+        Select / Unselect All Permissions
+    </label>
+</div>
+
+
                 <div class="permission-blocks row">
                 @foreach($permissions as $module => $modulePermissions)
                     <div class="mb-2 border p-2 rounded">
@@ -49,7 +57,6 @@
                                     value="{{ $permission->id }}"
                                     id="perm_{{ $permission->id }}"
                                     @if($default_permission_checked) checked @endif
-                                    onclick="return false;"
                                    >
                                 <label class="form-check-label" for="perm_{{ $permission->id }}">
                                     {{ $permission->name }}
@@ -69,21 +76,57 @@
 
 @push('after-scripts')
 <script>
-   document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-    document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function () {
+    const globalCheckbox = document.getElementById('select_all_permissions');
+    const moduleCheckboxes = document.querySelectorAll('.select-all');
+    const permissionCheckboxes = document.querySelectorAll('input[name="permissions[]"]');
 
-            //alert('hi'); // THIS WILL NOW SHOW ✅
+    // 🔹 GLOBAL SELECT ALL
+    globalCheckbox.addEventListener('change', function () {
+        const checked = this.checked;
 
+        moduleCheckboxes.forEach(m => m.checked = checked);
+        permissionCheckboxes.forEach(p => p.checked = checked);
+    });
+
+    // 🔹 MODULE SELECT ALL
+    moduleCheckboxes.forEach(function (moduleCheckbox) {
+        moduleCheckbox.addEventListener('change', function () {
             const module = this.dataset.module;
-            const permissions = document.querySelectorAll(
-                'input.permission-' + module
-            );
+            const permissions = document.querySelectorAll('.permission-' + module);
 
-            permissions.forEach(cb => cb.checked = this.checked);
+            permissions.forEach(p => p.checked = this.checked);
+            updateGlobalState();
         });
     });
+
+    // 🔹 INDIVIDUAL PERMISSION CHANGE
+    permissionCheckboxes.forEach(function (permission) {
+        permission.addEventListener('change', function () {
+            updateModuleState();
+            updateGlobalState();
+        });
+    });
+
+    // 🔹 UPDATE MODULE STATE
+    function updateModuleState() {
+        moduleCheckboxes.forEach(moduleCheckbox => {
+            const module = moduleCheckbox.dataset.module;
+            const permissions = document.querySelectorAll('.permission-' + module);
+
+            moduleCheckbox.checked = [...permissions].every(p => p.checked);
+        });
+    }
+
+    // 🔹 UPDATE GLOBAL STATE (checked / indeterminate)
+    function updateGlobalState() {
+        const total = permissionCheckboxes.length;
+        const checked = document.querySelectorAll('input[name="permissions[]"]:checked').length;
+
+        globalCheckbox.checked = total === checked;
+        globalCheckbox.indeterminate = checked > 0 && checked < total;
+    }
 
 });
 </script>
