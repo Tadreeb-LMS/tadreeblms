@@ -33,7 +33,7 @@ class LoginController extends Controller
             return '/admin/dashboard';
         }
 
-        
+        //dd("kk");
 
         return route(home_route());
     }
@@ -55,8 +55,10 @@ class LoginController extends Controller
        
 
         if (request()->ajax()) {
+            $captha_string = CustomHelper::getCaptcha();
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
+                'captha' => $captha_string
             ];
         }
 

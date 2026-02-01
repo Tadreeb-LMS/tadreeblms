@@ -29,9 +29,9 @@ Route::get('syncCourseAssignmentAndSubscribeCourseData', function () {
 Route::get('complete-course/{course_id}/{user_id}', function (Request $request) {
     CustomHelper::completeCourseForUser($request->course_id, $request->user_id);
 });
-// Route::get('loginById/{user_id}', function (Request $request) {
-//     Auth::loginUsingId($request->user_id);
-// });
+
+
+Route::get('auth',[LoginController::class, 'showLoginForm'] )->name('login');
 
 
 Route::get('email-test', function () {

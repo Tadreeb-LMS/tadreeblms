@@ -99,7 +99,7 @@
                             @csrf
 
                             <input type="hidden" name="redirect_url" id="redirect_url">
-                            <input type="text" name="active_page" class="active_page" value="{{ Route::currentRouteName() }}">
+                            <input type="hidden" name="active_page" class="active_page" value="{{ Route::currentRouteName() }}">
 
                             <div class="contact-info mb-2">
                                 <input type="email" name="email" class="form-control mb-0"
@@ -154,7 +154,7 @@
                     <h2>@lang('Register')</h2>
                     <p>@lang('Please register yourself')</p>
                     {{-- {{ $default_admin_email }} --}}
-                    @if($default_admin_email->email == 'admin@seeder.com')
+                    @if($default_admin_email->email == env('DEMO_EMAIL', 'admin@seeder.com'))
                     <p>@lang('Please register an user as administrator')</p>
                     @endif
                 </div>
@@ -174,7 +174,7 @@
                             <input type="hidden" name="default_admin" value="1" />
                             @endif
 
-                            <input type="text" name="active_page" class="active_page" value="{{ Route::currentRouteName() }}">
+                            <input type="hidden" name="active_page" class="active_page" value="{{ Route::currentRouteName() }}">
 
                             <div class="contact-info mb-2">
                                 <input type="text" name="first_name" class="form-control mb-0"
@@ -423,6 +423,7 @@
 
                             $('#myRegisterModal').find('.text-danger').text('');
                             $('#myRegisterModal').modal('show');
+                            //alert("jo")
                         },
                     });
                 });

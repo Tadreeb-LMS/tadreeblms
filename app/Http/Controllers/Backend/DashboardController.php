@@ -36,61 +36,109 @@ class DashboardController extends Controller
 {
 
 
-    public function buildDashboardCache(int $cache_duration = 30)
+    public function buildDashboardCache(int $cache_duration = 30, $user = null)
     {
-        $userId = auth()->id() ?? 'system';
-        $cacheKey = "admin_dashboard_stats_{$userId}";
+        $userId = $user ? $user->id : (auth()->id() ?? 'system');
+        $cacheKey = "{$userId}_dashboard_stats";
         $cachePath = storage_path('framework/cache/data');
 
         // ❌ If cache directory broken → skip caching entirely
         if (!is_dir($cachePath) || !is_writable($cachePath)) {
-            return $this->dashboardQuery(); // normal query
+            return $this->dashboardQuery($user); // normal query
         }
 
         // ✅ Safe: only run Cache::remember when directory is valid
-        return Cache::remember($cacheKey, now()->addMinutes($cache_duration), function () {
-            return $this->dashboardQuery();
+        return Cache::remember($cacheKey, now()->addMinutes($cache_duration), function () use ($user) {
+            return $this->dashboardQuery($user);
         });
     }
 
 
-    public function dashboardQuery()
+    public function dashboardQuery($user = null)
     {
+        $teacherId = null;
+        if ($user && $user->hasRole('teacher')) {
+            $teacherId = $user->id;
+        }
+
         // --- Basic collections ---
         $internal_users     = User::select('id', 'first_name', 'email', 'employee_type')
             ->where('employee_type', 'internal')
             ->get();
 
-        $published_courses  = Course::select('id', 'title', 'published')->get();
+        $published_courses  = Course::select('id', 'title', 'published')
+            ->get();
         $departments        = Department::select('id', 'title')->where('published', 1)->get();
         $categories         = Category::select('id', 'name')->where('status', 1)->get();
 
         // --- Aggregate counts ---
         $students_count = User::role('student')
-            ->distinct('email')
-            ->where('employee_type', 'internal')
-            ->where('active', 1)
+            ->distinct('users.email')
+            ->where('users.employee_type', 'internal')
+            ->where('users.active', 1)
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->join('subscribe_courses', 'users.id', '=', 'subscribe_courses.user_id')
+                    ->join('courses', 'subscribe_courses.course_id', '=', 'courses.id')
+                    ->join('course_user', 'courses.id', '=', 'course_user.course_id')
+                    ->where('course_user.user_id', $teacherId);
+            })
             ->count();
 
         $teachers_count = User::role('teacher')->count();
-        $courses_count  = Course::count() + Bundle::count();
+        $courses_count  = Course::when($teacherId, function ($query) use ($teacherId) {
+            $query->whereHas('teachers', function ($q) use ($teacherId) {
+                $q->where('course_user.user_id', $teacherId);
+            });
+        })->count() + Bundle::when($teacherId, function ($query) use ($teacherId) {
+            $query->where('user_id', $teacherId);
+        })->count();
 
         // --- Recents ---
-        $recent_orders        = Order::latest()->take(10)->get(['id', 'created_at']);
-        $recent_subscriptions = SubscribeCourse::latest()->take(10)->get(['id', 'course_id', 'user_id', 'created_at']);
+        $recent_orders = Order::latest()->take(10)
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->whereExists(function ($q) use ($teacherId) {
+                    $q->select(\DB::raw(1))
+                        ->from('order_items')
+                        ->join('course_user', 'order_items.item_id', '=', 'course_user.course_id')
+                        ->whereColumn('order_items.order_id', 'orders.id')
+                        ->where('course_user.user_id', $teacherId)
+                        ->where('order_items.item_type', 'like', '%Course%');
+                });
+            })
+            ->get(['id', 'created_at']);
+        $recent_subscriptions = SubscribeCourse::latest()->take(10)
+            ->get(['id', 'course_id', 'user_id', 'created_at']);
         $recent_contacts      = Contact::latest()->take(10)->get(['id', 'name', 'email', 'created_at']);
 
         // --- Assignment & Certificate stats ---
-        $total_assignments = DB::table('assignments')->whereNull('deleted_at')->count();
+        $total_assignments = DB::table('assignments')
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->join('courses', 'assignments.course_id', '=', 'courses.id')
+                    ->join('course_user', 'courses.id', '=', 'course_user.course_id')
+                    ->where('course_user.user_id', $teacherId);
+            })
+            ->whereNull('assignments.deleted_at')
+            ->count();
 
         $total_certificate_issued = DB::table('certificates as s')
             ->join('users as u', 's.user_id', '=', 'u.id')
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->join('subscribe_courses as sc', 's.user_id', '=', 'sc.user_id')
+                    ->join('courses as c', 'sc.course_id', '=', 'c.id')
+                    ->join('course_user as cu', 'sc.course_id', '=', 'cu.course_id')
+                    ->where('cu.user_id', $teacherId);
+            })
             ->whereNull('u.deleted_at')
             ->where('u.active', 1)
             ->count('s.id');
 
         // --- Course completion ---
         $course_completion_data = DB::table('subscribe_courses as s')
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->join('courses as c', 's.course_id', '=', 'c.id')
+                    ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
+                    ->where('cu.user_id', $teacherId);
+            })
             ->whereNull('s.deleted_at')
             ->selectRaw('
                 COUNT(CASE WHEN s.is_completed = 1 THEN 1 END) as completed_count,
@@ -132,6 +180,11 @@ class DashboardController extends Controller
         // --- Assigned users ---
         $assigned_users_count = DB::table('subscribe_courses as s')
             ->join('users as u', 's.user_id', '=', 'u.id')
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->join('courses as c', 's.course_id', '=', 'c.id')
+                    ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
+                    ->where('cu.user_id', $teacherId);
+            })
             ->whereNull('s.deleted_at')
             ->where('u.active', 1)
             ->where('u.employee_type', 'internal')
@@ -167,22 +220,25 @@ class DashboardController extends Controller
     }
 
 
-    public function buildDashboardCache_(int $cache_duration = 30)
+    public function buildDashboardCache_(int $cache_duration = 30, $user = null)
     {
         // Use authenticated admin ID if available (optional per-admin cache)
-        $userId = auth()->id() ?? 'system';
+        $userId = $user ? $user->id : (auth()->id() ?? 'system');
+        $teacherId = null;
+        if ($user && $user->hasRole('teacher')) {
+            $teacherId = $user->id;
+        }
 
-        // Build cache key (different for each admin if needed)
-        $cacheKey = "admin_dashboard_stats_{$userId}";
+        $cacheKey = "{$userId}_dashboard_stats";
 
-        // Cache the entire dashboard dataset
-        $adminStats = Cache::remember($cacheKey, now()->addMinutes($cache_duration), function () {
+        $adminStats = Cache::remember($cacheKey, now()->addMinutes($cache_duration), function () use ($user, $teacherId) {
             // --- Basic collections ---
             $internal_users     = User::select('id', 'first_name', 'email', 'employee_type')
                 ->where('employee_type', 'internal')
                 ->get();
 
-            $published_courses  = Course::select('id', 'title', 'published')->get();
+            $published_courses  = Course::select('id', 'title', 'published')
+                ->get();
             $departments        = Department::select('id', 'title')
                 ->where('published', 1)
                 ->get();
@@ -192,32 +248,58 @@ class DashboardController extends Controller
 
             // --- Aggregate counts ---
             $students_count = User::role('student')
-                ->distinct('email')
-                ->where('employee_type', 'internal')
-                ->where('active', 1)
+                ->distinct('users.email')
+                ->where('users.employee_type', 'internal')
+                ->where('users.active', 1)
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->join('subscribe_courses', 'users.id', '=', 'subscribe_courses.user_id')
+                    ->join('courses', 'subscribe_courses.course_id', '=', 'courses.id')
+                    ->join('course_user', 'courses.id', '=', 'course_user.course_id')
+                    ->where('course_user.user_id', $teacherId);
+            })
                 ->count();
 
             $teachers_count = User::role('teacher')->count();
-            $courses_count  = Course::count() + Bundle::count();
+            $courses_count  = Course::when($teacherId, function ($query) use ($teacherId) {
+                $query->whereHas('teachers', function ($q) use ($teacherId) {
+                    $q->where('course_user.user_id', $teacherId);
+                });
+            })->count() + Bundle::when($teacherId, function ($query) use ($teacherId) {
+                $query->where('user_id', $teacherId);
+            })->count();
 
             // --- Recents ---
-            $recent_orders        = Order::latest()->take(10)->get(['id', 'created_at']);
-            $recent_subscriptions = SubscribeCourse::latest()->take(10)->get(['id', 'course_id', 'user_id', 'created_at']);
+                    $recent_orders        = Order::latest()->take(10)
+                        ->get(['id', 'created_at']);            $recent_subscriptions = SubscribeCourse::latest()->take(10)
+                ->get(['id', 'course_id', 'user_id', 'created_at']);
             $recent_contacts      = Contact::latest()->take(10)->get(['id', 'name', 'email', 'created_at']);
 
             // --- Assignment & Certificate stats ---
             $total_assignments = DB::table('assignments')
-                ->whereNull('deleted_at')
+                ->when($teacherId, function ($query) use ($teacherId) {
+                    $query->join('courses', 'assignments.course_id', '=', 'courses.id')
+                        ->where('courses.user_id', $teacherId);
+                })
+                ->whereNull('assignments.deleted_at')
                 ->count('id');
 
             $total_certificate_issued = DB::table('certificates as s')
                 ->join('users as u', 's.user_id', '=', 'u.id')
-                ->whereNull('u.deleted_at')
+                            ->when($teacherId, function ($query) use ($teacherId) {
+                                $query->join('subscribe_courses as sc', 's.user_id', '=', 'sc.user_id')
+                                    ->join('courses as c', 'sc.course_id', '=', 'c.id')
+                                    ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
+                                    ->where('cu.user_id', $teacherId);
+                            })                ->whereNull('u.deleted_at')
                 ->where('u.active', 1)
                 ->count('s.id');
 
             // --- Course Completion stats ---
             $course_completion_data = DB::table('subscribe_courses as s')
+                ->when($teacherId, function ($query) use ($teacherId) {
+                    $query->join('courses as c', 's.course_id', '=', 'c.id')
+                        ->where('c.user_id', $teacherId);
+                })
                 ->whereNull('s.deleted_at')
                 ->selectRaw('
                     COUNT(CASE WHEN s.is_completed = 1 THEN 1 END) as completed_count,
@@ -261,6 +343,10 @@ class DashboardController extends Controller
             // --- Assigned Users ---
             $assigned_users_count = DB::table('subscribe_courses as s')
                 ->join('users as u', 's.user_id', '=', 'u.id')
+                ->when($teacherId, function ($query) use ($teacherId) {
+                    $query->join('courses as c', 's.course_id', '=', 'c.id')
+                        ->where('c.user_id', $teacherId);
+                })
                 ->whereNull('s.deleted_at')
                 ->where('u.active', 1)
                 ->where('u.employee_type', 'internal')
@@ -353,19 +439,20 @@ class DashboardController extends Controller
             if (auth()->user()->hasRole('teacher')) {
                 //IF logged in user is teacher
 
-                
+                $user = auth()->user();
+                $cacheKey = "teacher_dashboard_stats_{$user->id}";
 
-                if (Cache::has('admin_dashboard_stats_system')) {
-                    $adminStats = Cache::get('admin_dashboard_stats_system');
+                if (Cache::has($cacheKey)) {
+                    $adminStats = Cache::get($cacheKey);
                     if ($adminStats) {
                         extract($adminStats);
                     }
                 } else {
-                    $adminStats = self::buildDashboardCache(10);
+                    $adminStats = self::buildDashboardCache(10, $user);
                     if ($adminStats) {
                         extract($adminStats);
                     }
-                }    
+                }
 
                 $recent_reviews = [];
                 $threads = [];
@@ -404,17 +491,20 @@ class DashboardController extends Controller
                         'not_completed_assesment'
                     )
                 ));
-                
+
             } elseif (auth()->user()->hasRole('administrator')) {
 
                 //dd("admin");
-                if (Cache::has('admin_dashboard_stats_system')) {
-                    $adminStats = Cache::get('admin_dashboard_stats_system');
+                $userId = auth()->user()->id;
+                $cacheKey = "admin_dashboard_stats_{$userId}";
+
+                if (Cache::has($cacheKey)) {
+                    $adminStats = Cache::get($cacheKey);
                     if ($adminStats) {
                         extract($adminStats);
                     }
                 } else {
-                    $adminStats = self::buildDashboardCache(10);
+                    $adminStats = self::buildDashboardCache(10, auth()->user());
                     if ($adminStats) {
                         extract($adminStats);
                     }
@@ -608,13 +698,16 @@ class DashboardController extends Controller
                 $total_certificate_issued = $assessmentStats['total_certificate_issued'];
             }else {
                 //dd("admin");
-                if (Cache::has('admin_dashboard_stats_system')) {
-                    $adminStats = Cache::get('admin_dashboard_stats_system');
+                $userId = auth()->user()->id;
+                $cacheKey = "user_dashboard_stats_{$userId}";
+
+                if (Cache::has($cacheKey)) {
+                    $adminStats = Cache::get($cacheKey);
                     if ($adminStats) {
                         extract($adminStats);
                     }
                 } else {
-                    $adminStats = self::buildDashboardCache(10);
+                    $adminStats = self::buildDashboardCache(10, auth()->user());
                     if ($adminStats) {
                         extract($adminStats);
                     }
@@ -724,8 +817,8 @@ class DashboardController extends Controller
 
         //dd($course_completion_data);
 
-        $course_completion_data->completed_count ?? 0;
-        $course_completion_data->not_completed_count ?? 0;
+            $course_completion_data->completed_count ?? 0;
+            $course_completion_data->not_completed_count ?? 0;
 
         $total_rows = $course_completion_data->completed_count + $course_completion_data->not_completed_count;
 

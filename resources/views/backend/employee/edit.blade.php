@@ -44,18 +44,18 @@
 </div>
 
 {{-- Arabic First Name --}}
-<div class="col-lg-6 mt-3">
+<!-- <div class="col-lg-6 mt-3">
     <label class="form-control-label">First Name (Arabic)</label>
     <input type="text" name="arabic_first_name" class="form-control"
            value="{{ $teacher->arabic_first_name }}" required>
-</div>
+</div> -->
 
 {{-- Arabic Last Name --}}
-<div class="col-lg-6 mt-3">
+<!-- <div class="col-lg-6 mt-3">
     <label class="form-control-label">Last Name (Arabic)</label>
     <input type="text" name="arabic_last_name" class="form-control"
            value="{{ $teacher->arabic_last_name }}" required>
-</div>
+</div> -->
 
 {{-- Employee ID --}}
 <div class="col-lg-6 mt-3">
@@ -96,14 +96,14 @@
 </div>
 
 {{-- Gender --}}
-<div class="col-lg-12 mt-3">
+<div class="col-lg-6 mt-3">
     <label class="form-control-label">Gender</label><br>
     <label><input type="radio" name="gender" value="male" {{ $teacher->gender == 'male' ? 'checked' : '' }}> Male</label>
     <label class="ml-3"><input type="radio" name="gender" value="female" {{ $teacher->gender == 'female' ? 'checked' : '' }}> Female</label>
 </div>
 
 {{-- Preferred Language --}}
-<div class="col-lg-12 mt-3">
+<div class="col-lg-6 mt-3">
     <label class="form-control-label">Preferred Language</label><br>
     <label><input type="radio" name="fav_lang" value="english" {{ $teacher->fav_lang == 'english' ? 'checked' : '' }}> English</label>
     <label class="ml-3"><input type="radio" name="fav_lang" value="arabic" {{ $teacher->fav_lang == 'arabic' ? 'checked' : '' }}> Arabic</label>

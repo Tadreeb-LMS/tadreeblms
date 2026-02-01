@@ -132,7 +132,7 @@
 
                             <div class="form-group">
                                 <label>Event Date:</label>
-                                <input type="text" name="event_date" class="form-control" id="event_date">
+                                <input type="date" name="event_date" class="form-control" id="event_date" min="{{ date('Y-m-d') }}">
                             </div>
 
                             <div class="modal-footer">
@@ -183,16 +183,29 @@
                 }
             },
 
-            dateClick: function(info) {
-                $('#event-add').modal('toggle');
+            // dateClick: function(info) {
+            //     $('#event-add').modal('toggle');
 
-                $("#event_date").val(info.dateStr);
-                // alert('Clicked on: ' + info.dateStr);
-                // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
-                // alert('Current view: ' + info.view.type);
-                // change the day's background color just for fun
-                info.dayEl.style.backgroundColor = 'red';
-            },
+            //     $("#event_date").val(info.dateStr);
+            //     // alert('Clicked on: ' + info.dateStr);
+            //     // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+            //     // alert('Current view: ' + info.view.type);
+            //     // change the day's background color just for fun
+            //     info.dayEl.style.backgroundColor = 'red';
+            // },
+            dateClick: function(info) {
+
+    let today = new Date().toISOString().split('T')[0];
+
+    if (info.dateStr < today) {
+        alert("You cannot create events in the past.");
+        return;
+    }
+
+    $('#event-add').modal('toggle');
+    $("#event_date").val(info.dateStr);
+},
+
             /*
             eventClick: function(event) {
                 event.jsEvent.preventDefault();

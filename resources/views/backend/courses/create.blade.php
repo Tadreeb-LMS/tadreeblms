@@ -309,14 +309,13 @@
                         'class' => 'control-label',
                     ]) !!}
 
-                    <input
-                      type="date"
-                      name="start_date"
-                      id="start_date"
-                      class="form-control"
-                      min="{{ date('Y-m-d') }}"
-                      value="{{ old('start_date') }}"
-                    >
+                   {!! Form::text('start_date', old('start_date'), [
+    'class' => 'form-control',
+    'id' => 'start_date',
+    'autocomplete' => 'off',
+    'placeholder' => 'yyyy-mm-dd'
+]) !!}
+
 
                 </div>
                 @if (Auth::user()->isAdmin())
@@ -326,6 +325,7 @@
                         ]) !!}
                         {!! Form::text('expire_at', old('expire_at'), [
                             'class' => 'form-control date',
+                             'id' => 'expire_at',
                             'pattern' =>
                                 '(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))',
                             'placeholder' => trans('labels.backend.courses.fields.expire_at') . ' (Ex . 2019-01-01)',
@@ -443,7 +443,9 @@
 @stop
 
 @push('after-scripts')
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
     <script src="{{ asset('/vendor/laravel-filemanager/js/lfm.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="/js/helpers/form-submit.js"></script>
@@ -492,17 +494,20 @@ document.querySelectorAll('.sm-input').forEach(function(input) {
         $(document).ready(function() {
     var dateToday = new Date();
 
-    $('#start_date').datepicker({
-        autoclose: true,
-        minDate: dateToday,
-        dateFormat: "{{ config('app.date_format_js') }}"
-    });
+$('#start_date').datepicker({
+    autoclose: true,
+    startDate: dateToday,
+    format: "yyyy-mm-dd"
+}).on('changeDate', function(e) {
+    $('#expire_at').datepicker('setStartDate', e.date);
+});
 
-    $('#expire_at').datepicker({
-        autoclose: true,
-        minDate: dateToday,
-        dateFormat: "{{ config('app.date_format_js') }}"
-    });
+$('#expire_at').datepicker({
+    autoclose: true,
+    startDate: dateToday,
+    format: "yyyy-mm-dd"
+});
+
 
     $(".js-example-placeholder-single").select2({
         placeholder: "{{ trans('labels.backend.courses.select_category') }}",
@@ -608,17 +613,27 @@ document.querySelectorAll('.sm-input').forEach(function(input) {
         });
         $(document).on('submit', '#addCourse', function(e) {
             e.preventDefault();
-            var startDateVal = $('input[name="start_date"]').val();
-            if (startDateVal) {
-                var selectedDate = new Date(startDateVal);
-                var today = new Date();
-                today.setHours(0, 0, 0, 0);
+            var startDateVal = $('#start_date').val();
+var expireDateVal = $('#expire_at').val();
 
-                if (selectedDate < today) {
-                    alert('Start Date cannot be earlier than today.');
-                    return false;
-                }
-            }
+if (!startDateVal || !expireDateVal) {
+    alert('Start Date and Expire Date are required.');
+    return false;
+}
+
+if (expireDateVal < startDateVal) {
+    alert('Expire Date cannot be earlier than Start Date.');
+    return false;
+}
+
+
+var today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+
+if (startDateVal < today) {
+    alert('Start Date cannot be earlier than today.');
+    return false;
+}
+
 
             hrefurl = $(location).attr("href");
             last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 8)

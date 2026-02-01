@@ -539,7 +539,8 @@ class CoursesController extends Controller
             return abort(401);
         }
         $request->validate([
-            'start_date' => 'required|date|after_or_equal:today',
+             'start_date' => 'required|date',
+    'expire_at'  => 'required|date|after_or_equal:start_date',
         ]);
         DB::beginTransaction();
 

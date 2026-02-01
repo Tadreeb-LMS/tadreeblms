@@ -47,10 +47,25 @@
         background-color: #c1902d4a;
         padding: 75px 0;
     }
+
+    .demo-credentials {
+        margin-top: 45px;
+        padding: 4px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .demo-credentials h3 {
+        font-size: 18px;
+        padding: 10px;
+        font-weight: bold;
+    }
     
 </style>
 
 @section('content')
+
+
 <section id="breadcrumb" class="breadcrumb-section relative-position backgroud-style">
     <div class="blakish-overlay"></div>
     <div class="container">
@@ -154,13 +169,20 @@
                     </div>
                 @endif
 
+                {{-- <div class="demo-credentials">
+                    <h3>Demo credentials</h3>
+                    <p>Email: demo@tadreeblms.com <br/> Password: demo12345</p>
+                </div> --}}
+
             </div>
+
+            
         </div>
     </div>
 </div>
 {{-- KEEP SCRIPT INSIDE THE SECTION --}}
 @push('after-scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 $(document).ready(function () {
 

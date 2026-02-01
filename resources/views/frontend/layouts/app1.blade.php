@@ -59,8 +59,9 @@
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
     <script src="{{ asset('/vendor/unisharp/laravel-ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js') }}">
     </script>
+    <script src="{{ asset('assets/js/jquery-2.1.4.min.js') }}"></script>
     <script>
-        hljs.initHighlightingOnLoad();
+        // hljs.initHighlightingOnLoad();
     </script>
 
     @yield('css')
@@ -218,7 +219,11 @@
                     @else
                         <li class="sm-tb-space">
                             <div class="log-in">
+                                @if($disabled_landing_page == 0)
                                 <a id="openLoginModal" data-target="#myModal" href="#">@lang('navs.general.login')</a>
+                                @else 
+                                <a href="{{ route('frontend.auth.login') }}">@lang('navs.general.login')</a>
+                                @endif
                                 {{-- @include('frontend.layouts.modals.loginModal') --}}
 
                             </div>
@@ -259,7 +264,7 @@
         @yield('content')
         @include('cookieConsent::index')
 
-        @if($disabled_landing_page == 0)
+        @if(1)
             @include('frontend.layouts.partials.footer')
         @endif
 

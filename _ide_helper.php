@@ -5502,7 +5502,6 @@
          
     }
             /**
-     * @see \Illuminate\Events\Dispatcher
      */ 
         class Event {
                     /**
