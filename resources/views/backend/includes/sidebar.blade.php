@@ -697,7 +697,14 @@
                             <span class="title">@lang('menus.backend.sidebar.settings.landing_page_setting')</span>
                         </a>
                     </li>
-
+                    @if ($logged_in_user->isAdmin())
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/license*')) }}"
+                            href="{{ route('admin.license-settings') }}">
+                            <span class="title">@lang('menus.backend.sidebar.settings.license')</span>
+                        </a>
+                    </li>
+                    @endif
                     {{-- <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'footer' ? 'active' : '' }}"
                             href="{{ route('admin.footer-settings') }}">
@@ -721,6 +728,7 @@
 
                 </ul>
             </li>
+            
             @endcan
             @endif
             @if (true)

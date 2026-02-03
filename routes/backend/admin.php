@@ -166,6 +166,12 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/zoom', ['uses' => 'Admin\ConfigController@saveZoomSettings'])->name('zoom-settings');
     Route::post('test', ['uses' => 'Admin\ConfigController@saveZoomSettings'])->name('zoom-settings');
 
+    //===== License Settings Routes =====//
+    Route::get('settings/license', ['uses' => 'Admin\LicenseController@index'])->name('license-settings');
+    Route::post('settings/license/activate', ['uses' => 'Admin\LicenseController@activate'])->name('license.activate');
+    Route::post('settings/license/validate', ['uses' => 'Admin\LicenseController@revalidate'])->name('license.validate');
+    Route::post('settings/license/remove', ['uses' => 'Admin\LicenseController@remove'])->name('license.remove');
+    Route::get('settings/license/status', ['uses' => 'Admin\LicenseController@status'])->name('license.status');
 
     //===== Slider Routes =====/
     Route::resource('sliders', 'Admin\SliderController');
