@@ -108,4 +108,9 @@ return [
      * Makes it so social logins can not change passwords, etc.
      */
     'socialite_session_name' => 'socialite_provider',
+
+    /*
+     * Whether or not the impersonation feature is enabled
+     */
+    'impersonation' => env('LOGIN_AS_USER_ENABLED', false),
 ];
