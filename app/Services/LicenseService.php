@@ -79,6 +79,9 @@ class LicenseService
             'is_active' => true,
         ]);
 
+        // Auto-sync user count to Keygen after activation
+        $this->syncUsersToKeygen();
+
         return [
             'success' => true,
             'message' => 'License activated successfully.',
@@ -187,6 +190,126 @@ class LicenseService
     }
 
     /**
+     * Check if a new user can be created (limit not exceeded).
+     * Returns array with 'allowed' boolean and 'message' if not allowed.
+     */
+    public function canCreateUser(): array
+    {
+        $license = License::getActive();
+
+        if (!$license) {
+            // No license = no restrictions (or you can change this to require license)
+            return ['allowed' => true];
+        }
+
+        $maxUsers = $license->max_users;
+        if (!$maxUsers) {
+            // Unlimited users
+            return ['allowed' => true];
+        }
+
+        $activeUsers = $this->getActiveUsersCount();
+
+        if ($activeUsers >= $maxUsers) {
+            return [
+                'allowed' => false,
+                'message' => "User limit reached. Your license allows {$maxUsers} users and you currently have {$activeUsers} active users.",
+                'current_users' => $activeUsers,
+                'max_users' => $maxUsers,
+            ];
+        }
+
+        return [
+            'allowed' => true,
+            'remaining' => $maxUsers - $activeUsers,
+        ];
+    }
+
+    /**
+     * Get the license ID from stored validation response.
+     */
+    public function getLicenseId(): ?string
+    {
+        $license = License::getActive();
+
+        if (!$license || !$license->validation_response) {
+            return null;
+        }
+
+        return $license->validation_response['data']['id'] ?? null;
+    }
+
+    /**
+     * Called when a user is created - creates user in Keygen.sh.
+     */
+    public function onUserCreated(User $user = null): array
+    {
+        $licenseId = $this->getLicenseId();
+
+        if (!$licenseId) {
+            Log::info('LicenseService: No active license, skipping user creation in Keygen');
+            return ['success' => true, 'skipped' => true];
+        }
+
+        if (!$user) {
+            Log::warning('LicenseService: No user provided for Keygen creation');
+            return ['success' => false, 'error' => 'No user provided'];
+        }
+
+        // Create user in Keygen and attach to license
+        $result = $this->keygenClient->createAndAttachUser(
+            $licenseId,
+            $user->email,
+            $user->first_name . ' ' . $user->last_name
+        );
+
+        if ($result['success']) {
+            Log::info('LicenseService: User created in Keygen', [
+                'email' => $user->email,
+            ]);
+        } else {
+            Log::warning('LicenseService: Failed to create user in Keygen', [
+                'error' => $result['error'] ?? 'Unknown error',
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Called when a user is deleted - removes user from Keygen.sh.
+     */
+    public function onUserDeleted(User $user = null): array
+    {
+        $licenseId = $this->getLicenseId();
+
+        if (!$licenseId) {
+            Log::info('LicenseService: No active license, skipping user deletion in Keygen');
+            return ['success' => true, 'skipped' => true];
+        }
+
+        if (!$user) {
+            Log::warning('LicenseService: No user provided for Keygen deletion');
+            return ['success' => false, 'error' => 'No user provided'];
+        }
+
+        // Delete user from Keygen by email
+        $result = $this->keygenClient->deleteUserByEmail($user->email);
+
+        if ($result['success']) {
+            Log::info('LicenseService: User deleted from Keygen', [
+                'email' => $user->email,
+            ]);
+        } else {
+            Log::warning('LicenseService: Failed to delete user from Keygen', [
+                'error' => $result['error'] ?? 'Unknown error',
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
      * Remove/deactivate the current license.
      */
     public function removeLicense(): bool
@@ -194,10 +317,62 @@ class LicenseService
         $license = License::getActive();
 
         if ($license) {
+            $licenseId = $license->validation_response['data']['id'] ?? null;
+
+            if ($licenseId) {
+                $this->keygenClient->removeAllUsersFromLicense($licenseId);
+            }
+
             $license->update(['is_active' => false]);
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Sync all active users to Keygen license.
+     */
+    public function syncUsersToKeygen(): array
+    {
+        $licenseId = $this->getLicenseId();
+
+        if (!$licenseId) {
+            return [
+                'success' => false,
+                'error' => 'No active license found.',
+            ];
+        }
+
+        // Remove existing users first
+        $this->keygenClient->removeAllUsersFromLicense($licenseId);
+
+        // Get all active users
+        $users = User::where('active', 1)->get()->map(function ($user) {
+            return [
+                'email' => $user->email,
+                'name' => trim($user->first_name . ' ' . $user->last_name),
+            ];
+        })->toArray();
+
+        // Sync all users
+        return $this->keygenClient->syncAllUsers($licenseId, $users);
+    }
+
+    /**
+     * Remove all users from Keygen license.
+     */
+    public function removeUsersFromKeygen(): array
+    {
+        $licenseId = $this->getLicenseId();
+
+        if (!$licenseId) {
+            return [
+                'success' => false,
+                'error' => 'No active license found.',
+            ];
+        }
+
+        return $this->keygenClient->removeAllUsersFromLicense($licenseId);
     }
 }

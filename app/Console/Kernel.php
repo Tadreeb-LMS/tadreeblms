@@ -22,6 +22,8 @@ use App\Console\Commands\UpdateAssesmentStatusAndScoreInSubscribeCourses;
 use App\Console\Commands\UpdateGrantCertificateSubscribeCourses;
 use App\Console\Commands\UpdateHasAssesmentSubscribeCourses;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Console\Commands\CheckLicenseExpiry;
+use App\Console\Commands\CheckUserLimit;
 use App\Models\TeacherProfile;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -59,7 +61,8 @@ class Kernel extends ConsoleKernel
         
         $schedule->command(DispatchSubscribeCourseJobs::class)->daily()->withoutOverlapping();
         $schedule->command(SendManualAssignmentReminder::class)->daily()->withoutOverlapping();
-
+        $schedule->command('license:expiry-check')->daily();
+        $schedule->command('license:user-limit-check')->daily();
         //$schedule->command(FixOfflineCoursesDownloadButton::class)->daily()->withoutOverlapping();
         
         // Once for data fix

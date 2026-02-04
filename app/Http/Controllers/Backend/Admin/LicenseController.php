@@ -134,4 +134,39 @@ class LicenseController extends Controller
             'data' => $stats,
         ]);
     }
+
+    /**
+     * Sync users to Keygen.sh.
+     */
+    public function syncUsers(Request $request)
+    {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $result = $this->licenseService->syncUsersToKeygen();
+
+        // Always return detailed info for debugging
+        return response()->json([
+            'success' => $result['success'] ?? false,
+            'message' => $result['success']
+                ? 'Users synced to license server.'
+                : ($result['error'] ?? 'Failed to sync users.'),
+            'created' => $result['created'] ?? 0,
+            'attached' => $result['attached'] ?? 0,
+            'failed' => $result['failed'] ?? 0,
+            'total' => $result['total'] ?? 0,
+            'errors' => $result['errors'] ?? [],
+        ], $result['success'] ? 200 : 400);
+    }
+
+    /**
+     * Check if a new user can be created (API for AJAX validation).
+     */
+    public function checkUserLimit()
+    {
+        $result = $this->licenseService->canCreateUser();
+
+        return response()->json($result);
+    }
 }

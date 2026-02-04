@@ -21,6 +21,8 @@
 @endpush
 @section('content')
 
+@include('backend.includes.license-warning')
+
 <form id="addUserTrainee" method="POST" action="{{ route('admin.employee.store') }}" enctype="multipart/form-data">
     @csrf
 

@@ -45,13 +45,16 @@
                                 {{ __('labels.backend.license_settings.title') }}
                             </h4>
                         </div>
-                        <div class="col-sm-6 text-right">
+                        <!-- <div class="col-sm-6 text-right">
                             @if($stats['has_license'])
+                                <button type="button" class="btn btn-outline-success btn-sm mr-2" id="btnSyncUsers">
+                                    <i class="fas fa-users mr-1"></i> Sync Users
+                                </button>
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="btnRefreshLicense">
                                     <i class="fas fa-sync-alt mr-1"></i> {{ __('labels.backend.license_settings.validate_now') }}
                                 </button>
                             @endif
-                        </div>
+                        </div> -->
                     </div>
 
                     <hr/>
@@ -194,7 +197,7 @@
                         <div class="text-center py-5">
                             <i class="fas fa-key fa-4x text-muted mb-3"></i>
                             <h5 class="text-muted">{{ __('labels.backend.license_settings.no_license') }}</h5>
-                            <p class="text-muted">{{ __('labels.backend.license_settings.no_license_note') }}</p>
+                            <p class="text-muted">{!! __('labels.backend.license_settings.no_license_note') !!}</p>
                         </div>
                     @endif
                 </div>
@@ -234,6 +237,31 @@
                             <small class="form-text text-muted">{{ __('labels.backend.license_settings.license_key_note') }}</small>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Remove License Confirmation Modal --}}
+    <div class="modal fade" id="removeLicenseModal" tabindex="-1" aria-labelledby="removeLicenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10" style="width: 80px; height: 80px; background-color: rgba(220, 53, 69, 0.1);">
+                            <i class="fas fa-exclamation-triangle text-danger fa-2x"></i>
+                        </div>
+                    </div>
+                    <h5 class="mb-2">{{ __('labels.backend.license_settings.remove_license_title') }}</h5>
+                    <p class="text-muted mb-4">{{ __('labels.backend.license_settings.remove_confirm') }}</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary mr-2" data-dismiss="modal">
+                            {{ __('labels.general.buttons.cancel') }}
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btnConfirmRemoveLicense">
+                            <i class="fas fa-trash mr-1"></i> {{ __('labels.backend.license_settings.remove_license') }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -298,6 +326,48 @@ $(document).ready(function() {
         });
     });
 
+    // Sync Users to Keygen
+    $('#btnSyncUsers').on('click', function() {
+        var btn = $(this);
+        var btnHtml = btn.html();
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Syncing...');
+
+        $.ajax({
+            url: '{{ route("admin.license.sync-users") }}',
+            type: 'POST',
+            data: { _token: '{{ csrf_token() }}' },
+            dataType: 'json',
+            success: function(response) {
+                var details = 'Total: ' + (response.total || 0) +
+                    ', Created: ' + (response.created || 0) +
+                    ', Attached: ' + (response.attached || 0) +
+                    ', Failed: ' + (response.failed || 0);
+                showAlert('success', response.message + ' (' + details + ')');
+                btn.prop('disabled', false).html(btnHtml);
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            },
+            error: function(xhr) {
+                var msg = 'Failed to sync users';
+                var details = '';
+                if (xhr.responseJSON) {
+                    if (xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    details = ' (Total: ' + (xhr.responseJSON.total || 0) +
+                        ', Created: ' + (xhr.responseJSON.created || 0) +
+                        ', Failed: ' + (xhr.responseJSON.failed || 0) + ')';
+                    if (xhr.responseJSON.errors && xhr.responseJSON.errors.length > 0) {
+                        details += '<br><small>' + xhr.responseJSON.errors.join('<br>') + '</small>';
+                    }
+                }
+                showAlert('error', msg + details);
+                btn.prop('disabled', false).html(btnHtml);
+            }
+        });
+    });
+
     // Refresh/Validate License
     $('#btnRefreshLicense').on('click', function() {
         var btn = $(this);
@@ -329,15 +399,16 @@ $(document).ready(function() {
         });
     });
 
-    // Remove License
+    // Remove License - Show confirmation modal
     $('#btnRemoveLicense').on('click', function() {
-        if (!confirm('{{ __("labels.backend.license_settings.remove_confirm") }}')) {
-            return;
-        }
+        $('#removeLicenseModal').modal('show');
+    });
 
+    // Confirm Remove License
+    $('#btnConfirmRemoveLicense').on('click', function() {
         var btn = $(this);
         var btnHtml = btn.html();
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> {{ __("labels.backend.license_settings.removing") }}');
 
         $.ajax({
             url: '{{ route("admin.license.remove") }}',
@@ -345,6 +416,7 @@ $(document).ready(function() {
             data: { _token: '{{ csrf_token() }}' },
             dataType: 'json',
             success: function(response) {
+                $('#removeLicenseModal').modal('hide');
                 showAlert('success', response.message);
                 setTimeout(function() {
                     location.reload();
@@ -355,6 +427,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }
+                $('#removeLicenseModal').modal('hide');
                 showAlert('error', msg);
                 btn.prop('disabled', false).html(btnHtml);
             }
