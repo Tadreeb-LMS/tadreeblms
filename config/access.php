@@ -18,6 +18,11 @@ return [
     'registration' => env('ENABLE_REGISTRATION', true),
 
     /*
+     * Whether impersonation (Login As) is enabled
+     */
+    'impersonation' => env('LOGIN_AS_USER_ENABLED', false),
+
+    /*
      * Table names for access tables
      */
     'table_names' => [

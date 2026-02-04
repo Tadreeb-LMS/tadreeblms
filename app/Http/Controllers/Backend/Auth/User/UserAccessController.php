@@ -22,6 +22,7 @@ class UserAccessController extends Controller
      */
     public function loginAs(ManageUserRequest $request, User $user)
     {
+        abort_unless(config('access.impersonation'), 403);
 
         //dd($request->all());
         if(isset($user->employee_type)){
