@@ -1,3 +1,5 @@
+<?php exit('Installer disabled for local development'); ?>
+
 <?php
 $basePath = realpath(__DIR__ . '/..');
 $installedFlag = $basePath . '/installed';
