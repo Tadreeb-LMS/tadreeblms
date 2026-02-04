@@ -6,6 +6,7 @@ use App\Models\License;
 use App\Mail\LicenseExpiryMail;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Helpers\AdminHelper;
 
 class CheckLicenseExpiry extends Command
 {
@@ -14,11 +15,11 @@ class CheckLicenseExpiry extends Command
 
  public function handle()
  {
-  $license = License::first();
-  if(!$license || !$license->expires_at) return;
+  $license = License::orderBy('id', 'desc')->first();
+  if(!$license || !$license->expiry_date) return;
 
   $daysLeft = Carbon::now()
-      ->diffInDays($license->expires_at, false);
+      ->diffInDays($license->expiry_date, false);
 
   if($daysLeft <= 30 && $daysLeft >= 0)
   {
@@ -27,5 +28,6 @@ class CheckLicenseExpiry extends Command
     Mail::to($admins)
      ->send(new LicenseExpiryMail($license,$daysLeft));
   }
+    // \Log::info("Expiry command executed");
  }
 }

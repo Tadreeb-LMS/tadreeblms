@@ -4,7 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\License;
-use App\Models\User;
+use App\Models\Auth\User;
+use App\Helpers\AdminHelper;
 use App\Mail\UserLimitExceededMail;
 use Illuminate\Support\Facades\Mail;
 
@@ -15,10 +16,10 @@ class CheckUserLimit extends Command
 
  public function handle()
  {
-  $license = License::first();
+ $license = License::orderBy('id', 'desc')->first();
   if(!$license) return;
 
-  $used = User::count();
+  $used = User::where('active', 1)->count();
   $max = $license->max_users;
 
   if($used >= $max)

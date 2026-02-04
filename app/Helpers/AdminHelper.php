@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Models\User;
+use App\Models\Auth\User;
 use Spatie\Permission\Models\Role;
 
 class AdminHelper
