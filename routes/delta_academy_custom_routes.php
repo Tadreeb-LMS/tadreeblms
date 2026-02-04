@@ -31,6 +31,14 @@ Route::get('certificates/generate', [CoursesController::class,'generateCertifica
 
 Route::group(['middleware' => 'role:administrator'], function () {
 
+ Route::get('employee', [EmployeeController::class, 'index'])->name('employee.index');
+
+    Route::get('employee/sample', [EmployeeController::class, 'downloadSample'])
+        ->name('employee.sample');
+
+    Route::post('employee/import', [EmployeeController::class, 'import'])
+        ->name('employee.import');
+
     Route::get('certificates/generate/{course_id}/{user_id}', [EmployeeController::class,'generateCertificate'])->name('certificates.generate');
 
     Route::get('/attendance-list/{course_id}/{lesson_id}', [AttendenceController::class,'attendance_list'])->name('attendance.attendance.list');
