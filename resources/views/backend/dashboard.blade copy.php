@@ -109,8 +109,8 @@ $local_lang = App::getLocale() ?? 'en';
 
     </div>
     <div class="col-12 pl-0 d-flex justify-content-between">
-
-        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder">
+     <a href="{{ route('admin.employee.index',['status'=>'active']) }}">
+        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder hover-cursor">
             <div class="d-flex justify-content-center">
                 <h5>
                     {{ $students_count }}
@@ -125,13 +125,15 @@ $local_lang = App::getLocale() ?? 'en';
 
                         Active Users
                     </h5>
-                    <a href="{{ route('admin.employee.index',['status'=>'active']) }}"> <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>  </a>
+                    <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>
                 </div>
             </div>
 
 
         </div>
-        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder1">
+        </a>
+        <a href="{{ route('admin.courses.index',['status'=>'active']) }}">
+        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder1 hover-cursor">
             <div class="d-flex justify-content-center">
                 <h5>
                     {{ $courses_count }}
@@ -146,13 +148,15 @@ $local_lang = App::getLocale() ?? 'en';
 
                         Added Courses
                     </h5>
-                    <a href="{{ route('admin.courses.index',['status'=>'active']) }}"> <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>  </a>
+                     <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>
                 </div>
             </div>
 
 
         </div>
-        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder2">
+</a>
+<a href="{{ route('admin.employee.index') }}">
+        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder2 hover-cursor">
             <div class="d-flex justify-content-center">
                 <h5>
                     {{ $assigned_users_count }}
@@ -167,13 +171,15 @@ $local_lang = App::getLocale() ?? 'en';
 
                         Assigned Users
                     </h5>
-                    <a href="{{ route('admin.employee.index') }}"> <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>  </a>
+                     <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>
                 </div>
             </div>
 
 
         </div>
-        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder3">
+</a>
+<a href="{{ route('admin.assessment_accounts.course-assign-list') }}"> 
+        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder3 hover-cursor">
             <div class="d-flex justify-content-center">
                 <h5>
                     {{ $total_assignments }}
@@ -188,12 +194,13 @@ $local_lang = App::getLocale() ?? 'en';
 
                         Assignments
                     </h5>
-                    <a href="{{ route('admin.assessment_accounts.course-assign-list') }}"> <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>  </a>
+                    <i class="fa fa-arrow-right ml-3" aria-hidden="true" style="font-size:15px;"></i>  
                 </div>
             </div>
 
 
         </div>
+</a>
         <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder4">
             <div class="d-flex justify-content-center">
                 <h5>
