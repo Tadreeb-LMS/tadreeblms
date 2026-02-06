@@ -30,7 +30,7 @@ class CourseFeebackController extends Controller
         if ($request->ajax()) {
             $course_id = $request->course_id;
 
-            $query = CourseFeedback::query()->with('course','feedback')
+            $query = CourseFeedback::query()->with(['course', 'feedback'])
                                 ->whereHas('course')
                                 ->whereHas('feedback');
 
@@ -44,7 +44,18 @@ class CourseFeebackController extends Controller
                         return $single->course->title ?? 'N/A';
                     })
                     ->addColumn('question', function ($single) {
-                        return $single->feedback->question ?? 'N/A';
+                        // Use already loaded relationships to get all questions for this course
+                        $courseFeedbacks = CourseFeedback::where('course_id', $single->course_id)->get();
+                        $questions = $courseFeedbacks->map(function($cf) {
+                            return $cf->feedback->question ?? null;
+                        })->filter()->unique()->values();
+                        
+                        if ($questions->isEmpty()) {
+                            return 'N/A';
+                        }
+                        
+                        // Show all questions separated by commas
+                        return $questions->implode(', ');
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search')['value'])) {
