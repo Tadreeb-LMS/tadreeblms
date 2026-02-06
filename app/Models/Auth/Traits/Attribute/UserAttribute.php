@@ -145,9 +145,9 @@ trait UserAttribute
         }
 
         /*
-         * If the admin is currently NOT spoofing a user
+         * If impersonation is enabled and the admin is currently NOT spoofing a user
          */
-        if (! session()->has('admin_user_id') || ! session()->has('temp_user_id')) {
+        if (config('access.impersonation') && (! session()->has('admin_user_id') || ! session()->has('temp_user_id'))) {
             //Won't break, but don't let them "Login As" themselves
             if ($this->id != auth()->id()) {
                 return '<a href="'.route(
