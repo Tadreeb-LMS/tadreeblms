@@ -44,18 +44,7 @@ class CourseFeebackController extends Controller
                         return $single->course->title ?? 'N/A';
                     })
                     ->addColumn('question', function ($single) {
-                        // Use already loaded relationships to get all questions for this course
-                        $courseFeedbacks = CourseFeedback::where('course_id', $single->course_id)->get();
-                        $questions = $courseFeedbacks->map(function($cf) {
-                            return $cf->feedback->question ?? null;
-                        })->filter()->unique()->values();
-                        
-                        if ($questions->isEmpty()) {
-                            return 'N/A';
-                        }
-                        
-                        // Show all questions separated by commas
-                        return $questions->implode(', ');
+                        return $single->feedback->question ?? 'N/A';
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search')['value'])) {
@@ -84,7 +73,7 @@ class CourseFeebackController extends Controller
                         $actions .= '</div>';
                         return $actions;
                     })
-                    ->rawColumns(['actions', 'question'])
+                    ->rawColumns(['actions'])
                     ->make(true);
         }
 
