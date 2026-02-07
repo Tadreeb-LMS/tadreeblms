@@ -27,7 +27,7 @@ class StoreCoursesRequest extends FormRequest
             'internalStudents.*' => 'exists:users,id',
             'externalStudents.*' => 'exists:users,id',
             'title' => 'required|max:200',
-            'category_id' => 'required',
+            'category_id' => 'nullable',
             'course_code' => 'required|max:100',
             //'arabic_title' => 'required|max:200',
             // 'marks_required' => 'required',

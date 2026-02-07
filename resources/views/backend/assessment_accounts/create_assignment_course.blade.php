@@ -72,11 +72,11 @@
                     <input type="hidden" name="user_type" value="1">
                 @endif
 
-                <label class="step-title">
+                <!-- <label class="step-title">
                     Make a New Assignment (Step-1)
-                </label>
+                </label> -->
 
-                {{-- Title --}}
+                <!-- {{-- Title --}}
                 <div class="form-group row">
                     <label class="col-md-12 form-control-label">Title</label>
                     <div class="col-md-12">
@@ -120,11 +120,11 @@
                             <i class="fa fa-chevron-down"></i>
                         </span>
                     </div>
-                </div>
+                </div> -->
 
                 {{-- Course --}}
                 <div class="form-group row">
-                    <label class="col-md-12 form-control-label">Course</label>
+                    <label class="col-md-12 form-control-label">Select Course</label>
 
                     <div class="col-md-12 custom-select-wrapper">
                         <select class="form-control custom-select-box select2"
@@ -147,15 +147,15 @@
                     </div>
                 </div>
 
-                <label class="step-title">
+                <!-- <label class="step-title">
                     Make a New Assignment (Step-3)
-                </label>
+                </label> -->
 
-                <label class="">Assign to...</label>
+                <!-- <label class="">Assign to...</label> -->
 
                 {{-- Users Multiple Select --}}
-                <div class="form-group row">
-                    <label class="col-md-12 form-control-label">Users</label>
+                <div class="form-group row mt-3">
+                    <label class="col-md-12 form-control-label">Select Users</label>
 
                     <div class="col-md-12 custom-select-wrapper">
                         <select name="teachers[]"
@@ -178,7 +178,7 @@
                 {{-- OR Department --}}
                 <p class="mt-3 mb-1">OR</p>
 
-                <div class="row">
+                <div class="row mt-3">
                     <label class="col-md-12 form-control-label">Select Department</label>
 
                     <div class="col-md-12 custom-select-wrapper">
@@ -199,7 +199,7 @@
                     </div>
                 </div>
 
-                {{-- Message --}}
+                <!-- {{-- Message --}}
                 <div class="form-group row mt-3">
                     <label class="col-md-12 form-control-label">Add Custom Message</label>
                     <div class="col-md-12">
@@ -208,10 +208,10 @@
                                name="message"
                                id="message">
                     </div>
-                </div>
+                </div> -->
 
                 {{-- Buttons --}}
-                <div class="form-group">
+                <div class="form-group mt-3">
                     <div class="col-12 d-flex justify-content-end pr-0">
 
                         <a href="{{ route('admin.assessment_accounts.assignments', $user_id) }}"
@@ -236,7 +236,7 @@
 @endsection
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+<!-- <script>
     $(document).ready(function () {
         $('#course_language').change(function () {
             $.ajax({
@@ -261,6 +261,6 @@
             
         })
     });
-</script>
+</script> -->
 @push('after-scripts')
 @endpush
