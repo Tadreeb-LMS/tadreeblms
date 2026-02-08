@@ -30,7 +30,7 @@ class CourseFeebackController extends Controller
         if ($request->ajax()) {
             $course_id = $request->course_id;
 
-            $query = CourseFeedback::query()->with('course','feedback')
+            $query = CourseFeedback::query()->with(['course', 'feedback'])
                                 ->whereHas('course')
                                 ->whereHas('feedback');
 
@@ -64,7 +64,7 @@ class CourseFeebackController extends Controller
                         // $actions .= '<a title="Edit" href="'.$edit_route.'">
                         //                 <i class="fa fa-edit"></i>
                         //             </a>';
-                        $actions .= '<a title="Delete" href="#" 
+                        $actions .= '<a title="Delete" href="#" class="delete-record"
                                         data-name="course feedback question" 
                                         data-type="delete" 
                                         data-url="/user/course-feedback-questions/delete/' . $single->id . '">
@@ -73,7 +73,7 @@ class CourseFeebackController extends Controller
                         $actions .= '</div>';
                         return $actions;
                     })
-                    ->rawColumns(['actions', 'question'])
+                    ->rawColumns(['actions'])
                     ->make(true);
         }
 
@@ -81,9 +81,14 @@ class CourseFeebackController extends Controller
         return view('backend.course_feedback_question.index', compact('courses'));
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        CourseFeedback::where('course_id', $request->id)->delete();
+        $courseFeedback = CourseFeedback::find($id);
+        if ($courseFeedback) {
+            $courseFeedback->delete();
+            return response()->json(['status' => 'success', 'message' => 'Question removed from course successfully']);
+        }
+        return response()->json(['status' => 'error', 'message' => 'Record not found'], 404);
     }
 
     public function edit(Request $request)

@@ -27,14 +27,15 @@
                     <input type="hidden" name="course_id" value="{{ $course_id }}" />
                     @foreach ($courses_feedbacks as $key => $this_data)
                         @php
-                            $value = DB::table('feedback_questions')
-                                ->where('id', $this_data->feedback_question_id)
-                                ->first();
-
-                            $feedback_option = DB::table('feedback_option')
-                                ->where('question_id', $this_data->feedback_question_id)
-                                ->get();
-                            //echo '<pre>';print_r($courses_feedbacks);die;
+                            // Use Eloquent relationship instead of raw DB queries for better performance and security
+                            $feedbackQuestion = $this_data->feedback;
+                            $value = $feedbackQuestion;
+                            
+                            // Get feedback options - check if question type supports options
+                            $feedback_option = [];
+                            if (in_array($value->question_type, [1, 2])) {
+                                $feedback_option = $value->feedbackOptions ?? [];
+                            }
                         @endphp
 
 

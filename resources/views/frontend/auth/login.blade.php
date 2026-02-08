@@ -3,62 +3,173 @@
 @section('title', app_name().' | '.__('labels.frontend.auth.login_box_title'))
 
 <style>
-
+    /* Compact & Aesthetic Login Styles */
+    
     .ftlogo {
         align-items: center !important;
         display: flex !important;
         justify-content: center !important;
     }
 
+    /* Breadcrumb - Compact */
+    .breadcrumb-section {
+        background-color: #c1902d4a;
+        padding: 20px 0 !important; /* Reduced from 75px */
+    }
+
+    /* Card Styling - Glassmorphic & Compact */
+    .card {
+        margin: 20px auto !important; /* Reduced from 35px */
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        background: #fff;
+    }
 
     .card-header {
         text-align: center;
-        padding: 25px;
+        padding: 15px 20px 5px !important; /* Reduced padding */
         background-color: transparent !important;
         border-bottom: 0 !important;
     }
+    
+    .card-header h2 {
+        font-weight: 700;
+        font-size: 24px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .card-header p {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 0;
+    }
+
+    .card-body {
+        padding: 15px 25px 25px; /* Compact body padding */
+    }
 
     .error-block {
-        margin-bottom: 16px;
-        padding: 0 10px;
-        font-size: 15px;
-    }
-    h2, h3 {
-        font-weight: 500;
-        margin-top: 20px;
+        margin-bottom: 12px;
+        padding: 0 5px;
+        font-size: 14px;
+        text-align: center;
     }
 
+    /* Form Controls */
+    .form-group {
+        margin-bottom: 12px; /* Tighter spacing */
+    }
+    
+    .form-control {
+        height: 42px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    /* Button */
     .nws-button button {
-        height: 50px !important;
-        width: auto !important;
-        font-size: 15px;
+        height: 45px !important; /* Slightly smaller */
+        width: 100% !important; /* Full width */
+        font-size: 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .nws-button button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .form-group.nws-button {
         text-align: center;
+        margin-top: 15px;
+        margin-bottom: 0;
     }
 
-    .card {
-        /* padding: 20px; */
-        margin: 35px;
+    /* Captcha Styling */
+    .captcha-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f4f6f8;
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .captcha-text {
+        font-weight: bold;
+        color: #333;
+        font-family: monospace;
+        font-size: 16px;
+        letter-spacing: 2px;
     }
 
-    .breadcrumb-section {
-        background-color: #c1902d4a;
-        padding: 75px 0;
+    .captcha-input {
+        width: 100px !important;
+        height: 34px !important;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    /* Links */
+    .forgot-password-link {
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .forgot-password-link:hover {
+        text-decoration: underline;
+        color: #333;
     }
 
     .demo-credentials {
-        margin-top: 45px;
+        margin-top: 20px;
         padding: 4px;
         display: flex;
         justify-content: center;
     }
 
     .demo-credentials h3 {
-        font-size: 18px;
-        padding: 10px;
+        font-size: 16px;
+        padding: 5px;
         font-weight: bold;
+    }
+    
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+        .breadcrumb-section {
+            display: none; /* Hide breadcrumb on mobile */
+        }
+        
+        body {
+            background-color: #fff; /* White background for mobile to blend with card */
+        }
+        
+        .card {
+            margin: 0 !important;
+            box-shadow: none;
+            border: none;
+            height: 100vh; /* Full screen card */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .container {
+            padding: 0 15px;
+        }
+        
+        .col.col-sm-5 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
     }
     
 </style>
@@ -118,7 +229,8 @@
                     </div>
 
                     
-                    <div class="form-group">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="form-check">
                             <input type="checkbox"
                                    class="form-check-input"
@@ -130,19 +242,23 @@
                                 @lang('labels.frontend.auth.remember_me')
                             </label>
                         </div>
+                        
+                        <a href="{{ route('frontend.auth.password.reset') }}" class="forgot-password-link">
+                            @lang('labels.frontend.passwords.forgot_password')
+                        </a>
                     </div>
 
                     {{-- Captcha --}}
                     <div class="form-group">
-                        <div class="d-flex align-items-center">
-                            <span class="font-weight-bold mr-2">
+                        <div class="captcha-container">
+                            <span class="captcha-text">
                                 Captcha: {{ $captha }}
                             </span>
 
                             <input type="text"
                                 name="captcha"
-                                class="form-control"
-                                style="width:120px"
+                                class="form-control captcha-input"
+                                placeholder="Code"
                                 required>
                         </div>
                     </div>
@@ -152,13 +268,6 @@
                         <button type="submit" id="loginBtn" class="text-center white text-capitalize">
                             @lang('labels.frontend.auth.login_button')
                         </button>
-                    </div>
-
-                    {{-- Forgot password --}}
-                    <div class="form-group text-right">
-                        <a href="{{ route('frontend.auth.password.reset') }}">
-                            @lang('labels.frontend.passwords.forgot_password')
-                        </a>
                     </div>
                 </form>
 

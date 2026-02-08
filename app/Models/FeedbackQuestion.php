@@ -56,4 +56,12 @@ class FeedbackQuestion extends Model
     {
         return $this->hasMany(CourseFeedback::class, 'feedback_question_id');
     }
+
+    /**
+     * Get the feedback options for this question
+     */
+    public function feedbackOptions()
+    {
+        return $this->hasMany(FeedbackOption::class, 'question_id');
+    }
 }

@@ -726,6 +726,13 @@
                         </a>
                     </li> --}}
 
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/smtp*')) }}"
+                            href="{{ route('admin.smtp-settings') }}">
+                            <span class="title">@lang('menus.backend.sidebar.settings.smtp')</span>
+                        </a>
+                    </li>
+
                 </ul>
             </li>
             

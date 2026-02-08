@@ -175,6 +175,11 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/license/sync-users', ['uses' => 'Admin\LicenseController@syncUsers'])->name('license.sync-users');
     Route::get('settings/license/check-limit', ['uses' => 'Admin\LicenseController@checkUserLimit'])->name('license.check-limit');
     Route::get('settings/license/keygen-usage', ['uses' => 'Admin\LicenseController@keygenUsage'])->name('license.keygen-usage');
+    //===== SMTP Email Settings Routes =====//
+    Route::get('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@index'])->name('smtp-settings');
+    Route::post('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@save'])->name('smtp-settings.save');
+    Route::post('settings/smtp/test', ['uses' => 'Admin\SmtpSettingsController@sendTestEmail'])->name('smtp-settings.test');
+
 
     //===== Slider Routes =====/
     Route::resource('sliders', 'Admin\SliderController');

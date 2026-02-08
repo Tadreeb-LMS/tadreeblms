@@ -20,7 +20,8 @@ class HandleCors
             'user/export-internal-attendence-report-as-csv',
             'user/exportCourseAsCsv', 
             'user/export-trainees-as-csv',
-            'user/course-assignment-report-as-csv'
+            'user/course-assignment-report-as-csv',
+            'employee/sample',
         ];
 
         if (in_array($request->path(), $export_urls)) {

@@ -23814,3 +23814,62 @@ button:focus{ outline: none !important; box-shadow: 0 0 0 !important;}
     padding: 8px;}
     .checkingListC textarea{ height: 120px !important;} 
   button{ border: none !important;}
+.form-control{ height: auto !important;}
+.addoptiontable { margin-top: 5px;}
+
+@media (min-width:320px) and (max-width: 767px){
+.dashboardbox{ padding: 0 !important; margin: 0 !important;}
+.btn{font-size: 0.65rem;}
+h4, .h4 {
+    font-size: 1rem;
+}table.dataTable tbody th, table.dataTable tbody td {
+    padding: 5px 5px;font-size: 11px;}
+        .table thead th {
+        font-size: 10px;font-weight: 600;}
+        #myTable_wrapper table.dataTable thead th {
+    padding: 5px 10px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+}.pill-draft{ font-size: 10px;}.btn2, .viewbtn, .createbtn, .btn1{ font-size: 8px; padding: 2px 5px;}.dropdown-menu{font-size: 0.7rem;}
+.dashboardbox .card .card-body {
+    padding: 0px 0 0;
+}.list-inline { 
+    margin: 0 0 5px;
+}.table-controls{ gap: 0;}.custom-teacher-table{  font-size: 10px;}
+.add-btn{    padding: 5px 15px 7px 15px;font-size: 10px;}
+h6, .h6 {
+    font-size: 0.7rem;
+}.custom-file-label{ font-size: 10px;}.custom-file-label, .custom-file-label::after{    height: calc(1.8rem + 1px);}body{font-size: 0.7rem;}#myTable_length label{ font-size: 10px;}
+.app-header .navbar-toggler {
+    margin-left: 5px;
+}.dataTables_wrapper .dataTables_filter input {
+    margin-left: 0;
+}button.dt-button, div.dt-button, a.dt-button{font-size: 0.7em;}
+table.dataTable tbody th, table.dataTable tbody td{font-size: 10px;}
+.icon-styles{    font-size: 15px;}.icon-styles.fa-eye{font-size: 15px !important;}
+.custom-entries{ font-size: 10px;}
+h5, .h5 {
+    font-size: 0.7rem;
+}.form-control{font-size: 0.7rem;}.stepper .label{font-size: 10px !important;}
+body .stepper {
+        flex-direction: unset !important; margin: 0 0 10px !important;
+    }.stepper .circle{font-size: 15px !important;width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;}.addcourseheader {
+    padding: 5px 10px 5px 10px !important;margin: 0 0 20px !important;}
+    .ortext { text-align: center;
+    padding-top: 0;
+}.frmbm10 .row .form-group {
+    margin-bottom: 10px !important;
+}.coursesteps .btn-primary{font-size: 0.7rem;
+    border: none;
+    width: 120px !important;white-space: nowrap;
+    margin: 0 auto;}
+}
+.frmbm10 .col-md-3{ padding-left: 0;}
+@media (min-width:1200px) and (max-width: 1300px){
+.coursesteps .btn-primary{font-size: 0.7rem;}
+.ortext { 
+    font-size: 11px;
+}
+}

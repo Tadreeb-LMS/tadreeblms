@@ -87,7 +87,7 @@
     {!! Form::model($course, ['method' => 'PUT', 'route' => ['admin.courses.update', $course->id], 'files' => true]) !!}
 
     <div>
-        <div class="pb-3 d-flex justify-content-between">
+        <div class="pb-3 d-flex justify-content-between addcourseheader">
 
             
              <h5 >
@@ -100,7 +100,7 @@
                  </div>
          
         </div>
-        <div class="card">
+        <div class="card coursesteps">
         <!-- <div class="card-header">
             <h3 class="page-title float-left">@lang('labels.backend.courses.create')</h3>
             <div class="float-right">
@@ -110,8 +110,11 @@
 
         <div class="card-body">
             @if (Auth::user()->isAdmin())
-                <div class="row">
-                    <div class="col-md-9 col-12 form-group">
+
+            <div class="row">
+             <div class="col-md-6 col-12 form-group frmbm10">
+                     <div class="row">
+                    <div class="col-md-8 col-12 form-group">
                         <div>
                             Teachers
                         </div>
@@ -127,14 +130,90 @@
                             </span>
                         </div>
                     </div>
-                    <div class="col-md-3 col-12 d-flex form-group flex-column">
-                       <span class="mb-2">
+                    <div class="col-md-1 col-12 d-flex form-group flex-column"><span class="ortext">
                         OR
-                       </span>  <a target="_blank" class="btn btn-primary mt-auto"
+                       </span></div>
+                    <div class="col-md-3 col-12 d-flex form-group flex-column">
+                        <a target="_blank" class="btn btn-primary mt-auto"
                             href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                     </div>
                 </div>
             @endif
+
+
+              <div class="row">
+                <div class="col-md-8 col-12 form-group">
+                    <div>Category</div>
+                   <div class="custom-select-wrapper mt-2">
+    {!! Form::select('category_id', $categories, old('category_id'), [
+                            'class' => 'form-control custom-select-box select2 js-example-placeholder-single',
+                            'multiple' => false,
+                            'required' => true,
+                        ]) !!}
+    <span class="custom-select-icon">
+        <i class="fa fa-chevron-down"></i>
+    </span>
+</div>
+                </div><div class="col-md-1 col-12 d-flex form-group flex-column"><span class="ortext">
+                        OR
+                       </span></div>
+                <div class="col-md-3 col-12 d-flex form-group flex-column">
+                    <a target="_blank" class="btn btn-primary mt-auto"
+                        href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
+                </div>
+            </div>
+
+<div class="form-group">
+                    {!! Form::label('course_code', 'Course Code' . ' *', ['class' => 'control-label']) !!}
+                    {!! Form::text('course_code', old('course_code'), [
+                        'class' => 'form-control',
+                        'placeholder' => 'Course code',
+                        'required' => false,
+                    ]) !!}
+                </div>
+<div class="form-group">
+                    <div>
+
+                        {!! Form::label('slug', trans('Course Language'), ['class' => 'control-label']) !!}
+                    </div>
+                    <div class="custom-select-wrapper">
+
+                        <select name="course_lang" class="form-control custom-select-box">
+                            <option @if($course->course_lang == 'english') selected @endif value="english">English</option>
+                            <option @if($course->course_lang == 'arabic') selected @endif value="arabic">Arabic</option>
+                        </select>
+                        <span class="custom-select-icon">
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
+                    </div>
+                </div>
+<div class="form-group">
+                    {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
+                    {!! Form::text('title', $course->title, [
+                        'class' => 'form-control',
+                        'placeholder' => trans('labels.backend.courses.fields.title'),
+                        'required' => false,
+                    ]) !!}
+                </div>
+
+
+                </div>
+              <div class="col-md-6 col-12 form-group">
+                    <div class="form-group">
+                    {!! Form::label('description', trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
+                    {!! Form::textarea('description', $course->description, [
+                        'class' => 'form-control editor',
+                        'placeholder' => trans('labels.backend.courses.fields.description'),
+                    ]) !!}
+
+                </div>
+                </div>
+            </div>
+               
+
+
+
+            
 
             @if (Auth::user()->isAdmin())
                 <!-- <div class="row">
@@ -160,63 +239,14 @@
         </div> --}}
             @endif
 
-            <div class="row">
-                <div class="col-md-9 col-12 form-group">
-                    <div>Category</div>
-                   <div class="custom-select-wrapper mt-2">
-    {!! Form::select('category_id', $categories, old('category_id'), [
-                            'class' => 'form-control custom-select-box select2 js-example-placeholder-single',
-                            'multiple' => false,
-                            'required' => true,
-                        ]) !!}
-    <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
-</div>
-                </div>
-                <div class="col-md-3 col-12 d-flex form-group flex-column">
-                    <span class="mb-2">
-                        OR
-                       </span> <a target="_blank" class="btn btn-primary mt-auto"
-                        href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
-                </div>
-            </div>
+          
 
             <div class="row">
 
-                <div class="col-sm-12 col-lg-3 col-md-12 form-group">
-                    {!! Form::label('course_code', 'Course Code' . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('course_code', old('course_code'), [
-                        'class' => 'form-control',
-                        'placeholder' => 'Course code',
-                        'required' => false,
-                    ]) !!}
-                </div>
-                <div class="col-md-12 col-lg-3 form-group">
-                    <div>
-
-                        {!! Form::label('slug', trans('Course Language'), ['class' => 'control-label']) !!}
-                    </div>
-                    <div class="custom-select-wrapper">
-
-                        <select name="course_lang" class="form-control custom-select-box">
-                            <option @if($course->course_lang == 'english') selected @endif value="english">English</option>
-                            <option @if($course->course_lang == 'arabic') selected @endif value="arabic">Arabic</option>
-                        </select>
-                        <span class="custom-select-icon">
-                            <i class="fa fa-chevron-down"></i>
-                        </span>
-                    </div>
-                </div>
                 
-                <div class="col-sm-12 col-lg-6 col-md-12 form-group">
-                    {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', $course->title, [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.courses.fields.title'),
-                        'required' => false,
-                    ]) !!}
-                </div>
+                
+                
+                
                 {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                     {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
                     {!! Form::text('arabic_title', old('arabic_title'), [
@@ -235,17 +265,7 @@
                 </div> --}}
                 
             </div>
-            <div class="row">
-
-                <div class="col-12 form-group">
-                    {!! Form::label('description', trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('description', $course->description, [
-                        'class' => 'form-control editor',
-                        'placeholder' => trans('labels.backend.courses.fields.description'),
-                    ]) !!}
-
-                </div>
-            </div>
+             
             <div class="row">
                 {{-- <div class="col-sm-12 col-lg-2 col-md-12 form-group">
                     {!! Form::label('price', trans('labels.backend.courses.fields.price'), [
@@ -352,7 +372,7 @@
                     </span>
                 </span>
             </div>
-
+ 
             <div class="row mt-4">
             {{-- <div class="col-sm-12 col-lg-4 col-md-12">
                 <label>@lang('Minimum percentage required to qualify')</label>
@@ -490,7 +510,7 @@
                     @endif
                 </div>
                 
-            </div>
+            </div><div class="btmbtns">
             <div class="row">
                 
                 <div class="col-12 d-flex float-right gap-20">
@@ -500,10 +520,10 @@
 
                             @if($course->published == 0)
 
-                            <div class="form-group">
+                            <div class=" ">
                                 {!! Form::submit(trans('Save As Draft'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
                             </div>
-                            <div class="form-group">
+                            <div class=" ">
                                 {!! Form::submit(trans('Next'), [
                                     'class' => 'btn cancel-btn frm_submit',
                                     'id' => 'nextBtn',
@@ -521,7 +541,7 @@
         <input type="hidden" name="submit_btn" id="submit-btn" value="">
         
     </div>
-    </div>
+    </div></div>
     
     {!! Form::close() !!}
 @stop

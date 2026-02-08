@@ -45,7 +45,11 @@ class AssessmentController extends Controller
     public function courseFeedback(Request $request)
     {
         $course_id = $request->course_id;
-        $courses_feedbacks = DB::table('courses_feedbacks')->where('course_id', $course_id)->get();
+        
+        // Use Eloquent with eager loading for better performance and security
+        $courses_feedbacks = CourseFeedback::where('course_id', $course_id)
+            ->with(['feedback.feedbackOptions']) // Eager load feedback questions and their options
+            ->get();
 
         return view($this->path . '/assignment/' . 'user-feedback', compact('course_id', 'courses_feedbacks'));
     }

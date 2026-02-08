@@ -74,6 +74,24 @@
     .custom-dropdown-item i {
         font-size: 14px;
     }
+    .import-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 600px;
+}
+
+.import-row input[type="file"] {
+    height: 34px;
+    font-size: 13px;
+}
+
+.import-row .btn {
+    height: 34px;
+    padding: 6px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+} 
     </style>
 @endpush
 @section('content')
@@ -102,23 +120,21 @@
                 <!-- IMPORT FORM -->
                 <div class="col-lg-6 col-sm-12 mb-4">
                     <h6>@lang('Import Department')</h6>
-
                     <form method="POST" action="{{ route('admin.employee.import') }}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="d-flex">
+    @csrf
 
-                            <div class="custom-file-upload-wrapper" style="margin-top: 18px;">
-                                <input type="file" name="import_file" id="importFileInput" class="custom-file-input">
-                                <label for="importFileInput" class="custom-file-label">
-                                    <i class="fa fa-upload mr-1"></i> Choose a file
-                                </label>
-                            </div>
+    <div class="import-row">
+        <input type="file" name="import_file"  id="importFileInput" class="form-control form-control-sm">
+       
+        <button type="submit" class="btn btn-primary btn-sm">
+            Import
+        </button>
 
-                            <button type="submit" class="btn btn-primary ml-3" name="submit" value="submit">
-                                @lang('Import')
-                            </button>
-                        </div>
-                    </form>
+        <a href="{{ route('employee.sample') }}" class="btn btn-outline-secondary btn-sm">
+            Download Sample Excel
+        </a>
+    </div>
+</form>
                 </div>
 
             </div>
