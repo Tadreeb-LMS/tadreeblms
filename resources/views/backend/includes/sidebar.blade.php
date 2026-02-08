@@ -34,20 +34,20 @@
             )
 
             @can('trainer_access')
-            <li class="nav-item ">
+            <!-- <li class="nav-item ">
                 <a class="nav-link {{ $request->segment(2) == 'teachers' ? 'active' : '' }}"
                     href="{{ route('admin.teachers.index') }}">
                     <i class="nav-icon fa fa-user"></i>
                     <span class="title">@lang('menus.backend.sidebar.trainers')</span>
                 </a>
-            </li>
+            </li> -->
             @endcan
             @endif
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2,3]))
             )
             @can('trainee_access')
-            <li
+            <!-- <li
                 class="nav-item nav-dropdown   {{ active_class(Active::checkUriPattern(['user/employee*', 'user/external-employee*']), 'open') }}">
                 <a class="nav-link nav-dropdown-toggle d-flex  {{ active_class(Active::checkUriPattern('admin/*')) }}"
                     href="#">
@@ -82,7 +82,7 @@
                     @endif
                     @endcan
                 </ul>
-            </li>
+            </li> -->
             @endcan
             @endif
 
@@ -649,7 +649,33 @@
                             @endif
                         </a>
                     </li>
-
+                    @if (true)
+                    @if (null == Session::get('setvaluesession') ||
+                    (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2,3]))
+                    )
+                    @can('trainer_access')
+                    <li class="nav-item ">
+                        <a class="nav-link {{ $request->segment(2) == 'teachers' ? 'active' : '' }}"
+                            href="{{ route('admin.teachers.index') }}">
+                            <!-- <i class="nav-icon fa fa-user"></i> -->
+                            <span class="title">@lang('menus.backend.sidebar.trainers')</span>
+                        </a>
+                    </li>
+                    @endcan
+                    @endif
+                    @can('course_access')
+                    @if (null == Session::get('setvaluesession') ||
+                    (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2]))
+                    )
+                    <li class="nav-item ">
+                        <a class="nav-link {{ $request->segment(2) == 'employee' ? 'active' : '' }}"
+                            href="{{ route('admin.employee.index') }}">
+                            <span class="title">@lang('menus.backend.sidebar.trainees')</span>
+                        </a>
+                    </li>
+                    @endif
+                    @endcan
+                    @endif
                     <li class="nav-item">
                         <a class="nav-link {{ $request->segment(2) == 'roles' ? 'active' : '' }}"
                             href="{{ route('admin.roles.index') }}">
@@ -697,7 +723,14 @@
                             <span class="title">@lang('menus.backend.sidebar.settings.landing_page_setting')</span>
                         </a>
                     </li>
-
+                    @if ($logged_in_user->isAdmin())
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/license*')) }}"
+                            href="{{ route('admin.license-settings') }}">
+                            <span class="title">@lang('menus.backend.sidebar.settings.license')</span>
+                        </a>
+                    </li>
+                    @endif
                     {{-- <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'footer' ? 'active' : '' }}"
                             href="{{ route('admin.footer-settings') }}">
@@ -719,15 +752,9 @@
                         </a>
                     </li> --}}
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/smtp*')) }}"
-                            href="{{ route('admin.smtp-settings') }}">
-                            <span class="title">@lang('menus.backend.sidebar.settings.smtp')</span>
-                        </a>
-                    </li>
-
                 </ul>
             </li>
+            
             @endcan
             @endif
             @if (true)

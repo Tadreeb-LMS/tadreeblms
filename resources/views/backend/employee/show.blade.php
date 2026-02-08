@@ -16,7 +16,7 @@
             <h4 class="">Trainee</h4>
         </div>
         <div>
-            <a href="{{ route('admin.teachers.index') }}">
+            <a href="{{ route('admin.employee.index') }}">
 
                 <button
                     type="button"

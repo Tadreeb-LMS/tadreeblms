@@ -14,6 +14,7 @@ use App\Http\Requests\Backend\Auth\User\StoreUserRequest;
 use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
 use App\Http\Requests\Backend\Auth\User\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
+use App\Services\LicenseService;
 
 /**
  * Class UserController.
@@ -61,8 +62,6 @@ class UserController extends Controller
      */
     public function getData(Request $request)
     {
-
-        
         if($request->role &&  $request->role != ""){
             $users = User::role($request->role)->with('roles', 'permissions', 'providers')
                 ->orderBy('users.created_at', 'desc');
@@ -110,7 +109,7 @@ class UserController extends Controller
      */
     public function create(ManageUserRequest $request, RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
-        return view('backend.auth.user.create')
+        return view('backend.auth.user.create', ['return_to' => $request->input('return_to')])
             ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
             ->withPermissions($permissionRepository->get(['id', 'name']));
     }
@@ -123,7 +122,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        // echo '<pre>'; print_r($request->all());die;
+        \Log::debug('User store return_to', ['return_to' => $request->input('return_to')]);
         $this->userRepository->create($request->only(
             'first_name',
             'last_name',
@@ -134,9 +133,21 @@ class UserController extends Controller
             'confirmation_email',
             'roles',
             'permissions',
-            'employee_type'
         ));
 
+        // Sync all users to Keygen
+        try {
+            $result = app(LicenseService::class)->syncUsersToKeygen();
+            \Log::info('User created - Keygen sync result', $result);
+        } catch (\Exception $e) {
+            \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
+        }
+
+        $returnTo = $request->input('return_to');
+    
+        if ($returnTo) {
+            return redirect($returnTo)->withFlashSuccess(__('alerts.backend.users.created'));
+        }
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.created'));
     }
 

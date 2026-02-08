@@ -74,24 +74,6 @@
     .custom-dropdown-item i {
         font-size: 14px;
     }
-    .import-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 600px;
-}
-
-.import-row input[type="file"] {
-    height: 34px;
-    font-size: 13px;
-}
-
-.import-row .btn {
-    height: 34px;
-    padding: 6px 14px;
-    font-size: 13px;
-    white-space: nowrap;
-} 
     </style>
 @endpush
 @section('content')
@@ -104,9 +86,9 @@
 
         @can('trainee_create')
         <div>
-            <a href="{{ route('admin.employee.create') }}">
+            <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.employee.index')]) }}">
                 <button type="button" class="add-btn">
-                    @lang('strings.backend.general.app_add_new')
+                    Add More Trainees
                 </button>
             </a>
         </div>
@@ -120,21 +102,23 @@
                 <!-- IMPORT FORM -->
                 <div class="col-lg-6 col-sm-12 mb-4">
                     <h6>@lang('Import Department')</h6>
+
                     <form method="POST" action="{{ route('admin.employee.import') }}" enctype="multipart/form-data">
-    @csrf
+                        @csrf
+                        <div class="d-flex">
 
-    <div class="import-row">
-        <input type="file" name="import_file"  id="importFileInput" class="form-control form-control-sm">
-       
-        <button type="submit" class="btn btn-primary btn-sm">
-            Import
-        </button>
+                            <div class="custom-file-upload-wrapper" style="margin-top: 18px;">
+                                <input type="file" name="import_file" id="importFileInput" class="custom-file-input">
+                                <label for="importFileInput" class="custom-file-label">
+                                    <i class="fa fa-upload mr-1"></i> Choose a file
+                                </label>
+                            </div>
 
-        <a href="{{ route('employee.sample') }}" class="btn btn-outline-secondary btn-sm">
-            Download Sample Excel
-        </a>
-    </div>
-</form>
+                            <button type="submit" class="btn btn-primary ml-3" name="submit" value="submit">
+                                @lang('Import')
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
             </div>
@@ -177,7 +161,9 @@
                         <th>@lang('labels.backend.teachers.fields.email')</th>
                         <th>@lang('Department')</th>
                         <th>@lang('Position')</th>
+                        @if(request('show_deleted') != 1)
                         <th>@lang('labels.backend.teachers.fields.status')</th>
+                        @endif
 
                         <th style="text-align:center;">@lang('strings.backend.general.actions')</th>
                     </tr>
@@ -270,46 +256,31 @@
                 
                 ajax: route,
                 columns: [
-                    
-                    // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
-                    {
-                        data: "id",
-                        name: 'id'
-                    },
-                    {
-                        data: "emp_id",
-                        name: 'emp_id'
-                    },
-                    {
-                        data: "first_name",
-                        name: 'first_name'
-                    },
-                    {
-                        data: "last_name",
-                        name: 'last_name'
-                    },
-                    {
-                        data: "email",
-                        name: 'email'
-                    },
-                    {
-                        data: "department",
-                        name: 'department'
-                    },
-                    {
-                        data: "position",
-                        name: 'position'
-                    },
-                    //{data: "qr_code", name: 'qr_code'},
-                    {
-                        data: "status",
-                        name: 'status'
-                    },
-                    {
-                        data: "actions",
-                        name: 'actions'
-                    }
-                ],
+                    @can('category_delete')
+        @if (request('show_deleted') != 1)
+            {
+                data: null,
+                name: 'checkbox',
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    return '<input type="checkbox" class="mass" name="ids[]" value="'+row.id+'"/>';
+                }
+            },
+        @endif
+    @endcan
+    { data: "id", name: 'id' },
+    { data: "emp_id", name: 'emp_id' },
+    { data: "first_name", name: 'first_name' },
+    { data: "last_name", name: 'last_name' },
+    { data: "email", name: 'email' },
+    { data: "department", name: 'department' },
+    { data: "position", name: 'position' },
+    @if (request('show_deleted') != 1)
+    { data: "status", name: 'status' },
+    @endif
+    { data: "actions", name: 'actions' }
+],
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
@@ -356,6 +327,7 @@
             @endif
 
 
+@if (request('show_deleted') != 1)
 $(document).on('click', '.switch-input', function (e) {
     e.preventDefault();
 
@@ -389,6 +361,7 @@ $(document).on('click', '.switch-input', function (e) {
         }
     });
 });
+@endif
 
 
             $(document).on('click', '.send-reset-password-link', function(e) {

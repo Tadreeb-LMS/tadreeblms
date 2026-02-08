@@ -105,7 +105,7 @@ class UserRepository extends BaseRepository
             $user = parent::create([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
-                'employee_type' => $data['employee_type'],
+                // 'employee_type' => $data['employee_type'],
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'active' => isset($data['active']) && $data['active'] == '1' ? 1 : 0,
