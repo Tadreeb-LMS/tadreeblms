@@ -49,8 +49,8 @@
         <h4>Trainers</h4>
 
         @can('trainer_create')
-        <a href="{{ route('admin.teachers.create') }}" class="btn btn-primary">
-            Add
+        <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}" class="btn btn-primary">
+            Add More Trainers
         </a>
         @endcan
     </div>
@@ -87,7 +87,9 @@
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Email</th>
+                        @if(request('show_deleted') != 1)
                         <th>Status</th>
+                        @endif
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -166,7 +168,9 @@ $(function () {
             { data: 'first_name' },
             { data: 'last_name' },
             { data: 'email' },
+            @if(request('show_deleted') != 1)
             { data: 'status' },
+            @endif
             { data: 'actions', orderable: false, searchable: false }
         ],
 
@@ -246,8 +250,6 @@ $(function () {
             table.ajax.reload(null, false);
         });
     });
-
-});
 </script>
 
 @endpush

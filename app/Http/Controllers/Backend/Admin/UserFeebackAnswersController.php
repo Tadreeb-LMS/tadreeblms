@@ -84,6 +84,9 @@ class UserFeebackAnswersController extends Controller
                 ->addColumn('course_name', function ($single) {
                     return @$single->course->title;
                 })
+                ->addColumn('submitted_on', function ($single) {
+                    return $single->created_at ? $single->created_at->format('d M Y h:i A') : '-';
+                })
                 ->addColumn('question_answers', function ($single) {
                     return '<a class="badge badge-info feedback-detail" data-id="' . $single->id . '" href="#"> Detail </a>'; //$single->question_answers;
                 })
