@@ -50,7 +50,7 @@
 @include('backend.includes.partials.course-steps', ['step' => 4, 'course_id' => $_GET['course_id'], 'course' => null])
 
 {!! Form::open(['method' => 'POST', 'id' => 'addFeedbackQue', 'files' => true]) !!}
-<div class="">
+<div class="text-center">
     <div class="pb-3">
 <div class="grow">
                 <h4 class="text-20">Add Feedback Courses </h4>
@@ -69,7 +69,8 @@
 
     <div class="card-body">
         @if (Auth::user()->isAdmin())
-        <div class="col-12">
+        <div class="row">  <div class="col-12 col-md-2"> </div>
+        <div class="col-12 col-md-4">
             <div class="form-control-div" for="first_name">Courses</div>
 
             <div class="custom-select-wrapper mt-2">
@@ -89,7 +90,7 @@
         @endif
 
         @if (Auth::user()->isAdmin())
-        <div class="col-12 mt-3">
+        <div class="col-12 col-md-4">
     <div class="form-control-div" for="questions">
         {{ trans('labels.backend.questions.fields.question') }}
     </div>
@@ -103,7 +104,7 @@
         <span class="custom-select-icon">
             <i class="fa fa-chevron-down"></i>
         </span>
-    </div>
+    </div></div></div>
         <!-- <div class="col-12 mt-3">
             <div class=" form-control-label">
                 {!! Form::label('questions',trans('labels.backend.questions.fields.question'), ['class' => 'control-label']) !!}
@@ -113,7 +114,9 @@
             </div>
         </div> -->
         @endif
-  <div class="form-group row  mt-4">
+<div class="mt-4">
+        <div class="btmbtns mt-4">
+  <div class="row">
                          <div class="col-12 ">
                             <div class="d-flex justify-content-between">
 
@@ -143,8 +146,8 @@
     </div>
     <input type="hidden" id="final_index" value="{{ route('admin.assessment_accounts.final-submit', [$_GET['course_id']]) }}"> 
     <input type="hidden" id="feedback_index" value="{{ route('admin.feedback_question.index') }}">
-</div>
-    
+</div></div>
+    </div>
 </div>
 
 

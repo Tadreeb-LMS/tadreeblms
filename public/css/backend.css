@@ -23650,7 +23650,7 @@ table.dataTable tbody tr {
     background: #f4f4f4;
     align-items: center;
     border-radius: 10px; }.addcourseheader h5, .addcourseheader h4{ margin: 0 !important;}
-.coursesteps .btn-primary{    background: linear-gradient(45deg, rgb(35 62 116) 0%, rgb(35 62 116) 100%) !important; font-size: 0.8rem; border: none;}
+.coursesteps .btn-primary{    background: linear-gradient(45deg, rgb(35 62 116) 0%, rgb(35 62 116) 100%) !important; font-size: 0.75rem; border: none;}
 .addvideocol{padding: 10px;
     background: #eeeeee66;
     margin: 20px 0px;

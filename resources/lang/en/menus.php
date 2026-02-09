@@ -70,6 +70,7 @@ return array(
         'zoom_setting' => 'Zoom Setting',
         'landing_page_setting' => 'Landing Page Setting',
         'license' => 'License Settings',
+        'smtp' => 'Email Settings (SMTP)',
       ),
       'debug-site' =>
       array(
