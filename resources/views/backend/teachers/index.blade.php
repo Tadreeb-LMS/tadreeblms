@@ -237,18 +237,42 @@ $(function () {
         }
     });
 
+    
+    // Status switch with confirmation (matches employee behavior)
+    $(document).on('click', '.switch-input', function (e) {
+        e.preventDefault();
+
+        let checkbox = $(this);
+        let id = checkbox.data('id');
+        let isChecked = checkbox.is(':checked');
+
+        let message = isChecked
+            ? 'Do you want to activate this user?'
+            : 'Do you want to deactivate this user?';
+
+        if (!confirm(message)) {
+            // revert toggle state if cancelled
+            checkbox.prop('checked', !isChecked);
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('admin.teachers.status') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: id,
+            },
+            success: function () {
+                table.ajax.reload(null, false);
+            },
+            error: function () {
+                alert('Something went wrong');
+                checkbox.prop('checked', !isChecked);
+            }
+        });
     });
 
-    // Status switch
-    $(document).on('click', '.switch-input', function () {
-        let id = $(this).data('id');
-
-        $.post("{{ route('admin.teachers.status') }}", {
-            _token: "{{ csrf_token() }}",
-            id: id
-        }, function () {
-            table.ajax.reload(null, false);
-        });
     });
 </script>
 

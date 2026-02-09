@@ -408,16 +408,23 @@ class TeachersController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      **/
-    public function updateStatus()
+    public function updateStatus(Request $request)
     {
-        $teacher = User::find(request('id'));
+        $teacher = User::find($request->id ?? request('id'));
+        if (! $teacher) {
+            return response()->json(['error' => 'Teacher not found'], 404);
+        }
+
         $teacher->active = $teacher->active == 1 ? 0 : 1;
         $teacher->save();
+        
         try {
             $result = $this->licenseService->syncUsersToKeygen();
-            \Log::info('User created - Keygen sync result', $result);
+            \Log::info('User updated - Keygen sync result', $result);
         } catch (\Exception $e) {
-            \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
+            \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
         }
+
+        return response()->json(['active' => (int)$teacher->active]);
     }
 }
