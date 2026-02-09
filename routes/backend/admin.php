@@ -147,6 +147,17 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     
     Route::get('settings/landing-page-setting', ['uses' => 'Admin\ConfigController@getLandingPageSettings', 'as' => 'landing-page-setting']);
 
+    Route::get('settings/ldap-setting', ['uses' => 'Admin\ConfigController@getLdapSettings', 'as' => 'ldap-setting']);
+
+    Route::post('settings/ldap-setting', ['uses' => 'Admin\ConfigController@saveLdapSettings'])->name('ldap-settings');
+
+    
+    Route::get('ldap-users', 'Admin\EmployeeController@ldap_users_list')->name('ldap-user-listing');
+    Route::get('ldap-users-get-data', 'Admin\EmployeeController@get_ldap_data')->name('employee.get_ldap_data');
+
+    Route::post('ldap/save-env', 'Admin\ConfigController@saveLdapEnv')->name('ldap.save.env');
+    Route::post('ldap/test-ldap', 'Admin\ConfigController@testLdapConnection')->name('ldap.test');
+
     Route::post('settings/contact', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-contact');
 
     Route::get('settings/social', ['uses' => 'Admin\ConfigController@getSocialSettings'])->name('social-settings');

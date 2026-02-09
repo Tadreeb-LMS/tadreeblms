@@ -19,6 +19,30 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
+use App\Ldap\LdapUser;
+use LdapRecord\Container;
+
+Route::get('/ldap-test', function () {
+    try {
+        Container::getConnection()->connect();
+        return "✅ LDAP connected successfully from LMS!";
+    } catch (\Exception $e) {
+        return "❌ LDAP connection failed: " . $e->getMessage();
+    }
+});
+
+Route::get('/ldap-users', function () {
+    $users = LdapUser::query()->get();
+
+    return $users->map(function ($user) {
+        return [
+            'dn'       => $user->getDn(),
+            'name'     => $user->getFirstAttribute('cn'),
+            'email'    => $user->getFirstAttribute('mail'),
+            'username' => $user->getFirstAttribute('uid'),
+        ];
+    });
+});
 
 Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 

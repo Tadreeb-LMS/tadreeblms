@@ -19,6 +19,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth as LaravelAuth;
 use Session;
 use Illuminate\Support\Facades\App;
+use App\Ldap\LdapUser;
+use App\Models\Auth\User;
+use LdapRecord\Container;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -38,10 +42,11 @@ class LoginController extends Controller
         return route(home_route());
     }
 
-    public function refresh_captcha() {
+    public function refresh_captcha()
+    {
         $captha_string = CustomHelper::getCaptcha();
 
-       
+
         return response()->json([
             'captcha_question' => $captha_string,
         ]);
@@ -52,7 +57,7 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-       
+
 
         if (request()->ajax()) {
             $captha_string = CustomHelper::getCaptcha();
@@ -63,7 +68,7 @@ class LoginController extends Controller
         }
 
         $captha_string = CustomHelper::getCaptcha();
-        
+
         return view('frontend.auth.login', [
             'captha' => $captha_string
         ]);
@@ -128,16 +133,71 @@ class LoginController extends Controller
 
             if ($user->hasRole('administrator')) {
                 $redirect = route('admin.dashboard');
-                 
             } else {
                 $redirect = route('admin.dashboard');
             }
 
-           return response([
-                    'success' => true,
-                    'redirect' => $redirect,
+            return response([
+                'success' => true,
+                'redirect' => $redirect,
             ], Response::HTTP_OK);
         }
+
+        try {
+            // ✅ Get the LDAP user first
+            $ldapUser = LdapUser::query()
+                ->where('mail', '=', $request->email)
+                ->first();
+
+            if (!$ldapUser) {
+                return response([
+                    'success' => false,
+                    'message' => 'User not found in LDAP',
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            $dn = $ldapUser->getDn();
+
+            //CORRECT way to authenticate with LDAPRecord
+            $auth = Container::getInstance()
+                ->getConnection('default')
+                ->auth()
+                ->attempt($dn, $request->password);
+
+            if (!$auth) {
+                return response([
+                    'success' => false,
+                    'message' => 'Invalid LDAP password',
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            //Create or sync user in LMS database
+            $user = User::updateOrCreate(
+                ['email' => $request->email],
+                [
+                    'first_name' => $ldapUser->getFirstAttribute('cn'),
+                    'password' => bcrypt(Str::random(16)), // dummy local password
+                ]
+            );
+
+            $user->assignRole('student');
+
+            // Log user into Laravel
+            LaravelAuth::login($user, $request->has('remember'));
+
+            $redirect = route('admin.dashboard');
+
+            return response([
+                'success' => true,
+                'redirect' => $redirect,
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response([
+                'success' => false,
+                'message' => 'LDAP Error: ' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
 
         return response([
             'success' => false,

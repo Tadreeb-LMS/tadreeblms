@@ -112,6 +112,14 @@
       'Breadcrumbs' => 'DaveJamesMiller\\Breadcrumbs\\Facades\\Breadcrumbs',
     ),
   ),
+  'directorytree/ldaprecord-laravel' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'LdapRecord\\Laravel\\LdapServiceProvider',
+      1 => 'LdapRecord\\Laravel\\LdapAuthServiceProvider',
+    ),
+  ),
   'facade/ignition' => 
   array (
     'aliases' => 

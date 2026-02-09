@@ -16,6 +16,8 @@
         "creativeorange/gravatar": "~1.0.20",
         "darryldecode/cart": "~4.2.0",
         "davejamesmiller/laravel-breadcrumbs": "5.3.2",
+        "directorytree/ldaprecord": "^3.8",
+        "directorytree/ldaprecord-laravel": "^3.4",
         "divineomega/laravel-password-exposed-validation-rule": "^2.3.0",
         "doctrine/dbal": "2.12.1",
         "dompdf/dompdf": "2.0",
