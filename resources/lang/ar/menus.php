@@ -181,6 +181,7 @@ return array(
         'social-login' => 'تسجيل الدخول الاجتماعي',
         'title' => 'الإعدادات',
         'landing_page_setting' => 'إعدادات الصفحة المقصودة',
+        'smtp' => 'إعدادات البريد الإلكتروني (SMTP)',
       ),
       'site-management' =>
       array(

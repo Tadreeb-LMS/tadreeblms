@@ -90,8 +90,8 @@
 
     {!! Form::open(['route' => ['admin.courses.store'], 'id' => 'addCourse', 'method' => 'POST', 'files' => true]) !!}
 
-    <div>
-        <div class="pb-3 d-flex justify-content-between">
+    <div class="">
+        <div class="pb-3 d-flex justify-content-between addcourseheader">
 
             
              <h5 >
@@ -99,12 +99,12 @@
              </h5>
             
                  <div class="">
-                     <a href="{{ route('admin.courses.index') }}" class="btn btn-primary">@lang('labels.backend.courses.view')</a>
+                     <a href="{{ route('admin.courses.index') }}" class="btn btn-primary">@lang('labels.backend.courses.view') </a>
         
                  </div>
          
         </div>
-        <div class="card">
+        <div class="card coursesteps">
         <!-- <div class="card-header">
             <h3 class="page-title float-left">@lang('labels.backend.courses.create')</h3>
             <div class="float-right">
@@ -114,9 +114,13 @@
 
         <div class="card-body">
             @if (Auth::user()->isAdmin())
+
+
+            <div class="row">
+                <div class="col-md-6 col-12 form-group frmbm10">
                 <div class="row">
-                    <div class="col-md-9 col-12 form-group">
-                        <div>
+                    <div class="col-md-8 col-12 form-group">
+                        <div> 
                             Teachers
                         </div>
                         <div class="custom-select-wrapper mt-2">
@@ -132,10 +136,11 @@
     </span>
 </div>
                     </div>
-                    <div class="col-md-3 col-12 d-flex form-group flex-column">
-                       <span class="mb-2">
+                    <div class="col-md-1 col-12 d-flex form-group flex-column"><span class="ortext">
                         OR
-                       </span>  <a target="_blank" class="btn btn-primary mt-auto"
+                       </span></div>
+                    <div class="col-md-3 col-12 d-flex form-group flex-column">
+                         <a target="_blank" class="btn btn-primary mt-auto"
                             href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                     </div>
                 </div>
@@ -166,7 +171,7 @@
             @endif
 
             <div class="row">
-                <div class="col-md-9 col-12 form-group">
+                <div class="col-md-8 col-12 form-group">
                     <div>Category</div>
                    <div class="custom-select-wrapper mt-2">
     <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single">
@@ -181,18 +186,20 @@
         <i class="fa fa-chevron-down"></i>
     </span>
 </div>
-                </div>
-                <div class="col-md-3 col-12 d-flex form-group flex-column">
-                    <span class="mb-2">
+                </div> <div class="col-md-1 col-12 d-flex form-group flex-column">
+                <span class="ortext">
                         OR
-                       </span> <a target="_blank" class="btn btn-primary mt-auto"
+                       </span>
+                       </div>
+                <div class="col-md-3 col-12 d-flex form-group flex-column">
+                     <a target="_blank" class="btn btn-primary mt-auto"
                         href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
                 </div>
             </div>
 
             <div class="row">
 
-                <div class="col-sm-12 col-lg-3 col-md-12 form-group">
+                <div class="col-sm-12 col-lg-12 col-md-12 form-group">
                     {!! Form::label('course_code', 'Course Code' . ' *', ['class' => 'control-label']) !!}
                     {!! Form::text('course_code', old('course_code'), [
                         'class' => 'form-control',
@@ -200,7 +207,7 @@
                         'required' => false,
                     ]) !!}
                 </div>
-                <div class="col-md-12 col-lg-3 form-group">
+                <div class="col-md-12 col-lg-12 form-group">
                     <div>
 
                         {!! Form::label('slug', trans('Course Language'), ['class' => 'control-label']) !!}
@@ -217,7 +224,7 @@
                     </div>
                 </div>
                 
-                <div class="col-sm-12 col-lg-6 col-md-12 form-group">
+                <div class="col-sm-12 col-lg-12 col-md-12 form-group">
                     {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
                     {!! Form::text('title', old('title'), [
                         'class' => 'form-control',
@@ -243,9 +250,10 @@
                 </div> --}}
                 
             </div>
-            <div class="row">
+</div>
 
-                <div class="col-12 form-group">
+<div class="col-md-6 col-12 form-group">
+ <div class="form-group">
                     {!! Form::label('description', trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
                     {!! Form::textarea('description', old('description'), [
                         'class' => 'form-control editor',
@@ -253,7 +261,10 @@
                     ]) !!}
 
                 </div>
-            </div>
+ </div>
+</div>
+
+ 
             <div class="row">
                 {{-- <div class="col-sm-12 col-lg-2 col-md-12 form-group">
                     {!! Form::label('price', trans('labels.backend.courses.fields.price'), [
@@ -280,7 +291,7 @@
                                     'pattern' => '[0-9]',
                                 ]) !!}
                             </div-->
-                <div class="col-sm-12 col-lg-3 col-md-12 form-group">
+                <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                     <div style="margin-bottom: 8px;">
                         Course Image
                     </div>
@@ -401,16 +412,17 @@
                 </div> --}}
                 
             </div>
+             <div class="btmbtns">
             <div class="row">
                 
                 <div class="col-12 d-flex float-right gap-20">
                     <!-- <div class="col-12 text-center form-group">
                                 {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
                             </div> -->
-                            <div class="form-group">
+                            <div class="">
                                 {!! Form::submit(trans('Save As Draft'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
                             </div>
-                            <div class="form-group">
+                            <div class="">
                                 {!! Form::submit(trans('Next'), [
                                     'class' => 'btn cancel-btn frm_submit',
                                     'id' => 'nextBtn',
@@ -418,6 +430,7 @@
                             </div>
     
                 </div>
+            </div>
             </div> 
         </div>
         <input type="hidden" id="course_index" value="{{ route('admin.courses.index') }}">

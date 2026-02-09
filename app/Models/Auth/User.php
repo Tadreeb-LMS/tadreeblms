@@ -547,4 +547,9 @@ class User extends Authenticatable
     {
         return $this->arabic_first_name . ' ' . $this->arabic_last_name;
     }
+
+    public function unreadMessagesCount()
+    {
+        return 0;
+    }
 }

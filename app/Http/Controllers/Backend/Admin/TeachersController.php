@@ -13,10 +13,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
 use DB;
+use App\Services\LicenseService;
 
 class TeachersController extends Controller
 {
     use FileUploadTrait;
+
+    protected $licenseService;
+
+    public function __construct(LicenseService $licenseService)
+    {
+        $this->licenseService = $licenseService;
+    }
 
     /**
      * Display a listing of Category.
@@ -25,8 +33,35 @@ class TeachersController extends Controller
      */
     public function index()
     {
-        //dd("hhfh");
-        return view('backend.teachers.index');
+        // Sync user count to Keygen.sh when viewing user list
+        // $this->licenseService->syncUsersToKeygen();
+
+        $licenseData = $this->getLicenseWarningData();
+
+        return view('backend.teachers.index', $licenseData);
+    }
+
+    /**
+     * Get license warning data for views
+     */
+    private function getLicenseWarningData(): array
+    {
+        $stats = $this->licenseService->getUsageStats();
+
+        $licenseWarning = null;
+        $licenseWarningType = 'warning';
+
+        if ($stats['has_license'] && $stats['is_exceeded']) {
+            $licenseWarning = "User limit exceeded! You have {$stats['active_users']} active users but your license only allows {$stats['max_users']}.";
+        } elseif ($stats['has_license'] && $stats['is_warning']) {
+            $licenseWarning = "You are approaching your user limit. Only {$stats['remaining_users']} user slot(s) remaining out of {$stats['max_users']}.";
+        }
+
+        return [
+            'licenseWarning' => $licenseWarning,
+            'licenseWarningType' => $licenseWarningType,
+            'licenseStats' => $stats,
+        ];
     }
 
     /**
@@ -124,7 +159,8 @@ class TeachersController extends Controller
     public function create()
     {
         $countries = DB::table('master_countries')->get();
-        return view('backend.teachers.create' , compact('countries'));
+
+        return view('backend.teachers.create', compact('countries'));
     }
 
     /**
@@ -175,6 +211,9 @@ class TeachersController extends Controller
             'description'       => request()->description,
         ];
         TeacherProfile::create($data);
+
+        // Sync user count to Keygen.sh
+        $this->licenseService->onUserCreated();
 
         return redirect()->route('admin.teachers.show', ['teacher' => $teacher->id])->withFlashSuccess(trans('alerts.backend.general.created'));
         // return redirect()->route('admin.courses.create')->withFlashSuccess(__('Please add course here...'));

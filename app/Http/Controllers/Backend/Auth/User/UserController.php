@@ -14,6 +14,7 @@ use App\Http\Requests\Backend\Auth\User\StoreUserRequest;
 use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
 use App\Http\Requests\Backend\Auth\User\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
+use App\Services\LicenseService;
 
 /**
  * Class UserController.
@@ -123,7 +124,6 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        // echo '<pre>'; print_r($request->all());die;
         $this->userRepository->create($request->only(
             'first_name',
             'last_name',
@@ -136,6 +136,14 @@ class UserController extends Controller
             'permissions',
             'employee_type'
         ));
+
+        // Sync all users to Keygen
+        try {
+            $result = app(LicenseService::class)->syncUsersToKeygen();
+            \Log::info('User created - Keygen sync result', $result);
+        } catch (\Exception $e) {
+            \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.created'));
     }

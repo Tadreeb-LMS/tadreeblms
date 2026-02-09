@@ -34,7 +34,7 @@
     justify-content: space-between;
     list-style: none;
     padding: 0;
-    margin-bottom: 30px;
+    margin-bottom: 50px !important;
     overflow: visible !important;
 }
 
@@ -49,7 +49,7 @@
 .stepper li:not(:last-child)::after {
     content: "";
     position: absolute;
-    top: 18px;
+    top: 25px;
     left: 50%;
     width: 100%;
     height: 0;
@@ -63,16 +63,17 @@
 
 /* Step circle */
 .stepper .circle {
-    position: relative;
+       position: relative;
     z-index: 1;
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
     border-radius: 50%;
     display: inline-block;
     background: #dee2e6;
     color: #6c757d;
     font-weight: 600;
+    font-size: 22px;
 }
 
 /* Step label */
@@ -131,7 +132,7 @@
 
 <ul class="stepper stepper-horizontal mb-4">
     <li class="{{ $step > 1 ? 'completed' : ($step == 1 ? 'active' : '') }}">
-        <span class="circle">1</span>
+        <span class="circle"><i class="nav-icon fas fa-graduation-cap"></i></span>
         <span class="label">Course</span>
     </li>
 
@@ -142,27 +143,27 @@
 
         
             <li class="{{ $current_step > 2 ? 'completed' : ($current_step == 2 ? 'active' : '') }}">
-                <span class="circle">2</span>
+             <span class="circle"><i class="nav-icon fas fa-file"></i></span>
                 <span class="label">Lesson</span>
             </li>
         
 
         
             <li class="{{ $current_step > 3 ? 'completed' : ($current_step == 3 ? 'active' : '') }}">
-                <span class="circle">3</span>
+                 <span class="circle"><i class="nav-icon fas fa-question"></i></span>
                 <span class="label">Questions</span>
             </li>
         
 
             
             <li class="{{ $current_step == 4 ? 'completed' : ($current_step == 4 ? 'active' : '') }}">
-                <span class="circle">{{ $current_step }}</span>
+                 <span class="circle"><i class="nav-icon fas fa-paper-plane"></i></span>
                 <span class="label">Feedback</span>
             </li>
     @else
 
             <li class="{{ $current_step > 2? 'completed' : ($current_step == 2 ? 'active' : '') }}">
-                <span class="circle">2</span>
+                <span class="circle"><i class="nav-icon fas fa-file"></i></span>
                 <span class="label">Questions</span>
             </li>
         
@@ -183,17 +184,17 @@
     </li> --}}
 
     <li class="{{ $step > 2 ? 'completed' : ($step == 2 ? 'active' : '') }}">
-        <span class="circle">2</span>
+           <span class="circle"><i class="nav-icon fas fa-file"></i></span>
         <span class="label">Lesson</span>
     </li>
 
     <li class="{{ $step > 3 ? 'completed' : ($step == 3 ? 'active' : '') }}">
-        <span class="circle">3</span>
+         <span class="circle"><i class="nav-icon fas fa-question"></i></span>
         <span class="label">Questions</span>
     </li>
 
     <li class="{{ $step == 4 ? 'active' : '' }}">
-        <span class="circle">4</span>
+        <span class="circle"><i class="nav-icon fas fa-paper-plane"></i></span>
         <span class="label">Feedback</span>
     </li>
 

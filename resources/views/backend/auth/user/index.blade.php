@@ -20,6 +20,8 @@
 @endsection
 
 @section('content')
+@include('backend.includes.license-warning')
+
 <div class="pb-3 d-flex justify-content-between align-items-center">
     <h4>
            {{ __('labels.backend.access.users.management') }}

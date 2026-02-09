@@ -22,6 +22,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Resolvers\SocialUserResolver;
 use Coderello\SocialGrant\Resolvers\SocialUserResolverInterface;
+use App\Helpers\CustomHelper;
 
 /**
  * Class AppServiceProvider.
@@ -112,7 +113,10 @@ class AppServiceProvider extends ServiceProvider
             View::share('slides', $slides);
         }
 
-        if (Schema::hasTable('admin_menu_items')) {
+        $disabled_landing_page = CustomHelper::redirect_based_on_setting();
+        View::share('disabled_landing_page', $disabled_landing_page);
+
+        if (Schema::hasTable('admin_menu_items') && $disabled_landing_page == 0) {
 
             $menu_name = NULL;
             $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
@@ -125,6 +129,10 @@ class AppServiceProvider extends ServiceProvider
             View::share('custom_menus', $custom_menus);
             View::share('max_depth', $max_depth);
             View::share('menu_name', $menu_name);
+        } else {
+            View::share('custom_menus', []);
+            View::share('max_depth', 0);
+            View::share('menu_name', null);
         }
 
         //        view()->composer(['frontend.layouts.partials.right-sidebar', 'frontend-rtl.layouts.partials.right-sidebar'], function ($view) {

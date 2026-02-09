@@ -9,7 +9,7 @@ use App\Models\Course;
 use App\Models\Category;
 use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
-use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, UserCourseDetail};
+use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
 use Auth;
 use DB;
@@ -20,10 +20,20 @@ use Intervention\Image\Facades\Image;
 class CustomHelper
 {
 
+    public static function getCaptcha()
+    {
+        $a = rand(1, 9);
+        $b = rand(1, 9);
+
+        session(['captcha_answer' => $a + $b]);
+
+        return "$a + $b = ?";
+    }
+
     public static function redirect_based_on_setting()
     {
-        //dd("redirect based on setting");
-        return true;
+        return Config::where('key', 'landing_page_toggle')->value('value') ?? 1;
+        //return true;
     }
 
 

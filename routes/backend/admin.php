@@ -142,7 +142,21 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/general', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-settings');
 
     
+    Route::post('settings/landing-general-setting', ['uses' => 'Admin\ConfigController@saveLandingPageGeneralSettings'])->name('landing-general-settings');
+
+    
     Route::get('settings/landing-page-setting', ['uses' => 'Admin\ConfigController@getLandingPageSettings', 'as' => 'landing-page-setting']);
+
+    Route::get('settings/ldap-setting', ['uses' => 'Admin\ConfigController@getLdapSettings', 'as' => 'ldap-setting']);
+
+    Route::post('settings/ldap-setting', ['uses' => 'Admin\ConfigController@saveLdapSettings'])->name('ldap-settings');
+
+    
+    Route::get('ldap-users', 'Admin\EmployeeController@ldap_users_list')->name('ldap-user-listing');
+    Route::get('ldap-users-get-data', 'Admin\EmployeeController@get_ldap_data')->name('employee.get_ldap_data');
+
+    Route::post('ldap/save-env', 'Admin\ConfigController@saveLdapEnv')->name('ldap.save.env');
+    Route::post('ldap/test-ldap', 'Admin\ConfigController@testLdapConnection')->name('ldap.test');
 
     Route::post('settings/contact', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-contact');
 
@@ -162,6 +176,20 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
 
     Route::post('settings/zoom', ['uses' => 'Admin\ConfigController@saveZoomSettings'])->name('zoom-settings');
     Route::post('test', ['uses' => 'Admin\ConfigController@saveZoomSettings'])->name('zoom-settings');
+
+   //===== License Settings Routes =====//
+    Route::get('settings/license', ['uses' => 'Admin\LicenseController@index'])->name('license-settings');
+    Route::post('settings/license/activate', ['uses' => 'Admin\LicenseController@activate'])->name('license.activate');
+    Route::post('settings/license/validate', ['uses' => 'Admin\LicenseController@revalidate'])->name('license.validate');
+    Route::post('settings/license/remove', ['uses' => 'Admin\LicenseController@remove'])->name('license.remove');
+    Route::get('settings/license/status', ['uses' => 'Admin\LicenseController@status'])->name('license.status');
+    Route::post('settings/license/sync-users', ['uses' => 'Admin\LicenseController@syncUsers'])->name('license.sync-users');
+    Route::get('settings/license/check-limit', ['uses' => 'Admin\LicenseController@checkUserLimit'])->name('license.check-limit');
+    Route::get('settings/license/keygen-usage', ['uses' => 'Admin\LicenseController@keygenUsage'])->name('license.keygen-usage');
+    //===== SMTP Email Settings Routes =====//
+    Route::get('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@index'])->name('smtp-settings');
+    Route::post('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@save'])->name('smtp-settings.save');
+    Route::post('settings/smtp/test', ['uses' => 'Admin\SmtpSettingsController@sendTestEmail'])->name('smtp-settings.test');
 
 
     //===== Slider Routes =====/
