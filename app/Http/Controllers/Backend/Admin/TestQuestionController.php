@@ -148,12 +148,12 @@ class TestQuestionController extends Controller
         }
 
         $status = $this->checkOptionValidation($options);
-        if(!$status ) {
-            return response()->json([
-                'success' => false,
-                'message' => 'At least one option must be selected.',
-            ], 422);
-        }
+        // if(!$status ) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'At least one option must be selected.',
+        //     ], 422);
+        // }
 
         
         if ($request->options) {

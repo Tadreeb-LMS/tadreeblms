@@ -58,7 +58,20 @@ class PermissionRoleTableSeeder extends Seeder
             'feedback',
             'feedback_questions',
             'course_assesment',
-            'course_manual_assesment'
+            'course_manual_assesment',
+            // Missing modules causing 401 errors
+            'test',
+            'page',
+            'blog',
+            'bundle',
+            'category',
+            'tag',
+            'faq',
+            'sponsor',
+            'slider',
+            'position',
+            'department',
+            'subscription'
         ];
 
         $actions = ['access', 'create', 'edit', 'view', 'delete'];
@@ -104,6 +117,11 @@ class PermissionRoleTableSeeder extends Seeder
             'question_create',
             'question_edit',
             'question_view',
+            'test_access',
+            'test_create',
+            'test_edit',
+            'test_view',
+            'test_delete',
         ]);
 
         // Student → backend view only

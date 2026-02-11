@@ -135,16 +135,17 @@ class Course extends Model
      $buttons = '';
 
     if ($this->latest_assesment->count()) {
-        $buttons .= '<a target="_blank" class="add-btn mr-1" href="' . route('online_assessment', 'assignment=' . $this->latest_assesment[0]->url_code) . '">
-                      <i class="fa fa-folder-open" style="font-size:20px" aria-hidden="true"></i>
-                     </a>';
-        $buttons .= '<a class="btn btn-outline-success ml-3" href="/user/tests/create?course_id=' . $this->id . '&new_test">
-                       <i class="fa fa-plus-circle" aria-hidden="true" style="font-size:20px;margin-bottom:-3px"></i> 
-                     </a>';
+        $buttons .= '<div><a target="_blank" class="btn1" href="' . route('online_assessment', 'assignment=' . $this->latest_assesment[0]->url_code) . '">
+       Create Test 
+                   <!--   <i class="fa fa-folder-open" style="font-size:20px" aria-hidden="true"></i> -->
+                     </a></div>';
+        $buttons .= '<div><a class="btn2" href="/user/tests/create?course_id=' . $this->id . '&new_test"> Online Assignment
+                      <!-- <i class="fa fa-plus-circle" aria-hidden="true" style="font-size:20px;margin-bottom:-3px"></i>  -->
+                     </a></div>';
     } else {
-        $buttons .= '<a class="btn btn-outline-success mb-1 mr-1" href="' . route('admin.assessment_accounts.assignment_create', ['course_id' => $this->id]) . '">
-                      <i class="fa fa-plus-circle " aria-hidden="true" style="font-size:20px;margin-bottom:-3px"></i> 
-                     </a>';
+        $buttons .= '<div><a class="btn2" href="' . route('admin.assessment_accounts.assignment_create', ['course_id' => $this->id]) . '">Online Assignment
+                     <!-- <i class="fa fa-plus-circle " aria-hidden="true" style="font-size:20px;margin-bottom:-3px"></i> 
+                     </a></div>';
     }
 
     return $buttons;

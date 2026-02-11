@@ -32,6 +32,8 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Carbon;
 use App\Helpers\CustomValidation;
 use App\Models\CourseAssignmentToUser;
+use App\Notifications\Backend\CourseNotification;
+use App\Services\NotificationSettingsService;
 use App\Models\courseInvitationAssignment;
 use App\Models\CourseModuleWeightage;
 use App\Models\Test;
@@ -377,7 +379,7 @@ class AssessmentAccountsController extends Controller
         $category = Category::where('deleted_at', '=', NULL)->get();
         
         $teachers = User::query()->role('student')
-                            ->whereIn('employee_type', ['internal'])
+                            // ->whereIn('employee_type', ['internal'])
                             ->groupBy('email')
                             ->orderBy('created_at', 'desc')
                             ->active()
@@ -403,7 +405,7 @@ class AssessmentAccountsController extends Controller
         $category = Category::where('deleted_at', '=', NULL)->get();
         
         $teachers = User::query()->role('student')
-                            ->whereIn('employee_type', ['internal'])
+                            // ->whereIn('employee_type', ['internal'])
                             ->groupBy('email')
                             ->orderBy('created_at', 'desc')
                             ->active()
@@ -697,6 +699,16 @@ class AssessmentAccountsController extends Controller
                     ];
 
                     dispatch(new SendEmailJob($details));
+
+                    // Bell notification for course enrollment
+                    try {
+                        $notificationSettings = app(NotificationSettingsService::class);
+                        if ($notificationSettings->shouldNotify('courses', 'course_enrollment', 'email')) {
+                            CourseNotification::createCourseAssignedBell($emp, $course);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to create course enrollment notification: ' . $e->getMessage());
+                    }
                 }
             }
         }

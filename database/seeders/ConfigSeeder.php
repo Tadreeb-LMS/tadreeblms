@@ -23,25 +23,25 @@ class ConfigSeeder extends Seeder
             1 =>
                 array(
                     'name' => 'primary_address',
-                    'value' => ' India',
+                    'value' => 'Hyderabad, India',
                     'status' => 1,
                 ),
             2 =>
                 array(
                     'name' => 'secondary_address',
-                    'value' => 'India',
+                    'value' => 'Hyderabad, India',
                     'status' => 1,
                 ),
             3 =>
                 array(
                     'name' => 'primary_phone',
-                    'value' => '(91) 9867 65754',
+                    'value' => '(+91) 8686700634',
                     'status' => 1,
                 ),
             4 =>
                 array(
                     'name' => 'secondary_phone',
-                    'value' => '(91) 7656 4353',
+                    'value' => '(+91) 9989317437',
                     'status' => 1,
                 ),
             5 =>
@@ -53,7 +53,7 @@ class ConfigSeeder extends Seeder
             6 =>
                 array(
                     'name' => 'secondary_email',
-                    'value' => 'mail@tadreeblms.info',
+                    'value' => '',
                     'status' => 1,
                 ),
             7 =>
@@ -98,7 +98,8 @@ class ConfigSeeder extends Seeder
             'sitemap.chunk' => 500,
             'one_signal' => 0,
             'our_mission' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet ipsum dolor sit amet, consectetuer adipiscing elit.',
-            'our_vision' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet ipsum dolor sit amet, consectetuer adipiscing elit.'
+            'our_vision' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet ipsum dolor sit amet, consectetuer adipiscing elit.',
+            'landing_page_toggle' => 1
         ];
 
         foreach ($data as $key => $value) {

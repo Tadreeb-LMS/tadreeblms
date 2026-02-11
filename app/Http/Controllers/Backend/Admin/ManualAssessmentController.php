@@ -15,6 +15,8 @@ use CustomHelper;
 use DB;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use App\Notifications\Backend\AssessmentNotification;
+use App\Services\NotificationSettingsService;
 
 class ManualAssessmentController extends Controller
 {
@@ -114,13 +116,30 @@ class ManualAssessmentController extends Controller
             $users = $dep_users;
         }
 
-        foreach ($users as $user) {
+        $assignment = Assignment::find($validated['assessment_id']);
+        $assessmentTitle = $assignment->course->title ?? 'Assessment';
+
+        foreach ($users as $userId) {
             ManualAssessment::create([
                 'assessment_id' => $validated['assessment_id'],
-                'user_id' => $user,
+                'user_id' => $userId,
                 'due_date' => $validated['due_date'],
                 'qualifying_percent' => $validated['qualifying_percent'],
             ]);
+
+            // Send assessment assigned notification
+            try {
+                $notificationSettings = app(NotificationSettingsService::class);
+                if ($notificationSettings->shouldNotify('assessments', 'test_assigned', 'email')) {
+                    $emp = User::find($userId);
+                    if ($emp) {
+                        AssessmentNotification::sendAssessmentAssignedEmail($emp, $assessmentTitle, $validated['due_date']);
+                        AssessmentNotification::createAssessmentAssignedBell($emp, $assessmentTitle);
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send assessment assigned notification: ' . $e->getMessage());
+            }
         }
 
         return response()->json(['message' => 'Assessment created successfully.', 'redirect_route' => route('admin.manual-assessments.index')]);

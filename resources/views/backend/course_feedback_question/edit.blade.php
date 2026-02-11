@@ -70,11 +70,21 @@
                     {!! Form::label('questions', trans('labels.backend.questions.fields.question'), ['class' => 'control-label']) !!}
                 </div>
                 <div class="col-md-10">
-                    {!! Form::select('feedback_question_ids[]', $questions, $cf?->feedback_question_id, [
-                    'class' => 'form-control select2 js-example-questions-placeholder-multiple',
-                    'multiple' => 'multiple',
-                    'required' => true,
-                    ]) !!}
+                    @php
+    // Ensure selected questions is always an array for proper multi-select handling
+    $selectedQuestions = [];
+    if (isset($cf) && isset($cf->feedback_question_id)) {
+        $selectedQuestions = is_array($cf->feedback_question_id) 
+            ? $cf->feedback_question_id 
+            : [$cf->feedback_question_id];
+    }
+@endphp
+
+{!! Form::select('feedback_question_ids[]', $questions, $selectedQuestions, [
+    'class' => 'form-control select2 js-example-questions-placeholder-multiple',
+    'multiple' => 'multiple',
+    'required' => true,
+]) !!}
                 </div>
             </div>
             @endif

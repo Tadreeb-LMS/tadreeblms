@@ -22,7 +22,7 @@
 
 <div class="d-flex justify-content-between align-items-center pb-3">
     <h4>Edit Trainee</h4>
-    <a href="{{ route('admin.teachers.index') }}" class="add-btn">View Trainee</a>
+    <a href="{{ route('admin.employee.index') }}" class="add-btn">View Trainee</a>
 </div>
 
 <div class="card">
@@ -136,7 +136,7 @@
 
 {{-- Buttons --}}
 <div class="col-12 d-flex justify-content-between mt-4">
-    <a href="{{ route('admin.teachers.index') }}" class="cancel-btn">Cancel</a>
+    <a href="{{ route('admin.employee.index') }}" class="cancel-btn">Cancel</a>
     <button type="submit" class="add-btn">Update</button>
 </div>
 

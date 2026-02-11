@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\Frontend\Auth\Socialite;
 use App\Events\Frontend\Auth\UserLoggedIn;
 use App\Events\Frontend\Auth\UserLoggedOut;
+use App\Helpers\CustomHelper;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
@@ -17,7 +18,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth as LaravelAuth;
 use Session;
+use App\Notifications\Backend\SystemNotification;
+use App\Services\NotificationSettingsService;
 use Illuminate\Support\Facades\App;
+use App\Ldap\LdapUser;
+use App\Models\Auth\User;
+use LdapRecord\Container;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -32,19 +39,18 @@ class LoginController extends Controller
             return '/admin/dashboard';
         }
 
-        
+        //dd("kk");
 
         return route(home_route());
     }
 
-    public function refresh_captcha() {
-        $a = rand(1, 9);
-        $b = rand(1, 9);
+    public function refresh_captcha()
+    {
+        $captha_string = CustomHelper::getCaptcha();
 
-        session(['captcha_answer' => $a + $b]);
 
         return response()->json([
-            'captcha_question' => "$a + $b = ?",
+            'captcha_question' => $captha_string,
         ]);
     }
 
@@ -53,18 +59,34 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-       
+
 
         if (request()->ajax()) {
+            $captha_string = CustomHelper::getCaptcha();
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
+                'captha' => $captha_string
             ];
         }
 
-        return redirect('/')->with([
-            'show_login' => true,
+        $captha_string = CustomHelper::getCaptcha();
+
+        return view('frontend.auth.login', [
+            'captha' => $captha_string
         ]);
     }
+    public function refreshCaptcha()
+    {
+        $a = rand(1, 9);
+        $b = rand(1, 9);
+
+        Session::put('captcha_answer', $a + $b);
+
+        return response()->json([
+            'captcha_question' => "$a + $b = ?"
+        ]);
+    }
+
 
     /**
      * Get login username field
@@ -113,17 +135,82 @@ class LoginController extends Controller
 
             if ($user->hasRole('administrator')) {
                 $redirect = route('admin.dashboard');
-                 
             } else {
-                $redirect = route('home');
-                
+                $redirect = route('admin.dashboard');
             }
 
-           return response([
-                    'success' => true,
-                    'redirect' => $redirect,
+            return response([
+                'success' => true,
+                'redirect' => $redirect,
             ], Response::HTTP_OK);
         }
+
+        // Failed login notification
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('system', 'failed_login', 'email')) {
+                SystemNotification::sendFailedLoginEmail($request->email, $request->ip());
+                SystemNotification::createFailedLoginBell($request->email, $request->ip());
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send failed login notification: ' . $e->getMessage());
+        }
+
+        try {
+            // ✅ Get the LDAP user first
+            $ldapUser = LdapUser::query()
+                ->where('mail', '=', $request->email)
+                ->first();
+
+            if (!$ldapUser) {
+                return response([
+                    'success' => false,
+                    'message' => 'User not found in LDAP',
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            $dn = $ldapUser->getDn();
+
+            //CORRECT way to authenticate with LDAPRecord
+            $auth = Container::getInstance()
+                ->getConnection('default')
+                ->auth()
+                ->attempt($dn, $request->password);
+
+            if (!$auth) {
+                return response([
+                    'success' => false,
+                    'message' => 'Invalid LDAP password',
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            //Create or sync user in LMS database
+            $user = User::updateOrCreate(
+                ['email' => $request->email],
+                [
+                    'first_name' => $ldapUser->getFirstAttribute('cn'),
+                    'password' => bcrypt(Str::random(16)), // dummy local password
+                ]
+            );
+
+            $user->assignRole('student');
+
+            // Log user into Laravel
+            LaravelAuth::login($user, $request->has('remember'));
+
+            $redirect = route('admin.dashboard');
+
+            return response([
+                'success' => true,
+                'redirect' => $redirect,
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response([
+                'success' => false,
+                'message' => 'LDAP Error: ' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
 
         return response([
             'success' => false,

@@ -2,17 +2,36 @@
 
 namespace App\Listeners\Backend\Auth\User;
 
+use App\Notifications\Backend\UserAuthNotification;
+use App\Services\NotificationSettingsService;
+
 /**
  * Class UserEventListener.
  */
 class UserEventListener
 {
+    protected $notificationSettings;
+
+    public function __construct(NotificationSettingsService $notificationSettings)
+    {
+        $this->notificationSettings = $notificationSettings;
+    }
+
     /**
      * @param $event
      */
     public function onCreated($event)
     {
         \Log::info('User Created');
+
+        if ($this->notificationSettings->shouldNotify('users', 'user_created', 'email')) {
+            try {
+                UserAuthNotification::sendUserCreatedEmail($event->user);
+                UserAuthNotification::createUserCreatedBell($event->user);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send user created notification: ' . $e->getMessage());
+            }
+        }
     }
 
     /**
@@ -61,6 +80,15 @@ class UserEventListener
     public function onDeactivated($event)
     {
         \Log::info('User Deactivated');
+
+        if ($this->notificationSettings->shouldNotify('users', 'user_activated', 'email')) {
+            try {
+                UserAuthNotification::sendUserDeactivatedEmail($event->user);
+                UserAuthNotification::createUserDeactivatedBell($event->user);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send user deactivated notification: ' . $e->getMessage());
+            }
+        }
     }
 
     /**
@@ -69,6 +97,15 @@ class UserEventListener
     public function onReactivated($event)
     {
         \Log::info('User Reactivated');
+
+        if ($this->notificationSettings->shouldNotify('users', 'user_activated', 'email')) {
+            try {
+                UserAuthNotification::sendUserReactivatedEmail($event->user);
+                UserAuthNotification::createUserReactivatedBell($event->user);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send user reactivated notification: ' . $e->getMessage());
+            }
+        }
     }
 
     /**

@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Response;
 use Newsletter;
 use Auth;
 use App\Models\UserLearningPathway;
+use Illuminate\Support\Facades\Route;
 /**
  * Class HomeController.
  */
@@ -59,7 +60,12 @@ class HomeController extends Controller
 
     public function index()
     {
-        CustomHelper::redirect_based_on_setting();
+        $disabled_landing_page = CustomHelper::redirect_based_on_setting();
+        //dd( $disabled_landing_page);
+        if ($disabled_landing_page == '1' && !auth()->check() && !Route::is('frontend.auth.login')) {
+            return redirect()->route('frontend.auth.login');
+        }
+
         if (request('page')) {
             $page = \DB::table('pages')->where('slug', '=', request('page'))
                 ->where('published', '=', 1)->first();

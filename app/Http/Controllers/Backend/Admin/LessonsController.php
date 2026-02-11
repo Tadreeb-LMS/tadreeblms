@@ -21,6 +21,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\Backend\LessonNotification;
+use App\Services\NotificationSettingsService;
+
 class LessonsController extends Controller
 {
     use FileUploadTrait;
@@ -299,7 +302,17 @@ class LessonsController extends Controller
                 $lesson->lesson_start_date = $request->lesson_start_date ? date('Y-m-d H:i', strtotime($request->lesson_start_date)) : null;
                 $lesson->save();
 
-                
+                // Lesson added notification
+                try {
+                    $notificationSettings = app(NotificationSettingsService::class);
+                    if ($notificationSettings->shouldNotify('lessons', 'lesson_added', 'email')) {
+                        $lessonCourse = Course::find($request->course_id);
+                        LessonNotification::sendLessonAddedEmail(\Auth::user(), $lesson, $lessonCourse);
+                        LessonNotification::createLessonAddedBell(\Auth::user(), $lesson, $lessonCourse);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send lesson added notification: ' . $e->getMessage());
+                }
 
                 $media = null;
 
@@ -511,6 +524,18 @@ class LessonsController extends Controller
             $lesson->duration = $request->duration;
             $lesson->lesson_start_date = date('Y-m-d H:i', strtotime($request->lesson_start_date));
             $lesson->save();
+
+            // Lesson updated notification
+            try {
+                $notificationSettings = app(NotificationSettingsService::class);
+                if ($notificationSettings->shouldNotify('lessons', 'lesson_updated', 'email')) {
+                    $lessonCourse = Course::find($lesson->course_id);
+                    LessonNotification::sendLessonUpdatedEmail(\Auth::user(), $lesson, $lessonCourse);
+                    LessonNotification::createLessonUpdatedBell(\Auth::user(), $lesson, $lessonCourse);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send lesson updated notification: ' . $e->getMessage());
+            }
 
             //throw new Exception('This is an intentional exception for testing purposes.');
             //dd("update");

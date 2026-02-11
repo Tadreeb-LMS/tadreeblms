@@ -37,6 +37,7 @@ return array(
       'roles_mgt' => 'إعدادات الأذونات',
       'Invitations' => 'الدعوات',
       'Send-Email-Notification' => 'إرسال إشعار البريد الإلكتروني',
+      'notification-settings' => 'إعدادات الإشعارات',
       'My-Assignments' => 'مهامي',
       'My-Courses' => 'دوراتي',
       'Employee-Requests' => 'طلبات الموظفين',

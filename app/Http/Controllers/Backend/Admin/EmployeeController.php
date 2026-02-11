@@ -26,6 +26,8 @@ use Config;
 use App\Imports\UsersImport;
 use App\Jobs\GenerateInternalAttendanceReport;
 use App\Jobs\SendEmailJob;
+use App\Notifications\Backend\UserAuthNotification;
+use App\Services\NotificationSettingsService;
 use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Mail;
@@ -37,6 +39,11 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use App\Ldap\LdapUser;
+use App\Services\LicenseService;
+use App\Repositories\Backend\Auth\RoleRepository;
+use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
+use App\Repositories\Backend\Auth\PermissionRepository;
 use App\Exports\EmployeeSampleExport;
 use App\Imports\EmployeeImport;
 // use Maatwebsite\Excel\Facades\Excel;
@@ -46,7 +53,13 @@ class EmployeeController extends Controller
 {
     use FileUploadTrait;
 
-    
+    protected $licenseService;
+
+    public function __construct(LicenseService $licenseService)
+    {
+        $this->licenseService = $licenseService;
+    }
+
     /**
      * Display a listing of Category.
      *
@@ -54,9 +67,21 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        //dd("fghff");
+        // // Sync user count to Keygen.sh when viewing user list
+        // $this->licenseService->syncUsersToKeygen();
+
         $status = $request->get('status');
         return view('backend.employee.index', [
+            'status' => $status
+        ]);
+    }
+
+    
+    public function ldap_users_list(Request $request)
+    {
+        //dd("fghff");
+        $status = $request->get('status');
+        return view('backend.employee.ldap_user_index', [
             'status' => $status
         ]);
     }
@@ -65,19 +90,30 @@ class EmployeeController extends Controller
     {
         return view('backend.employee.external_index');
     }
-    
     public function import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|mimes:xlsx,xls'
-    ]);
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
 
-    try {
-        Excel::import(new EmployeeImport, $request->file('file'));
+        try {
+            Excel::import(new EmployeeImport, $request->file('file'));
 
-        return redirect()->back()->with('success', 'Employees imported successfully!');
-    } catch (ValidationException $e) {
-        $failures = $e->failures();
+            return redirect()->back()->with('success', 'Employees imported successfully!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            return redirect()->back()->withErrors($failures);
+        }
+    }
+
+    public function downloadSample()
+    {
+        return Excel::download(
+            new EmployeeSampleExport(),
+            'employee_import_sample.xlsx'
+        );
+    }
+
 
         return redirect()->back()->withErrors($failures);
     }
@@ -195,7 +231,7 @@ class EmployeeController extends Controller
     public function getData(Request $request)
     {
 
-        //dd("fgf");
+        // dd("fgf");
         $status = $request->get('status');
         
         $has_view = false;
@@ -206,7 +242,6 @@ class EmployeeController extends Controller
 
         if (request('show_deleted') == 1) {
             $teachers = User::query()->role('student')
-                ->where('employee_type', 'internal')
                 ->when($status == 'active', function ($q) {
                     $q->where('active', '1');
                 })
@@ -214,7 +249,7 @@ class EmployeeController extends Controller
                 ->groupBy('email')
                 ->orderBy('created_at', 'desc');
         } else {
-            $teachers = User::query()->role('student')->where('employee_type', 'internal')
+            $teachers = User::query()->role('student')
             ->when($status == 'active', function ($q) {
                     $q->where('active', '1');
             })
@@ -299,16 +334,44 @@ class EmployeeController extends Controller
             ->make();
     }
 
+    
+    public function get_ldap_data(Request $request)
+    {
+        $ldapUsers = LdapUser::query()->get();
+
+        $teachers = $ldapUsers->map(function ($user, $i) {
+            return [
+                'id' => ++$i,
+                'name'     => $user->getFirstAttribute('cn'),
+                'email'    => $user->getFirstAttribute('mail'),
+                'username' => $user->getFirstAttribute('uid'),
+            ];
+        })->values(); // 🔥 VERY IMPORTANT
+
+        return DataTables::of($teachers)->make(true);
+    }
+
+
+
+
     /**
      * Show the form for creating new Category.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    // public function create()
+    // {
+    //     $departments = Department::all();
+    //     $positions = Position::all();
+    //     return view('backend.employee.create', ['departments' => $departments, 'positions' => $positions]);
+    // }
+    public function create(ManageUserRequest $request,RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
-        $departments = Department::all();
-        $positions = Position::all();
-        return view('backend.employee.create', ['departments' => $departments, 'positions' => $positions]);
+        // $countries = DB::table('master_countries')->get();
+
+        return view('backend.auth.user.create',[ 'return_to' => route('admin.employee.index')])
+            ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
+            ->withPermissions($permissionRepository->get(['id', 'name']));
     }
 
     /**
@@ -359,6 +422,9 @@ class EmployeeController extends Controller
         $max->position = $request->position;
         $max->save();
 
+        // Sync user count to Keygen.sh
+        $this->licenseService->onUserCreated();
+
         try {
             $user_fav_lang = $employee->fav_lang;
             $username = $employee->full_name;
@@ -388,13 +454,19 @@ class EmployeeController extends Controller
 
             dispatch(new SendEmailJob($details));
         } catch (Exception $e) {
-            return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully Mail Not Send']);
+            \Log::error('Employee welcome email failed: ' . $e->getMessage());
         }
 
-        // if($save_id == true){
-        //     dd('ki');
-        //     return redirect()->route('admin.employee.index')->withFlashSuccess('Activation Mail send successfully');
-        // }
+        // --- Notification: Trainee Created (bell for admins) ---
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('users', 'user_created', 'email')) {
+                UserAuthNotification::sendUserCreatedEmail($employee, 'Trainee');
+            }
+            UserAuthNotification::createUserCreatedBell($employee, 'Trainee');
+        } catch (\Exception $e) {
+            \Log::error('Employee created notification failed: ' . $e->getMessage());
+        }
 
         return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully']);
         // return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.created'));
@@ -491,6 +563,22 @@ class EmployeeController extends Controller
         if (isset($request->emp_id)) {
             DB::table('users')->where('id', $id)->update(['emp_id' => $request->emp_id]);
         }
+        try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+        } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+        }
+
+        // --- Notification: Trainee Updated (bell for admins) ---
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('users', 'user_updated', 'email')) {
+                UserAuthNotification::createUserUpdatedBell($teacher, 'Trainee');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Employee updated notification failed: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
@@ -519,13 +607,20 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-
         $teacher = User::findOrFail($id);
         //dd($teacher->courses->count());
         if ($teacher->courses->count() > 0) {
             return redirect()->route('admin.employee.index')->withFlashDanger(trans('alerts.backend.general.teacher_delete_warning'));
         } else {
+            $teacher->active = 0;
+            $teacher->save();
             $teacher->delete();
+            try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+            } catch (\Exception $e) {
+                    \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
@@ -542,7 +637,15 @@ class EmployeeController extends Controller
             $entries = User::whereIn('id', $request->input('ids'))->get();
 
             foreach ($entries as $entry) {
+                $entry->active = 0;
+                $entry->save();
                 $entry->delete();
+            }
+            try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+            } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
             }
         }
     }
@@ -590,6 +693,12 @@ class EmployeeController extends Controller
         $teacher = User::find(request('id'));
         $teacher->active = $teacher->active == 1 ? 0 : 1;
         $teacher->save();
+        try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+        } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+        }
         return redirect()->route('admin.assessment_accounts.assignments')->withFlashSuccess(trans('Mail for deactive send successfully'));
     }
 
@@ -975,6 +1084,9 @@ class EmployeeController extends Controller
         $employee->save();
         $employee->assignRole('student');
 
+        // Sync user count to Keygen.sh
+        $this->licenseService->onUserCreated();
+
         //require base_path("vendor/autoload.php");
 
         $mail = new PHPMailer(true);     // Passing `true` enables exceptions
@@ -1011,7 +1123,18 @@ class EmployeeController extends Controller
 
 
         } catch (Exception $e) {
-            return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully Mail Not Send']);
+            \Log::error('External employee welcome email failed: ' . $e->getMessage());
+        }
+
+        // --- Notification: Trainee Created (bell for admins) ---
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('users', 'user_created', 'email')) {
+                UserAuthNotification::sendUserCreatedEmail($employee, 'Trainee');
+            }
+            UserAuthNotification::createUserCreatedBell($employee, 'Trainee');
+        } catch (\Exception $e) {
+            \Log::error('External employee created notification failed: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.employee.external_index')->withFlashSuccess(trans('alerts.backend.general.created'));
