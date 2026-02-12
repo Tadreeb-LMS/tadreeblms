@@ -587,6 +587,7 @@ Route::post('subscription/status', ['uses' => 'Admin\SubscriptionController@upda
 
 // Custom Track Student Progress
 Route::get('enrolled-student/{course_id}', 'Admin\EmployeeController@enrolled_student')->name('enrolled_student');
+Route::post('enroll-users', 'Admin\AssessmentAccountsController@direct_enroll_users')->name('enroll_users');
 Route::get('course_detail/{course_id}/{employee_id}', 'Admin\CoursesController@course_detail')->name('employee.course_detail');
 Route::get('get_data_employee_course/{course_id}/{employee_id}', 'Admin\CoursesController@get_data_employee_course')->name('courses.get_data_employee_course');
 Route::get('enrolled_get_data/{course_id}/{show_deleted?}/{search_type?}', 'Admin\EmployeeController@enrolled_get_data')->name('employee.enrolled_get_data');

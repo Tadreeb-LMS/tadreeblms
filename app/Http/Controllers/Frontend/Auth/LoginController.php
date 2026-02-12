@@ -23,6 +23,7 @@ use App\Services\NotificationSettingsService;
 use Illuminate\Support\Facades\App;
 use App\Ldap\LdapUser;
 use App\Models\Auth\User;
+use App\Models\Config;
 use LdapRecord\Container;
 use Illuminate\Support\Str;
 
@@ -156,60 +157,65 @@ class LoginController extends Controller
             \Log::error('Failed to send failed login notification: ' . $e->getMessage());
         }
 
-        try {
-            // ✅ Get the LDAP user first
-            $ldapUser = LdapUser::query()
-                ->where('mail', '=', $request->email)
-                ->first();
+        $ldap_toggle = Config::where('key', 'ldap_toggle')->value('value') ?? 0;
 
-            if (!$ldapUser) {
+        if($ldap_toggle) {
+            try {
+                // ✅ Get the LDAP user first
+                $ldapUser = LdapUser::query()
+                    ->where('mail', '=', $request->email)
+                    ->first();
+
+                if (!$ldapUser) {
+                    return response([
+                        'success' => false,
+                        'message' => 'User not found in LDAP',
+                    ], Response::HTTP_FORBIDDEN);
+                }
+
+                $dn = $ldapUser->getDn();
+
+                //CORRECT way to authenticate with LDAPRecord
+                $auth = Container::getInstance()
+                    ->getConnection('default')
+                    ->auth()
+                    ->attempt($dn, $request->password);
+
+                if (!$auth) {
+                    return response([
+                        'success' => false,
+                        'message' => 'Invalid LDAP password',
+                    ], Response::HTTP_FORBIDDEN);
+                }
+
+                //Create or sync user in LMS database
+                $user = User::updateOrCreate(
+                    ['email' => $request->email],
+                    [
+                        'first_name' => $ldapUser->getFirstAttribute('cn'),
+                        'password' => bcrypt(Str::random(16)), // dummy local password
+                    ]
+                );
+
+                $user->assignRole('student');
+
+                // Log user into Laravel
+                LaravelAuth::login($user, $request->has('remember'));
+
+                $redirect = route('admin.dashboard');
+
+                return response([
+                    'success' => true,
+                    'redirect' => $redirect,
+                ], Response::HTTP_OK);
+            } catch (\Exception $e) {
                 return response([
                     'success' => false,
-                    'message' => 'User not found in LDAP',
-                ], Response::HTTP_FORBIDDEN);
-            }
-
-            $dn = $ldapUser->getDn();
-
-            //CORRECT way to authenticate with LDAPRecord
-            $auth = Container::getInstance()
-                ->getConnection('default')
-                ->auth()
-                ->attempt($dn, $request->password);
-
-            if (!$auth) {
-                return response([
-                    'success' => false,
-                    'message' => 'Invalid LDAP password',
-                ], Response::HTTP_FORBIDDEN);
-            }
-
-            //Create or sync user in LMS database
-            $user = User::updateOrCreate(
-                ['email' => $request->email],
-                [
-                    'first_name' => $ldapUser->getFirstAttribute('cn'),
-                    'password' => bcrypt(Str::random(16)), // dummy local password
-                ]
-            );
-
-            $user->assignRole('student');
-
-            // Log user into Laravel
-            LaravelAuth::login($user, $request->has('remember'));
-
-            $redirect = route('admin.dashboard');
-
-            return response([
-                'success' => true,
-                'redirect' => $redirect,
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return response([
-                'success' => false,
-                'message' => 'LDAP Error: ' . $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    'message' => 'LDAP Error: ' . $e->getMessage(),
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            } 
         }
+        
 
 
         return response([

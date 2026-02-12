@@ -601,13 +601,15 @@ class AssessmentAccountsController extends Controller
         }
 
 
-        //Chceck validation if already exits
-        $already_course_assigned = CustomValidation::checkIfCourseIsAlreadyAssigned( $users, $course_ids_arr );
+        // Commented out: bulk check replaced with per-user duplicate check inside loop
+        // This allows partial enrollment (enroll new users, skip already-enrolled ones)
+        // $already_course_assigned = CustomValidation::checkIfCourseIsAlreadyAssigned( $users, $course_ids_arr );
+        // if($already_course_assigned['status']) {
+        //     return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashDanger($already_course_assigned['message']);
+        // }
 
-        if($already_course_assigned['status']) {
-            return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashDanger($already_course_assigned['message']);
-        }
-
+        $enrolled_count = 0;
+        $already_enrolled = [];
 
         foreach ($course_ids_arr as $course_id) {
             $course_Ass = new courseAssignment;
@@ -630,7 +632,17 @@ class AssessmentAccountsController extends Controller
                     if (!$emp) {
                         continue;
                     }
-    
+
+                    // Duplicate check - skip if already enrolled in subscribe_courses
+                    $already_subscribed = SubscribeCourse::where('user_id', $user)
+                        ->where('course_id', $course_id)
+                        ->exists();
+
+                    if ($already_subscribed) {
+                        $already_enrolled[] = $emp->full_name;
+                        continue;
+                    }
+
                     CourseAssignmentToUser::updateOrCreate(
                         [
                             'course_assignment_id' => $course_Ass->id,
@@ -700,6 +712,7 @@ class AssessmentAccountsController extends Controller
 
                     dispatch(new SendEmailJob($details));
 
+                    $enrolled_count++;
                     // Bell notification for course enrollment
                     try {
                         $notificationSettings = app(NotificationSettingsService::class);
@@ -713,10 +726,171 @@ class AssessmentAccountsController extends Controller
             }
         }
 
-        return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashSuccess(trans('Course assigned sucessfully...'));
+        // Build consistent message
+        $msg = $enrolled_count . ' user(s) enrolled successfully.';
+
+        if (count($already_enrolled) > 0) {
+            $msg .= ' ' . count($already_enrolled) . ' user(s) already enrolled: ' . implode(', ', $already_enrolled);
+        }
+
+        if ($enrolled_count > 0 && count($already_enrolled) > 0) {
+            return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashWarning($msg);
+        } elseif ($enrolled_count === 0 && count($already_enrolled) > 0) {
+            return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashDanger($msg);
+        }
+
+        return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashSuccess($msg);
     }
 
+    /**
+     * Replica of course_assignment for modal enrollment (returns JSON).
+     * Same process: courseAssignment + CourseAssignmentToUser + SubscribeCourse + Email
+     * With SubscribeCourse duplicate check (skip & report).
+     */
+    public function direct_enroll_users(Request $request)
+    {
+        $this->validate($request, [
+            'course_id' => 'required',
+            'teachers' => 'required_without:department_id',
+            'department_id' => 'required_without:teachers',
+        ], [
+            'teachers.required_without' => 'Please select either users or a department',
+            'department_id.required_without' => 'Please select either users or a department',
+        ]);
 
+        $course_id = $request->course_id;
+        $course = Course::find($course_id);
+
+        if (!$course) {
+            return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        $course_link = url("/course/$course->slug");
+
+        $users = [];
+        $assign_to = null;
+
+        if (isset($request->teachers) && count($request->teachers) > 0) {
+            $assign_to = implode(',', $request->teachers);
+            $users = $request->teachers;
+        } elseif ($request->department_id) {
+            $dep_users = DB::table('employee_profiles')
+                ->leftJoin('department', 'department.id', 'employee_profiles.department')
+                ->where('department.id', '=', $request->department_id)
+                ->pluck('employee_profiles.user_id')->toArray();
+            $users = $dep_users;
+        }
+
+        if (empty($users)) {
+            return response()->json(['error' => 'No users found to enroll'], 422);
+        }
+
+        $enrolled_count = 0;
+        $already_enrolled = [];
+        $skipped_inactive = 0;
+
+        // Create course assignment record (same as course_assignment)
+        $course_Ass = new courseAssignment;
+        $course_Ass->title = 'Course Enrollment - ' . date('Y-m-d');
+        $course_Ass->course_id = $course_id;
+        $course_Ass->assign_by = 1;
+        $course_Ass->assign_date = date('Y-m-d');
+        $course_Ass->assign_to = $assign_to;
+        $course_Ass->department_id = $request->department_id;
+        $course_Ass->save();
+
+        $has_feedback = CourseFeedback::query()
+            ->where('course_id', $course_id)
+            ->count();
+
+        $has_assesment = Assignment::query()
+            ->where('course_id', $course_id)
+            ->count();
+
+        foreach ($users as $user_id) {
+            $emp = User::where('id', $user_id)->active()->first();
+            if (!$emp) {
+                $skipped_inactive++;
+                continue;
+            }
+
+            // Duplicate check - SubscribeCourse
+            $already_subscribed = SubscribeCourse::where('user_id', $user_id)
+                ->where('course_id', $course_id)
+                ->exists();
+
+            if ($already_subscribed) {
+                $already_enrolled[] = $emp->full_name;
+                continue;
+            }
+
+            CourseAssignmentToUser::updateOrCreate(
+                [
+                    'course_assignment_id' => $course_Ass->id,
+                    'course_id' => $course_id,
+                    'user_id' => $user_id,
+                ],
+                [
+                    'log_comment' => 'By Admin'
+                ]
+            );
+
+            SubscribeCourse::updateOrCreate([
+                'user_id' => $user_id,
+                'course_id' => $course_id,
+            ], [
+                'has_feedback' => $has_feedback > 0 ? 1 : 0,
+                'has_assesment' => $has_assesment > 0 ? 1 : 0,
+                'course_trainer_name' => CustomHelper::getCourseTrainerName($course_id) ?? null,
+                'status' => 1,
+                'assign_date' => $course_Ass->assign_date,
+            ]);
+
+            $enrolled_count++;
+
+            // Send email notification (same as course_assignment)
+            $user_fav_lang = $emp->fav_lang;
+            $username = $emp->full_name;
+            $course_name = $course->title;
+
+            if ($user_fav_lang == 'arabic') {
+                $username = $emp->arabic_full_name ?? $emp->full_name;
+                $course_name = $course->arabic_title ?? $course->title;
+            }
+
+            $variables = [
+                '{User_Name}' => $username,
+                '{Course_Name}' => $course_name,
+                '{Course_Link}' => $course_link,
+            ];
+
+            $email_template = CustomHelper::emailTemplates('course_assignment', $user_fav_lang, $variables);
+
+            $details = [
+                'to_email' => $emp->email,
+                'subject' => $email_template['subject'],
+                'html' => view('emails.default_email_template', [
+                    'user' => $user_id,
+                    'content' => $email_template,
+                ])->render(),
+            ];
+
+            dispatch(new SendEmailJob($details));
+        }
+
+        // If no one was enrolled, delete the empty assignment
+        if ($enrolled_count === 0) {
+            $course_Ass->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'enrolled' => $enrolled_count,
+            'already_enrolled' => count($already_enrolled),
+            'already_enrolled_names' => $already_enrolled,
+            'skipped_inactive' => $skipped_inactive,
+        ]);
+    }
 
     public function course_assignment_invitation(Request $request)
     {
