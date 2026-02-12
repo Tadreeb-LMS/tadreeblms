@@ -72,8 +72,6 @@
 
 @section('content')
 
-@include('backend.includes.partials.course-steps', ['step' => 2, 'course_id' => $course->id, 'course' => $course ])
-
 <form method="POST" id="addLesson" enctype="multipart/form-data" autocomplete="off">
 @csrf()
 

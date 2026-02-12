@@ -216,6 +216,17 @@ class LessonsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function selectCourse()
+{
+    if (!Gate::allows('lesson_create')) {
+        return abort(401);
+    }
+
+    $courses = Course::has('category')->orderBy('title')->get();
+     return view('backend.lessons.select-course', compact('courses'));
+}
+
     public function create(Request $request)
     {
         //dd($request->all());
@@ -223,28 +234,14 @@ class LessonsController extends Controller
         if (!Gate::allows('lesson_create')) {
             return abort(401);
         }
-        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
-        $course_id = $request->course_id;
+       
 
-        $temp_id = $request->uuid ?? null;
+        //dd( $course); 
 
-        if ($request->ajax()) {
-            $courses = Course::where('temp_id', $temp_id)->where('id',$course_id)->first();
-            $checkCat = Category::where('id', $courses->category_id)->first();
-            if ($checkCat) {
-                $data = ['success' => true, 'category' => $checkCat->name];
-            } else {
-                $data = ['success' => false, 'category' => 'not found!!'];
-            }
-            return $data;
-        }
-
-        $course = Course::with('latestModuleWeightage')->where('id',$course_id)->first();
-
-        //dd( $course);
-
-        $courses_all = Course::has('category')->get()->pluck('title', 'category_id')->prepend('Please select', '');
-        return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id', 'course'));
+        $courses = Course::has('category')->get()->pluck('title', 'category_id')->prepend('Please select', '');
+         $courses_all = null;
+    $temp_id = uniqid();
+        return view('backend.lessons.create', compact('courses' ,   'courses_all','temp_id'));
     }
 
     /**

@@ -327,6 +327,11 @@ Route::get('bundle-publish/{id}', ['uses' => 'Admin\BundlesController@publish', 
 
 
 //===== Lessons Routes =====//
+Route::get('lessons/add', function () {
+    return redirect()->route('admin.lessons.create');
+});
+
+
 Route::resource('lessons', 'Admin\LessonsController');
 Route::resource('course-feedback-questions', 'Admin\CourseFeebackController');
 Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeebackController@destroy');

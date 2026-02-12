@@ -13,7 +13,7 @@ use App\Http\Controllers\UserCourseRequestController;
 use App\Jobs\SendEmailJob;
 use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\LessonController;
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
@@ -77,6 +77,11 @@ require_once "delta_academy_custom_routes.php";
  */
 Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
     include_route_files(__DIR__ . '/frontend/');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
+    Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
 });
 
 /*
@@ -278,21 +283,31 @@ Route::get('get-subscription-data', [SubscriptionController::class, 'getData'])-
 // wishlist
 Route::post('add-to-wishlist', 'Backend\WishlistController@store')->name('add-to-wishlist');
 
-Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
-    Route::get('/{page?}', [HomeController::class, 'index'])->name('index');
-});
 
 
 Route::post('add-to-subscription', 'SubscriptionController@add_subscription')->name('add.subscription');
 Route::group(['middleware' => 'auth', 'prefix' => 'user'], function () {
+   Route::get('lessons', [\App\Http\Controllers\Backend\Admin\LessonsController::class, 'index'])
+        ->name('admin.lessons.index');
+
+    Route::get('lessons/create', [\App\Http\Controllers\Backend\Admin\LessonsController::class, 'create'])
+        ->name('admin.lessons.create');
+
+    Route::post('lessons', [\App\Http\Controllers\Backend\Admin\LessonsController::class, 'store'])
+        ->name('admin.lessons.store');
+    
     Route::get('calender', [CalenderController::class, 'show_list'])->name('user.calender');
     Route::post('add-event', [CalenderController::class, 'add_event'])->name('user.add-event');
     Route::get('myassignment', [AssessmentController::class, 'myassignment'])->name('user.myassignment');
     Route::get('myassignment/data', [AssessmentController::class, 'getMyAssignmentData'])->name('user.myassignment.getdata');
-
+    
     Route::get('my-courses', [CoursesController::class, 'mycourses'])->name('user.mycourses');
     Route::get('my-pathway-courses', [CoursesController::class, 'mypathwaycourses'])->name('user.mypathwaycourses');
-});
+    });
 
-Route::get('my-courses/data', [CoursesController::class, 'getMyCoursesData'])->name('user.mycourses.getdata');
+    Route::get('my-courses/data', [CoursesController::class, 'getMyCoursesData'])->name('user.mycourses.getdata');
 Route::get('my-pathwaycourses/data', [CoursesController::class, 'getMyPathWayCoursesData'])->name('user.mypathwaycourses.getdata');
+
+    Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
+        Route::get('/{page?}', [HomeController::class, 'index'])->name('index');
+    });
