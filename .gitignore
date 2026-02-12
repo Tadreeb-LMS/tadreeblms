@@ -5,12 +5,18 @@
 /vendor/
 /node_modules/
 
+users.ldif
+
 .composer/
 /installed
 README.md
 .env
 .env.*
 !.env.example
+
+/storage/framework/sessions/*
+/storage/framework/cache/*
+/storage/framework/views/*
 
 .phpunit.result.cache
 composer.lock

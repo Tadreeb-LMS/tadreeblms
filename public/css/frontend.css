@@ -414,14 +414,10 @@ h6 {
   width: 50px;
   left: 0;
   background-color: #17d0cf;
-}
+} 
+ 
 
-.breadcrumb-section {
-  background-image: url(/images/brt-1.jpeg?8fa08d9daef6d16cbadbbd1e5d1d6988);
-  padding-bottom: 355px;
-}
-
-.breadcrumb-section .blakish-overlay {
+.breadcrumb-section .blakish-overlay { 
   opacity: 1;
   visibility: visible;
 }

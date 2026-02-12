@@ -65,7 +65,9 @@ Route::group([
             Route::patch('password/change', [UserPasswordController::class, 'update'])->name('user.change-password.post');
 
             // Access
-            Route::get('login-as', [UserAccessController::class, 'loginAs'])->name('user.login-as');
+            if (config('access.impersonation')) {
+                Route::get('login-as', [UserAccessController::class, 'loginAs'])->name('user.login-as');
+            }
 
             // Session
             Route::get('clear-session', [UserSessionController::class, 'clearSession'])->name('user.clear-session');

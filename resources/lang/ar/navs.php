@@ -28,6 +28,10 @@ return array (
     'account' => 'الحساب',
     'messages' => 'رسائل',
     'no_messages' => 'لا توجد رسائل',
+    'notifications' => 'الإشعارات',
+    'no_new_notifications' => 'لا توجد إشعارات جديدة',
+    'mark_all_as_read' => 'تحديد الكل كمقروء',
+    'view_all_notifications' => 'عرض جميع الإشعارات',
     'profile' => 'الملف الشخصي',
   ),
 );

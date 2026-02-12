@@ -22,6 +22,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Resolvers\SocialUserResolver;
 use Coderello\SocialGrant\Resolvers\SocialUserResolverInterface;
+use App\Helpers\CustomHelper;
+use App\Services\NotificationSettingsService;
 
 /**
  * Class AppServiceProvider.
@@ -112,7 +114,10 @@ class AppServiceProvider extends ServiceProvider
             View::share('slides', $slides);
         }
 
-        if (Schema::hasTable('admin_menu_items')) {
+        $disabled_landing_page = CustomHelper::redirect_based_on_setting();
+        View::share('disabled_landing_page', $disabled_landing_page);
+
+        if (Schema::hasTable('admin_menu_items') && $disabled_landing_page == 0) {
 
             $menu_name = NULL;
             $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
@@ -125,6 +130,10 @@ class AppServiceProvider extends ServiceProvider
             View::share('custom_menus', $custom_menus);
             View::share('max_depth', $max_depth);
             View::share('menu_name', $menu_name);
+        } else {
+            View::share('custom_menus', []);
+            View::share('max_depth', 0);
+            View::share('menu_name', null);
         }
 
         //        view()->composer(['frontend.layouts.partials.right-sidebar', 'frontend-rtl.layouts.partials.right-sidebar'], function ($view) {
@@ -215,6 +224,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Register NotificationSettingsService as singleton
+        $this->app->singleton(NotificationSettingsService::class, function ($app) {
+            return new NotificationSettingsService();
+        });
+
         /*
          * Sets third party service providers that are only needed on local/testing environments
          */

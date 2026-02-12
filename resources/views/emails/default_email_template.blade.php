@@ -188,7 +188,8 @@
 <body style="margin: 0; padding: 0; font-family: 'Arial', sans-serif; line-height: 1.6; color: #333333; background-color: #f0f2f5;">
     <div class="email-container" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); border-radius: 10px; overflow: hidden;">
         <!-- Header Section -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #3c4085;  text-align: center; color: white;padding-top: 30px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+            style="background: linear-gradient(180deg, #c09b4e, #233e74); text-align: center; color: white;padding-top: 30px;">
             <tr>
                 <td align="center">
                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -196,23 +197,11 @@
                             <td align="center">
                                 <!-- spacing before logo -->
                                 <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <img
-                                                src="https://updated-academy.delta-medlab.com/img/new-delta-def-2.png"
-                                                alt="Delta Logo"
-                                                width="100"
-                                                height="100"
-                                                style="border-radius: 50%; display: block; color-scheme: light only; background-color: #ffffff;" />
-                                        </td>
-                                        <td width="20"></td>
+                                    <tr> 
                                         <td style="text-align: center;" >
-                                            <img
-                                                src="https://updated-academy.delta-medlab.com/img/new-delta-def-1.png"
-                                                alt="Delta Academy"
-                                                width="100"
-                                                height="100"
-                                                style="border-radius: 50%; display: block; color-scheme: light only; background-color: #ffffff;" />
+                                            <img src="http://test.tadreeblms.com/assets/img/logo.png" style="    background: linear-gradient(180deg, #ffffff, #ffffffa6);
+    padding: 15px 20px 10px;
+    border-radius: 10px;" alt="Tadreeb LMS" width="255" height="50">
                                         </td>
                                     </tr>
                                 </table>
@@ -254,12 +243,11 @@
                                         <td align="center">
                                             <div style="padding-top:20px;">
                                             <a href="{{ $content['register_button'] }}"
-                                            style="background-color:#3c4085;
-                                                    color:#ffffff;
-                                                    padding:10px 24px;
+                                            style="color:#ffffff;
+                                                    padding:10px 30px;
                                                     text-decoration:none;
                                                     font-size:16px;
-                                                    border-radius:4px;
+                                                    background: linear-gradient(90deg, #223a6a, #cc8a03); border-radius: 30px;
                                                     display:inline-block;">
                                                 Register Now
                                             </a>
@@ -283,27 +271,27 @@
         <table cellpadding="0" cellspacing="0" border="0" align="center">
             <tr>
                 <td style="padding: 10px;">
-                    <a href="https://www.facebook.com/people/Delta-Academy/61560504450217/?mibextid=ZbWKwL" target="_blank">
+                    <a href="#" target="_blank">
                         <img src="https://cdn-icons-png.flaticon.com/256/124/124010.png" alt="Facebook" width="36" height="36" style="display: block; border: 0;">
                     </a>
                 </td>
                 <td style="padding: 10px;">
-                    <a href="https://x.com/deltaacademy24?s=21&t=YWMNDGoZwaMUSI1gfhATyw" target="_blank">
+                    <a href="#" target="_blank">
                         <img src="https://w7.pngwing.com/pngs/748/680/png-transparent-twitter-x-logo.png" alt="Twitter" width="36" height="36" style="display: block; border: 0;">
                     </a>
                 </td>
                 <td style="padding: 10px;">
-                    <a href="https://www.youtube.com/@DeltaAcademy.medlab" target="_blank">
+                    <a href="#" target="_blank">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1280px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" width="36" height="36" style="display: block; border: 0;">
                     </a>
                 </td>
                 <td style="padding: 10px;">
-                    <a href="https://www.linkedin.com/company/delta-academy-medlab/" target="_blank">
+                    <a href="https://www.linkedin.com/company/tadreeblms/" target="_blank">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/2048px-LinkedIn_icon.svg.png" alt="LinkedIn" width="36" height="36" style="display: block; border: 0;">
                     </a>
                 </td>
                 <td style="padding: 10px;">
-                    <a href="https://www.instagram.com/deltaacademy24/?igsh=bnNuOWhzY2Y3aWtv#" target="_blank">
+                    <a href="https://www.instagram.com/tadreeblms?igsh=b3gzOG83NGE5cncx&amp;utm_source=qr" target="_blank">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1024px-Instagram_icon.png" alt="Instagram" width="36" height="36" style="display: block; border: 0;">
                     </a>
                 </td>

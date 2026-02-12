@@ -18,6 +18,8 @@
 
 @section('content')
 
+@include('backend.includes.license-warning')
+
 <form id="addTeacher" method="POST" action="{{ route('admin.teachers.store') }}" enctype="multipart/form-data">
     @csrf
 

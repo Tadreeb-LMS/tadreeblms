@@ -3,6 +3,9 @@
 @section('title', __('Assessment Accounts').' | '.app_name())
 
 @section('content')
+
+@include('backend.includes.license-warning')
+
 {{ html()->form('POST', route('admin.assessment_accounts.store'))->acceptsFiles()->class('form-horizontal')->open() }}
 <div class="pb-3 d-flex justify-content-between align-items-center">
     <h4 class="page-title d-inline">@lang('Create Assessment Account')</h4>

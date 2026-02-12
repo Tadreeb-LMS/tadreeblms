@@ -27,9 +27,9 @@
 <div class="">
 
     <div class="d-flex justify-content-between align-items-center pb-3">
-        <h4 class="text-20">Edit Teacher</h4>
+        <h4 class="text-20"> @lang('labels.backend.teachers.edit')</h4>
         <a href="{{ route('admin.teachers.index') }}" class="add-btn">
-            View Teachers
+            @lang('labels.backend.teachers.view')
         </a>
     </div>
 

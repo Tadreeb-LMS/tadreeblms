@@ -234,6 +234,7 @@ return [
         App\Providers\ObserverServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         //Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        LdapRecord\Laravel\LdapServiceProvider::class,
 
 
     ],
@@ -305,6 +306,8 @@ return [
         'CustomHelper' => 'App\Helpers\CustomHelper',
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+
+        'Ldap' => LdapRecord\Laravel\Facades\Ldap::class,
 
     ],
 

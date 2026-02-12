@@ -19,6 +19,30 @@ use App\Http\Controllers\LessonController;
 
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
+use App\Ldap\LdapUser;
+use LdapRecord\Container;
+
+Route::get('/ldap-test', function () {
+    try {
+        Container::getConnection()->connect();
+        return "✅ LDAP connected successfully from LMS!";
+    } catch (\Exception $e) {
+        return "❌ LDAP connection failed: " . $e->getMessage();
+    }
+});
+
+Route::get('/ldap-users', function () {
+    $users = LdapUser::query()->get();
+
+    return $users->map(function ($user) {
+        return [
+            'dn'       => $user->getDn(),
+            'name'     => $user->getFirstAttribute('cn'),
+            'email'    => $user->getFirstAttribute('mail'),
+            'username' => $user->getFirstAttribute('uid'),
+        ];
+    });
+});
 
 Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 
@@ -29,9 +53,9 @@ Route::get('syncCourseAssignmentAndSubscribeCourseData', function () {
 Route::get('complete-course/{course_id}/{user_id}', function (Request $request) {
     CustomHelper::completeCourseForUser($request->course_id, $request->user_id);
 });
-// Route::get('loginById/{user_id}', function (Request $request) {
-//     Auth::loginUsingId($request->user_id);
-// });
+
+
+Route::get('auth',[LoginController::class, 'showLoginForm'] )->name('login');
 
 
 Route::get('email-test', function () {
@@ -78,6 +102,9 @@ require_once "delta_academy_custom_routes.php";
 Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
     include_route_files(__DIR__ . '/frontend/');
 });
+Route::get('/refresh-captcha', [\App\Http\Controllers\Frontend\Auth\LoginController::class, 'refreshCaptcha'])
+    ->name('refresh.captcha');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');

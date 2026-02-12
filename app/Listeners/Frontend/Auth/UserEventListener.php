@@ -3,6 +3,8 @@
 namespace App\Listeners\Frontend\Auth;
 
 use Carbon\Carbon;
+use App\Notifications\Backend\SystemNotification;
+use App\Services\NotificationSettingsService;
 
 /**
  * Class UserEventListener.
@@ -35,6 +37,19 @@ class UserEventListener
         $event->user->save();
 
         \Log::info('User Logged In: '.$event->user->full_name);
+
+        // Admin login alert notification
+        if ($event->user->isAdmin()) {
+            try {
+                $notificationSettings = app(NotificationSettingsService::class);
+                if ($notificationSettings->shouldNotify('system', 'login_alerts', 'email')) {
+                    SystemNotification::sendAdminLoginEmail($event->user, $ip_address);
+                    SystemNotification::createAdminLoginBell($event->user, $ip_address);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send admin login alert: ' . $e->getMessage());
+            }
+        }
     }
 
     /**

@@ -85,7 +85,7 @@ $(function () {
           displayNotification(
             "error",
             response?.responseJSON?.message ?? "Something went wrong!",
-            5000
+            5000,
           );
         }
 
@@ -98,6 +98,18 @@ $(function () {
   });
 
   function displayNotification(type, message) {
-    alert(message);
+    if (typeof toastr !== "undefined") {
+      if (type === "success") {
+        toastr.success(message);
+      } else if (type === "error") {
+        toastr.error(message);
+      } else if (type === "warning") {
+        toastr.warning(message);
+      } else {
+        toastr.info(message);
+      }
+    } else {
+      alert(message);
+    }
   }
 });

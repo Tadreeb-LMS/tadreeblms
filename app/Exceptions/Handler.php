@@ -8,6 +8,8 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Session\TokenMismatchException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+// use App\Notifications\Backend\SystemNotification;
+// use App\Services\NotificationSettingsService;
 
 class Handler extends ExceptionHandler
 {

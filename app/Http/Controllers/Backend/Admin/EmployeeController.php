@@ -14,6 +14,10 @@ use App\Models\Reports;
 use App\Models\Stripe\SubscribeCourse;
 use App\Models\{Department, ChapterStudent, Certificate, UserCourseDetail, Course, ExportInternalReportNotification, PasswordReset, Test};
 use App\Models\Position;
+use App\Models\courseAssignment;
+use App\Models\CourseAssignmentToUser;
+use App\Models\CourseFeedback;
+use App\Models\Assignment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
@@ -21,11 +25,14 @@ use Yajra\DataTables\DataTables;
 use DB;
 use Carbon\Carbon;
 use App\Helpers\CustomHelper;
+use App\Helpers\CustomValidation;
 use Maatwebsite\Excel\Facades\Excel;
 use Config;
 use App\Imports\UsersImport;
 use App\Jobs\GenerateInternalAttendanceReport;
 use App\Jobs\SendEmailJob;
+use App\Notifications\Backend\UserAuthNotification;
+use App\Services\NotificationSettingsService;
 use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Mail;
@@ -37,6 +44,11 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use App\Ldap\LdapUser;
+use App\Services\LicenseService;
+use App\Repositories\Backend\Auth\RoleRepository;
+use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
+use App\Repositories\Backend\Auth\PermissionRepository;
 use App\Exports\EmployeeSampleExport;
 use App\Imports\EmployeeImport;
 // use Maatwebsite\Excel\Facades\Excel;
@@ -46,7 +58,13 @@ class EmployeeController extends Controller
 {
     use FileUploadTrait;
 
-    
+    protected $licenseService;
+
+    public function __construct(LicenseService $licenseService)
+    {
+        $this->licenseService = $licenseService;
+    }
+
     /**
      * Display a listing of Category.
      *
@@ -54,9 +72,21 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        //dd("fghff");
+        // // Sync user count to Keygen.sh when viewing user list
+        // $this->licenseService->syncUsersToKeygen();
+
         $status = $request->get('status');
         return view('backend.employee.index', [
+            'status' => $status
+        ]);
+    }
+
+    
+    public function ldap_users_list(Request $request)
+    {
+        //dd("fghff");
+        $status = $request->get('status');
+        return view('backend.employee.ldap_user_index', [
             'status' => $status
         ]);
     }
@@ -65,19 +95,30 @@ class EmployeeController extends Controller
     {
         return view('backend.employee.external_index');
     }
-    
     public function import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|mimes:xlsx,xls'
-    ]);
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
 
-    try {
-        Excel::import(new EmployeeImport, $request->file('file'));
+        try {
+            Excel::import(new EmployeeImport, $request->file('file'));
 
-        return redirect()->back()->with('success', 'Employees imported successfully!');
-    } catch (ValidationException $e) {
-        $failures = $e->failures();
+            return redirect()->back()->with('success', 'Employees imported successfully!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            return redirect()->back()->withErrors($failures);
+        }
+    }
+
+    public function downloadSample()
+    {
+        return Excel::download(
+            new EmployeeSampleExport(),
+            'employee_import_sample.xlsx'
+        );
+    }
+
 
         return redirect()->back()->withErrors($failures);
     }
@@ -195,7 +236,7 @@ class EmployeeController extends Controller
     public function getData(Request $request)
     {
 
-        //dd("fgf");
+        // dd("fgf");
         $status = $request->get('status');
         
         $has_view = false;
@@ -206,7 +247,6 @@ class EmployeeController extends Controller
 
         if (request('show_deleted') == 1) {
             $teachers = User::query()->role('student')
-                ->where('employee_type', 'internal')
                 ->when($status == 'active', function ($q) {
                     $q->where('active', '1');
                 })
@@ -214,7 +254,7 @@ class EmployeeController extends Controller
                 ->groupBy('email')
                 ->orderBy('created_at', 'desc');
         } else {
-            $teachers = User::query()->role('student')->where('employee_type', 'internal')
+            $teachers = User::query()->role('student')
             ->when($status == 'active', function ($q) {
                     $q->where('active', '1');
             })
@@ -299,16 +339,44 @@ class EmployeeController extends Controller
             ->make();
     }
 
+    
+    public function get_ldap_data(Request $request)
+    {
+        $ldapUsers = LdapUser::query()->get();
+
+        $teachers = $ldapUsers->map(function ($user, $i) {
+            return [
+                'id' => ++$i,
+                'name'     => $user->getFirstAttribute('cn'),
+                'email'    => $user->getFirstAttribute('mail'),
+                'username' => $user->getFirstAttribute('uid'),
+            ];
+        })->values(); // 🔥 VERY IMPORTANT
+
+        return DataTables::of($teachers)->make(true);
+    }
+
+
+
+
     /**
      * Show the form for creating new Category.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    // public function create()
+    // {
+    //     $departments = Department::all();
+    //     $positions = Position::all();
+    //     return view('backend.employee.create', ['departments' => $departments, 'positions' => $positions]);
+    // }
+    public function create(ManageUserRequest $request,RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
-        $departments = Department::all();
-        $positions = Position::all();
-        return view('backend.employee.create', ['departments' => $departments, 'positions' => $positions]);
+        // $countries = DB::table('master_countries')->get();
+
+        return view('backend.auth.user.create',[ 'return_to' => route('admin.employee.index')])
+            ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
+            ->withPermissions($permissionRepository->get(['id', 'name']));
     }
 
     /**
@@ -359,6 +427,9 @@ class EmployeeController extends Controller
         $max->position = $request->position;
         $max->save();
 
+        // Sync user count to Keygen.sh
+        $this->licenseService->onUserCreated();
+
         try {
             $user_fav_lang = $employee->fav_lang;
             $username = $employee->full_name;
@@ -388,13 +459,19 @@ class EmployeeController extends Controller
 
             dispatch(new SendEmailJob($details));
         } catch (Exception $e) {
-            return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully Mail Not Send']);
+            \Log::error('Employee welcome email failed: ' . $e->getMessage());
         }
 
-        // if($save_id == true){
-        //     dd('ki');
-        //     return redirect()->route('admin.employee.index')->withFlashSuccess('Activation Mail send successfully');
-        // }
+        // --- Notification: Trainee Created (bell for admins) ---
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('users', 'user_created', 'email')) {
+                UserAuthNotification::sendUserCreatedEmail($employee, 'Trainee');
+            }
+            UserAuthNotification::createUserCreatedBell($employee, 'Trainee');
+        } catch (\Exception $e) {
+            \Log::error('Employee created notification failed: ' . $e->getMessage());
+        }
 
         return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully']);
         // return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.created'));
@@ -491,6 +568,22 @@ class EmployeeController extends Controller
         if (isset($request->emp_id)) {
             DB::table('users')->where('id', $id)->update(['emp_id' => $request->emp_id]);
         }
+        try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+        } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+        }
+
+        // --- Notification: Trainee Updated (bell for admins) ---
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('users', 'user_updated', 'email')) {
+                UserAuthNotification::createUserUpdatedBell($teacher, 'Trainee');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Employee updated notification failed: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
@@ -519,13 +612,20 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-
         $teacher = User::findOrFail($id);
         //dd($teacher->courses->count());
         if ($teacher->courses->count() > 0) {
             return redirect()->route('admin.employee.index')->withFlashDanger(trans('alerts.backend.general.teacher_delete_warning'));
         } else {
+            $teacher->active = 0;
+            $teacher->save();
             $teacher->delete();
+            try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+            } catch (\Exception $e) {
+                    \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
@@ -542,7 +642,15 @@ class EmployeeController extends Controller
             $entries = User::whereIn('id', $request->input('ids'))->get();
 
             foreach ($entries as $entry) {
+                $entry->active = 0;
+                $entry->save();
                 $entry->delete();
+            }
+            try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+            } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
             }
         }
     }
@@ -590,16 +698,35 @@ class EmployeeController extends Controller
         $teacher = User::find(request('id'));
         $teacher->active = $teacher->active == 1 ? 0 : 1;
         $teacher->save();
+        try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+        } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+        }
         return redirect()->route('admin.assessment_accounts.assignments')->withFlashSuccess(trans('Mail for deactive send successfully'));
     }
 
 
     public function enrolled_student($course_id)
     {
-        //dd($course_id);
-        // $subscribe_courses = auth()->user()->subscribeCourses();
-        return view('backend.employee.enrolled_employee', ['course_id' => $course_id]);
+        $already_enrolled_ids = SubscribeCourse::where('course_id', $course_id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $teachers = User::query()->role('student')
+            ->whereNotIn('users.id', $already_enrolled_ids)
+            ->groupBy('email')
+            ->orderBy('created_at', 'desc')
+            ->active()
+            ->get()
+            ->pluck('name', 'id');
+
+        $departments = Department::all();
+
+        return view('backend.employee.enrolled_employee', compact('course_id', 'teachers', 'departments'));
     }
+
 
     public function all_enrolled_student($course_id)
     {
@@ -803,142 +930,6 @@ class EmployeeController extends Controller
     }
 
 
-//     public function import(Request $request)
-//     {
-
-//         $IsSaved = false;
-
-//         if (request()->hasFile('file')) {
-
-//             $maximum_execution_time = Config::get('constants.maximum_execution_time');
-//             set_time_limit($maximum_execution_time);
-
-//             $ExcelData = Excel::toArray(new UsersImport, request()->file('file'));
-//             if (!empty($ExcelData)) {
-//                 $ExtractedDataFromExcel = $ExcelData[0];
-
-//                 if (!empty($ExtractedDataFromExcel)) {
-//                     $count = 0;
-
-//                     $TotalData = count($ExtractedDataFromExcel) - 0;
-//                     // echo '<pre>';    print_r($ExtractedDataFromExcel);die;
-//                     foreach ($ExtractedDataFromExcel as $ExcelKey => $ExcelValue) {
-
-//                         if ($count == 0) {
-//                             $count++;
-//                             continue;
-//                         }
-//                         $count++;
-//                         $IsDataSuccessfullyInserted = false;
-//                         $exist_email = User::where('email', trim($ExcelValue[2]))->first();
-//                         if (empty($exist_email)) {
-//                             if ($ExcelValue[2] != null) {
-//                                 $RetailerPlanId = 0;
-//                                 $RetailerPlan = new User();
-//                                 $RetailerPlan->emp_id = trim($ExcelValue[0]);
-//                                 $RetailerPlan->first_name = trim($ExcelValue[1]);
-//                                 $RetailerPlan->last_name = trim($ExcelValue[2]);
-//                                 $RetailerPlan->email = trim($ExcelValue[3]);
-//                                 $RetailerPlan->work_id = trim($ExcelValue[6]);
-//                                 $RetailerPlan->password = Hash::make($ExcelValue[4]);
-//                                 //echo '<pre>';    print_r($ExcelValue);die;
-//                                 $RetailerPlan->gender = trim($ExcelValue[7]);
-//                                 $RetailerPlan->confirmed = 1;
-//                                 $RetailerPlan->employee_type = 'internal';
-//                                 $RetailerPlan->assignRole('student');
-//                                 if ($RetailerPlan->save()) {
-//                                     $RetailerPlanId = $RetailerPlan->id;
-
-
-//                                     $mail = new PHPMailer(true);     // Passing `true` enables exceptions
-//                                     try {
-//                                         $mail->SMTPDebug = 0;
-//                                         $mail->isSMTP();
-//                                         $mail->Host = env('MAIL_HOST');             //  smtp host
-//                                         $mail->SMTPAuth = true;
-//                                         $mail->Username = env('MAIL_USERNAME');  //  sender username
-//                                         $mail->Password = env('MAIL_PASSWORD');       // sender password
-//                                         $mail->SMTPSecure = 'tls';                  // encryption - ssl/tls
-//                                         $mail->Port = 587;                          // port - 587/465
-//                                         $mail->setFrom(env('MAIL_USERNAME'), env('APP_NAME'));
-//                                         $mail->addAddress($ExcelValue[3]);
-//                                         $mail->isHTML(true);                // Set email content format to HTML
-//                                         $mail->Subject = "New User Registered " . env('APP_NAME');
-//                                         $mail->Body    = "# Hello $ExcelValue[1]<br>
-
-// In our system new user registered, User details are below<br>
-
-// Name * $ExcelValue[1] * <br>
-// Email * $ExcelValue[3] * <br>
-// Password * $ExcelValue[4] *
-
-// <br>
-// Thanks,<br>" . env('APP_NAME');
-//                                         $mail->send();
-//                                     } catch (Exception $e) {
-//                                         //return response()->json([ 'status'=>'success' , 'clientmsg' => 'Added successfully Mail Not Send' ]);
-//                                     }
-//                                 }
-//                                 if ($RetailerPlanId > 0) {
-
-//                                     $RetailerPlanDetail = new EmployeeProfile();
-//                                     $RetailerPlanDetail->user_id = $RetailerPlanId;
-//                                     if ($ExcelValue[5]) {
-//                                         $RetailerPlanDetail->department = trim($ExcelValue[5]);
-//                                     }
-
-//                                     $RetailerPlanDetail->position = trim($ExcelValue[6]);
-
-//                                     if ($RetailerPlanDetail->save()) {
-//                                         $IsDataSuccessfullyInserted = true;
-//                                         $IsSaved = true;
-//                                     }
-
-//                                     $exist_slug = Department::where('slug', str_slug(trim($ExcelValue[5])))->first();
-//                                     if ($exist_slug) {
-//                                         // return redirect()->route('admin.employee.index')->withFlashDanger('Department title is already exist');
-//                                         $RetailerPlanDetail->department = $exist_slug->id;
-//                                         $RetailerPlanDetail->save();
-//                                         $IsDataSuccessfullyInserted = true;
-//                                     } else {
-//                                         $dep = new Department();
-//                                         $dep->title = trim($ExcelValue[5]);
-//                                         $dep->slug = str_slug(trim($ExcelValue[5]));
-//                                         $message = trim($ExcelValue[1]);
-//                                         $dom = new \DOMDocument();
-//                                         $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-//                                         $dep->content = $dom->saveHTML();
-//                                         $dep->user_id = auth()->user()->id;
-//                                         $dep->published = 1;
-//                                         $dep->sidebar = 1;
-//                                         if ($dep->save()) {
-//                                             if (empty($ExcelValue[4])) {
-//                                                 $RetailerPlanDetail->department = $dep->id;
-//                                                 $RetailerPlanDetail->save();
-//                                             }
-//                                             // $RetailerPlanId = $RetailerPlan->id;
-//                                             $IsDataSuccessfullyInserted = true;
-//                                         }
-//                                     }
-//                                     // $dep = new Department();
-
-//                                 }
-//                                 if ($IsDataSuccessfullyInserted) {
-//                                     $TotalData++;
-//                                 }
-//                             }
-//                         } else if ($exist_email) {
-//                             return redirect()->route('admin.employee.index')->withFlashDanger('Email is already exist');
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         if ($IsSaved) {
-//             return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.created'));
-//         }
-//         return redirect()->route('admin.employee.index')->withFlashDanger('Something went wrong');
-//     }
 
     public function external_employee_create()
     {
@@ -974,6 +965,9 @@ class EmployeeController extends Controller
         $employee->employee_type = 'external';
         $employee->save();
         $employee->assignRole('student');
+
+        // Sync user count to Keygen.sh
+        $this->licenseService->onUserCreated();
 
         //require base_path("vendor/autoload.php");
 
@@ -1011,7 +1005,18 @@ class EmployeeController extends Controller
 
 
         } catch (Exception $e) {
-            return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully Mail Not Send']);
+            \Log::error('External employee welcome email failed: ' . $e->getMessage());
+        }
+
+        // --- Notification: Trainee Created (bell for admins) ---
+        try {
+            $notificationSettings = app(NotificationSettingsService::class);
+            if ($notificationSettings->shouldNotify('users', 'user_created', 'email')) {
+                UserAuthNotification::sendUserCreatedEmail($employee, 'Trainee');
+            }
+            UserAuthNotification::createUserCreatedBell($employee, 'Trainee');
+        } catch (\Exception $e) {
+            \Log::error('External employee created notification failed: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.employee.external_index')->withFlashSuccess(trans('alerts.backend.general.created'));
@@ -1253,8 +1258,9 @@ class EmployeeController extends Controller
     }
 
     public function external_trainee_info()
-    {
-        return view('backend.employee.external_info');
+    {   
+        return redirect()->route('admin.employee.internal_trainee_info');
+        //return view('backend.employee.external_info');
     }
 
     public function get_external_trainee_info(Request $request)
@@ -1455,7 +1461,6 @@ class EmployeeController extends Controller
 
             $subscribeCourse = SubscribeCourse::with('user', 'student', 'course')
                                     ->whereHas('user', function ($query) use ($user_id) {
-                                        $query->where('employee_type', 'internal');
                                         if (!empty($user_id)) {
                                             $query->where('id', $user_id);
                                         }
@@ -1575,7 +1580,6 @@ class EmployeeController extends Controller
         }
 
         $internal_users = User::query()
-                                ->where('employee_type', 'internal')
                                 //->where('active','1')
                                 ->get();
 
@@ -1611,7 +1615,6 @@ class EmployeeController extends Controller
 
             $subscribeCourse = SubscribeCourse::with('user', 'user.employee', 'student', 'course')
                 ->whereHas('user', function ($query) use ($user_id, $dept_id) {
-                    $query->where('employee_type', 'internal');
                     if (!empty($user_id)) {
                         $query->where('id', $user_id);
                     }
@@ -1769,7 +1772,6 @@ class EmployeeController extends Controller
         }
 
         $internal_users = User::query()
-            ->where('employee_type', 'internal')
             //->where('active','1')
             ->get();
 
@@ -1824,7 +1826,8 @@ class EmployeeController extends Controller
     }
 
     public function external_attendence_report()
-    {
+    {   
+        return redirect()->route('admin.employee.internal-attendence-report');
         $val = SubscribeCourse::join('courses', 'courses.id', 'subscribe_courses.course_id')
             ->join('users', 'users.id', 'subscribe_courses.user_id')
             ->leftJoin('video_progresses', 'video_progresses.user_id', 'users.id')

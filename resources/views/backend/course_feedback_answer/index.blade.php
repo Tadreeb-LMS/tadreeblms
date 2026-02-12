@@ -27,6 +27,7 @@
                                       <th>S. No.</th>
                                       <th>User Name</th>
                                       <th>Course Name</th>
+                                      <th>Submitted On</th>
                                       <th>Detail</th>
                                   </tr>
                               </thead>
@@ -109,6 +110,10 @@
                     {
                         data: "course_name",
                         name: 'course_name'
+                    },
+                    {
+                        data: "submitted_on",
+                        name: 'submitted_on'
                     },
                     {
                         data: "question_answers",
