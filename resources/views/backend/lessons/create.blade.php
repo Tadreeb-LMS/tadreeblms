@@ -5,6 +5,32 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.min.css" />
 <link rel="stylesheet" type="text/css" href="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.css')}}">
 <style>
+    .lesson-box{
+    border: 1px solid #e4e6ef;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;   /* space between lessons */
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+    position: relative;
+}
+.remove_less_slug{
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    background: #fff;
+    border-radius: 50%;
+    color: red;
+    font-size: 10px;      /* ⬅ Bigger ❌ icon */
+    padding: 2px;
+    font-weight: bold;   /* ⬅ Thicker */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 10;
+    line-height: 1;
+}
+
+
+
     span.loading {
         font-style: italic;
         color: green;
@@ -99,12 +125,21 @@
     </div> -->
 
     <div class="card-body">
+        <div class = "lesson-template ">
+            <div class="position-relative lesson-box">
+
+    <i class="fa fa-times remove_less_slug"
+   onclick="removeLesslug(this)"
+   style="position:absolute; top:-10px; right:-10px; color:red; font-size:18px; cursor:pointer; display:none;"
+   title="Remove Lesson"></i>
+
         <div class="row">
             <div class="col-md-12 col-lg-6 form-group">
                 <div for="course_id" class="form-control-label">{{ trans('labels.backend.lessons.fields.course') }}</div>
                 <div class="mt-2 custom-select-wrapper">
 
-                    <select name="course_id" class="form-control custom-select-box course_id select2">
+                    <select id="course_id" name="course_id" class="form-control custom-select-box course_id select2">
+
                         @foreach($courses as $key => $course)
                             <option value="{{ $key }}" {{ (old('course_id') == $key || request('course_id') == $key) ? 'selected' : '' }}>
                                 {{ $course }}
@@ -123,8 +158,8 @@
                     {{ trans('labels.backend.lessons.fields.lesson_image') }} {{ trans('labels.backend.lessons.max_file_size') }}
                 </div>
                 <div class="custom-file-upload-wrapper">
-                            <input type="file" name="image" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
+                            <input type="file" class="custom-file-input">
+            <label class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
                         </div>
@@ -300,7 +335,8 @@
                     </div>
         </div>
 
-        
+        </div>
+</div>
 
         <div class="row">
             
@@ -361,9 +397,9 @@
 <script>
     $(document).ready(function() {
 
-        $('#lesson_start_date_').datetimepicker({
-            format: 'Y-m-d H:00',
-        });
+       $('#lesson_start_date').datetimepicker({
+    format: 'Y-m-d H:00'
+});
 
         $('.custom-date-picker').datetimepicker({
             format: 'Y-m-d H:00',
@@ -512,98 +548,42 @@
 </script>
 
 <script>
-    $("#addmorebtn").on('click', function() {
-        ++i;
-        
+    $("#addmorebtn").on('click', function () {
 
-        html = `<div class="form-group checkingListC row position-relative mt-5">
-                    <div class=" justify-content-end align-items-center mb-4 col-sm-6">
-                            <label for="option" class="mr-4 flex-fill" >Title*</label>
-                            <div class="flex-fill"><input class="form-control" name="title[]" id="lesson" type="text" autocomplete="off" required/></div>
-                    </div>
-                    <!--div class=" justify-content-end align-items-center mb-4 col-sm-6">
-                            <label for="option" class="mr-4 flex-fill" >Arabic Title*</label>
-                            <div class="flex-fill"><input class="form-control" name="arabic_title[]" id="lesson_arabic" type="text" autocomplete="off" required/></div>
-                    </div-->
-                    <div class=" justify-content-end align-items-center mb-4 col-sm-12">
-                            <label for="option" class="mr-4 flex-fill" > Slug </label>
-                            <div class="flex-fill"><input class="form-control" name="slug[]" id="slug" type="text" autocomplete="off"/></div>
-                    </div>
-                    <div class=" justify-content-end align-items-center mb-4 col-sm-6">
-                            <label for="option" class="mr-4 flex-fill">Lesson Image (max file size 5MB)</label>
-                            <div class="flex-fill"><input class="form-control" name="lesson_image[]" id="lesson" type="file" autocomplete="off"/></div>
-                    </div>
+    let clone = $('.lesson-template').first().clone(false);
 
-                    <div class="col-12 form-group">
-                <label for="short_text" class="control-label">Short Text</label>
-                <textarea class="form-control " placeholder="Input short description of lesson" name="short_text[]" cols="50" rows="10" id="short_text"></textarea>
-                     </div>
+    clone.find('input, textarea').val('');
+    clone.find('input[type="checkbox"]').prop('checked', false);
 
-                     <div class="col-12 form-group">
-                <label for="full_text" class="control-label">Full Text</label>
-                <textarea class="form-control editor" placeholder="Input short description of lesson" name="full_text[]" cols="50" rows="10" id="short_text"></textarea>
-                     </div>
-                     <div class="col-12 form-group">
-                <label for="downloadable_files" class="control-label">Downloadable Files (max file size 5MB)</label>
-                <input multiple="" class="form-control file-upload" id="downloadable_files" accept="image/jpeg,image/gif,image/png,application/msword,audio/mpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint,application/pdf,video/mp4" name="downloadable_files_${i}[]" type="file">
-                <div class="photo-block">
-                    <div class="files-list"></div>
-                </div>
+    clone.find('.video, .video_file').addClass('d-none').prop('required', false);
+    clone.find('.media_type').val('');
 
-            </div>
+    clone.find('[id]').removeAttr('id');
 
-            <div class="col-12 form-group">
-                <label for="pdf_files" class="control-label">Add PDF</label>
-                <input class="form-control file-upload" id="add_pdf" accept="application/pdf" name="add_pdf_${i}[]" type="file">
-            </div>
-            <div class="col-12 form-group">
-                <label for="audio_files" class="control-label">Add Audio</label>
-                <input class="form-control file-upload" id="add_audio" accept="audio/mpeg3" name="add_audio_${i}[]" type="file">
-            </div>
-            <div class="col-md-12 form-group parent_group">
-                <label for="add_video" class="control-label">Add Video</label>
+    // show delete icon on clones
+    clone.find('.remove_less_slug').show();
 
-                <select class="form-control" id="media_type" name="media_type_${i}[]"><option selected="selected" value="">Select One</option><option value="youtube">Youtube</option><option value="vimeo">Vimeo</option><option value="upload">Upload</option><option value="embed">Embed</option></select>
+    $(".mo_create").append(clone);
 
-                <input class="form-control mt-3 d-none video" placeholder="Enter video data" id="video" name="video_${i}[]" type="text">
-
-
-                <input class="form-control mt-3 d-none video_file" placeholder="Enter video data" id="video_file" name="video_file_${i}[]" type="file">
-            @lang('labels.backend.lessons.video_guide')
-            </div>
-            <div class="form-group row">
-            <label class="col-md-4 form-control-label" for="duration">Duration</label>
-
-            <div class="col-md-8">
-                <input class="form-control" type="text" name="duration[]" id="duration" placeholder="Duration [minutes]">
-            </div>
-        </div>
-        
-        <div class="form-group row start_date" style="">
-            <label class="col-md-4 form-control-label" for="duration">Lesson Start Date</label>
-            
-            <div class="col-md-8">
-                <input class="form-control date custom-date-picker" type="date" name="lesson_start_date" id="lesson_start_date" placeholder="12/09/2022">
-            </div>
-        </div>
-        <div class="col-md-4" style="">
-            <div class="checkbox">
-                        <input name="published" type="hidden" value="0">
-                        <input name="published" type="checkbox" value="1">
-                        <label for="published" class="checkbox control-label font-weight-bold">Published</label>
-            </div>
-        </div>
-                            <i class="fa fa-times position-absolute remove_less_slug" onclick="removeLesslug(this)" style="top:0px; right:27px; color:red;font-size:1rem;"  aria-hidden="true"></i>
-                        </div>`;
-
-
-        $(".mo_create").append(html);
-        // }
-
+    clone.find('.editor').each(function () {
+        CKEDITOR.replace(this);
     });
-    function removeLesslug(dis) {
-        $(dis).parent('div').remove();
-    }
+});
+
+
+    function removeLesslug(el) {
+    let box = $(el).closest('.lesson-box').parent();
+
+    // destroy CKEditor instance inside before removing
+    box.find('.editor').each(function () {
+        let name = this.name;
+        if (CKEDITOR.instances[name]) {
+            CKEDITOR.instances[name].destroy(true);
+        }
+    });
+
+    box.remove();
+}
 
 </script>
 <script>
@@ -617,3 +597,5 @@
 </script>
 
 @endpush
+
+
