@@ -1,0 +1,10 @@
+dn: uid=anup,ou=users,dc=mycompany,dc=local
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: AnupLdap
+sn: Anup
+uid: anup
+mail: anup@test.local
+userPassword: secret123

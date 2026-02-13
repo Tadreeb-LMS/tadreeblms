@@ -183,8 +183,24 @@ class RolesController extends Controller
         if (! Gate::allows('role_delete')) {
             return abort(401);
         }
+
+        // Prevent deleting system roles 1,2,3
+        if (in_array($id, [1,2,3])) {
+            return redirect()->route('admin.roles.index')->withFlashDanger('This role cannot be deleted.');
+        }
+
         $role = Role::findOrFail($id);
-        $role->delete();
+        $fallbackRole = Role::find(3);
+
+        \DB::transaction(function () use ($role, $fallbackRole) {
+            if ($fallbackRole) {
+                $users = \App\Models\Auth\User::role($role->name)->get();
+                foreach ($users as $user) {
+                    $user->syncRoles($fallbackRole->name);
+                }
+            }
+            $role->delete();
+        });
 
         return redirect()->route('admin.roles.index');
     }
@@ -199,12 +215,34 @@ class RolesController extends Controller
         if (! Gate::allows('role_delete')) {
             return abort(401);
         }
-        if ($request->input('ids')) {
-            $entries = Role::whereIn('id', $request->input('ids'))->get();
 
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return redirect()->route('admin.roles.index');
+        }
+
+        // Exclude protected roles 1,2,3
+        $protected = [1,2,3];
+        $toDelete = array_diff($ids, $protected);
+        if (empty($toDelete)) {
+            return redirect()->route('admin.roles.index')->withFlashDanger('No deletable roles selected.');
+        }
+
+        $fallbackRole = Role::find(3);
+
+        \DB::transaction(function () use ($toDelete, $fallbackRole) {
+            $entries = Role::whereIn('id', $toDelete)->get();
             foreach ($entries as $entry) {
+                if ($fallbackRole) {
+                    $users = \App\Models\Auth\User::role($entry->name)->get();
+                    foreach ($users as $user) {
+                        $user->syncRoles($fallbackRole->name);
+                    }
+                }
                 $entry->delete();
             }
-        }
+        });
+
+        return redirect()->route('admin.roles.index');
     }
 }

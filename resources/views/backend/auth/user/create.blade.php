@@ -9,12 +9,11 @@
 @section('content')
 <form method="POST" action="{{ route('admin.auth.user.store') }}" class="form-horizontal">
     @csrf
-
     <h4 class="pb-3 d-flex">
         @lang('labels.backend.access.users.management')
         <small class="text-muted ml-3 mt-1">@lang('labels.backend.access.users.create')</small>
     </h4>
-
+    <input type="hidden" name="return_to" value="{{ $return_to ?? '' }}">
     <div class="card">
         <div class="card-body">
 
@@ -54,7 +53,7 @@
             </div>
 
             <!-- Employee Type -->
-            <div class="form-group row">
+            <!-- <div class="form-group row">
                 <label class="col-md-2 form-control-label">Type</label>
                 <div class="col-md-10 mt-2 custom-select-wrapper">
                     <select name="employee_type" class="form-control custom-select-box">
@@ -66,7 +65,7 @@
                         <i class="fa fa-chevron-down"></i>
                     </span>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Password -->
             <div class="form-group row">
@@ -118,6 +117,7 @@
                         <span class="switch-slider" data-checked="yes" data-unchecked="no"></span>
                     </label>
                 </div>
+               
             </div>
 
             <!-- Roles -->
@@ -132,7 +132,7 @@
                                 id="role-{{ $role->id }}" class="form-check-input"
                                 {{ old('roles') && in_array($role->name, old('roles')) ? 'checked' : '' }}>
                             <label class="form-check-label" for="role-{{ $role->id }}">
-                                {{ ucwords($role->name) }}
+                                {{ $role->id == 2 ? 'Trainer' : ($role->id == 3 ? 'Trainee' : ucwords($role->name)) }}
                             </label>
                         </div>
                     @endforeach
@@ -142,7 +142,7 @@
             <!-- Form Buttons -->
             <div class="row mt-3">
                 <div class="col-12 d-flex justify-content-between">
-                    <a href="{{ route('admin.auth.user.index') }}" class="btn btn-secondary">
+                    <a href="{{ $return_to ?? route('admin.auth.user.index') }}" class="btn btn-secondary">
                         @lang('buttons.general.cancel')
                     </a>
                     <button type="submit" class="btn btn-primary">

@@ -4,7 +4,7 @@
 @section('content')
 <!-- {!! Form::open(['method' => 'POST', 'route' => ['admin.questions.store'], 'files' => true,]) !!} -->
 
-<div class="pb-3 d-flex justify-content-between align-items-center">
+<div class="pb-3 d-flex justify-content-between align-items-center addcourseheader">
        <h4>
            @lang('labels.backend.questions.edit')
        </h4>
@@ -35,14 +35,8 @@
     @endif
     <input type="hidden" name="has_option" id="has_option" value="{{ $has_option }}" />
         <div class="row">
-            <div class="col-12">
-                <!-- <label>Test</label>
-                <select class="form-control" name="test_id" id="test_id" required>
-                    <option value="">Select Test</option>
-                    @foreach($tests as $key=> $value)
-                    <option value="{{$value->id}}" @if($question->test_id==$value->id) selected  @endif>{{$value->title}}</option>
-                    @endforeach
-                </select> -->
+            <div class="col-12 col-md-6">
+               
                    <label for="course_id" class="control-label">
                     Test
                 </label>
@@ -58,9 +52,8 @@
                     </span>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-12 mt-3">
+        
+            <div class="col-12 col-md-6">
                 <label>Question Type</label>
                 <div class="custom-select-wrapper">
 
@@ -76,70 +69,75 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12 mt-3">
+            <div class="col-12 col-md-6">
+                <div class="mt-3 notextarea">
                 <label>Question </label>
                 <textarea class="form-control editor" rows="3" name="question" id="question" value="" required="required">@if(isset($question->id)){{$question->question_text}}@endif</textarea>
             </div>
-        </div>
-        <div class="cb_question_setup">
-            
-            <div class="row">
-                <div class="col-6 mt-3">
+ </div>
+
+            <div class="col-12 col-md-6 ">
+ <div class="mt-3 notextarea">
+               
                     <label>Option</label>
                     <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
-                    <button type="button" id="add_option" class="btn btn-primary pull-right mt-3">Add Option</button>
-                </div>
+                    <div class="addoptbtn">
+                    <button type="button" id="add_option" class="btn btn-primary">Add Option</button>
+                    </div>
+                    <div class="addoptiontable ">
+                         <div id="option-area"></div>
+                        </div>
+              </div>
+             
+
+
+        </div>
+
+
+
+
+        <!-- <div class="cb_question_setup">
+            
+            
 
                 <div class="col-6">
                     
-                    <!--table class="table table-bordered table-striped" id="option-area">
-                        <tbody>
-                            <tr>
-                                <th>Option</th>
-                                <th>Is Right</th>
-                            </tr>
-                            @if(isset($question->id))
-                            @php 
-                               $optiions = $question->option_json ? json_decode($question->option_json) : [];
-                            @endphp
-                            @foreach($optiions as $k=>$option)
-                            <tr>
-                                <td>{{ $option[0] }}</td>
-                                <td><input type="radio" @if($option[1] === 1) checked @endif ></td>
-                                <td><a href="javascript:void(0);" onclick="removeOptions(0)" class="btn btn-danger remove"><i class="la la-trash"></i>Remove</a></td>
-                            </tr>
-                            @endforeach
-                            @endif
-                        </tbody>
-                    </table-->
-                    <div id="option-area" style="margin-top: 44px;"></div>
+                    
+                   
                     
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12 mt-3">
+            </div> -->
+            
+        </div>
+    </div>
+
+
+
+
+<div class="row">
+                <div class="col-12 col-md-5 notextarea">
                     <label>Solution</label>
                     <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" value="$question->solution">@if(isset($question->id)){{$question->solution}}@endif</textarea>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12 mt-3">
+            
+                <div class="col-12 col-md-2">
                     <label>Marks</label>
                     <input type="number" class="form-control" name="marks" id="marks" placeholder="Enter Marks" required value="{{$question->marks}}" />
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12 mt-3">
+            
+                <div class="col-12 col-md-5 notextarea">
                     <label>Comment</label>
                     <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment">@if(isset($question->id)){{$question->comment}}@endif</textarea>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 text-right mb-3">
+
+
+
+<div class="btmbtns">
+    <div class="col-12 text-right t-3">
         {!! Form::button(trans('strings.backend.general.app_save'), ['class' => 'add-btn', 'id'=>'save']) !!}
     </div>
-</div>
+</div></div>
 
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.8.0/ckeditor.js"></script>

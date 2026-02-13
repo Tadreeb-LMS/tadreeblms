@@ -104,9 +104,9 @@
 
         @can('trainee_create')
         <div>
-            <a href="{{ route('admin.employee.create') }}">
+            <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.employee.index')]) }}">
                 <button type="button" class="add-btn">
-                    @lang('strings.backend.general.app_add_new')
+                    Add More Trainees
                 </button>
             </a>
         </div>
@@ -177,7 +177,9 @@
                         <th>@lang('labels.backend.teachers.fields.email')</th>
                         <th>@lang('Department')</th>
                         <th>@lang('Position')</th>
+                        @if(request('show_deleted') != 1)
                         <th>@lang('labels.backend.teachers.fields.status')</th>
+                        @endif
 
                         <th style="text-align:center;">@lang('strings.backend.general.actions')</th>
                     </tr>
@@ -270,46 +272,31 @@
                 
                 ajax: route,
                 columns: [
-                    
-                    // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
-                    {
-                        data: "id",
-                        name: 'id'
-                    },
-                    {
-                        data: "emp_id",
-                        name: 'emp_id'
-                    },
-                    {
-                        data: "first_name",
-                        name: 'first_name'
-                    },
-                    {
-                        data: "last_name",
-                        name: 'last_name'
-                    },
-                    {
-                        data: "email",
-                        name: 'email'
-                    },
-                    {
-                        data: "department",
-                        name: 'department'
-                    },
-                    {
-                        data: "position",
-                        name: 'position'
-                    },
-                    //{data: "qr_code", name: 'qr_code'},
-                    {
-                        data: "status",
-                        name: 'status'
-                    },
-                    {
-                        data: "actions",
-                        name: 'actions'
-                    }
-                ],
+                    @can('category_delete')
+        @if (request('show_deleted') != 1)
+            {
+                data: null,
+                name: 'checkbox',
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    return '<input type="checkbox" class="mass" name="ids[]" value="'+row.id+'"/>';
+                }
+            },
+        @endif
+    @endcan
+    { data: "id", name: 'id' },
+    { data: "emp_id", name: 'emp_id' },
+    { data: "first_name", name: 'first_name' },
+    { data: "last_name", name: 'last_name' },
+    { data: "email", name: 'email' },
+    { data: "department", name: 'department' },
+    { data: "position", name: 'position' },
+    @if (request('show_deleted') != 1)
+    { data: "status", name: 'status' },
+    @endif
+    { data: "actions", name: 'actions' }
+],
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",

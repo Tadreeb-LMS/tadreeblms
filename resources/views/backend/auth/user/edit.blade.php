@@ -75,7 +75,7 @@
                 </div>
             </div>
 
-            {{-- Employee Type --}}
+            <!-- {{-- Employee Type --}}
             <div class="form-group row">
                 <label class="col-md-2">Type</label>
                 <div class="col-md-10 mt-2">
@@ -85,7 +85,7 @@
                         <option value="external" {{ $user->employee_type == 'external' ? 'selected' : '' }}>External</option>
                     </select>
                 </div>
-            </div>
+            </div> -->
 
                 <!-- Change Password Toggle -->
                 <div class="form-group row">

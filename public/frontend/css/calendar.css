@@ -1,0 +1,54 @@
+/* =====================================================
+   FullCalendar buttons = Add New Course button
+   Source of truth: .userheading .btn-primary
+   ===================================================== */
+
+/* Reset FullCalendar default styles */
+.fc .fc-button {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Apply SAME style as Add New Course */
+.fc .fc-button {
+    background: linear-gradient(45deg, #233e74 0%, #c1902d 100%) !important;
+    color: #ffffff !important;
+
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+
+    border-radius: 4px;
+    transition: all 0.3s ease !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover = SAME hover as Add New Course */
+.fc .fc-button:hover {
+    background: linear-gradient(45deg, #c1902d 0%, #233e74 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    color: #ffffff !important;
+}
+
+/* Active / pressed */
+.fc .fc-button:active,
+.fc .fc-button.fc-button-active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Disabled state */
+.fc .fc-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Button spacing */
+.fc .fc-button-group > .fc-button {
+    margin-right: 10px;
+}

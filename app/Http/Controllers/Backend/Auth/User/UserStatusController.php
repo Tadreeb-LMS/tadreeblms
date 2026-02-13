@@ -6,6 +6,7 @@ use App\Models\Auth\User;
 use App\Http\Controllers\Controller;
 use App\Repositories\Backend\Auth\UserRepository;
 use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
+use App\Services\LicenseService;
 
 /**
  * Class UserStatusController.
@@ -59,6 +60,9 @@ class UserStatusController extends Controller
     {
         $this->userRepository->mark($user, $status);
 
+        // Sync all users to Keygen
+        app(LicenseService::class)->syncUsersToKeygen();
+
         return redirect()->route(
             $status == 1 ?
             'admin.auth.user.index' :
@@ -77,6 +81,9 @@ class UserStatusController extends Controller
     public function delete(ManageUserRequest $request, User $deletedUser)
     {
         $this->userRepository->forceDelete($deletedUser);
+
+        // Sync all users to Keygen
+        app(LicenseService::class)->syncUsersToKeygen();
 
         return redirect()->route('admin.auth.user.deleted')->withFlashSuccess(__('alerts.backend.users.deleted_permanently'));
     }

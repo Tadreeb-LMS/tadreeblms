@@ -17,6 +17,8 @@ use App\Events\Backend\Auth\User\UserReactivated;
 use App\Events\Backend\Auth\User\UserUnconfirmed;
 use App\Events\Backend\Auth\User\UserPasswordChanged;
 use App\Notifications\Backend\Auth\UserAccountActive;
+use App\Notifications\Backend\UserAuthNotification;
+use App\Services\NotificationSettingsService;
 use App\Events\Backend\Auth\User\UserPermanentlyDeleted;
 use App\Notifications\Frontend\Auth\UserNeedsConfirmation;
 
@@ -105,7 +107,7 @@ class UserRepository extends BaseRepository
             $user = parent::create([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
-                'employee_type' => $data['employee_type'],
+                // 'employee_type' => $data['employee_type'],
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'active' => isset($data['active']) && $data['active'] == '1' ? 1 : 0,
@@ -127,6 +129,18 @@ class UserRepository extends BaseRepository
                 // Add selected roles/permissions
                 $user->syncRoles($data['roles']);
                 $user->syncPermissions($data['permissions']);
+
+                // Role assigned notification
+                try {
+                    $ns = app(NotificationSettingsService::class);
+                    if ($ns->shouldNotify('users', 'role_assigned', 'email')) {
+                        $roleNames = implode(', ', $data['roles']);
+                        UserAuthNotification::sendRoleAssignedEmail($user, $roleNames);
+                        UserAuthNotification::createRoleAssignedBell($user, $roleNames);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Role assigned notification failed: ' . $e->getMessage());
+                }
 
                 if(in_array('teacher',$data['roles'])){
                     //$user->teacherProfile()->create();
@@ -170,11 +184,23 @@ class UserRepository extends BaseRepository
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
-                'employee_type' => $data['employee_type'],
+//'employee_type' => $data['employee_type'],
             ])) {
                 // Add selected roles/permissions
                 $user->syncRoles($data['roles']);
                 //$user->syncPermissions($data['permissions']);
+
+                // Role assigned notification
+                try {
+                    $ns = app(NotificationSettingsService::class);
+                    if ($ns->shouldNotify('users', 'role_assigned', 'email')) {
+                        $roleNames = implode(', ', $data['roles']);
+                        UserAuthNotification::sendRoleAssignedEmail($user, $roleNames);
+                        UserAuthNotification::createRoleAssignedBell($user, $roleNames);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Role assigned notification failed: ' . $e->getMessage());
+                }
 
                 event(new UserUpdated($user));
 
