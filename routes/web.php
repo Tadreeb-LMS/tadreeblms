@@ -22,7 +22,7 @@ use App\Http\Controllers\Frontend\Auth\LoginController;
 
 Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 
-Route::get('syncCourseAssignmentAndSubscribeCourseData', function () {
+Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
 });
 
@@ -309,5 +309,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'user'], function () {
 Route::get('my-pathwaycourses/data', [CoursesController::class, 'getMyPathWayCoursesData'])->name('user.mypathwaycourses.getdata');
 
     Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
-        Route::get('/{page?}', [HomeController::class, 'index'])->name('index');
-    });
+    Route::get('/', [HomeController::class, 'index'])->name('index');
+});
+
+Route::get('/home', [HomeController::class, 'index'])->name('home');
