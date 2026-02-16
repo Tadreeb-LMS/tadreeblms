@@ -69,20 +69,11 @@
     </style>
 @endpush
 @section('content')
-    <form method="POST" action="{{ route('admin.general-settings') }}" id="general-settings-form" class="form-horizontal" enctype="multipart/form-data">
-    @csrf
+    
 
     <div class="card">
         <div class="card-body">
-            {{-- <div class="col-md-3 mb-4 pl-0 custom-select-wrapper">
-                <select name="lang" id="change-lang" class="form-control custom-select-box">
-                    <option value="en" @if (request()->lang == 'en') selected @endif>English</option>
-                    <option value="ar" @if (request()->lang == 'ar') selected @endif>Arabic</option>
-                </select>
-                <span class="custom-select-icon" style="right: 23px;">
-                <i class="fa fa-chevron-down"></i>
-                </span>
-            </div> --}}
+            
             <div class="row">
                 <div class="col-sm-12">
                     <ul class="nav main-nav-tabs nav-tabs">
@@ -118,13 +109,28 @@
 
                             <!-- App Name -->
                             <div class="form-group row">
-                                <label for="app_name" class="col-md-2 form-control-label">
-                                    {{ __('labels.backend.general_settings.app_name') }}
+                                <label for="app_name" class="col-md-4 form-control-label">
+                                    {{ __('labels.backend.general_settings.disable_landing_page') }}
                                 </label>
-                                <div class="col-md-10">
-                                    <input type="text" name="app_name" id="app_name" class="form-control"
-                                        placeholder="{{ __('labels.backend.general_settings.app_name') }}"
-                                        maxlength="191" value="{{ config('app.name') }}" autofocus>
+                                <div class="col-md-8">
+                                    <form method="POST"
+                                        action="{{ route('admin.landing-general-settings') }}"
+                                        id="landing-general-settings-form"
+                                        class="form-horizontal">
+                                        @csrf
+                                        
+                                        <label class="switch switch-lg switch-3d switch-primary">
+                                            <input type="checkbox"
+                                                id="landing_page_toggle"
+                                                class="switch-input"
+                                                name="landing_page_toggle"
+                                                value="1"
+                                                {{ $landing_page_toggle == 1 ? 'checked' : '' }}
+                                                onchange="this.form.submit();">
+                                            <span class="switch-label"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                    </form>
                                 </div>
                             </div>
 
@@ -548,58 +554,35 @@
                     </div>
                 </div>
 
-<div id="language_settings" class="tab-pane container fade">
-    <div class="row mt-4 mb-4">
-        <div class="col">
-
-            <div class="form-group row">
-                <label class="col-md-2 form-control-label" for="default_language">
-                    {{ __('labels.backend.general_settings.language_settings.default_language') }}
-                </label>
-                <div class="col-md-10">
-                    <select class="form-control" id="app_locale" name="app__locale">
-                        @foreach ($app_locales as $lang)
-                            <option data-display-type="{{ $lang->display_type }}"
-                                value="{{ $lang->short_name }}"
-                                @if ($lang->is_default) selected @endif>
-                                {{ trans('menus.language-picker.langs.' . $lang->short_name) }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <label class="col-md-2 form-control-label" for="display_type">
-                    {{ __('labels.backend.general_settings.language_settings.display_type') }}
-                </label>
-                <div class="col-md-10">
-                    <select class="form-control" id="app_display_type" name="app__display_type">
-                        <option value="ltr" @if (config('app.display_type') == 'ltr') selected @endif>
-                            @lang('labels.backend.general_settings.language_settings.left_to_right')
-                        </option>
-                        <option value="rtl" @if (config('app.display_type') == 'rtl') selected @endif>
-                            @lang('labels.backend.general_settings.language_settings.right_to_left')
-                        </option>
-                    </select>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
             </div>
         </div>
     </div>
-    </form>
+    
 @endsection
 
 
 @push('after-scripts')
     <script src="{{ asset('plugins/bootstrap-iconpicker/js/bootstrap-iconpicker.bundle.min.js') }}"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let submitting = false;
+
+            const toggle = document.getElementById('landing_page_toggle');
+            const form   = document.getElementById('landing-general-settings-form');
+
+            if (toggle && form) {
+                toggle.addEventListener('change', function () {
+                    if (submitting) return;
+                    submitting = true;
+                    form.submit();
+                });
+            }
+        });
+    </script>
+    <script>
         $(document).ready(function() {
+
+
 
             @if (request()->has('tab'))
                 var tab = "{{ request('tab') }}";
@@ -709,141 +692,16 @@
             });
 
 
-            //============== Captcha status =============//
-            $(document).on('click', '#captcha_status', function(e) {
-                //              e.preventDefault();
-                if ($('#captcha-credentials').hasClass('d-none')) {
-                    $('#captcha_status').attr('checked', 'checked');
-                    $('#captcha-credentials').find('input').attr('required', true);
-                    $('#captcha-credentials').removeClass('d-none');
-                } else {
-                    $('#captcha-credentials').addClass('d-none');
-                    $('#captcha-credentials').find('input').attr('required', false);
-                }
-            });
+            
 
-            //============== One Signal status =============//
-            $(document).on('click', '#onesignal_status', function(e) {
-                //              e.preventDefault();
-                if ($('#onesignal-configuration').hasClass('d-none')) {
-                    console.log('here')
-                    $('#onesignal_status').attr('checked', 'checked');
-                    $('#onesignal-configuration').removeClass('d-none').find('textarea').attr('required',
-                        true);
-                } else {
-                    $('#onesignal-configuration').addClass('d-none').find('textarea').attr('required',
-                        false);
-                }
-            });
+            
 
 
-            //===== Counter value on change ==========//
-            $(document).on('change', '#counter', function() {
-                if ($(this).val() == 1) {
-                    $('.counter-container').empty().removeClass('d-none');
-                    var html =
-                        "<input class='form-control my-2' type='text' id='total_students' name='total_students' placeholder='" +
-                        "{{ __('labels.backend.general_settings.total_students') }}" +
-                        "'><input type='text' id='total_courses' class='form-control mb-2' name='total_courses' placeholder='" +
-                        "{{ __('labels.backend.general_settings.total_courses') }}" +
-                        "'><input type='text' class='form-control mb-2' id='total_teachers' name='total_teachers' placeholder='" +
-                        "{{ __('labels.backend.general_settings.total_teachers') }}" + "'>";
-
-                    $('.counter-container').append(html);
-                } else {
-                    $('.counter-container').addClass('d-none');
-                }
-            });
 
 
-            //========== Preview image function on upload =============//
-            var previewImage = function(input, block) {
-                var fileTypes = ['jpg', 'jpeg', 'png', 'gif'];
-                var extension = input.files[0].name.split('.').pop().toLowerCase();
-                var isSuccess = fileTypes.indexOf(extension) > -1;
-
-                if (isSuccess) {
-                    var reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        $(block).find('img').attr('src', e.target.result);
-                    };
-                    reader.readAsDataURL(input.files[0]);
-                } else {
-                    alert('Please input valid file!');
-                }
-
-            };
-            $(document).on('change', 'input[type="file"]', function() {
-                previewImage(this, $(this).data('preview'));
-            });
 
 
-            //========== Registration fields status =========//
-            @if (config('registration_fields') != null)
-                var fields = "{{ config('registration_fields') }}";
-
-                fields = JSON.parse(fields.replace(/&quot;/g, '"'));
-
-                $(fields).each(function(key, element) {
-                    appendElement(element.type, element.name);
-                    $('.input-list').find('[data-name="' + element.name + '"]').attr('checked', true)
-
-                });
-            @endif
-
-
-            //======= Saving settings for All tabs =================//
-            $(document).on('submit', '#general-settings-form', function(e) {
-                //                e.preventDefault();
-
-                //======Saving Layout sections details=====//
-                var sections = $('#sections').find('input[type="checkbox"]');
-                var title, name, status;
-                var sections_data = {};
-                $(sections).each(function() {
-                    if ($(this).is(':checked')) {
-                        status = 1
-                    } else {
-                        status = 0
-                    }
-                    name = $(this).attr('id');
-                    title = $(this).parent('label').siblings('.title').html();
-                    sections_data[name] = {
-                        title: title,
-                        status: status
-                    }
-                });
-                $('#section_data').val(JSON.stringify(sections_data));
-
-                //=========Saving Registration fields ===============//
-                var inputName, inputType;
-                var fieldsData = [];
-                var registrationFields = $('.input-list').find('.option:checked');
-                $(registrationFields).each(function(key, value) {
-                    inputName = $(value).attr('data-name');
-                    inputType = $(value).attr('data-type');
-                    fieldsData.push({
-                        name: inputName,
-                        type: inputType
-                    });
-                });
-                $('#registration_fields').val(JSON.stringify(fieldsData));
-
-            });
-
-
-            //==========Hiding sections on Theme layout option changed ==========//
-            $(document).on('change', '#theme_layout', function() {
-                var theme_layout = "{{ config('theme_layout') }}";
-                if ($(this).val() != theme_layout) {
-                    $('#sections').addClass('d-none');
-                    $('#sections_note').removeClass('d-none')
-                } else {
-                    $('#sections').removeClass('d-none');
-                    $('#sections_note').addClass('d-none')
-                }
-            });
+         
 
             @if (request()->has('tab'))
                 var tab = "{{ request('tab') }}";
@@ -866,122 +724,6 @@
         })
 
 
-        //On Default language change update Display type RTL/LTR
-        $(document).on('change', '#app_locale', function() {
-            var display_type = $(this).find(":selected").data('display-type');
-            $('#app_display_type').val(display_type)
-        });
-
-
-        //On click add input list
-        $(document).on('click', '.input-list input[type="checkbox"]', function() {
-
-            var html;
-            var type = $(this).data('type');
-            var name = $(this).data('name');
-            var textInputs = ['text', 'date', 'number'];
-            if ($(this).is(':checked')) {
-                appendElement(type, name)
-            } else {
-                if ((textInputs.includes(type)) || (type == 'textarea')) {
-                    $('.input-boxes').find('[data-name="' + name + '"]').parents('.form-group').remove();
-                } else if (type == 'radio') {
-                    $('.input-boxes').find('.radiogroup').remove();
-                }
-            }
-        });
-
-
-        //Revoke App Client Secret
-        $(document).on('click', '.revoke-api-client', function() {
-            var api_id = $(this).data('id');
-            $.ajax({
-                url: '{{ route('admin.api-client.status') }}',
-                type: 'POST',
-                dataType: 'JSON',
-                data: {
-                    'api_id': api_id,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.status == 'success') {
-                        window.location.href =
-                            '{{ route('admin.general-settings', ['tab' => 'api_client_settings']) }}'
-
-                    } else {
-                        alert(
-                            "{{ __('labels.backend.general_settings.api_clients.something_went_wrong') }}"
-                        );
-                    }
-
-                }
-            })
-        });
-
-        $(document).on('click', '.generate-client', function() {
-            var api_client_name = $('#api_client_name').val();
-
-            if ($.trim(api_client_name).length > 0) { // zero-length string AFTER a trim
-                $.ajax({
-                    url: '{{ route('admin.api-client.generate') }}',
-                    type: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        'api_client_name': api_client_name,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.status == 'success') {
-                            window.location.href =
-                                '{{ route('admin.general-settings', ['tab' => 'api_client_settings']) }}'
-
-                        } else {
-                            alert(
-                                "{{ __('labels.backend.general_settings.api_clients.something_went_wrong') }}"
-                            );
-                        }
-
-                    }
-                })
-            } else {
-                $('#api_client_name_error').text(
-                    "{{ __('labels.backend.general_settings.api_clients.please_input_api_client_name') }}");
-            }
-
-        });
-
-        function appendElement(type, name) {
-            var values =
-                "{{ json_encode(Lang::get('labels.backend.general_settings.user_registration_settings.fields')) }}";
-            values = JSON.parse(values.replace(/&quot;/g, '"'));
-            var textInputs = ['text', 'date', 'number'];
-            var html;
-            if (textInputs.includes(type)) {
-                html = "<div class='form-group'>" +
-                    "<input type='" + type + "' readonly data-name='" + name + "' placeholder='" + values[name] +
-                    "' class='form-control'>" +
-                    "</div>";
-            } else if (type == 'radio') {
-                html = "<div class='form-group radiogroup'>" +
-                    "<label class='radio-inline mr-3'><input type='radio' data-name='optradio'> {{ __('labels.backend.general_settings.user_registration_settings.fields.male') }} </label>" +
-                    "<label class='radio-inline mr-3'><input type='radio' data-name='optradio'> {{ __('labels.backend.general_settings.user_registration_settings.fields.female') }}</label>" +
-                    "<label class='radio-inline mr-3'><input type='radio' data-name='optradio'> {{ __('labels.backend.general_settings.user_registration_settings.fields.other') }}</label>" +
-                    "</div>";
-            } else if (type == 'textarea') {
-                html = "<div class='form-group'>" +
-                    "<textarea  readonly data-name='" + name + "' placeholder='" + values[name] +
-                    "' class='form-control'></textarea>" +
-                    "</div>";
-            }
-            $('.input-boxes').append(html)
-        }
-
-        $('#change-lang').change(function(e) {
-            e.preventDefault();
-            let params = new URLSearchParams(window.location.search);
-            const slug = params.get('slug');
-            window.location.href = window.location.origin + window.location.pathname +
-                `?&lang=${$(this).val()}`
-        });
+        
     </script>
 @endpush

@@ -20,6 +20,8 @@
 @endsection
 
 @section('content')
+@include('backend.includes.license-warning')
+
 <div class="pb-3 d-flex justify-content-between align-items-center">
     <h4>
            {{ __('labels.backend.access.users.management') }}
@@ -45,6 +47,7 @@
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.first_name')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.last_name')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.email')</th>
+                                <th style="width: 100px;">@lang('Department')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.confirmed')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.roles')</th>
                                 <th style="width: 130px;">@lang('labels.backend.access.users.table.other_permissions')</th>
@@ -134,8 +137,17 @@
                     {data: "first_name", name: 'first_name'},
                     {data: "last_name", name: 'last_name'},
                     {data: "email", name: "email"},
+                    {data: "department", name: "department", orderable: false, searchable: false},
                     {data: "confirmed_label", name: "confirmed_label"},
-                    {data: "roles_label", name: "roles.name"},
+                    {data: "roles", name: "roles.name", render: function(data, type, row) {
+                        if (!data || data.length === 0) return 'N/A';
+                        var mapped = data.map(function(r) {
+                            if (r.id == 2) return 'Trainer';
+                            if (r.id == 3) return 'Trainee';
+                            return r.name;
+                        });
+                        return mapped.join(', ');
+                    }},
                     {data: "permissions_label", name: "permissions.name"},
                     {data: "social_buttons", name: "social_accounts.provider", "searchable": false},
                     {data: "last_updated", name: "last_updated"},

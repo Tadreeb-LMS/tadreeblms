@@ -59,8 +59,9 @@
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
     <script src="{{ asset('/vendor/unisharp/laravel-ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js') }}">
     </script>
+    <script src="{{ asset('assets/js/jquery-2.1.4.min.js') }}"></script>
     <script>
-        hljs.initHighlightingOnLoad();
+        // hljs.initHighlightingOnLoad();
     </script>
 
     @yield('css')
@@ -143,19 +144,21 @@
                 
                 <ul class="navbar-nav ul-li ml-auto sm-rl-space">
 
-                    <li class="px-lg-4 hamburger-top-space sm-tb-space">
-                        <form action="/search" method="get" id="searchform">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text searchcourse" id="basic-addon1"><i
-                                            class="bi bi-search" onclick="submit()"></i></span>
+                    @if($disabled_landing_page == 0)
+                        <li class="px-lg-4 hamburger-top-space sm-tb-space">
+                            <form action="/search" method="get" id="searchform">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text searchcourse" id="basic-addon1"><i
+                                                class="bi bi-search" onclick="submit()"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="q"
+                                        placeholder="@lang('Search for course')" aria-label="Username" required
+                                        aria-describedby="basic-addon1">
                                 </div>
-                                <input type="text" class="form-control" name="q"
-                                    placeholder="@lang('Search for course')" aria-label="Username" required
-                                    aria-describedby="basic-addon1">
-                            </div>
-                        </form>
-                    </li>
+                            </form>
+                        </li>
+                    @endif
                     
                     @if (count($custom_menus) > 0)
                         @foreach ($custom_menus as $menu)
@@ -216,7 +219,11 @@
                     @else
                         <li class="sm-tb-space">
                             <div class="log-in">
+                                @if($disabled_landing_page == 0)
                                 <a id="openLoginModal" data-target="#myModal" href="#">@lang('navs.general.login')</a>
+                                @else 
+                                <a href="{{ route('frontend.auth.login') }}">@lang('navs.general.login')</a>
+                                @endif
                                 {{-- @include('frontend.layouts.modals.loginModal') --}}
 
                             </div>
@@ -229,61 +236,39 @@
 
                             </div>
                         </li>
-                        <li class="sm-tb-space">
-                            <div class="cart-search float-lg-right ul-li">
-                                <ul class="lock-icon">
-                                    <li>
-                                        <a href="{{ route('cart.index') }}"><i class="fas fa-shopping-bag"></i>
-                                            @if (auth()->check() && Cart::session(auth()->user()->id)->getTotalQuantity() != 0)
-                                                <span
-                                                    class="badge badge-danger position-absolute">{{ Cart::session(auth()->user()->id)->getTotalQuantity() }}</span>
-                                            @endif
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
+                        @if($disabled_landing_page == 0)
+                            <li class="sm-tb-space">
+                                <div class="cart-search float-lg-right ul-li">
+                                    <ul class="lock-icon">
+                                        <li>
+                                            <a href="{{ route('cart.index') }}"><i class="fas fa-shopping-bag"></i>
+                                                @if (auth()->check() && Cart::session(auth()->user()->id)->getTotalQuantity() != 0)
+                                                    <span
+                                                        class="badge badge-danger position-absolute">{{ Cart::session(auth()->user()->id)->getTotalQuantity() }}</span>
+                                                @endif
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        @endif
                     @endif
-                    @if (count($locales) > 1)
-                        <!--li class="menu-item-has-children ul-li-block">
-                                                <a href="#">
-                                                    <span class="d-md-down-none">@lang('menus.language-picker.language')
-                                                        ({{ strtoupper(app()->getLocale()) }})</span>
-                                                </a>
-                                                <ul class="sub-menu">
-                                                    @foreach ($locales as $lang)
-@if ($lang != app()->getLocale())
-<li>
-                                                                <a href="{{ '/lang/' . $lang }}"
-                                                                   class=""> @lang('menus.language-picker.langs.' . $lang)</a>
-                                                            </li>
-@endif
-@endforeach
-                                                </ul>
-                                            </li-->
-                    @endif
-
+                    
                 </ul>
-                <!-- </div>
-    </div> -->
-                <!-- <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form> -->
+               
             </div>
         </nav>
 
-        <!-- Start of Header section
-            ============================================= -->
-
+        
 
         @yield('content')
         @include('cookieConsent::index')
 
+        @if(1)
+            @include('frontend.layouts.partials.footer')
+        @endif
 
-        @include('frontend.layouts.partials.footer')
-
-    </div><!-- #app -->
+    </div>
 
     <!-- Scripts -->
 

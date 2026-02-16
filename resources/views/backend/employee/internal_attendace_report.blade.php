@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', 'Internal Attendance Report' . ' | ' . app_name())
+@section('title', 'Attendance Report' . ' | ' . app_name())
 @push('after-styles')
 
 
@@ -80,7 +80,7 @@ top: 7px !important;
 @endpush
 @section('content')
 <div class="pb-3 align-items-center d-flex justify-content-between">
-    <h5>@lang('Internal Attendance Report')</h5>
+    <h5>@lang('Attendance Report')</h5>
     {{-- <a href="{{ asset('/storage/exports/internal_attendance_report.csv') }}">Download CSV Report</a> --}}
     <div id="download_link" style="display: none;">
         {{-- <a id="download_link_anchor" href="" download>Download CSV Report</a> --}}
@@ -241,7 +241,6 @@ top: 7px !important;
                         <thead>
                             <tr>
                                 <th style="width:80px">@lang('EID')</th>
-                                <th style="width:120px">@lang('Trainee Type')</th>
                                 <th style="width:120px">@lang('User Status')</th>
                                 <th style="width:80px">@lang('Name')</th>
                                 <th style="width:80px">@lang('Email')</th>
@@ -515,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 columns: [
                     { data: 'emp_id', orderable: false },
-                    { data: 'emp_type', orderable: false },
                     { data: 'user_status', orderable: false },
                     { data: 'emp_name', orderable: false },
                     { data: 'emp_email', orderable: false },
@@ -657,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ajax: route,
                  columns: [
                       { data: 'emp_id', name: 'emp_id', orderable: false },
-                         { data: 'emp_type', name: 'emp_type', orderable: false },
                          { data: 'user_status', name: 'user_status', orderable: false },
                          { data: 'emp_name', name: 'emp_name', orderable: false },
                          { data: 'emp_email', name: 'emp_email', orderable: false },

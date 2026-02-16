@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Response;
 use PDF;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Yajra\DataTables\Facades\DataTables;
+use App\Notifications\Backend\CertificateNotification;
+use App\Services\NotificationSettingsService;
 
 class CertificateController extends Controller
 {
@@ -177,8 +179,6 @@ class CertificateController extends Controller
             $certificate->name = $user->name;
             $certificate->url = $certificate_name;
             $certificate->save();
-
-            //return view('certificate.index', compact('data'));
 
             $pdf = PDF::loadView('certificate.index', compact('data'));
             $pdf->setPaper('A4', 'landscape');

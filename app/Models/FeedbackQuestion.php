@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class FeedbackQuestion extends Model
 {
+    
     use SoftDeletes;
     protected $fillable = ['temp_id','question', 'created_by', 'question_type', 'solution', 'option_json'];
 
@@ -55,5 +56,13 @@ class FeedbackQuestion extends Model
     public function tests()
     {
         return $this->hasMany(CourseFeedback::class, 'feedback_question_id');
+    }
+
+    /**
+     * Get the feedback options for this question
+     */
+    public function feedbackOptions()
+    {
+        return $this->hasMany(FeedbackOption::class, 'question_id');
     }
 }

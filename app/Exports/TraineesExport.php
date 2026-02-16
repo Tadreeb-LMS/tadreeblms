@@ -15,7 +15,7 @@ class TraineesExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        $records = User::query()->role('student')->where('employee_type', 'internal')->groupBy('email')->orderBy('created_at', 'desc')->get();
+        $records = User::query()->role('student')->groupBy('email')->orderBy('created_at', 'desc')->get();
         return $records;  // Modify this to filter data if needed
     }
 

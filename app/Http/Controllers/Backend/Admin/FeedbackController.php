@@ -159,6 +159,7 @@ class FeedbackController extends Controller
         $courses = Course::all();
         $questions = FeedbackQuestion::get()->pluck('question', 'id');
 
+
         return view('backend.feedback.course_feedback', compact('courses', 'questions'));
     }
 

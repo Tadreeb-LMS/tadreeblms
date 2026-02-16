@@ -14,6 +14,9 @@ use App\Http\Requests\Backend\Auth\User\StoreUserRequest;
 use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
 use App\Http\Requests\Backend\Auth\User\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
+use App\Services\LicenseService;
+use App\Models\Department;
+use App\Models\EmployeeProfile;
 
 /**
  * Class UserController.
@@ -61,8 +64,6 @@ class UserController extends Controller
      */
     public function getData(Request $request)
     {
-
-        
         if($request->role &&  $request->role != ""){
             $users = User::role($request->role)->with('roles', 'permissions', 'providers')
                 ->orderBy('users.created_at', 'desc');
@@ -86,10 +87,11 @@ class UserController extends Controller
             ->addColumn('social_buttons', function ($q)  {
                 return ($q->social_buttons) ?? 'N/A';
             })
+            ->addColumn('department', function ($q) {
+                return optional(optional($q->employee)->department_details)->title ?? '-';
+            })
             ->addColumn('updated_at', function ($q)  {
-                \Log::info($q);
-
-                return $q->updated_at->diffForHumans();
+                return $q->updated_at ? $q->updated_at->diffForHumans() : '-';
             })
             ->addColumn('last_updated', function ($q)  {
                 return $q->updated_at->diffForHumans();
@@ -110,9 +112,10 @@ class UserController extends Controller
      */
     public function create(ManageUserRequest $request, RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
-        return view('backend.auth.user.create')
+        return view('backend.auth.user.create', ['return_to' => $request->input('return_to')])
             ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
-            ->withPermissions($permissionRepository->get(['id', 'name']));
+            ->withPermissions($permissionRepository->get(['id', 'name']))
+            ->withDepartments(Department::where('published', 1)->orderBy('title')->get());
     }
 
     /**
@@ -123,8 +126,8 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        // echo '<pre>'; print_r($request->all());die;
-        $this->userRepository->create($request->only(
+        \Log::debug('User store return_to', ['return_to' => $request->input('return_to')]);
+        $user = $this->userRepository->create($request->only(
             'first_name',
             'last_name',
             'email',
@@ -134,9 +137,29 @@ class UserController extends Controller
             'confirmation_email',
             'roles',
             'permissions',
-            'employee_type'
         ));
 
+        // Save department to employee profile if provided
+        if ($request->filled('department')) {
+            EmployeeProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                ['department' => $request->department]
+            );
+        }
+
+        // Sync all users to Keygen
+        try {
+            $result = app(LicenseService::class)->syncUsersToKeygen();
+            \Log::info('User created - Keygen sync result', $result);
+        } catch (\Exception $e) {
+            \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
+        }
+
+        $returnTo = $request->input('return_to');
+    
+        if ($returnTo) {
+            return redirect($returnTo)->withFlashSuccess(__('alerts.backend.users.created'));
+        }
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.created'));
     }
 
@@ -167,7 +190,8 @@ class UserController extends Controller
             ->withRoles($roleRepository->get())
             ->withUserRoles($user->roles->pluck('name')->all())
             ->withPermissions($permissionRepository->get(['id', 'name']))
-            ->withUserPermissions($user->permissions->pluck('name')->all());
+            ->withUserPermissions($user->permissions->pluck('name')->all())
+            ->withDepartments(Department::where('published', 1)->orderBy('title')->get());
     }
 
     /**
@@ -186,9 +210,9 @@ class UserController extends Controller
             'last_name',
             'email',
             'roles',
-            'permissions',
-            'employee_type'
+            'permissions'
         );
+        //'employee_type'
        // Update password ONLY if user chose to change it
         if ($request->boolean('change_password') && $request->filled('password')) {
             $data['password'] = Hash::make( $request->password );
@@ -198,14 +222,14 @@ class UserController extends Controller
         //dd();
 
         $this->userRepository->update($user, $data);
-        // $this->userRepository->update($user, $request->only(
-        //     'first_name',
-        //     'last_name',
-        //     'email',
-        //     'roles',
-        //     'permissions',
-        //     'employee_type'
-        // ));
+
+        // Save department to employee profile if provided
+        if ($request->filled('department')) {
+            EmployeeProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                ['department' => $request->department]
+            );
+        }
 
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.updated'));
     }

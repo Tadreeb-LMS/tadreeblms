@@ -21721,13 +21721,13 @@ a.dt-button.active:not(.disabled):hover:not(.disabled) {
 .pill-publish {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background-color: #d9f8eb;
+  background-color: #42a55c;
   /* Bootstrap success green */
-  color: var(--primary);
-  border-radius: 5px;
+  color: #fff !important;
+  border-radius: 30px;
   /* Makes it pill-shaped */
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 400;
+  font-size: 13px;
   text-align: center;
   white-space: nowrap;
   margin-bottom: 0;
@@ -21749,18 +21749,16 @@ a.dt-button.active:not(.disabled):hover:not(.disabled) {
 }
 
 .pill-unpublish {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background-color: #ccc;
-  /* Bootstrap success green */
-  color: var(--primary);
-  border-radius: 5px;
-  /* Makes it pill-shaped */
-  font-weight: 500;
-  font-size: 14px;
-  text-align: center;
-  white-space: nowrap;
-  margin-bottom: 0;
+ display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #747474;
+    color: #fff;
+    border-radius: 30px;
+    font-weight: 400;
+    font-size: 13px;
+    text-align: center;
+    white-space: nowrap;
+    margin-bottom: 0;
 }
 
 .action-pill {
@@ -21799,7 +21797,7 @@ table.dataTable tbody>tr>.selected {
 
 
 .table-striped tbody tr:nth-of-type(odd) {
-  background: #D9E1F2;
+  background: #f0f1fe !important;
 }
 
 .dropdown-toggle::after {
@@ -23399,7 +23397,7 @@ div.dt-buttons {
     }
 
 .userheading h4{ margin: 0 0 10px; padding: 0 0 20px;  font-size: 18px;}
-.userheading span{ color: #004cd6;}
+ 
 .addi-info{display: flex;
     justify-content: space-between;}
 .addi-info i{ font-size: 20px; color: #004cd6;}
@@ -23445,9 +23443,9 @@ div.dt-buttons {
 .dashboardbox .card .card-body{ padding:20px 0 0;}
 .dashboardbox #myTable{     width: 99.9% !important;
     border: none !important;
-    border-right: 1px solid #c8ced3 !important; }
+    border-right: 1px solid #dcdde7 !important; }
 .dashboardbox #myTable .btn {
-    background: linear-gradient(267deg, #5da10a, #3b4188) !important;
+    
     border: none;
     font-size: 12px;
     border-radius: 30px;
@@ -23456,11 +23454,12 @@ div.dt-buttons {
 }
 table.dataTable thead th{ border: none !important;}
 .table-striped tbody tr:nth-of-type(odd) {
-    background: #f7faff !important;
+    background: #f0f1fe !important;
 }
 table.dataTable tbody th, table.dataTable tbody td {
-    padding: 8px 10px;
-    border-width: 0 0px 1px 1px;
+    padding: 20px 12px;
+    border-width: 0 0px 1px 1px; text-align: center;
+    text-transform: capitalize;
 }
 .table thead th {
     vertical-align: bottom;
@@ -23520,8 +23519,8 @@ table.dataTable tbody th, table.dataTable tbody td {
 body .sidebar .nav-dropdown-items {
     padding: 0 0 0 0px !important;
 }
-table.dataTable tbody th, table.dataTable tbody td{border: 1px solid #c8ced3 !important;
-    border-width: 0 0px 1px 1px !important;}
+table.dataTable tbody th, table.dataTable tbody td{border: 0px solid #dcdde7 !important;
+    border-width: 0 0px 0px 1px !important; border-bottom: 2px solid #fff !important; }
 table.dataTable thead th { 
     background: #e5e5e5;font-weight: 500 !important;
 }
@@ -23533,7 +23532,11 @@ table.dataTable thead th {
     #myTable .add-btn{display: inline-flex; padding: 5px 5px !important;}
     #myTable .action-pill{gap: 3px;}
     #myTable .action-pill a{ font-size: 13px;}
-    .pill-unpublish{ font-size:12px !important;}
+    .pill-unpublish{font-size: 13px !important;
+    width: 93px;
+    word-wrap: break-word !important;
+    white-space: unset;
+    line-height: 13px;}
     .dashboardbox #myTable .btn.btn-outline-success{    padding: 4px 5px 7px !important;
     border-radius: 5px;
     line-height: 10px;
@@ -23584,7 +23587,289 @@ td .dropdown-menu.show a:hover{background:none !important}
 .delete-action{margin: 0 0 20px;
     display: inline-block;}
 
+    #myTable_wrapper .add-btn{background: none !important;}
+#myTable_wrapper table.dataTable thead th{ padding: 15px 10px !important; text-align: center !important;  }
+.dashboardbox #myTable .btn{color:#000 !important; background:none !important; }
+#myTable .add-btn { 
+    color: #000 !important;
+}.btn2:hover, .btn1:hover, .viewbtn:hover, .createbtn:hover{ color: #fff !important;}
+.btn2{
+    display: inline-block;
+    padding: 5px 12px 3px;
+    border-radius: 30px;
+    background-color: #868ab4;
+    border: none;
+    color: #fff;
+    font-size: 10px;
+    white-space: nowrap;
+    margin: 2px 0;
+    font-weight: 600;
+    }
+.btn1{
+    display: inline-block;
+    padding: 5px 12px 3px;
+    font-size: 10px;
+    border-radius: 30px;
+    background-color: #d6a641;
+    border: none;
+    margin: 2px 0;
+    font-weight: 600;
+    color: #fff;
+    }
+table.dataTable tbody tr {
+    background-color: #f7f8ff;
+}
+.actionbtns {/* display: flex; */gap: 5px;justify-content: center;width: 40px;display: inline-block;width: 40px;}
 
+.viewbtn{
+    display: inline-block;
+    padding: 5px 15px 2px;
+    font-size: 10px;
+    border-radius: 30px;
+    background-color: #d6a641;
+    border: none;
+    margin: 2px 0;
+    font-weight: 600;
+    color: #fff;
+    }
+.createbtn{
+    display: inline-block;
+    padding: 5px 12px 3px;
+    border-radius: 30px;
+    background-color: #868ab4;
+    border: none;
+    color: #fff;
+    font-size: 10px;
+    white-space: nowrap;
+    margin: 2px 0;
+    font-weight: 600;
+    }
+.addcourseheader{ padding: 10px 15px 10px 30px;
+    margin: 0;
+    border-bottom: 0px solid #ccc;
+    background: #f4f4f4;
+    align-items: center;
+    border-radius: 10px; }.addcourseheader h5, .addcourseheader h4{ margin: 0 !important;}
+.coursesteps .btn-primary{    background: linear-gradient(45deg, rgb(35 62 116) 0%, rgb(35 62 116) 100%) !important; font-size: 0.75rem; border: none;}
+.addvideocol{padding: 10px;
+    background: #eeeeee66;
+    margin: 20px 0px;
+    align-items: center;
+    border-radius: 10px;}
+.blocklabel{ display: block; text-align: center;}
+.btmbtns {
+       padding: 15px 20px 20px;
+    border-top: 0px solid #ccc;
+    margin-top: 20px;
+    background: linear-gradient(180deg, #ffffff, #e8eaff);
+    border-radius: 10px;
+}
+.stepper li.completed .circle{    background: #233e74 !important;}
+.stepper li.completed:not(:last-child)::after {
+    border-top-color: #233e74 !important;
+}.stepper li.active .label {
+    color: #233e74 !important;}
+.stepper li.completed .label {
+    color: #233e74 !important;}
+.stepper li:not(:last-child)::after{border-top: 1px solid #ced4da !important;}
+.stepper li.active .circle {
+    background: #233e74 !important;}
+#addmorebtn{color: #004cd6 !important;
+    background-color: #fff;
+    border-radius: 5px !important;
+    border: 1px solid #0d6efd !important;
+    padding: 6px 20px !important;
+    outline: none;
+    text-decoration: none !important;}
 
+#nextBtn:hover, .cancel-btn:hover, #addmorebtn:hover{color: #fff !important;
+    background-color: #004cd6 !important;}
+.ortext{ padding-top: 35px;}
+.frmbm10 .row .form-group{ margin-bottom: 30px !important;}.shortext{ margin-top: 20px;}
+.shortext textarea{ height: 120px !important;}
+.ltitle{ margin-top: 30px;}
+#cke_4_contents{    height: 100px !important;}
+.permission-blocks{ margin: 0; gap: 20px;}
+.permission-blocks .mb-2.border.p-2.rounded{    width: 23.7%;
+    background: #fff; 
+    padding: 15px !important;
+    box-shadow: 0 0 0px #233e7421;
+    border-radius: 10px !important;
+    border: 1px solid #bfcde6 !important;}
+.permission-blocks .mb-2.border.p-2.rounded strong{     display: block;
+    background: #deeaff;
+    margin: -15px -15px 15px;
+    padding: 10px 15px;
+    border-radius: 10px 10px 0 0;}
+.permission-blocks .mb-2.border.p-2.rounded .form-check{background: #f2f7ff;
+    margin: -15px -15px 15px;
+    padding: 10px 35px;border-bottom: 1px solid #ddd; }
+.permission-blocks .mb-2.border.p-2.rounded .form-check.ms-3{background:unset ;
+    margin: unset;
+    padding:unset;padding-left: 1.25rem !important; border: none !important;}
+.form-check-input{    margin-top: 0.2rem !important;}
+.actionbtns .dropdown-menu.show{display: flex;
+    flex-direction: column;
+    width: 40px !important;
+    min-width: auto;
+    align-items: center;
+    gap: 10px;}
+.btn-primary:hover, .add-btn:hover { 
+    background: linear-gradient(180deg, rgb(35 62 116) 0%, rgb(193 144 45) 100%) !important;
+}
+.coursesteps .btn-primary:hover{ background: #000 !important;}
+#myTable td .dropdown-menu.show {
+    display: flex;
+    flex-direction: column;
+    min-width: auto;
+}.select2-container--default .select2-selection--single .select2-selection__arrow{ display: none;}
+#advace_filter .d-flex .btn {
+    border-radius: 5px !important;
+}
+#advance-search-btn {
+    background: linear-gradient(45deg, rgb(35 62 116), rgb(87 129 213)) !important;
+    border: none;
+}
+.adminlogo { 
+    margin-left: 15px;
+}.app-header .navbar-toggler{margin-left: 15px;}
+button:focus{ outline: none !important; box-shadow: 0 0 0 !important;}
+.sidebar .nav-link .nav-icon{margin: 0 0.1rem 0 0;}
+.cke_toolbar_break{ display: none !important;}
+.add-btn{ cursor: pointer;}
+.btn-sm, .btn-group-sm>.btn{    font-size: 14px;}
+.dflex{ display: flex; align-items: center; justify-content: space-between;}
+.dflex h5{ margin: 0;}
+.hed1{ font-size: 20px; margin: 20px 0 10px;}
+.rname{ white-space: nowrap; margin: 0 20px 0 0;}
+.btn{ cursor: pointer;}
+.sidebar .nav-link{padding: 0.75rem 0.5rem;}
+.arrow-icon-new {
+   width: 30px !important;
+    transform: rotate(270deg);
+    padding: 0 10px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #8b9cbc !important;}
+.btn-info, a.btn.add-btn.rechedule{background: linear-gradient(45deg, rgb(35 62 116) 0%, rgb(193 144 45) 100%) !important;}
+.userheading h4:after{ display: none !important;}
+.select2-container{ width: auto !important; display: block;}
+.testname{ margin: 0 !important;
+    text-align: right;
+    padding-top: 7px;}
+.select2-container .select2-selection--single{border: 1px solid #ccc; height: 35px;}
+.select2-container--default .select2-selection--single .select2-selection__rendered { 
+    line-height: 32px;
+    padding-left: 15px;
+}.padt5{ padding-top: 5px;}
+#myTable .delbtn {
+    font-size: 13px; border: none !important; cursor: pointer;
+}
+.fc-toolbar-chunk .fc-button-primary{    background: linear-gradient(45deg, #233e74 0%, #233e74 100%) !important;} 
+.loginas{ width: 100px;}.loginas a{ display: flex; align-items:center;}
+.tabscenter{ justify-content: center;    border: none;}
+.tabscenter .nav-link { 
+    padding: 12px 50px;
+}
+.tabscenter .nav-link.active:after { 
+    top: auto;
+    right: 0;  
+    border-left: 10px solid #233e74;
+    transform: rotate(91deg);
+    left: 50%;
+    bottom: -15px;
+}
+.tab-content.pageslist {
+    margin-top: 0;
+    background: #f5f8ff;
+    border: 0px solid #c8ced3;
+}
+.notextarea .cke_bottom{ display: none !important;}
+.notextarea .cke_contents{ height: 100px !important;border-radius: 6px; margin-bottom: 5px;}
+.notextarea.fillh180 .cke_contents{ height: 195px !important;border-radius: 6px;}
+.addoptiontable th, .addoptiontable td{font-size: 11px; padding: 5px 10px; text-align: center;vertical-align: middle;}
+.addoptiontable .btn-danger{font-size: 11px;
+    padding:4px 10px;
+    text-align: center;}
+.addoptbtn .btn-primary{    background: linear-gradient(45deg, rgb(35 62 116) 0%, rgb(35 62 116) 100%) !important;border: none;font-size: 12px;}
+.addoptbtn{ text-align: center; padding-top: 5px;}
+.aligncenter{ align-items: center;}
+.cfilegap{ margin-top: 35px !important;}
+.cke_inner{ border-radius: 6px;}.cke_chrome{ border-radius: 6px;}
+.card input{ border-radius: 6px;}
+.switch-primary .switch-input:checked+.switch-slider {
+    background-color: #233e74;
+    border-color: #233e74;
+}
+.checkingListC{margin-top: 30px;
+    border-top: 1px solid #ccc;
+    padding-top: 40px;}
+    .remove_less_slug{top: 0px !important;
+    cursor: pointer;
+    background: red;
+    right: 0 !important;
+    width: 30px !important;
+    color: #fff !important;
+    height: 30px;
+    padding: 8px;}
+    .checkingListC textarea{ height: 120px !important;} 
+  button{ border: none !important;}
+.form-control{ height: auto !important;}
+.addoptiontable { margin-top: 5px;}
 
-
+@media (min-width:320px) and (max-width: 767px){
+.dashboardbox{ padding: 0 !important; margin: 0 !important;}
+.btn{font-size: 0.65rem;}
+h4, .h4 {
+    font-size: 1rem;
+}table.dataTable tbody th, table.dataTable tbody td {
+    padding: 5px 5px;font-size: 11px;}
+        .table thead th {
+        font-size: 10px;font-weight: 600;}
+        #myTable_wrapper table.dataTable thead th {
+    padding: 5px 10px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+}.pill-draft{ font-size: 10px;}.btn2, .viewbtn, .createbtn, .btn1{ font-size: 8px; padding: 2px 5px;}.dropdown-menu{font-size: 0.7rem;}
+.dashboardbox .card .card-body {
+    padding: 0px 0 0;
+}.list-inline { 
+    margin: 0 0 5px;
+}.table-controls{ gap: 0;}.custom-teacher-table{  font-size: 10px;}
+.add-btn{    padding: 5px 15px 7px 15px;font-size: 10px;}
+h6, .h6 {
+    font-size: 0.7rem;
+}.custom-file-label{ font-size: 10px;}.custom-file-label, .custom-file-label::after{    height: calc(1.8rem + 1px);}body{font-size: 0.7rem;}#myTable_length label{ font-size: 10px;}
+.app-header .navbar-toggler {
+    margin-left: 5px;
+}.dataTables_wrapper .dataTables_filter input {
+    margin-left: 0;
+}button.dt-button, div.dt-button, a.dt-button{font-size: 0.7em;}
+table.dataTable tbody th, table.dataTable tbody td{font-size: 10px;}
+.icon-styles{    font-size: 15px;}.icon-styles.fa-eye{font-size: 15px !important;}
+.custom-entries{ font-size: 10px;}
+h5, .h5 {
+    font-size: 0.7rem;
+}.form-control{font-size: 0.7rem;}.stepper .label{font-size: 10px !important;}
+body .stepper {
+        flex-direction: unset !important; margin: 0 0 10px !important;
+    }.stepper .circle{font-size: 15px !important;width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;}.addcourseheader {
+    padding: 5px 10px 5px 10px !important;margin: 0 0 20px !important;}
+    .ortext { text-align: center;
+    padding-top: 0;
+}.frmbm10 .row .form-group {
+    margin-bottom: 10px !important;
+}.coursesteps .btn-primary{font-size: 0.7rem;
+    border: none;
+    width: 120px !important;white-space: nowrap;
+    margin: 0 auto;}
+}
+.frmbm10 .col-md-3{ padding-left: 0;}
+@media (min-width:1200px) and (max-width: 1300px){
+.coursesteps .btn-primary{font-size: 0.7rem;}
+.ortext { 
+    font-size: 11px;
+}
+}

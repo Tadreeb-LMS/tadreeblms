@@ -25,7 +25,6 @@ class UpdatePagesRequest extends FormRequest
     {
         return [
             'title' => 'required',
-            'content' => 'required',
         ];
     }
 }

@@ -257,6 +257,21 @@ try {
             $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=' . $config['database'], $env);
             $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME=' . $config['username'], $env);
             $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="' . $config['password'] . '"', $env);
+            
+            // Add KEYGEN credentials
+            //$env .= "\nKEYGEN_ACCOUNT_ID=\"20586e9c-e2e3-4347-afec-9d58b919fd0b\"";
+            //env .= "\nKEYGEN_PRODUCT_ID=\"073428fb-f67c-4f39-8081-6f5c8890051e\"";
+            //env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"\n";
+            if (strpos($env, 'KEYGEN_ACCOUNT_ID=') === false) {
+                $env .= "\nKEYGEN_ACCOUNT_ID=\"20586e9c-e2e3-4347-afec-9d58b919fd0b\"";
+            }
+            if (strpos($env, 'KEYGEN_PRODUCT_ID=') === false) {
+                $env .= "\nKEYGEN_PRODUCT_ID=\"073428fb-f67c-4f39-8081-6f5c8890051e\"";
+            }
+            if (strpos($env, 'KEYGEN_API_TOKEN=') === false) {
+                $env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"";
+            }
+            $env .= "\n";
             file_put_contents($envFile, $env);
 
             echo json_encode(['message' => '.env created ✔', 'next' => 'key']);

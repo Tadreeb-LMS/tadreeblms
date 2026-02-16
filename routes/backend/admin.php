@@ -142,7 +142,21 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/general', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-settings');
 
     
+    Route::post('settings/landing-general-setting', ['uses' => 'Admin\ConfigController@saveLandingPageGeneralSettings'])->name('landing-general-settings');
+
+    
     Route::get('settings/landing-page-setting', ['uses' => 'Admin\ConfigController@getLandingPageSettings', 'as' => 'landing-page-setting']);
+
+    Route::get('settings/ldap-setting', ['uses' => 'Admin\ConfigController@getLdapSettings', 'as' => 'ldap-setting']);
+
+    Route::post('settings/ldap-setting', ['uses' => 'Admin\ConfigController@saveLdapSettings'])->name('ldap-settings');
+
+    
+    Route::get('ldap-users', 'Admin\EmployeeController@ldap_users_list')->name('ldap-user-listing');
+    Route::get('ldap-users-get-data', 'Admin\EmployeeController@get_ldap_data')->name('employee.get_ldap_data');
+
+    Route::post('ldap/save-env', 'Admin\ConfigController@saveLdapEnv')->name('ldap.save.env');
+    Route::post('ldap/test-ldap', 'Admin\ConfigController@testLdapConnection')->name('ldap.test');
 
     Route::post('settings/contact', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-contact');
 
@@ -162,6 +176,26 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
 
     Route::post('settings/zoom', ['uses' => 'Admin\ConfigController@saveZoomSettings'])->name('zoom-settings');
     Route::post('test', ['uses' => 'Admin\ConfigController@saveZoomSettings'])->name('zoom-settings');
+
+    //===== Notification Settings Routes =====//
+    Route::get('settings/notifications', 'Admin\NotificationSettingsController@index')->name('notification-settings');
+    Route::post('settings/notifications/update', 'Admin\NotificationSettingsController@update')->name('notification-settings.update');
+    Route::post('settings/notifications/bulk-module', 'Admin\NotificationSettingsController@bulkUpdateModule')->name('notification-settings.bulk-module');
+    Route::post('settings/notifications/bulk-channel', 'Admin\NotificationSettingsController@bulkUpdateChannel')->name('notification-settings.bulk-channel');
+    Route::get('settings/notifications/audit-log', 'Admin\NotificationSettingsController@auditLog')->name('notification-settings.audit-log');
+   //===== License Settings Routes =====//
+    Route::get('settings/license', ['uses' => 'Admin\LicenseController@index'])->name('license-settings');
+    Route::post('settings/license/activate', ['uses' => 'Admin\LicenseController@activate'])->name('license.activate');
+    Route::post('settings/license/validate', ['uses' => 'Admin\LicenseController@revalidate'])->name('license.validate');
+    Route::post('settings/license/remove', ['uses' => 'Admin\LicenseController@remove'])->name('license.remove');
+    Route::get('settings/license/status', ['uses' => 'Admin\LicenseController@status'])->name('license.status');
+    Route::post('settings/license/sync-users', ['uses' => 'Admin\LicenseController@syncUsers'])->name('license.sync-users');
+    Route::get('settings/license/check-limit', ['uses' => 'Admin\LicenseController@checkUserLimit'])->name('license.check-limit');
+    Route::get('settings/license/keygen-usage', ['uses' => 'Admin\LicenseController@keygenUsage'])->name('license.keygen-usage');
+    //===== SMTP Email Settings Routes =====//
+    Route::get('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@index'])->name('smtp-settings');
+    Route::post('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@save'])->name('smtp-settings.save');
+    Route::post('settings/smtp/test', ['uses' => 'Admin\SmtpSettingsController@sendTestEmail'])->name('smtp-settings.test');
 
 
     //===== Slider Routes =====/
@@ -430,6 +464,13 @@ Route::post('messages/send', ['uses' => 'MessagesController@send', 'as' => 'mess
 Route::post('messages/reply', ['uses' => 'MessagesController@reply', 'as' => 'messages.reply']);
 
 
+//==== User Notifications Routes =====//
+Route::post('notifications/unread', ['uses' => 'Admin\UserNotificationController@getUnreadNotifications', 'as' => 'notifications.unread']);
+Route::post('notifications/mark-read/{id}', ['uses' => 'Admin\UserNotificationController@markAsRead', 'as' => 'notifications.mark_read']);
+Route::post('notifications/mark-all-read', ['uses' => 'Admin\UserNotificationController@markAllAsRead', 'as' => 'notifications.mark_all_read']);
+Route::get('notifications', ['uses' => 'Admin\UserNotificationController@index', 'as' => 'notifications.index']);
+
+
 //=== Invoice Routes =====//
 Route::get('invoice/download/{order}', ['uses' => 'Admin\InvoiceController@getInvoice', 'as' => 'invoice.download']);
 Route::get('invoices/view/{code}', ['uses' => 'Admin\InvoiceController@showInvoice', 'as' => 'invoices.view']);
@@ -551,6 +592,7 @@ Route::post('subscription/status', ['uses' => 'Admin\SubscriptionController@upda
 
 // Custom Track Student Progress
 Route::get('enrolled-student/{course_id}', 'Admin\EmployeeController@enrolled_student')->name('enrolled_student');
+Route::post('enroll-users', 'Admin\AssessmentAccountsController@direct_enroll_users')->name('enroll_users');
 Route::get('course_detail/{course_id}/{employee_id}', 'Admin\CoursesController@course_detail')->name('employee.course_detail');
 Route::get('get_data_employee_course/{course_id}/{employee_id}', 'Admin\CoursesController@get_data_employee_course')->name('courses.get_data_employee_course');
 Route::get('enrolled_get_data/{course_id}/{show_deleted?}/{search_type?}', 'Admin\EmployeeController@enrolled_get_data')->name('employee.enrolled_get_data');

@@ -11,12 +11,25 @@ use App\Models\TeacherProfile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Repositories\Backend\Auth\RoleRepository;
+use App\Http\Requests\Backend\Auth\User\ManageUserRequest;
+use App\Repositories\Backend\Auth\PermissionRepository;
 use Yajra\DataTables\DataTables;
 use DB;
+use App\Services\LicenseService;
+use App\Models\Department;
+use App\Models\EmployeeProfile;
 
 class TeachersController extends Controller
 {
     use FileUploadTrait;
+
+    protected $licenseService;
+
+    public function __construct(LicenseService $licenseService)
+    {
+        $this->licenseService = $licenseService;
+    }
 
     /**
      * Display a listing of Category.
@@ -25,8 +38,35 @@ class TeachersController extends Controller
      */
     public function index()
     {
-        //dd("hhfh");
-        return view('backend.teachers.index');
+        // Sync user count to Keygen.sh when viewing user list
+        // $this->licenseService->syncUsersToKeygen();
+
+        $licenseData = $this->getLicenseWarningData();
+
+        return view('backend.teachers.index', $licenseData);
+    }
+
+    /**
+     * Get license warning data for views
+     */
+    private function getLicenseWarningData(): array
+    {
+        $stats = $this->licenseService->getUsageStats();
+
+        $licenseWarning = null;
+        $licenseWarningType = 'warning';
+
+        if ($stats['has_license'] && $stats['is_exceeded']) {
+            $licenseWarning = "User limit exceeded! You have {$stats['active_users']} active users but your license only allows {$stats['max_users']}.";
+        } elseif ($stats['has_license'] && $stats['is_warning']) {
+            $licenseWarning = "You are approaching your user limit. Only {$stats['remaining_users']} user slot(s) remaining out of {$stats['max_users']}.";
+        }
+
+        return [
+            'licenseWarning' => $licenseWarning,
+            'licenseWarningType' => $licenseWarningType,
+            'licenseStats' => $stats,
+        ];
     }
 
     /**
@@ -36,6 +76,7 @@ class TeachersController extends Controller
      */
     public function getData(Request $request)
     {
+        // echo "fgf"; exit;
         $has_view = false;
         $has_delete = false;
         $has_edit = false;
@@ -93,25 +134,28 @@ class TeachersController extends Controller
                     ->render();
             }
 
-        $courseLink = '<a title="Courses" class="" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">
-         <i class="fa fa-address-book" aria-hidden="true"></i>  </a>';
+            $courseLink = '<a title="Courses" class="" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">
+            <i class="fa fa-address-book" aria-hidden="true"></i>  </a>';
 
-    // Wrap all actions in a flexbox container with spacing
-    return '<div class="action-pill" >' . $view . $edit . $delete . $courseLink . '</div>';
-})
+        // Wrap all actions in a flexbox container with spacing
+            return '<div class="action-pill" >' . $view . $edit . $delete . $courseLink . '</div>';
+        })
 
-            ->addColumn('status', function ($q) {
-    $checked = $q->active == 1 ? 'checked' : '';
-    $html = '<div class="custom-control custom-switch">
-                <input type="checkbox" 
-                       class="custom-control-input status-toggle switch-input" 
-                       id="switch' . $q->id . '" 
-                       data-id="' . $q->id . '" 
-                       ' . $checked . '>
-                <label class="custom-control-label" for="switch' . $q->id . '"></label>
-            </div>';
-    return $html;
-})
+                    ->addColumn('status', function ($q) {
+            $checked = $q->active == 1 ? 'checked' : '';
+            $html = '<div class="custom-control custom-switch">
+                        <input type="checkbox" 
+                            class="custom-control-input status-toggle switch-input" 
+                            id="switch' . $q->id . '" 
+                            data-id="' . $q->id . '" 
+                            ' . $checked . '>
+                        <label class="custom-control-label" for="switch' . $q->id . '"></label>
+                    </div>';
+            return $html;
+        })
+            ->addColumn('department', function ($q) {
+                return optional(optional($q->employee)->department_details)->title ?? '-';
+            })
             ->rawColumns(['actions', 'image', 'status'])
             ->make();
     }
@@ -121,10 +165,13 @@ class TeachersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(ManageUserRequest $request,RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
-        $countries = DB::table('master_countries')->get();
-        return view('backend.teachers.create' , compact('countries'));
+        // $countries = DB::table('master_countries')->get();
+
+        return view('backend.auth.user.create',[ 'return_to' => route('admin.teachers.index')])
+            ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
+            ->withPermissions($permissionRepository->get(['id', 'name']));
     }
 
     /**
@@ -176,6 +223,9 @@ class TeachersController extends Controller
         ];
         TeacherProfile::create($data);
 
+        // Sync user count to Keygen.sh
+        $this->licenseService->onUserCreated();
+
         return redirect()->route('admin.teachers.show', ['teacher' => $teacher->id])->withFlashSuccess(trans('alerts.backend.general.created'));
         // return redirect()->route('admin.courses.create')->withFlashSuccess(__('Please add course here...'));
         // return redirect()->route('admin.teachers.index')->withFlashSuccess(trans('alerts.backend.general.created'));
@@ -192,7 +242,8 @@ class TeachersController extends Controller
     {
         $teacher = User::findOrFail($id);
         $countries = DB::table('master_countries')->get();
-        return view('backend.teachers.edit', compact('teacher','countries'));
+        $departments = Department::where('published', 1)->orderBy('title')->get();
+        return view('backend.teachers.edit', compact('teacher','countries','departments'));
     }
 
     /**
@@ -249,7 +300,20 @@ class TeachersController extends Controller
         } else {
             $teacher->teacherProfile()->create($data);
         }
+        try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                    \Log::info('User created - Keygen sync result', $result);
+                } catch (\Exception $e) {
+                    \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
+                }
 
+        // Save department to employee profile if provided
+        if ($request->filled('department')) {
+            EmployeeProfile::updateOrCreate(
+                ['user_id' => $teacher->id],
+                ['department' => $request->department]
+            );
+        }
 
         return redirect()->route('admin.teachers.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
@@ -282,7 +346,16 @@ class TeachersController extends Controller
         if ($teacher->courses->count() > 0) {
             return redirect()->route('admin.teachers.index')->withFlashDanger(trans('alerts.backend.general.teacher_delete_warning'));
         } else {
+            // ensure teacher is deactivated before soft-deleting
+            $teacher->active = 0;
+            $teacher->save();
             $teacher->delete();
+            try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User created - Keygen sync result', $result);
+            } catch (\Exception $e) {
+                \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('admin.teachers.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
@@ -299,7 +372,15 @@ class TeachersController extends Controller
             $entries = User::whereIn('id', $request->input('ids'))->get();
 
             foreach ($entries as $entry) {
+                $entry->active = 0;
+                $entry->save();
                 $entry->delete();
+            }
+            try {
+                $result = $this->licenseService->syncUsersToKeygen();
+                \Log::info('User updated - Keygen sync result', $result);
+            } catch (\Exception $e) {
+                \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
             }
         }
     }
@@ -341,10 +422,23 @@ class TeachersController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      **/
-    public function updateStatus()
+    public function updateStatus(Request $request)
     {
-        $teacher = User::find(request('id'));
+        $teacher = User::find($request->id ?? request('id'));
+        if (! $teacher) {
+            return response()->json(['error' => 'Teacher not found'], 404);
+        }
+
         $teacher->active = $teacher->active == 1 ? 0 : 1;
         $teacher->save();
+        
+        try {
+            $result = $this->licenseService->syncUsersToKeygen();
+            \Log::info('User updated - Keygen sync result', $result);
+        } catch (\Exception $e) {
+            \Log::error('User updated - Keygen sync error', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['active' => (int)$teacher->active]);
     }
 }

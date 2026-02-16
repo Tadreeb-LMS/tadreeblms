@@ -2,6 +2,7 @@
 @extends('backend.layouts.app')
 @section('title', __('labels.backend.lessons.title') . ' | ' . app_name())
 @push('after-styles')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" rel="stylesheet" />
  <style>
 
 .dataTables_paginate.paging_simple_numbers{
@@ -90,6 +91,7 @@ width: 58% !important;
 @stop
 
 @push('after-scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{ asset('js/modal/confirm-modal.js') }}"></script>
     <script>
         $(document).ready(function() {

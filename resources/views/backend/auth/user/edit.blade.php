@@ -75,7 +75,7 @@
                 </div>
             </div>
 
-            {{-- Employee Type --}}
+            <!-- {{-- Employee Type --}}
             <div class="form-group row">
                 <label class="col-md-2">Type</label>
                 <div class="col-md-10 mt-2">
@@ -85,7 +85,7 @@
                         <option value="external" {{ $user->employee_type == 'external' ? 'selected' : '' }}>External</option>
                     </select>
                 </div>
-            </div>
+            </div> -->
 
                 <!-- Change Password Toggle -->
                 <div class="form-group row">
@@ -129,15 +129,6 @@
                             placeholder="Confirm new password">
                     </div>
                 </div> --}}
-
-    <div class="pb-3 d-flex justify-content-between">
-        <h4>
-            @lang('labels.backend.access.users.management')
-            <small class="text-muted ml-3">
-                @lang('labels.backend.access.users.edit')
-            </small>
-        </h4>
-    </div>
 
             {{-- Roles --}}
             <div class="form-group row">
@@ -187,6 +178,25 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {{-- Department --}}
+            <div class="form-group row">
+                <label for="department" class="col-md-2 form-control-label">
+                    @lang('Department')
+                </label>
+                <div class="col-md-10">
+                    <select name="department" id="department" class="form-control">
+                        <option value="">Select Department</option>
+                        @if(isset($departments))
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}" {{ optional(optional($user->employee)->department_details)->id == $dept->id ? 'selected' : '' }}>
+                                    {{ $dept->title }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
             </div>
 

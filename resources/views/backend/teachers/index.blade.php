@@ -49,8 +49,8 @@
         <h4>Trainers</h4>
 
         @can('trainer_create')
-        <a href="{{ route('admin.teachers.create') }}" class="btn btn-primary">
-            Add
+        <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}" class="btn btn-primary">
+            Add More Trainers
         </a>
         @endcan
     </div>
@@ -87,7 +87,10 @@
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Email</th>
+                        <th>Department</th>
+                        @if(request('show_deleted') != 1)
                         <th>Status</th>
+                        @endif
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -166,7 +169,10 @@ $(function () {
             { data: 'first_name' },
             { data: 'last_name' },
             { data: 'email' },
+            { data: 'department', orderable: false, searchable: false },
+            @if(request('show_deleted') != 1)
             { data: 'status' },
+            @endif
             { data: 'actions', orderable: false, searchable: false }
         ],
 
@@ -233,21 +239,43 @@ $(function () {
         }
     });
 
-    });
+    
+    // Status switch with confirmation (matches employee behavior)
+    $(document).on('click', '.switch-input', function (e) {
+        e.preventDefault();
 
-    // Status switch
-    $(document).on('click', '.switch-input', function () {
-        let id = $(this).data('id');
+        let checkbox = $(this);
+        let id = checkbox.data('id');
+        let isChecked = checkbox.is(':checked');
 
-        $.post("{{ route('admin.teachers.status') }}", {
-            _token: "{{ csrf_token() }}",
-            id: id
-        }, function () {
-            table.ajax.reload(null, false);
+        let message = isChecked
+            ? 'Do you want to activate this user?'
+            : 'Do you want to deactivate this user?';
+
+        if (!confirm(message)) {
+            // revert toggle state if cancelled
+            checkbox.prop('checked', !isChecked);
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('admin.teachers.status') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: id,
+            },
+            success: function () {
+                table.ajax.reload(null, false);
+            },
+            error: function () {
+                alert('Something went wrong');
+                checkbox.prop('checked', !isChecked);
+            }
         });
     });
 
-});
+    });
 </script>
 
 @endpush

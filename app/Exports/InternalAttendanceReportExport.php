@@ -28,10 +28,9 @@ class InternalAttendanceReportExport implements FromQuery, WithHeadings, WithMap
 
         return SubscribeCourse::with(['student', 'course', 'course.category'])
             ->whereHas('student', function ($query) use ($user_id) {
-                $query->where('employee_type', 'internal')
-                      ->when($user_id, function ($q) use ($user_id) {
-                          $q->where('id', $user_id);
-                      });
+                $query->when($user_id, function ($q) use ($user_id) {
+                    $q->where('id', $user_id);
+                });
             })
             ->when($assign_from_date, function ($q) use ($assign_from_date, $assign_to_date) {
                 if ($assign_to_date) {
@@ -57,8 +56,7 @@ class InternalAttendanceReportExport implements FromQuery, WithHeadings, WithMap
     public function headings(): array
     {
         return [
-            'EID', 
-            'Trainee Type', 
+            'EID',
             'User Status',
             'UserName', 
             'Department', 
@@ -105,7 +103,6 @@ class InternalAttendanceReportExport implements FromQuery, WithHeadings, WithMap
 
         return [
             optional($data->student)->emp_id,
-            optional($data->student)->employee_type,
             optional($data->student)->active == 0 ? "InActive" : "Active",
             optional($data->student)->first_name . ' ' . optional($data->student)->last_name,
             optional(optional($data->employeeProfile)->department_details)->title,

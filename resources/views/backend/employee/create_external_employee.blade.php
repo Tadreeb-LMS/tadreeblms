@@ -17,6 +17,9 @@
 @endpush
 
 @section('content')
+
+@include('backend.includes.license-warning')
+
 <form action="{{ route('admin.employee.external.store') }}" method="POST" enctype="multipart/form-data" class="form-horizontal">
     @csrf
 

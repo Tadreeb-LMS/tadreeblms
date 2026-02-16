@@ -106,7 +106,7 @@
 <input type="hidden" name="category_id" value="{{ $courses_all }}" id="category_id">
 
 @endif
-<div class="pb-3 d-flex justify-content-between align-items-center">
+<div class="pb-3 d-flex justify-content-between align-items-center addcourseheader">
        <h4>
           @lang('labels.backend.lessons.create')
        </h4>
@@ -134,7 +134,9 @@
    title="Remove Lesson"></i>
 
         <div class="row">
-            <div class="col-md-12 col-lg-6 form-group">
+            <div class="col-md-6">
+       
+            <div class="form-group">
                 <div for="course_id" class="form-control-label">{{ trans('labels.backend.lessons.fields.course') }}</div>
                 <div class="mt-2 custom-select-wrapper">
 
@@ -153,7 +155,7 @@
 
                 
             </div>
-            <div class="col-md-12 col-lg-6 form-group">
+            <div class="form-group">
                 <div for="lesson_image" class="control-label mb-2">
                     {{ trans('labels.backend.lessons.fields.lesson_image') }} {{ trans('labels.backend.lessons.max_file_size') }}
                 </div>
@@ -170,18 +172,86 @@
                 
 
             </div>
-
-        </div>
-
-        <div class="row">
-        <div class="col-md-12 col-lg-6 form-group">
+<div class="ltitle">
                 
             <label for="title" class="control-label">
                 {{ trans('labels.backend.lessons.fields.title') }} *
             </label>
             <input type="text" name="title[]" value="{{ old('title') }}" class="form-control" placeholder="{{ trans('labels.backend.lessons.fields.title') }}" required />
-            
+           </div> 
+            <div class="shortext">
+                <label for="short_text" class="control-label">
+                    {{ trans('labels.backend.lessons.fields.short_text') }}
+                </label>
+                <textarea name="short_text[]" class="form-control" placeholder="{{ trans('labels.backend.lessons.short_description_placeholder') }}" style="height: 100px;">{{ old('short_text') }}</textarea> 
+            </div>
+     
         </div>
+<div class="col-md-6">
+<div class="form-group notextarea fillh180">
+                <label for="full_text" class="control-label">
+                    {{ trans('labels.backend.lessons.fields.full_text') }}
+                </label>
+                <textarea name="full_text[]" class="form-control editor" placeholder="" id="editor">
+                    {{ old('full_text') }}
+                </textarea>
+                
+
+            </div>
+
+
+
+
+ </div>
+  </div>
+
+
+  <div class="row mt-1"> <div class="col-md-4">
+    <div class="form-group ">
+                <div for="downloadable_files" class="control-label mb-2">
+                    {{ trans('labels.backend.lessons.fields.downloadable_files') }} {{ trans('labels.backend.lessons.max_file_size') }}
+                </div>
+                
+                <div class="custom-file-upload-wrapper">
+                            <input type="file" name="downloadable_files_1[]" id="customFileInput" class="custom-file-input">
+                            <label for="customFileInput" class="custom-file-label">
+                            <i class="fa fa-upload mr-1"></i> Choose a file
+                            </label>
+                        </div>
+
+            </div>
+            </div>
+            <div class="col-md-4">
+<div class="form-group ">
+                <div for="add_pdf" class="control-label mb-2">
+                    {{ trans('labels.backend.lessons.fields.add_pdf') }}
+            </div>
+              <div class="custom-file-upload-wrapper">
+                            <input type="file" name="add_pdf_1[]" id="customFileInput" class="custom-file-input">
+                            <label for="customFileInput" class="custom-file-label">
+                            <i class="fa fa-upload mr-1"></i> Choose a file
+                            </label>
+                        </div>
+                
+            </div></div>
+            <div class="col-md-4">
+<div class="form-group ">
+                <div for="add_audio" class="control-label mb-2">
+                    {{ trans('labels.backend.lessons.fields.add_audio') }}
+                </div>
+                <div class="custom-file-upload-wrapper">
+                            <input type="file" name="add_audio_1[]" id="customFileInput" class="custom-file-input">
+                            <label for="customFileInput" class="custom-file-label">
+                            <i class="fa fa-upload mr-1"></i> Choose a file
+                            </label>
+                        </div>
+                </div>
+            </div>
+  </div>
+
+
+        <div class="row">
+        
 
         {{-- <div class="col-12 col-lg-6 form-group">
                 
@@ -201,83 +271,12 @@
          </div> --}}
         </div>
 
+ 
 
 
-        <div class="row">
-            <div class="col-12 form-group">
-                <label for="short_text" class="control-label">
-                    {{ trans('labels.backend.lessons.fields.short_text') }}
-                </label>
-                <textarea name="short_text[]" class="form-control" placeholder="{{ trans('labels.backend.lessons.short_description_placeholder') }}" style="height: 100px;">{{ old('short_text') }}</textarea>
-                
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 form-group">
-                <label for="full_text" class="control-label">
-                    {{ trans('labels.backend.lessons.fields.full_text') }}
-                </label>
-                <textarea name="full_text[]" class="form-control editor" placeholder="" id="editor">
-                    {{ old('full_text') }}
-                </textarea>
-                
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 form-group">
-                <div for="downloadable_files" class="control-label mb-2">
-                    {{ trans('labels.backend.lessons.fields.downloadable_files') }} {{ trans('labels.backend.lessons.max_file_size') }}
-                </div>
-                <!-- <input type="file" name="downloadable_files_1[]" multiple class="form-control file-upload" id="downloadable_files" accept="image/jpeg,image/gif,image/png,application/msword,audio/mpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint,application/pdf,video/mp4">
-                
-                <div class="photo-block">
-                    <div class="files-list"></div>
-                </div> -->
-                <div class="custom-file-upload-wrapper">
-                            <input type="file" name="downloadable_files_1[]" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
-                            <i class="fa fa-upload mr-1"></i> Choose a file
-                            </label>
-                        </div>
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 form-group mt-2">
-                <div for="add_pdf" class="control-label mb-2">
-                    {{ trans('labels.backend.lessons.fields.add_pdf') }}
-            </div>
-              <div class="custom-file-upload-wrapper">
-                            <input type="file" name="add_pdf_1[]" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
-                            <i class="fa fa-upload mr-1"></i> Choose a file
-                            </label>
-                        </div>
-                
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 form-group mt-2">
-                <div for="add_audio" class="control-label mb-2">
-                    {{ trans('labels.backend.lessons.fields.add_audio') }}
-                </div>
-                <div class="custom-file-upload-wrapper">
-                            <input type="file" name="add_audio_1[]" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
-                            <i class="fa fa-upload mr-1"></i> Choose a file
-                            </label>
-                        </div>
-                
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div class="col-md-12 form-group parent_group mt-2">
-                <label for="add_video" class="control-label">
+        <div class="row addvideocol">
+            <div class="col-md-4 form-group parent_group mt-2">
+                <label for="add_video" class="control-label blocklabel">
                     {{ trans('labels.backend.lessons.fields.add_video') }}
                 </label>
                 
@@ -293,9 +292,12 @@
                 
                 <input type="file" name="video_file_1[]" class="form-control mt-3 d-none video_file" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video_file">
                 
-                <p>@lang('labels.backend.lessons.video_guide')</p>
+                
                 
 
+            </div>
+            <div class="col-md-8 mt-2">
+<p>@lang('labels.backend.lessons.video_guide')</p>
             </div>
         </div>
 
@@ -324,7 +326,7 @@
                 
             </div>
             <div class="col-md-4 col-sm-12">
-            <div class="checkbox" style="margin-top: 30px;">
+            <div class="checkbox" style="margin-top: 37px;">
                 <input type="hidden" name="published" value="0">
                 <input type="checkbox" name="published" value="1" id="published" class="checkbox">
                 <label for="published" class="checkbox control-label font-weight-bold">
@@ -343,7 +345,8 @@
         </div>
         <div class="mo_create"></div>
 
-        <div class="d-flex justify-content-between form-group">
+        <div class="btmbtns">
+        <div class="d-flex justify-content-between">
             <div>
 
                 <button type="button" name="addmorebtn" id="addmorebtn" class="btn btn-outline-info ">Add More Lesson</button>
@@ -363,7 +366,7 @@
                     <span class="loading"></span>
                 </div>
             </div>
-            
+            </div>
             
 
             

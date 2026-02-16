@@ -19,7 +19,7 @@
 @section('content')
 
 <div class="pb-3">
-    <h5 class="">@lang('Internal User Info')</h5>
+    <h5 class="">@lang('Trainee Info')</h5>
 </div>
     <div class="card">
         <div class="card-body">
@@ -57,7 +57,6 @@
                                     {{-- <th>#</th> --}}
                                     <th>@lang('EID')</th>
                                     <th>@lang('ID')</th>
-                                    <th style="width: 120px;">@lang('Employee Type')</th>
                                     <th>@lang('labels.backend.teachers.fields.first_name')</th>
                                     <th>@lang('labels.backend.teachers.fields.last_name')</th>
                                     <th>@lang('labels.backend.teachers.fields.email')</th>
@@ -126,7 +125,7 @@
                 extend: 'csv',
                 text: 'CSV',
                 exportOptions: {
-                    columns: [1, 2, 3, 4, 5]
+                    columns: [1, 2, 3, 4]
                 }
             },
            {
@@ -177,10 +176,6 @@
                     {
                         data: "id",
                         name: 'id'
-                    },
-                    {
-                        data: "employee_type",
-                        name: 'employee_type'
                     },
                     {
                         data: "first_name",

@@ -27,9 +27,9 @@
 <div class="">
 
     <div class="d-flex justify-content-between align-items-center pb-3">
-        <h4 class="text-20">Edit Teacher</h4>
+        <h4 class="text-20"> @lang('labels.backend.teachers.edit')</h4>
         <a href="{{ route('admin.teachers.index') }}" class="add-btn">
-            View Teachers
+            @lang('labels.backend.teachers.view')
         </a>
     </div>
 
@@ -137,6 +137,20 @@
                             <option value="{{ $country->id }}"
                                 {{ $teacher->nationality == $country->id ? 'selected' : '' }}>
                                 {{ $country->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Department -->
+                <div class="col-lg-6 mt-3">
+                    <label>Department</label>
+                    <select name="department" class="form-control">
+                        <option value="">Select Department</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}"
+                                {{ optional(optional($teacher->employee)->department_details)->id == $dept->id ? 'selected' : '' }}>
+                                {{ $dept->title }}
                             </option>
                         @endforeach
                     </select>

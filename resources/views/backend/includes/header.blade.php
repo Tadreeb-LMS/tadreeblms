@@ -75,6 +75,29 @@
     </ul>
 
     <ul class="nav navbar-nav ml-auto mr-4">
+        <!-- Bell Notification Icon -->
+        <li class="nav-item d-md-down-none dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                <i class="icon-bell"></i>
+                <span class="badge badge-pill d-none badge-danger unreadNotificationCounter"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right notification-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                <div class="dropdown-header text-center d-flex justify-content-between align-items-center">
+                    <strong>@lang('navs.general.notifications')</strong>
+                    <a href="#" class="mark-all-read-btn text-primary small" style="font-size: 12px;">@lang('navs.general.mark_all_as_read')</a>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="unreadNotifications">
+                   <p class="mb-0 text-center py-3 text-muted">@lang('navs.general.no_new_notifications')</p>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-center py-2" href="{{ route('admin.notifications.index') }}">
+                    <small>@lang('navs.general.view_all_notifications')</small>
+                </a>
+            </div>
+        </li>
+
+        <!-- Envelope Message Icon -->
         <li class="nav-item d-md-down-none">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 <i class="icon-envelope"></i>

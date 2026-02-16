@@ -68,15 +68,6 @@
            
 
 
-            <div class="row">
-                <div class="col-12 form-group">
-                    <label for="content" class="control-label">Description</label>
-                    <textarea class="form-control editor" placeholder="Title" name="content" type="text" id="editor">{{ $page->content }}</textarea>
-
-                </div>
-            </div>
-
-           
 
             <div class="row">
 

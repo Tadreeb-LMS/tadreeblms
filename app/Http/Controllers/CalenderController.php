@@ -285,6 +285,11 @@ $lesson_data=[];
 
     public function add_event(Request $request)
     {
+        $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'event_date' => 'required|date|after_or_equal:today',
+    ]);
         // dd($request->all());
         $event = new Events;
         $event->title = $request->title;
