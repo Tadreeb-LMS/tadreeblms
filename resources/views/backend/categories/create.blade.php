@@ -16,43 +16,27 @@
     </div>
 </div>
     <div class="card">
-        <!-- <div class="card-header">
-            <h3 class="page-title d-inline">@lang('labels.backend.categories.create')</h3>
-            <div class="float-right">
-                <a href="{{ route('admin.categories.index') }}"
-                   class="btn btn-success">@lang('labels.backend.categories.view')</a>
-
-            </div>
-        </div> -->
         <div class="card-body">
 
             <div class="row">
                 <div class="col-12">
 
-                    {!! Form::open(['method' => 'POST', 'id' => 'addcategory', 'files' => true,]) !!}
+                    <form method="POST" id="addcategory" enctype="multipart/form-data">
+                    @csrf
 
                     <div class="row">
                         <div class="col-12 col-lg-4 form-group">
-                            {!! Form::label('title', trans('labels.backend.categories.fields.name').' *', ['class' => 'control-label']) !!}
-                            {!! Form::text('name', old('name'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.categories.fields.name'), 'required' => false]) !!}
+                            <label for="title" class="control-label">{{ trans('labels.backend.categories.fields.name') }} *</label>
+                            <input class="form-control" placeholder="{{ trans('labels.backend.categories.fields.name') }}" required name="name" type="text" value="{{ old('name') }}">
 
                         </div>
-
-
-                        <!-- <div class="col-12 col-lg-2  form-group">
-
-                                {!! Form::label('icon',  trans('labels.backend.categories.fields.select_icon'), ['class' => 'control-label  d-block']) !!}
-                                <button class="btn  btn-block btn-default border" id="icon" name="icon"></button>
-
-                        </div> -->
-
                         <div class="col-lg-3 col-md-3 form-group mt-4 d-flex align-items-center">
 
-                            {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'add-btn']) !!}
+                            <button class="add-btn" type="submit">{{ trans('strings.backend.general.app_save') }}</button>
                         </div>
                     </div>
 
-                    {!! Form::close() !!}
+                    </form>
 
 
                 </div>
@@ -119,7 +103,12 @@ $(document).on('submit', '#addcategory', function (e) {
             error: function(xhr, status, error) {
                 console.log(xhr)
                 res= JSON.parse(xhr.responseText)
-               alert(res.errors.email[0]);
+                if (res.errors) {
+                    var firstError = Object.values(res.errors)[0][0];
+                    alert(firstError);
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
             }
         })
     // }, 100);

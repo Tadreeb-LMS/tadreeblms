@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
 
 class CategoriesController extends Controller
 {
@@ -164,12 +165,12 @@ class CategoriesController extends Controller
         if (!Gate::allows('category_create')) {
             return abort(401);
         }
-        $category = Category::where('slug', '=', str_slug($request->name))->first();
+        $category = Category::where('slug', '=', Str::slug($request->name))->first();
         if ($category == null) {
             $category = new  Category();
         }
         $category->name = $request->name;
-        $category->slug = str_slug($request->name);
+        $category->slug = Str::slug($request->name);
         $category->icon = $request->icon;
         $category->save();
 
@@ -213,7 +214,7 @@ class CategoriesController extends Controller
 
         $category = Category::findOrFail($id);
         $category->name = $request->name;
-        $category->slug = str_slug($request->name);
+        $category->slug = Str::slug($request->name);
         $category->icon = $request->icon;
         $category->save();
 

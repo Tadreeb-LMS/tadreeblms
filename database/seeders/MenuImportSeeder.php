@@ -13,10 +13,10 @@ class MenuImportSeeder extends Seeder
      */
     public function run()
     {
-        $menus = \Harimayco\Menu\Models\Menus::all();
+        $menus = \Bdhabib\LaravelMenu\Models\Menus::all();
         foreach ($menus as $menu) {
             if ($menu != NULL) {
-                $menuItems = \Harimayco\Menu\Models\MenuItems::where('menu', '=', $menu->id)->get();
+                $menuItems = \Bdhabib\LaravelMenu\Models\MenuItems::where('menu', '=', $menu->id)->get();
                 if ($menuItems != null) {
                     $allMenu = [];
                     foreach ($menuItems as $item) {
@@ -24,9 +24,9 @@ class MenuImportSeeder extends Seeder
                             $item->parent = $item->id;
                             $item->save();
                         }
-                        $allMenu[str_slug($item['label'])] = $item['label'];
+                        $allMenu[\Illuminate\Support\Str::slug($item['label'])] = $item['label'];
                     }
-                    $main[str_slug($menu->name)] = $allMenu;
+                    $main[\Illuminate\Support\Str::slug($menu->name)] = $allMenu;
                     $file = fopen(public_path('../resources/lang/en/custom-menu.php'), 'a');
                     if ($file !== false) {
                         ftruncate($file, 0);

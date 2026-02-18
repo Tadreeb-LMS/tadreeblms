@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Frontend\Auth;
 
 use Illuminate\Validation\Rule;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;

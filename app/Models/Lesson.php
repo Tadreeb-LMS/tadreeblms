@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 //use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 //use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Illuminate\Support\Facades\File;
-use Mtownsend\ReadTime\ReadTime;
+// use Mtownsend\ReadTime\ReadTime;
 
 
 class Lesson extends Model
@@ -65,10 +65,11 @@ class Lesson extends Model
     }
 
     public function getLessonReadtimeAttribute(){
-
         if($this->full_text != null){
-            $readTime = (new ReadTime($this->full_text))->toArray();
-            return $readTime['minutes'];
+            $text = strip_tags($this->full_text);
+            $wordCount = str_word_count($text);
+            $minutes = ceil($wordCount / 200);
+            return $minutes;
         }
         return 0;
     }
@@ -91,8 +92,10 @@ class Lesson extends Model
     public function readTime()
     {
         if($this->full_text != null){
-            $readTime = (new ReadTime($this->full_text))->toArray();
-            return $readTime['minutes'];
+            $text = strip_tags($this->full_text);
+            $wordCount = str_word_count($text);
+            $minutes = ceil($wordCount / 200);
+            return $minutes;
         }
         return 0;
     }

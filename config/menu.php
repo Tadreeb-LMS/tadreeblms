@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Category;
+use App\Models\Page;
+
 return [
 	/* you can add your own middleware here */
 	
@@ -15,4 +18,16 @@ return [
 
     /* you can set your route path*/
     'route_path' => '/user/',
+
+    'category' => [
+        'name' => 'name',
+        'category_model' => Category::class,
+        'prefix' => '/category/',
+    ],
+
+    'post' => [
+        'name' => 'title',
+        'post_model' => Page::class,
+        'prefix' => '/page/',
+    ],
 ];

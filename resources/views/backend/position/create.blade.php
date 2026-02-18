@@ -58,7 +58,7 @@
                 <div class="row">
                     <div class="col-12 form-group">
                         <label for="content" class="control-label">Description</label>
-                        <textarea class="form-control editor" placeholder="Title" name="content" type="text" id="editor">{{ old('content') }}</textarea>
+                        <textarea class="form-control" placeholder="Enter description" name="content" rows="4">{{ old('content') }}</textarea>
 
                     </div>
                 </div>
@@ -86,23 +86,7 @@
 
 @push('after-scripts')
     <script src="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/ckeditor.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/adapters/jquery.js')}}"></script>
-    <script src="{{asset('/vendor/laravel-filemanager/js/lfm.js')}}"></script>
     <script>
-        $('.editor').each(function () {
-
-            CKEDITOR.replace($(this).attr('id'), {
-                filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
-                filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{csrf_token()}}',
-                filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
-                filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{csrf_token()}}',
-
-                extraPlugins: 'smiley,lineutils,widget,codesnippet,prism,flash,colorbutton,colordialog,codesnippet',
-            });
-
-        });
-
         var uploadField = $('input[type="file"]');
 
         $(document).on('change','input[type="file"]',function () {

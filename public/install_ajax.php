@@ -159,7 +159,7 @@ try {
             }
 
             // Extensions
-            $exts = ['pdo', 'pdo_mysql', 'openssl', 'mbstring', 'tokenizer', 'xml', 'ctype', 'json', 'bcmath', 'curl', 'gd', 'zip'];
+            $exts = ['pdo', 'pdo_mysql', 'openssl', 'mbstring', 'tokenizer', 'xml', 'ctype', 'json', 'bcmath', 'curl', 'gd', 'zip', 'fileinfo'];
             foreach ($exts as $e) {
                 if (!extension_loaded($e)) {
                     $msg .= "❌ Missing extension: $e<br>";

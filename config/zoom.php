@@ -1,10 +1,17 @@
 <?php
 
 return [
-    'api_key' => env('ZOOM_CLIENT_KEY'),
-    'api_secret' => env('ZOOM_CLIENT_SECRET'),
+    'account_id' => env('ZOOM_ACCOUNT_ID'),
+    'client_id' => env('ZOOM_CLIENT_ID'),
+    'client_secret' => env('ZOOM_CLIENT_SECRET'),
     'base_url' => 'https://api.zoom.us/v2/',
-    'token_life' => 60 * 60 * 24 * 7, // In seconds, default 1 week
-    'authentication_method' => 'jwt', // Only jwt compatible at present but will add OAuth2
-    'max_api_calls_per_request' => '5' // how many times can we hit the api to return results for an all() request
+    'timezone' => 'UTC', // Default timezone
+    'auto_recording' => 'none',
+    'approval_type' => 2, // 0-automatic, 1-manually, 2-no registration required
+    'audio' => 'both',
+    'join_before_host' => false,
+    'host_video' => false,
+    'participant_video' => false,
+    'mute_upon_entry' => false,
+    'waiting_room' => false,
 ];

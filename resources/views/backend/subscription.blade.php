@@ -123,7 +123,7 @@
                     $(row).attr('data-entry-id', data.id);
                 },
                 language:{
-                    url : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
+                    url : "{{ asset("js/datatables/i18n/{$locale_full_name}.json") }}",
                     buttons :{
                         colvis : '{{trans("datatable.colvis")}}',
                         pdf : '{{trans("datatable.pdf")}}',

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
 use DB;
+use Illuminate\Support\Str;
 
 
 class SubscriptionController extends Controller
@@ -162,7 +163,7 @@ class SubscriptionController extends Controller
         $page = new Department();
         $page->title = $request->title;
         if($request->slug == ""){
-            $page->slug = str_slug($request->title);
+            $page->slug = Str::slug($request->title);
         }else{
             $page->slug = $request->slug;
         }
@@ -234,7 +235,7 @@ class SubscriptionController extends Controller
         $page = Department::findOrFail($id);
         $page->title = $request->title;
         if($request->slug == ""){
-            $page->slug = str_slug($request->title);
+            $page->slug = Str::slug($request->title);
         }else{
             $page->slug = $request->slug;
         }

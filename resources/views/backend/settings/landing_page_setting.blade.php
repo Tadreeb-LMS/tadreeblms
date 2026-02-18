@@ -410,9 +410,9 @@
                     <div class="card">
                         <div class="card-body">
                             @if(isset($menu))
-                                {!! Menu::render()->with(['menu' => $menu,'menu_list' => $menu_list,'pages' =>$pages]) !!}
+                                {!! LaravelMenu::render()->with(['menu' => $menu,'menu_list' => $menu_list,'pages' =>$pages]) !!}
                             @else
-                                {!! Menu::render()->with(['menu_list' => $menu_list]) !!}
+                                {!! LaravelMenu::render()->with(['menu_list' => $menu_list]) !!}
                             @endif
                         </div>
                     </div>

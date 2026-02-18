@@ -10,6 +10,7 @@ use App\Models\Page;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
 
 
 class PageController extends Controller
@@ -136,7 +137,7 @@ class PageController extends Controller
         $page = new Page();
         $page->title = $request->title;
         if ($request->slug == "") {
-            $page->slug = str_slug($request->title);
+            $page->slug = Str::slug($request->title);
         } else {
             $page->slug = $request->slug;
         }
@@ -245,7 +246,7 @@ class PageController extends Controller
         $page = Page::findOrFail($id);
         $page->title = $request->title;
         if ($request->slug == "") {
-            $page->slug = str_slug($request->title);
+            $page->slug = Str::slug($request->title);
         } else {
             $page->slug = $request->slug;
         }

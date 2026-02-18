@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Session;
 
 use App\Models\Category;
 use App\Models\Page;
-use Harimayco\Menu\Models\MenuItems;
+use Bdhabib\LaravelMenu\Models\MenuItems;
 
-use Harimayco\Menu\Facades\Menu;
+use Bdhabib\LaravelMenu\Facades\LaravelMenu;
 use App\Http\Requests;
 use App\Models\AdminMenuItem;
 use App\Models\Slider;
-use Harimayco\Menu\Models\Menus;
+use Bdhabib\LaravelMenu\Models\Menus;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use LdapRecord\Container;

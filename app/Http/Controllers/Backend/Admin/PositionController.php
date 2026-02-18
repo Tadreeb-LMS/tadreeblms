@@ -17,6 +17,7 @@ use App\Imports\PositionImport;
 use App\Models\Position;
 use Config;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
 
 
 class PositionController extends Controller
@@ -148,16 +149,17 @@ class PositionController extends Controller
         $page = new Position();
         $page->title = $request->title;
         if($request->slug == ""){
-            $page->slug = str_slug($request->title);
+            $page->slug = Str::slug($request->title);
         }else{
             $page->slug = $request->slug;
         }
-        $message = $request->get('content');
-        $dom = new \DOMDocument();
-        $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $page->content = $request->content;
+        // $message = $request->get('content');
+        // $dom = new \DOMDocument();
+        // $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
 
-        $page->content = $dom->saveHTML();
+        // $page->content = $dom->saveHTML();
 
 
         $page->user_id = auth()->user()->id;
@@ -220,17 +222,17 @@ class PositionController extends Controller
         $page = Position::findOrFail($id);
         $page->title = $request->title;
         if($request->slug == ""){
-            $page->slug = str_slug($request->title);
+            $page->slug = Str::slug($request->title);
         }else{
             $page->slug = $request->slug;
         }
+        $page->content = $request->content;
+        // $message = $request->get('content');
+        // libxml_use_internal_errors(true);
+        // $dom = new \DOMDocument();
+        // $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'));
 
-        $message = $request->get('content');
-        libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
-        $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'));
-
-        $page->content = $dom->saveHTML();
+        // $page->content = $dom->saveHTML();
 
 
         $page->meta_title = $request->meta_title;
@@ -341,14 +343,14 @@ class PositionController extends Controller
                         }
                         $count++;
                         $IsDataSuccessfullyInserted = false;
-                        $exist_slug = Position::where('slug',str_slug(trim($ExcelValue[0])))->first();
+                        $exist_slug = Position::where('slug',Str::slug(trim($ExcelValue[0])))->first();
 
                         if(empty($exist_slug)){
                         if($ExcelValue[1] != null){
                                 $RetailerPlanId = 0;
                                 $RetailerPlan = new Position();
                                 $RetailerPlan->title = trim($ExcelValue[0]);
-                                $RetailerPlan->slug = str_slug(trim($ExcelValue[0]));
+                                $RetailerPlan->slug = Str::slug(trim($ExcelValue[0]));
                                 $message = trim($ExcelValue[1]);
                                 $dom = new \DOMDocument();
                                 $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);

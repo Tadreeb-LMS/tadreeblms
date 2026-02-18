@@ -48,7 +48,7 @@ class MyImportManager extends Manager
                     }
 
                     if ( $translations && is_array( $translations ) ) {
-                        foreach ( array_dot( $translations ) as $key => $value ) {
+                        foreach ( \Illuminate\Support\Arr::dot( $translations ) as $key => $value ) {
                             $importedTranslation = $this->importTranslation( $key, $value, $locale, $group, $replace );
                             $counter             += $importedTranslation ? 1 : 0;
                         }

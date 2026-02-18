@@ -5,12 +5,9 @@
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css') }}" />
 @endpush
 @section('content')
-    {!! Form::model($reason, [
-        'method' => 'POST',
-        'route' => ['admin.libraries.update', $reason->id],
-        'files' => true,
-    ]) !!}
-
+    <form method="POST" action="{{ route('admin.libraries.update', $reason->id) }}" enctype="multipart/form-data">
+        @csrf
+        
     <div class="alert alert-danger d-none" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">×</span>
@@ -37,12 +34,8 @@
             </div>
             <div class="row justify-content-center">
                 <div class="col-md-12 col-lg-4 form-group">
-                    {!! Form::label('title', trans('labels.backend.reasons.fields.title') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), [
-                        'class' => 'form-control',
-                        'placeholder' => 'Enter Category Name',
-                        'required' => false,
-                    ]) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.reasons.fields.title') }} *</label>
+                    <input class="form-control" placeholder="Enter Category Name" name="title" type="text" value="{{ old('title', $reason->title) }}">
 
                 </div>
                 <div class="col-md-12 col-lg-4 form-group">
@@ -55,11 +48,7 @@
 
                 @if ($reason->icon)
                     <div class="col-md-12 col-lg-4 form-group">
-                        {!! Form::label(
-                            'news_image',
-                            trans('labels.backend.pages.fields.featured_image') . ' ' . trans('labels.backend.pages.max_file_size'),
-                            ['class' => 'control-label'],
-                        ) !!}
+                        <label for="news_image" class="control-label">{{ trans('labels.backend.pages.fields.featured_image') . ' ' . trans('labels.backend.pages.max_file_size') }}</label>
                        <div class="custom-file-upload-wrapper">
     <input type="file" name="image" id="customFileInput" class="custom-file-input">
     <label for="customFileInput" class="custom-file-label">
@@ -74,11 +63,7 @@
                 @else
                     <div class="col-md-12 col-lg-4 form-group">
 
-                        {!! Form::label(
-                            'news_image',
-                            trans('labels.backend.pages.fields.featured_image') . ' ' . trans('labels.backend.pages.max_file_size'),
-                            ['class' => 'control-label'],
-                        ) !!}
+                        <label for="news_image" class="control-label">{{ trans('labels.backend.pages.fields.featured_image') . ' ' . trans('labels.backend.pages.max_file_size') }}</label>
                          <div class="custom-file-upload-wrapper">
     <input type="file" name="image" id="customFileInput" class="custom-file-input">
     <label for="customFileInput" class="custom-file-label">
@@ -88,23 +73,19 @@
                     </div>
                 @endif
                 <div class="col-12 form-group">
-                    {!! Form::label('video link', '', ['class' => 'control-label']) !!}
-                    {!! Form::text('content', old('content'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.reasons.fields.content'),
-                        'required' => false,
-                    ]) !!}
+                    <label for="video link" class="control-label">video link</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.content') }}" name="content" type="text" value="{{ old('content', $reason->content) }}">
 
                 </div>
 
                 <div class="col-12 form-group text-right">
 
-                    {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'add-btn']) !!}
+                    <button class="add-btn" type="submit">{{ trans('strings.backend.general.app_save') }}</button>
                 </div>
             </div>
         </div>
     </div>
-    {{ html()->form()->close() }}
+    </form>
 @endsection
 
 @push('after-scripts')

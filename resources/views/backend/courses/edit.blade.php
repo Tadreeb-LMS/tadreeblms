@@ -84,7 +84,9 @@
 
     @include('backend.includes.partials.course-steps', ['step' => 1, 'course_id' => $course->id, 'course' => $course ])
 
-    {!! Form::model($course, ['method' => 'PUT', 'route' => ['admin.courses.update', $course->id], 'files' => true]) !!}
+    <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
 
     <div>
         <div class="pb-3 d-flex justify-content-between addcourseheader">
@@ -119,12 +121,11 @@
                             Teachers
                         </div>
                         <div class="custom-select-wrapper mt-2">
-                            {!! Form::select(
-                                'teachers[]',
-                                $teachers,
-                                old('teachers') ? old('teachers') : $course->teachers->pluck('id')->toArray(),
-                                ['class' => 'form-control custom-select-box select2 js-example-placeholder-multiple', 'multiple' => 'multiple', 'required' => true],
-                            ) !!}
+                            <select name="teachers[]" class="form-control custom-select-box select2 js-example-placeholder-multiple" multiple required>
+                                @foreach($teachers as $id => $name)
+                                    <option value="{{ $id }}" {{ in_array($id, old('teachers', $course->teachers->pluck('id')->toArray())) ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
                             <span class="custom-select-icon">
                                 <i class="fa fa-chevron-down"></i>
                             </span>
@@ -145,11 +146,12 @@
                 <div class="col-md-8 col-12 form-group">
                     <div>Category</div>
                    <div class="custom-select-wrapper mt-2">
-    {!! Form::select('category_id', $categories, old('category_id'), [
-                            'class' => 'form-control custom-select-box select2 js-example-placeholder-single',
-                            'multiple' => false,
-                            'required' => true,
-                        ]) !!}
+                    <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single" required>
+                        <option value="">{{ trans('labels.backend.courses.select_category') }}</option>
+                        @foreach($categories as $id => $name)
+                            <option value="{{ $id }}" {{ old('category_id', $course->category_id) == $id ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
     <span class="custom-select-icon">
         <i class="fa fa-chevron-down"></i>
     </span>
@@ -163,18 +165,14 @@
                 </div>
             </div>
 
-<div class="form-group">
-                    {!! Form::label('course_code', 'Course Code' . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('course_code', old('course_code'), [
-                        'class' => 'form-control',
-                        'placeholder' => 'Course code',
-                        'required' => false,
-                    ]) !!}
+                <div class="form-group">
+                    <label for="course_code" class="control-label">Course Code *</label>
+                    <input class="form-control" placeholder="Course code" name="course_code" type="text" value="{{ old('course_code', $course->course_code) }}">
                 </div>
 <div class="form-group">
                     <div>
 
-                        {!! Form::label('slug', trans('Course Language'), ['class' => 'control-label']) !!}
+                        <label for="slug" class="control-label">{{ trans('Course Language') }}</label>
                     </div>
                     <div class="custom-select-wrapper">
 
@@ -187,24 +185,17 @@
                         </span>
                     </div>
                 </div>
-<div class="form-group">
-                    {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', $course->title, [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.courses.fields.title'),
-                        'required' => false,
-                    ]) !!}
+                <div class="form-group">
+                    <label for="title" class="control-label">{{ trans('labels.backend.courses.fields.title') }} *</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.title') }}" name="title" type="text" value="{{ old('title', $course->title) }}">
                 </div>
 
 
                 </div>
               <div class="col-md-6 col-12 form-group">
                     <div class="form-group">
-                    {!! Form::label('description', trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('description', $course->description, [
-                        'class' => 'form-control editor',
-                        'placeholder' => trans('labels.backend.courses.fields.description'),
-                    ]) !!}
+                    <label for="description" class="control-label">{{ trans('labels.backend.courses.fields.description') }}</label>
+                    <textarea class="form-control editor" placeholder="{{ trans('labels.backend.courses.fields.description') }}" name="description">{{ old('description', $course->description) }}</textarea>
 
                 </div>
                 </div>
@@ -216,7 +207,7 @@
             
 
             @if (Auth::user()->isAdmin())
-                <!-- <div class="row">
+                {{-- <div class="row">
                         <div class="col-10 form-group">
                             {!! Form::label('internal_students', trans('labels.backend.courses.fields.internal_students'), [
                                 'class' => 'control-label',
@@ -227,7 +218,7 @@
                                 'required' => false,
                             ]) !!}
                         </div>
-                    </div> -->
+                    </div> --}}
             @endif
 
             @if (Auth::user()->isAdmin())
@@ -268,22 +259,15 @@
              
             <div class="row">
                 {{-- <div class="col-sm-12 col-lg-2 col-md-12 form-group">
-                    {!! Form::label('price', trans('labels.backend.courses.fields.price'), [
-                        'class' => 'control-label',
-                    ]) !!}
-                    {!! Form::number('price', old('price'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.courses.fields.price'),
-                        'step' => 'any',
-                        'pattern' => '[0-9]',
-                    ]) !!}
+                    <label for="price" class="control-label">{{ trans('labels.backend.courses.fields.price') }}</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.price') }}" step="any" pattern="[0-9]" name="price" type="number" value="{{ old('price', $course->price) }}">
                 </div> --}}
                 {{-- <div class="col-sm-12 col-lg-4 col-md-12">
                     <label for="control-label">@lang('Minimum percentage required to qualify')</label>
                     <input type="number" name="marks_required" class="form-control"
                         oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value > 100) this.value = 100; if(this.value < 1 && this.value != '') this.value = 1;">
                 </div> --}}
-                <!--div class="col-12 col-lg-4 form-group">
+                {{-- <div class="col-12 col-lg-4 form-group">
                                 {!! Form::label(
                                     'strike',
                                     trans('labels.backend.courses.fields.strike') . ' (in ' . $appCurrency['symbol'] . ')',
@@ -295,7 +279,7 @@
                                     'step' => 'any',
                                     'pattern' => '[0-9]',
                                 ]) !!}
-                            </div-->
+                            </div> --}}
                 <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                     <div style="margin-bottom: 8px;">
                         Course Image
@@ -508,24 +492,21 @@
             <div class="row">
                 
                 <div class="col-12 d-flex float-right gap-20">
-                    <!-- <div class="col-12 text-center form-group">
-                                {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
+                            <!-- <div class="col-12 text-center form-group">
+                                {{-- {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!} --}}
                             </div> -->
 
                             @if($course->published == 0)
 
                             <div class=" ">
-                                {!! Form::submit(trans('Save As Draft'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
+                                <button class="btn add-btn frm_submit" id="doneBtn" type="submit">{{ trans('Save As Draft') }}</button>
                             </div>
                             <div class=" ">
-                                {!! Form::submit(trans('Next'), [
-                                    'class' => 'btn cancel-btn frm_submit',
-                                    'id' => 'nextBtn',
-                                ]) !!}
+                                <button class="btn cancel-btn frm_submit" id="nextBtn" type="submit">{{ trans('Next') }}</button>
                             </div>
                             @else
                             <div class="form-group">
-                                {!! Form::submit(trans('Update'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
+                                <button class="btn add-btn frm_submit" id="doneBtn" type="submit">{{ trans('Update') }}</button>
                             </div>
                             @endif
     
@@ -537,7 +518,7 @@
     </div>
     </div></div>
     
-    {!! Form::close() !!}
+    </form>
 @stop
 
 @push('after-scripts')

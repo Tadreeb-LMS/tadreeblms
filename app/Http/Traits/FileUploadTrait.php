@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Traits;
+namespace App\Http\Traits;
 
 use App\Models\Media;
 use CustomHelper;
@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 trait FileUploadTrait
 {
@@ -31,7 +32,7 @@ trait FileUploadTrait
                     // Check file width
                     $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
                     $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                    $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                     $file = $request->file($key);
                     $image = Image::make($file);
                     if (!file_exists(public_path('storage/uploads/thumb'))) {
@@ -59,7 +60,7 @@ trait FileUploadTrait
 
                     $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
                     $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                    $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                     $request->file($key)->move(public_path('storage/uploads'), $filename);
                     $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
                 }
@@ -87,7 +88,7 @@ trait FileUploadTrait
                     $file = $request->file($key);
                     $extension = $file->getClientOriginalExtension();
                     $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
 
                     if ($request->has($key . '_max_width') && $request->has($key . '_max_height')) {
                         $image = \Image::make($file);
@@ -151,7 +152,7 @@ trait FileUploadTrait
                         foreach ($request->file($key) as $item) {
                             $extension = array_last(explode('.', $item->getClientOriginalName()));
                             $name = array_first(explode('.', $item->getClientOriginalName()));
-                            $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                            $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                             $size = $item->getSize() / 1024;
                             $item->move(public_path('storage/uploads'), $filename);
                             Media::create([
@@ -174,7 +175,7 @@ trait FileUploadTrait
     
                                 $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
                                 $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                                $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                                $filename = time() . '-' . Str::slug($name) . '.' . $extension;
     
                                 $size = $file->getSize() / 1024;
                                 $file->move(public_path('storage/uploads'), $filename);
@@ -193,7 +194,7 @@ trait FileUploadTrait
     
                                 $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
                                 $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                                $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                                $filename = time() . '-' . Str::slug($name) . '.' . $extension;
     
                                 $size = $file->getSize() / 1024;
                                 $file->move(public_path('storage/uploads'), $filename);
@@ -212,7 +213,7 @@ trait FileUploadTrait
                                     foreach($request->file($key) as $f){
                                         $extension = array_last(explode('.', $f->getClientOriginalName()));
                                         $name = array_first(explode('.', $f->getClientOriginalName()));
-                                        $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                                        $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                                         $f->move(public_path('storage/uploads'), $filename);
                                         $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
                                         $model->lesson_image = $filename;
@@ -223,7 +224,7 @@ trait FileUploadTrait
                                 }else{
                                     $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
                                     $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                                    $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
         
                                     $request->file($key)->move(public_path('storage/uploads'), $filename);
                                     $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
@@ -262,7 +263,7 @@ trait FileUploadTrait
                     foreach ($request->file($key) as $item) {
                         $extension = $item->getClientOriginalExtension();
                         $name = pathinfo($item->getClientOriginalName(), PATHINFO_FILENAME);
-                        $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                        $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                         $size = $item->getSize() / 1024;
 
                         // Upload to S3
@@ -292,7 +293,7 @@ trait FileUploadTrait
                     foreach ($file as $f) {
                         $extension = $f->getClientOriginalExtension();
                         $name = pathinfo($f->getClientOriginalName(), PATHINFO_FILENAME);
-                        $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                        $filename = time() . '-' . Str::slug($name) . '.' . $extension;
 
                         $aws_url = CustomHelper::uploadToS3($f, $filename, '');
                         $url = ''; //Storage::disk('s3')->url("videos/{$filename}");
@@ -305,7 +306,7 @@ trait FileUploadTrait
                 } else {
                     $extension = $file->getClientOriginalExtension();
                     $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                     $size = $file->getSize() / 1024;
 
                     $aws_url = CustomHelper::uploadToS3($file, $filename, '');
@@ -356,7 +357,7 @@ trait FileUploadTrait
             if ($request->hasFile($key)) {
                 $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
                 $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                $filename = time() . '-' . str_slug($name) . '.' . $extension;
+                $filename = time() . '-' . Str::slug($name) . '.' . $extension;
                 $request->file($key)->move(public_path('storage/logos'), $filename);
                 $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
 

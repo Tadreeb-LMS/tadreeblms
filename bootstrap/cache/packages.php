@@ -1,26 +1,4 @@
 <?php return array (
-  'appstract/laravel-blade-directives' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Appstract\\BladeDirectives\\BladeDirectivesServiceProvider',
-    ),
-  ),
-  'arcanedev/log-viewer' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Arcanedev\\LogViewer\\LogViewerServiceProvider',
-      1 => 'Arcanedev\\LogViewer\\Providers\\DeferredServicesProvider',
-    ),
-  ),
-  'arcanedev/no-captcha' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Arcanedev\\NoCaptcha\\NoCaptchaServiceProvider',
-    ),
-  ),
   'barryvdh/laravel-debugbar' => 
   array (
     'aliases' => 
@@ -44,13 +22,6 @@
       0 => 'Barryvdh\\DomPDF\\ServiceProvider',
     ),
   ),
-  'barryvdh/laravel-ide-helper' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
-    ),
-  ),
   'barryvdh/laravel-translation-manager' => 
   array (
     'providers' => 
@@ -58,25 +29,15 @@
       0 => 'Barryvdh\\TranslationManager\\ManagerServiceProvider',
     ),
   ),
-  'benjamincrozat/laravel-dropbox-driver' => 
+  'bdhabib/laravel-menu' => 
   array (
-    'providers' => 
+    'aliases' => 
     array (
-      0 => 'BC\\Laravel\\DropboxDriver\\ServiceProvider',
+      'LaravelMenu' => 'Bdhabib\\LaravelMenu\\Facades\\LaravelMenu',
     ),
-  ),
-  'beyondcode/laravel-dump-server' => 
-  array (
     'providers' => 
     array (
-      0 => 'BeyondCode\\DumpServer\\DumpServerServiceProvider',
-    ),
-  ),
-  'coderello/laravel-passport-social-grant' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Coderello\\SocialGrant\\Providers\\SocialGrantServiceProvider',
+      0 => 'Bdhabib\\LaravelMenu\\LaravelMenuServiceProvider',
     ),
   ),
   'creativeorange/gravatar' => 
@@ -101,81 +62,12 @@
       0 => 'Darryldecode\\Cart\\CartServiceProvider',
     ),
   ),
-  'davejamesmiller/laravel-breadcrumbs' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'DaveJamesMiller\\Breadcrumbs\\BreadcrumbsServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Breadcrumbs' => 'DaveJamesMiller\\Breadcrumbs\\Facades\\Breadcrumbs',
-    ),
-  ),
   'directorytree/ldaprecord-laravel' => 
   array (
     'providers' => 
     array (
       0 => 'LdapRecord\\Laravel\\LdapServiceProvider',
       1 => 'LdapRecord\\Laravel\\LdapAuthServiceProvider',
-    ),
-  ),
-  'facade/ignition' => 
-  array (
-    'aliases' => 
-    array (
-      'Flare' => 'Facade\\Ignition\\Facades\\Flare',
-    ),
-    'providers' => 
-    array (
-      0 => 'Facade\\Ignition\\IgnitionServiceProvider',
-    ),
-  ),
-  'fideloper/proxy' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
-    ),
-  ),
-  'graham-campbell/markdown' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'GrahamCampbell\\Markdown\\MarkdownServiceProvider',
-    ),
-  ),
-  'harimayco/laravel-menu' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Harimayco\\Menu\\MenuServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Menu' => 'Harimayco\\Menu\\Facades\\Menu',
-    ),
-  ),
-  'hieu-le/active' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'HieuLe\\Active\\ActiveServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Active' => 'HieuLe\\Active\\Facades\\Active',
-    ),
-  ),
-  'intervention/image' => 
-  array (
-    'aliases' => 
-    array (
-      'Image' => 'Intervention\\Image\\Facades\\Image',
-    ),
-    'providers' => 
-    array (
-      0 => 'Intervention\\Image\\ImageServiceProvider',
     ),
   ),
   'jenssegers/agent' => 
@@ -194,13 +86,6 @@
     'providers' => 
     array (
       0 => 'Laravel\\Cashier\\CashierServiceProvider',
-    ),
-  ),
-  'laravel/legacy-factories' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Illuminate\\Database\\Eloquent\\LegacyFactoryServiceProvider',
     ),
   ),
   'laravel/passport' => 
@@ -235,18 +120,6 @@
       0 => 'Laravel\\Ui\\UiServiceProvider',
     ),
   ),
-  'laravelcollective/html' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Collective\\Html\\HtmlServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Form' => 'Collective\\Html\\FormFacade',
-      'Html' => 'Collective\\Html\\HtmlFacade',
-    ),
-  ),
   'maatwebsite/excel' => 
   array (
     'aliases' => 
@@ -256,66 +129,6 @@
     'providers' => 
     array (
       0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
-    ),
-  ),
-  'macsidigital/laravel-api-client' => 
-  array (
-    'aliases' => 
-    array (
-    ),
-    'providers' => 
-    array (
-      0 => 'MacsiDigital\\API\\Providers\\APIServiceProvider',
-    ),
-  ),
-  'macsidigital/laravel-oauth2-client' => 
-  array (
-    'aliases' => 
-    array (
-    ),
-    'providers' => 
-    array (
-      0 => 'MacsiDigital\\OAuth2\\Providers\\OAuth2ServiceProvider',
-    ),
-  ),
-  'macsidigital/laravel-zoom' => 
-  array (
-    'aliases' => 
-    array (
-      'Zoom' => 'MacsiDigital\\Zoom\\Facades\\Zoom',
-    ),
-    'providers' => 
-    array (
-      0 => 'MacsiDigital\\Zoom\\Providers\\ZoomServiceProvider',
-    ),
-  ),
-  'madnest/madzipper' => 
-  array (
-    'aliases' => 
-    array (
-      'Madzipper' => 'Madnest\\Madzipper\\Madzipper',
-    ),
-    'providers' => 
-    array (
-      0 => 'Madnest\\Madzipper\\MadzipperServiceProvider',
-    ),
-  ),
-  'mews/purifier' => 
-  array (
-    'aliases' => 
-    array (
-      'Purifier' => 'Mews\\Purifier\\Facades\\Purifier',
-    ),
-    'providers' => 
-    array (
-      0 => 'Mews\\Purifier\\PurifierServiceProvider',
-    ),
-  ),
-  'mtownsend/read-time' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Mtownsend\\ReadTime\\Providers\\ReadTimeServiceProvider',
     ),
   ),
   'nesbot/carbon' => 
@@ -332,6 +145,13 @@
       0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     ),
   ),
+  'nunomaduro/termwind' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    ),
+  ),
   'simplesoftwareio/simple-qrcode' => 
   array (
     'aliases' => 
@@ -341,20 +161,6 @@
     'providers' => 
     array (
       0 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
-    ),
-  ),
-  'skyraptor/chatter' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'SkyRaptor\\Chatter\\ChatterServiceProvider',
-    ),
-  ),
-  'spatie/laravel-backup' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Spatie\\Backup\\BackupServiceProvider',
     ),
   ),
   'spatie/laravel-cookie-consent' => 
@@ -375,15 +181,15 @@
       0 => 'Spatie\\Html\\HtmlServiceProvider',
     ),
   ),
-  'spatie/laravel-newsletter' => 
+  'spatie/laravel-ignition' => 
   array (
     'aliases' => 
     array (
-      'Newsletter' => 'Spatie\\Newsletter\\NewsletterFacade',
+      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
     ),
     'providers' => 
     array (
-      0 => 'Spatie\\Newsletter\\NewsletterServiceProvider',
+      0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     ),
   ),
   'spatie/laravel-permission' => 
@@ -393,11 +199,15 @@
       0 => 'Spatie\\Permission\\PermissionServiceProvider',
     ),
   ),
-  'tanmuhittin/laravel-google-translate' => 
+  'spatie/laravel-signal-aware-command' => 
   array (
+    'aliases' => 
+    array (
+      'Signal' => 'Spatie\\SignalAwareCommand\\Facades\\Signal',
+    ),
     'providers' => 
     array (
-      0 => 'Tanmuhittin\\LaravelGoogleTranslate\\LaravelGoogleTranslateServiceProvider',
+      0 => 'Spatie\\SignalAwareCommand\\SignalAwareCommandServiceProvider',
     ),
   ),
   'torann/geoip' => 

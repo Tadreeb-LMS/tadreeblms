@@ -321,7 +321,7 @@
 
 
                 <div class="">
-                    <input class="form-control" type="date" name="lesson_start_date" id="lesson_start_date" placeholder="12/09/2022">
+                    <input class="form-control" type="date" name="lesson_start_date" id="lesson_start_date">
                 </div>
                 
             </div>
@@ -400,12 +400,14 @@
 <script>
     $(document).ready(function() {
 
-       $('#lesson_start_date').datetimepicker({
-    format: 'Y-m-d H:00'
-});
+       /* $('#lesson_start_date').datetimepicker({
+    format: 'Y-m-d',
+    timepicker: false
+}); */
 
         $('.custom-date-picker').datetimepicker({
-            format: 'Y-m-d H:00',
+            format: 'Y-m-d',
+            timepicker: false
         });
     });
 
@@ -416,10 +418,10 @@
     $(document).on('change', 'input[name="lesson_image"]', function() {
         var $this = $(this);
         $(this.files).each(function(key, value) {
-            // if (value.size > 5000000) {
-            //     alert('"' + value.name + '"' + 'exceeds limit of maximum file upload size')
-            //     $this.val("");
-            // }
+            if (value.size > 50000000) { // 50MB
+                alert('"' + value.name + '"' + ' exceeds limit of maximum file upload size (50MB)')
+                $this.val("");
+            }
         })
     });
 

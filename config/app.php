@@ -169,7 +169,7 @@ return [
     |
     */
 
-    'providers' => [
+    'providers' => array_filter([
 
         /*
          * Laravel Framework Service Providers...
@@ -196,30 +196,29 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Collective\Html\HtmlServiceProvider::class,
+        Spatie\Html\HtmlServiceProvider::class,
 
         /*
          * Package Service Providers that aren't auto-discover...
          */
-        UniSharp\LaravelFilemanager\LaravelFilemanagerServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
-        Yajra\Datatables\DatatablesServiceProvider::class,
-        Yajra\DataTables\DataTablesServiceProvider::class,
-        Yajra\DataTables\ButtonsServiceProvider::class,
+        class_exists(\UniSharp\LaravelFilemanager\LaravelFilemanagerServiceProvider::class) ? \UniSharp\LaravelFilemanager\LaravelFilemanagerServiceProvider::class : null,
+        class_exists(\Intervention\Image\ImageServiceProvider::class) ? \Intervention\Image\ImageServiceProvider::class : null,
+        class_exists(\Yajra\Datatables\DatatablesServiceProvider::class) ? \Yajra\Datatables\DatatablesServiceProvider::class : null,
+        class_exists(\Yajra\DataTables\DataTablesServiceProvider::class) ? \Yajra\DataTables\DataTablesServiceProvider::class : null,
+        class_exists(\Yajra\DataTables\ButtonsServiceProvider::class) ? \Yajra\DataTables\ButtonsServiceProvider::class : null,
         Maatwebsite\Excel\ExcelServiceProvider::class,
 //        Gerardojbaez\Messenger\MessengerServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
         //ConsoleTVs\Invoices\InvoicesServiceProvider::class,
-        Harimayco\Menu\MenuServiceProvider::class,
+        class_exists(\Harimayco\Menu\MenuServiceProvider::class) ? \Harimayco\Menu\MenuServiceProvider::class : null,
 
 
+        Spatie\CookieConsent\CookieConsentServiceProvider::class,
         Barryvdh\TranslationManager\ManagerServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
 
-        Maatwebsite\Excel\ExcelServiceProvider::class,
-        BC\Laravel\DropboxDriver\ServiceProvider::class,
-        Mtownsend\ReadTime\Providers\ReadTimeServiceProvider::class,
+
 
 
         /*
@@ -228,16 +227,14 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         App\Providers\BladeServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\ObserverServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        //Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
-        LdapRecord\Laravel\LdapServiceProvider::class,
+        class_exists(\LdapRecord\Laravel\LdapServiceProvider::class) ? \LdapRecord\Laravel\LdapServiceProvider::class : null,
 
 
-    ],
+    ]),
 
     /*
     |--------------------------------------------------------------------------
@@ -250,8 +247,9 @@ return [
     |
     */
 
-    'aliases' => [
+    'aliases' => array_filter([
 
+        'Active' => App\Helpers\General\Active::class,
         'App' => Illuminate\Support\Facades\App::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
         'Auth' => Illuminate\Support\Facades\Auth::class,
@@ -290,17 +288,16 @@ return [
         /*
          * Package Aliases
          */
-        'Active' => HieuLe\Active\Facades\Active::class,
         'Gravatar' => Creativeorange\Gravatar\Facades\Gravatar::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-        'Form' => Collective\Html\FormFacade::class,
-        'Html' => Collective\Html\HtmlFacade::class,
-        'Image' => Intervention\Image\Facades\Image::class,
+        // 'Form' => Collective\Html\FormFacade::class,
+        // 'Html' => Collective\Html\HtmlFacade::class,
+        'Image' => class_exists(\Intervention\Image\Facades\Image::class) ? \Intervention\Image\Facades\Image::class : null,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 //        'Messenger' => Gerardojbaez\Messenger\Facades\Messenger::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
-        'Menu' => Harimayco\Menu\Facades\Menu::class,
+        'Menu' => class_exists(\Harimayco\Menu\Facades\Menu::class) ? \Harimayco\Menu\Facades\Menu::class : null,
         'PDF' => Barryvdh\DomPDF\Facade::class,
 
         'CustomHelper' => 'App\Helpers\CustomHelper',
@@ -309,7 +306,7 @@ return [
 
         'Ldap' => LdapRecord\Laravel\Facades\Ldap::class,
 
-    ],
+    ]),
 
     /*
    |--------------------------------------------------------------------------

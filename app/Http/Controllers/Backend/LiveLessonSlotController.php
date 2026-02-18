@@ -8,14 +8,21 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\LiveLesson;
 use App\Models\LiveLessonSlot;
+use App\Services\ZoomService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use MacsiDigital\Zoom\Facades\Zoom;
 use Yajra\DataTables\Facades\DataTables;
 
 class LiveLessonSlotController extends Controller
 {
+    protected $zoomService;
+
+    public function __construct(ZoomService $zoomService)
+    {
+        $this->zoomService = $zoomService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -79,7 +86,9 @@ class LiveLessonSlotController extends Controller
                     $view = view('backend.datatable.action-view')
                         ->with(['route' => route('admin.live-lesson-slots.show', ['live_lesson_slot' => $liveLessonsSlot->id])])->render();
                 }
-                if ($liveLessonsSlot->start_at->timezone(config('zoom.timezone'))->gt(Carbon::now(new \DateTimeZone(config('zoom.timezone'))))) {
+                // Check if start_at timezone config is available or default to UTC
+                $timezone = config('zoom.timezone', 'UTC');
+                if ($liveLessonsSlot->start_at->timezone($timezone)->gt(Carbon::now(new \DateTimeZone($timezone)))) {
                     if ($has_edit) {
                         $edit = view('backend.datatable.action-edit')
                             ->with(['route' => route('admin.live-lesson-slots.edit', ['live_lesson_slot' => $liveLessonsSlot->id])])
@@ -101,7 +110,8 @@ class LiveLessonSlotController extends Controller
                 return $liveLessonsSlot->start_at->format('d-m-Y h:i:s A');
             })
             ->editColumn('start_url', function ($liveLessonsSlot) {
-                if ($liveLessonsSlot->start_at->timezone(config('zoom.timezone'))->lt(Carbon::now(new \DateTimeZone(config('zoom.timezone'))))) {
+                 $timezone = config('zoom.timezone', 'UTC');
+                if ($liveLessonsSlot->start_at->timezone($timezone)->lt(Carbon::now(new \DateTimeZone($timezone)))) {
                     return '<a href="#" class="btn btn-warning btn-block mb-1 text-white">'.trans('labels.backend.live_lesson_slots.closed').'</a>';
                 } else {
                     return '<a href="' . $liveLessonsSlot->start_url . '" class="btn btn-success btn-block mb-1">' . trans('labels.backend.live_lesson_slots.start_url') . '</a>';
@@ -152,6 +162,9 @@ class LiveLessonSlotController extends Controller
 
         $meeting = $this->meetingCreateOrUpdate($request);
 
+        if (!$meeting) {
+            return back()->withFlashDanger(__('alerts.backend.general.error_zoom_connection'));
+        }
 
         $saveField = [
             'lesson_id' => $request->lesson_id,
@@ -226,6 +239,10 @@ class LiveLessonSlotController extends Controller
         ]);
         $meeting = $this->meetingCreateOrUpdate($request, true, $liveLessonSlot->meeting_id);
 
+        if (!$meeting) {
+            return back()->withFlashDanger(__('alerts.backend.general.error_zoom_connection'));
+        }
+
         $saveField = [
             'lesson_id' => $request->lesson_id,
             'meeting_id' => $meeting->id,
@@ -258,15 +275,24 @@ class LiveLessonSlotController extends Controller
         if(!Gate::allows('live_lesson_slot_delete')){
             return abort(401);
         }
-        $meeting = Zoom::meeting()->find($liveLessonSlot->meeting_id);
-        $meeting->delete();
+        
+        $this->zoomService->deleteMeeting($liveLessonSlot->meeting_id);
+        
         $liveLessonSlot->forceDelete();
         return redirect()->route('admin.live-lesson-slots.index')->withFlashSuccess(__('alerts.backend.general.deleted'));
     }
 
     private function meetingCreateOrUpdate(Request $request, $update = false, $meetingId = null)
     {
-        $user = Zoom::user()->get()->first();
+        $user = $this->zoomService->getFirstUser();
+        
+        if (!$user && !$update) {
+            // If user not found and creating, we can't proceed.
+            // If updating, we might not need user id logic if calling patch /meetings/{id} directly?
+            // Actually patch /meetings/{id} doesn't need user id.
+            return null;
+        }
+
         $meetingData = [
             'topic' => $request->topic,
             'type' => 2,
@@ -274,17 +300,10 @@ class LiveLessonSlotController extends Controller
             'duration' => $request->duration,
             'password' => $request->password,
             'start_time' => $request->start_at,
-            'timezone' => config('zoom.timezone')
+            'timezone' => config('zoom.timezone', 'UTC')
         ];
 
-        if($update){
-            $meeting = Zoom::meeting()->find($meetingId);
-            $meeting->update($meetingData);
-        }else {
-            $meeting = Zoom::meeting()->make($meetingData);
-        }
-
-        $meeting->settings()->make([
+        $settings = [
             'join_before_host' => $request->change_default_setting ? ($request->join_before_host ? true: false) : (config('zoom.join_before_host')? true: false),
             'host_video' => $request->change_default_setting ? ($request->host_video ? true: false) : (config('zoom.host_video') ? true : false),
             'participant_video' => $request->change_default_setting ? ($request->participant_video ? true: false) : (config('zoom.participant_video') ? true : false),
@@ -293,9 +312,33 @@ class LiveLessonSlotController extends Controller
             'approval_type' => $request->change_default_setting ? $request->approval_type : config('zoom.approval_type'),
             'audio' => $request->change_default_setting ? $request->audio_option : config('zoom.audio'),
             'auto_recording' => config('zoom.auto_recording')
-        ]);
+        ];
 
-        return $user->meetings()->save($meeting);
+        $meetingData['settings'] = $settings;
+
+        if($update){
+            $this->zoomService->updateMeeting($meetingId, $meetingData);
+            // Since update returns 204, we need to construct response or fetch.
+            // Optimization: Just return the updated data merged with old ID. 
+            // BUT we don't have old data easily unless we fetch. 
+            // Or we assume start_url etc didn't change (Zoom URLs don't usually change on update).
+            // Let's refetch to be safe, or just return an object with ID and what we have? 
+            // The method expects an object with id, start_url, join_url.
+            // If we fetch:
+            $response = $this->zoomService->getMeeting($meetingId);
+            if ($response->successful()) {
+                return (object) $response->json();
+            }
+             // Fallback: return what we have (this might be risky if start_url is needed but not in $meetingData)
+             // But existing code expects it.
+            return null;
+        }else {
+             $response = $this->zoomService->createMeeting($user['id'], $meetingData);
+             if ($response->successful()) {
+                 return (object) $response->json();
+             }
+             return null;
+        }
     }
 
     private function meetingMail($liveLessonSlot)

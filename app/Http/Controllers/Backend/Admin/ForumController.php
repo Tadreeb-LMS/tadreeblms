@@ -6,6 +6,7 @@ use \App\Models\ChatterCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ForumController extends Controller
 {
@@ -47,12 +48,12 @@ class ForumController extends Controller
             'order' => 'required',
         ]);
 
-        $cat = ChatterCategory::where('slug', '=', str_slug($request->name))->first();
+        $cat = ChatterCategory::where('slug', '=', Str::slug($request->name))->first();
         if ($cat == null) {
             $cat = new ChatterCategory();
             $cat->parent_id = $request->parent_id;
             $cat->name = $request->name;
-            $cat->slug = str_slug($request->name);
+            $cat->slug = Str::slug($request->name);
             $cat->order = $request->order;
             $cat->color = $request->color;
             $cat->save();
@@ -106,7 +107,7 @@ class ForumController extends Controller
 
         $cat->parent_id = $request->parent_id;
         $cat->name = $request->name;
-        $cat->slug = str_slug($request->name);
+        $cat->slug = Str::slug($request->name);
         $cat->order = $request->order;
         $cat->color = $request->color;
         $cat->save();

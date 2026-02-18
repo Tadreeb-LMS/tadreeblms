@@ -3,7 +3,8 @@
 @section('title', __('labels.backend.courses.title').' | '.app_name())
 
 @section('content')
-{!! Form::open(['method' => 'POST', 'route' => ['admin.courses.store'], 'files' => true]) !!}
+<form method="POST" action="{{ route('admin.courses.store') }}" enctype="multipart/form-data">
+@csrf
 
 
  <div class="card">
@@ -23,8 +24,12 @@
         @if (Auth::user()->isAdmin())
         <div class="row">
             <div class="col-10 form-group">
-                {!! Form::label('internal_students',trans('labels.backend.courses.fields.internal_students'), ['class' => 'control-label']) !!}
-                {!! Form::select('internalStudents[]', $internalStudents, old('internalStudents'), ['class' => 'form-control select2 js-example-internal-student-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
+                <label for="internal_students" class="control-label">{{ trans('labels.backend.courses.fields.internal_students') }}</label>
+                <select name="internalStudents[]" class="form-control select2 js-example-internal-student-placeholder-multiple" multiple>
+                    @foreach($internalStudents as $id => $name)
+                        <option value="{{ $id }}" {{ in_array($id, old('internalStudents', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         @endif
@@ -44,12 +49,12 @@
 
         <div class="row">
             <div class="col-12 text-center form-group">
-                {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
+                <button type="submit" class="btn btn-lg btn-danger">{{ trans('strings.backend.general.app_save') }}</button>
             </div>
         </div>
     </div>
 </div>
-{!! Form::close() !!}
+</form>
 @stop
 
 @push('after-scripts')

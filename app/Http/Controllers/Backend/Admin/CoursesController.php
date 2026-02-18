@@ -30,6 +30,7 @@ use Session;
 use App\Exports\CourseAssignmentReportExport;
 use App\Notifications\Backend\CourseNotification;
 use App\Services\NotificationSettingsService;
+use Illuminate\Support\Str;
 
 class CoursesController extends Controller
 {
@@ -582,7 +583,7 @@ class CoursesController extends Controller
 
             $slug = "";
             if (($request->slug == "") || $request->slug == null) {
-                $slug = str_slug($request->title);
+                $slug = Str::slug($request->title);
             } elseif ($request->slug != null) {
                 $slug = $request->slug;
             }
@@ -879,7 +880,7 @@ class CoursesController extends Controller
         
         $slug = "";
         if (($request->slug == "") || $request->slug == null) {
-            $slug = str_slug($request->title);
+            $slug = Str::slug($request->title);
         } elseif ($request->slug != null) {
             $slug = $request->slug;
         }
@@ -968,7 +969,7 @@ class CoursesController extends Controller
         $course->is_online = $request->course_type ?? 'Online';
 
         if (($request->slug == "") || $request->slug == null) {
-            $course->slug = str_slug($request->title);
+            $course->slug = Str::slug($request->title);
             $course->save();
         }
         if ((int)$request->price == 0) {

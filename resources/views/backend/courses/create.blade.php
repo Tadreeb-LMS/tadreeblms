@@ -88,7 +88,8 @@
     </div>
 
 
-    {!! Form::open(['route' => ['admin.courses.store'], 'id' => 'addCourse', 'method' => 'POST', 'files' => true]) !!}
+    <form method="POST" action="{{ route('admin.courses.store') }}" id="addCourse" enctype="multipart/form-data">
+    @csrf
 
     <div class="">
         <div class="pb-3 d-flex justify-content-between addcourseheader">
@@ -105,12 +106,12 @@
          
         </div>
         <div class="card coursesteps">
-        <!-- <div class="card-header">
+        {{-- <div class="card-header">
             <h3 class="page-title float-left">@lang('labels.backend.courses.create')</h3>
             <div class="float-right">
                 <a href="{{ route('admin.courses.index') }}" class="btn btn-success">@lang('labels.backend.courses.view')</a>
             </div>
-        </div> -->
+        </div> --}}
 
         <div class="card-body">
             @if (Auth::user()->isAdmin())
@@ -147,25 +148,21 @@
             @endif
 
             @if (Auth::user()->isAdmin())
-                <!-- <div class="row">
+                {{-- <div class="row">
                         <div class="col-10 form-group">
-                            {!! Form::label('internal_students', trans('labels.backend.courses.fields.internal_students'), [
-                                'class' => 'control-label',
-                            ]) !!}
-                            {!! Form::select('internalStudents[]', $internalStudents, old('internalStudents'), [
-                                'class' => 'form-control select2 js-example-internal-student-placeholder-multiple',
-                                'multiple' => 'multiple',
-                                'required' => false,
-                            ]) !!}
+                            <label for="internal_students" class="control-label">
+                                {{ trans('labels.backend.courses.fields.internal_students') }}
+                            </label>
+                            <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.internal_students') }}" name="internal_students" type="text" value="{{ old('internal_students') }}">
                         </div>
-                    </div> -->
+                    </div> --}}
             @endif
 
             @if (Auth::user()->isAdmin())
                 {{-- <div class="row">
             <div class="col-10 form-group">
-                {!! Form::label('external_students',trans('labels.backend.courses.fields.external_students'), ['class' => 'control-label']) !!}
-                {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents'), ['class' => 'form-control select2 js-example-external-student-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
+               {!! Form::label('external_students',trans('labels.backend.courses.fields.external_students'), ['class' => 'control-label']) !!}
+               {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents'), ['class' => 'form-control select2 js-example-external-student-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
             </div>
         </div> --}}
             @endif
@@ -200,17 +197,12 @@
             <div class="row">
 
                 <div class="col-sm-12 col-lg-12 col-md-12 form-group">
-                    {!! Form::label('course_code', 'Course Code' . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('course_code', old('course_code'), [
-                        'class' => 'form-control',
-                        'placeholder' => 'Course code',
-                        'required' => false,
-                    ]) !!}
+                    <label for="course_code" class="control-label">Course Code *</label>
+                    <input class="form-control" placeholder="Course code" name="course_code" type="text" value="{{ old('course_code') }}">
                 </div>
                 <div class="col-md-12 col-lg-12 form-group">
                     <div>
-
-                        {!! Form::label('slug', trans('Course Language'), ['class' => 'control-label']) !!}
+                        <label for="slug" class="control-label">{{ trans('Course Language') }}</label>
                     </div>
                     <div class="custom-select-wrapper">
 
@@ -225,15 +217,11 @@
                 </div>
                 
                 <div class="col-sm-12 col-lg-12 col-md-12 form-group">
-                    {!! Form::label('title', trans('labels.backend.courses.fields.title') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.courses.fields.title'),
-                        'required' => false,
-                    ]) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.courses.fields.title') }} *</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.title') }}" name="title" type="text" value="{{ old('title') }}">
                 </div>
                 {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                    {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
+                    {!! Form::label('arabic_title', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
                     {!! Form::text('arabic_title', old('arabic_title'), [
                         'class' => 'form-control',
                         'placeholder' => trans('Arabic Title'),
@@ -254,11 +242,8 @@
 
 <div class="col-md-6 col-12 form-group">
  <div class="form-group">
-                    {!! Form::label('description', trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('description', old('description'), [
-                        'class' => 'form-control editor',
-                        'placeholder' => trans('labels.backend.courses.fields.description'),
-                    ]) !!}
+                    <label for="description" class="control-label">{{ trans('labels.backend.courses.fields.description') }}</label>
+                    <textarea class="form-control editor" placeholder="{{ trans('labels.backend.courses.fields.description') }}" name="description" cols="50" rows="10">{{ old('description') }}</textarea>
 
                 </div>
  </div>
@@ -278,7 +263,7 @@
                     ]) !!}
                 </div> --}}
                 
-                <!--div class="col-12 col-lg-4 form-group">
+                {{-- <div class="col-12 col-lg-4 form-group">
                                 {!! Form::label(
                                     'strike',
                                     trans('labels.backend.courses.fields.strike') . ' (in ' . $appCurrency['symbol'] . ')',
@@ -290,7 +275,7 @@
                                     'step' => 'any',
                                     'pattern' => '[0-9]',
                                 ]) !!}
-                            </div-->
+                            </div> --}}
                 <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                     <div style="margin-bottom: 8px;">
                         Course Image
@@ -320,23 +305,14 @@
 
                 @if (Auth::user()->isAdmin())
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                        {!! Form::label('expire_at', trans('labels.backend.courses.fields.expire_at') . ' (yyyy-mm-dd) *', [
-                            'class' => 'control-label',
-                        ]) !!}
-                        {!! Form::text('expire_at', old('expire_at'), [
-                            'class' => 'form-control date',
-                             'id' => 'expire_at',
-                            'pattern' =>
-                                '(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))',
-                            'placeholder' => trans('labels.backend.courses.fields.expire_at') . ' (Ex . 2019-01-01)',
-                            'autocomplete' => 'off',
-                        ]) !!}
+                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) *</label>
+                        <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
                     </div>
                 @endif
             </div>
 
-            <!-- <div class="row">
+            {{-- <div class="row">
                         <label class="col-md-2 form-control-label" for="first_name">Select Department</label>
 
                         <div class="col-md-10">
@@ -346,9 +322,8 @@
     <option value="{{ $row->id }}"> {{ $row->title }} </option>
     @endforeach
                             </select>
-                        </div> -->
-            <!--col-->
-            <!-- </div> -->
+                        </div>
+             </div> --}}
 
             <div class="row">
                 <div class="col-md-12 form-group">
@@ -399,14 +374,14 @@
                         accept="video/mp4"
                         placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}">
             </div> --}}
-                {{-- <div class="col-md-12 form-group d-none" id="video_subtitle_box"> --}}
+            {{--     <div class="col-md-12 form-group d-none" id="video_subtitle_box">
 
-                {{-- {!! Form::label('add_subtitle', trans('labels.backend.lessons.fields.add_subtitle'), ['class' => 'control-label']) !!} --}}
+                {!! Form::label('add_subtitle', trans('labels.backend.lessons.fields.add_subtitle'), ['class' => 'control-label']) !!}
 
-                {{-- {!! Form::file('video_subtitle', ['class' => 'form-control', 'placeholder' => trans('labels.backend.lessons.video_subtitle'),'id'=>'video_subtitle'  ]) !!} --}}
+                {!! Form::file('video_subtitle', ['class' => 'form-control', 'placeholder' => trans('labels.backend.lessons.video_subtitle'),'id'=>'video_subtitle'  ]) !!}
 
-                {{-- </div> --}}
-                {{-- <div class="col-md-12 form-group">
+                </div>
+                <div class="col-md-12 form-group">
 
                     @lang('labels.backend.lessons.video_guide')
                 </div> --}}
@@ -416,17 +391,14 @@
             <div class="row">
                 
                 <div class="col-12 d-flex float-right gap-20">
-                    <!-- <div class="col-12 text-center form-group">
+                    {{-- <div class="col-12 text-center form-group">
                                 {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
-                            </div> -->
+                            </div> --}}
                             <div class="">
-                                {!! Form::submit(trans('Save As Draft'), ['class' => 'btn add-btn frm_submit', 'id' => 'doneBtn']) !!}
+                                <input class="btn add-btn frm_submit" id="doneBtn" type="submit" value="{{ trans('Save As Draft') }}">
                             </div>
                             <div class="">
-                                {!! Form::submit(trans('Next'), [
-                                    'class' => 'btn cancel-btn frm_submit',
-                                    'id' => 'nextBtn',
-                                ]) !!}
+                                <input class="btn cancel-btn frm_submit" id="nextBtn" type="submit" value="{{ trans('Next') }}">
                             </div>
     
                 </div>
@@ -439,7 +411,7 @@
     </div>
     </div>
     
-    {!! Form::close() !!}
+    </form>
 @stop
 
 @push('after-scripts')

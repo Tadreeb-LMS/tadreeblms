@@ -15,6 +15,7 @@ use App\Models\TestQuestion;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 class TestsController extends Controller
 {
@@ -225,7 +226,7 @@ class TestsController extends Controller
             'course_id' => $selected_course_id,
             'title' => $test_title,
             'description' => $test_title,
-            'slug' => str_slug($test_title),
+            'slug' => Str::slug($test_title),
             'passing_score' => 80
         ]);
 
@@ -275,7 +276,7 @@ class TestsController extends Controller
         }
 
         $test = Test::create($request->all());
-        $test->slug = str_slug($request->title);
+        $test->slug = Str::slug($request->title);
         $test->save();
 
         $sequence = 1;
@@ -320,7 +321,7 @@ class TestsController extends Controller
         //dd($request->all());
 
         $test = Test::create($request->all());
-        $test->slug = str_slug($request->title);
+        $test->slug = Str::slug($request->title);
         $test->save();
 
         $sequence = 1;
@@ -384,7 +385,7 @@ class TestsController extends Controller
         }
         $test = Test::findOrFail($id);
         $test->update($request->all());
-        $test->slug = str_slug($request->title);
+        $test->slug = Str::slug($request->title);
         $test->save();
 
 

@@ -59,10 +59,10 @@
                 {{ html()->label(__('labels.backend.hero_slider.fields.bg_image'))->class('col-md-2 form-control-label')->for('image') }}
 
                 <div class="col-md-10">
-                    <!-- {!! Form::file('image', ['class' => 'form-control d-inline-block', 'placeholder' => '', 'accept' => 'image/jpeg,image/gif,image/png']) !!}
+                    {{-- {!! Form::file('image', ['class' => 'form-control d-inline-block', 'placeholder' => '', 'accept' => 'image/jpeg,image/gif,image/png']) !!}
                     {!! Form::hidden('slide_image_max_size', 8) !!}
                     {!! Form::hidden('slide_image_max_width', 4000) !!}
-                    {!! Form::hidden('slide_image_max_height', 4000) !!} -->
+                    {!! Form::hidden('slide_image_max_height', 4000) !!} --}}
                                     <div class="custom-file-upload-wrapper">
     <input type="file" name="image" id="customFileInput" class="custom-file-input">
     <label for="customFileInput" class="custom-file-label">

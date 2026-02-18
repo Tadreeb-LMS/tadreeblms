@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\stripe;
+namespace App\Models\Stripe;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

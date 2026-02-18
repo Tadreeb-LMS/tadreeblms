@@ -74,6 +74,13 @@ class Handler extends ExceptionHandler
                 ->withFlashDanger(__('auth.general_error'));
         }
 
+        /* ✅ POST TOO LARGE ERROR */
+        if ($exception instanceof \Illuminate\Http\Exceptions\PostTooLargeException) {
+            return redirect()
+                ->back()
+                ->withFlashDanger(__('The uploaded file is too large. Please upload a smaller file.'));
+        }
+
         return parent::render($request, $exception);
     }
 

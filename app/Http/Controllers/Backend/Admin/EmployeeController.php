@@ -120,10 +120,6 @@ class EmployeeController extends Controller
     }
 
 
-      
-
-
-   
     /**
      * Display a listing of Courses via ajax DataTable.
      *

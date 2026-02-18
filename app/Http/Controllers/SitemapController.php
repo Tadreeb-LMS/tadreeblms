@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SitemapController extends Controller
 {
@@ -16,7 +17,7 @@ class SitemapController extends Controller
     public function index($file=null)
     {
         try{
-            return Storage::disk('local')->get('sitemap-'.str_slug(config('app.name')).'/'.$file);
+            return Storage::disk('local')->get('sitemap-'.Str::slug(config('app.name')).'/'.$file);
         }
         catch (\Exception $e){
             abort(404);

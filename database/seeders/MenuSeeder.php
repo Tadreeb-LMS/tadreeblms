@@ -41,19 +41,19 @@ class MenuSeeder extends Seeder
             ]
         ];
 
-        $nav_menu = \Harimayco\Menu\Models\Menus::where('name', '=', 'nav-menu')->first();
+        $nav_menu = \Bdhabib\LaravelMenu\Models\Menus::where('name', '=', 'nav-menu')->first();
         if ($nav_menu == "") {
-            $nav_menu = new \Harimayco\Menu\Models\Menus();
+            $nav_menu = new \Bdhabib\LaravelMenu\Models\Menus();
         }
         $nav_menu->name = 'nav-menu';
         $nav_menu->save();
         foreach ($menus as $key => $item) {
             $key++;
-            $menuItem = \Harimayco\Menu\Models\MenuItems::where('link', '=', $item['url'])
+            $menuItem = \Bdhabib\LaravelMenu\Models\MenuItems::where('link', '=', $item['url'])
                 ->where('label','=',$item['name'])
                 ->where('menu', '=', $nav_menu->id)->first();
             if ($menuItem == "") {
-                $menuItem = new \Harimayco\Menu\Models\MenuItems();
+                $menuItem = new \Bdhabib\LaravelMenu\Models\MenuItems();
                 $menuItem->label = $item['name'];
                 $menuItem->link = \Illuminate\Support\Arr::last(explode('/', $item['url']));
                 $menuItem->parent = 0;
@@ -72,16 +72,16 @@ class MenuSeeder extends Seeder
         $nav_menu_config->save();
 
 
-        $menus = \Harimayco\Menu\Models\Menus::all();
+        $menus = \Bdhabib\LaravelMenu\Models\Menus::all();
         foreach ($menus as $menu) {
             if ($menu != NULL) {
-                $menuItems = \Harimayco\Menu\Models\MenuItems::where('menu', '=', $menu->id)->get();
+                $menuItems = \Bdhabib\LaravelMenu\Models\MenuItems::where('menu', '=', $menu->id)->get();
                 if ($menuItems != null) {
                     $allMenu = [];
                     foreach ($menuItems as $item) {
-                        $allMenu[str_slug($item['label'])] = $item['label'];
+                        $allMenu[\Illuminate\Support\Str::slug($item['label'])] = $item['label'];
                     }
-                    $main[str_slug($menu->name)] = $allMenu;
+                    $main[\Illuminate\Support\Str::slug($menu->name)] = $allMenu;
                     $file = fopen(public_path('../resources/lang/en/custom-menu.php'), 'a');
                     if ($file !== false) {
                         ftruncate($file, 0);

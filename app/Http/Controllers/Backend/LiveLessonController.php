@@ -10,6 +10,7 @@ use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 class LiveLessonController extends Controller
 {
@@ -139,7 +140,7 @@ class LiveLessonController extends Controller
             'short_text' => 'required'
         ]);
 
-        $slug = str_slug($request->title);
+        $slug = Str::slug($request->title);
 
         $slug_lesson = Lesson::where('slug', '=', $slug)->first();
 
@@ -210,7 +211,7 @@ class LiveLessonController extends Controller
             'short_text' => 'required'
         ]);
 
-        $slug = str_slug($request->title);
+        $slug = Str::slug($request->title);
 
         $slug_lesson = Lesson::where('slug', '=', $slug)->where('id', '!=', $liveLesson->id)->first();
 

@@ -15,7 +15,8 @@
 </div>
     <div class="card">
         <div class="card-body">
-            {!! Form::open(['method' => 'POST', 'route' => ['admin.announcement.store'], 'files' => true]) !!}
+            <form method="POST" action="{{ route('admin.announcement.store') }}" enctype="multipart/form-data">
+                @csrf
 
             <div class="col-md-3 mb-4 pl-0 mt-2 custom-select-wrapper">
                 <select name="lang" id="change-lang" class="form-control custom-select-box">
@@ -32,12 +33,8 @@
 
                     
                         <div class="col-md-12 col-lg-6 form-group">
-                            {!! Form::label('title', trans('labels.backend.reasons.fields.title') . ' *', ['class' => 'control-label']) !!}
-                            {!! Form::text('title', old('title'), [
-                                'class' => 'form-control',
-                                'placeholder' => trans('labels.backend.reasons.fields.title'),
-                                'required' => false,
-                            ]) !!}
+                            <label for="title" class="control-label">{{ trans('labels.backend.reasons.fields.title') }} *</label>
+                            <input class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.title') }}" name="title" type="text" value="{{ old('title') }}">
 
                         </div>
 
@@ -56,18 +53,14 @@
         
                         </div> --}}
                         <div class="col-12 form-group">
-                            {!! Form::label('content', trans('labels.backend.reasons.fields.content') . ' *', ['class' => 'control-label']) !!}
-                            {!! Form::textarea('content', old('content'), [
-                                'class' => 'form-control',
-                                'placeholder' => trans('labels.backend.reasons.fields.content'),
-                                'required' => false,
-                            ]) !!}
+                            <label for="content" class="control-label">{{ trans('labels.backend.reasons.fields.content') }} *</label>
+                            <textarea class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.content') }}" name="content" cols="50" rows="10">{{ old('content') }}</textarea>
 
                         </div>
 
                         <div class="col-12 form-group text-right">
 
-                            {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'add-btn']) !!}
+                            <button class="add-btn" type="submit">{{ trans('strings.backend.general.app_save') }}</button>
                         </div>
                     
 
@@ -76,7 +69,7 @@
 
 
             </div>
-            {!! Form::close() !!}
+            </form>
 
         </div>
     </div>

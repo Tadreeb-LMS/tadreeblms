@@ -526,3 +526,19 @@ if (!function_exists('random_strings')) {
         return substr(str_shuffle($str_result), 0, $length_of_string);
     }
 }
+
+if (! function_exists('active_class')) {
+    /**
+     * Get the active class if the condition is not false.
+     *
+     * @param        $condition
+     * @param string $activeClass
+     * @param string $inactiveClass
+     *
+     * @return string
+     */
+    function active_class($condition, $activeClass = 'active', $inactiveClass = '')
+    {
+        return $condition ? $activeClass : $inactiveClass;
+    }
+}

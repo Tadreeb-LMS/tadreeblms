@@ -174,7 +174,7 @@ class CustomHelper
     }
 
 
-    public  function getCourseProgress($course, $sub_data, $user_id)
+    public static function getCourseProgress($course, $sub_data, $user_id)
     {
         if (!$course || !$sub_data) {
             return 100;

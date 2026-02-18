@@ -17,9 +17,10 @@ return [
      */
 
     'pattern'       => [
-        'prefix'    => Filesystem::PATTERN_PREFIX,    // 'laravel-'
-        'date'      => Filesystem::PATTERN_DATE,      // '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-        'extension' => Filesystem::PATTERN_EXTENSION, // '.log'
+        // literal fallbacks for patterns (avoid relying on package constants)
+        'prefix'    => 'laravel-',
+        'date'      => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        'extension' => '.log',
     ],
 
     /* -----------------------------------------------------------------

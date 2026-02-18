@@ -306,6 +306,7 @@ class User extends Authenticatable
         return $this->hasMany(Withdraw::class, 'user_id', 'id');
     }
 
+    /*
     public function threads()
     {
         return $this->belongsToMany(
@@ -315,6 +316,7 @@ class User extends Authenticatable
             'thread_id'
         )->withPivot('last_read');
     }
+    */
 
     public function lessonSlotBookings()
     {

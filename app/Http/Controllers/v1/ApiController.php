@@ -75,6 +75,7 @@ use SkyRaptor\Chatter\Events\ChatterBeforeNewResponse;
 use SkyRaptor\Chatter\Mail\ChatterDiscussionUpdated;
 use SkyRaptor\Chatter\Models\Models;
 use JWTAuth;
+use Illuminate\Support\Str;
 
 class ApiController extends Controller
 {
@@ -1513,7 +1514,7 @@ class ApiController extends Controller
         }
 
         // *** Let's gaurantee that we always have a generic slug *** //
-        $slug = str_slug($request->title, '-');
+        $slug = Str::slug($request->title, '-');
 
         $discussion_exists = Models::discussion()->where('slug', '=', $slug)->withTrashed()->first();
         $incrementer = 1;
@@ -2658,7 +2659,7 @@ class ApiController extends Controller
 
         $slug = "";
         if (($request->slug == "") || $request->slug == null) {
-            $slug = str_slug($request->title);
+            $slug = Str::slug($request->title);
         } elseif ($request->slug != null) {
             $slug = $request->slug;
         }
@@ -2784,7 +2785,7 @@ class ApiController extends Controller
 
         $slug = "";
         if (($request->slug == "") || $request->slug == null) {
-            $slug = str_slug($request->title);
+            $slug = Str::slug($request->title);
         } elseif ($request->slug != null) {
             $slug = $request->slug;
         }
@@ -2855,7 +2856,7 @@ class ApiController extends Controller
         $course->save();
         // dd($course);
         if (($request->slug == "") || $request->slug == null) {
-            $course->slug = str_slug($request->title);
+            $course->slug = Str::slug($request->title);
             $course->save();
             // dd($course);
         }

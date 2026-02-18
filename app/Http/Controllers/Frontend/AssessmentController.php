@@ -396,7 +396,8 @@ class AssessmentController extends Controller
             AssignmentQuestion::insert($data);
         }
 
-
+        $has_feedback = 0;
+        $return_url = route('user.mycourses');
         //Update the subscribe Course
         if(isset($user_id) && isset( $assignment_id )) {
 

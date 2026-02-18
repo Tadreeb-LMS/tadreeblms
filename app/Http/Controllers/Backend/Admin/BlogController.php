@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redirect;
 use Intervention\Image\Facades\Image;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
@@ -112,7 +113,7 @@ class BlogController extends Controller
 
     if ($has_edit) {
         $edit .= view('backend.datatable.action-edit')
-            ->with(['route' => route('admin.blogs.edit', ['blog' => $q->id])])
+            ->with(['route' => route('admin.blogs.edit', ['id' => $q->id])])
             ->render();
     }
 
@@ -180,7 +181,7 @@ class BlogController extends Controller
         $blog = new Blog();
         $blog->title = $request->title;
         if($request->slug == ""){
-            $blog->slug = str_slug($request->title);
+            $blog->slug = Str::slug($request->title);
         }else{
             $blog->slug = $request->slug;
         }
@@ -230,11 +231,11 @@ class BlogController extends Controller
             $tag_ids = [];
             $tags = explode(',', $request->tags);
             foreach ($tags as $item) {
-                $tag = Tag::where('slug', '=', str_slug($item, '-'))->first();
+                $tag = Tag::where('slug', '=', Str::slug($item, '-'))->first();
                 if ($tag == null) {
                     $tag = new Tag();
                     $tag->name = $item;
-                    $tag->slug = str_slug($item, '-');
+                    $tag->slug = Str::slug($item, '-');
                     $tag->save();
                 }
                 $tag_ids[] = $tag->id;
@@ -307,7 +308,7 @@ class BlogController extends Controller
         $blog = Blog::findOrFail($id);
         $blog->title = $request->title;
         if($request->slug == ""){
-            $blog->slug = str_slug($request->title);
+            $blog->slug = Str::slug($request->title);
         }else{
             $blog->slug = $request->slug;
         }
@@ -360,11 +361,11 @@ class BlogController extends Controller
             $tag_ids = [];
             $tags = explode(',', $request->tags);
             foreach ($tags as $item) {
-                $tag = Tag::where('slug', '=', str_slug($item, '-'))->first();
+                $tag = Tag::where('slug', '=', Str::slug($item, '-'))->first();
                 if ($tag == null) {
                     $tag = new Tag();
                     $tag->name = $item;
-                    $tag->slug = str_slug($item, '-');
+                    $tag->slug = Str::slug($item, '-');
                     $tag->save();
                 }
                 $tag_ids[] = $tag->id;

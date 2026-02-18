@@ -11,7 +11,7 @@
     </style>
 @endpush
 @section('content')
-    <!-- {!! Form::open(['method' => 'POST', 'route' => ['admin.questions.store'], 'files' => true]) !!} -->
+    {{-- {!! Form::open(['method' => 'POST', 'route' => ['admin.questions.store'], 'files' => true]) !!} --}}
 
     <div class="pb-3 d-flex justify-content-between align-items-center">
         <h4 class="">Feedback Question</h4>
@@ -65,15 +65,12 @@
             </div>
         </div>
         <div class="col-12 text-right">
-            {!! Form::button(trans('strings.backend.general.app_save'), [
-                'class' => 'btn add-btn mb-4 form-group',
-                'id' => 'save',
-            ]) !!}
+            <button class="btn add-btn mb-4 form-group" id="save" type="button">{{ trans('strings.backend.general.app_save') }}</button>
         </div>
     </div>
 
 
-    <!-- {!! Form::close() !!} -->
+    {{-- {!! Form::close() !!} --}}
     <script src="{{ asset('ckeditor/ckeditor.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         CKEDITOR.replace('question');

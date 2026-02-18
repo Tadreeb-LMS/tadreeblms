@@ -56,7 +56,7 @@
             <!-- Tab panes -->
 
 
-            <a href="{{ route('admin.pages.index') }}"
+            <a href="{{ url('/user/position') }}"
                class="btn btn-default border">@lang('strings.backend.general.app_back_to_list')</a>
         </div>
     </div>

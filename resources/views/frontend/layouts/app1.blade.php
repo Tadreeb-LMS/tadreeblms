@@ -262,7 +262,7 @@
         
 
         @yield('content')
-        @include('cookieConsent::index')
+        @include('cookie-consent::index')
 
         @if(1)
             @include('frontend.layouts.partials.footer')

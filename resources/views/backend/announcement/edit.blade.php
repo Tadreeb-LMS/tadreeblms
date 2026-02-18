@@ -5,11 +5,12 @@
     <link rel="stylesheet" href="{{ asset('plugins/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css') }}" />
 @endpush
 @section('content')
-    {!! Form::model($reason, [
-        'method' => 'POST',
-        'route' => ['admin.announcement.update', $reason->id],
-        'files' => true,
-    ]) !!}
+    <form method="POST" action="{{ route('admin.announcement.update', $reason->id) }}" enctype="multipart/form-data">
+        @csrf
+        {{-- @method('PATCH') --}} 
+        {{-- The original code used POST for update in routes, so we stick to POST or check if PUT/PATCH is needed. 
+             Checking routes: Route::post('announcement-update/{page}', ...) 
+             So it is POST, no @method('PATCH') needed. --}}
 
     <div class="alert alert-danger d-none" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -27,19 +28,18 @@
     <div class="card">
         <div class="card-body">
             <div class="col-md-3 mb-4 mt-2 custom-select-wrapper">
-                <select name="lang" id="change-lang" class="form-control custom-select-box>
+                <select name="lang" id="change-lang" class="form-control custom-select-box">
                     <option value="en" @if (request()->lang == 'en') selected @endif>English</option>
                     <option value="ar" @if (request()->lang == 'ar') selected @endif>Arabic</option>
                 </select>
+                <span class="custom-select-icon" style="right: 23px;">
+        <i class="fa fa-chevron-down"></i>
+    </span>
             </div>
             <div class="row justify-content-center">
                 <div class="col-md-12 col-lg-6 form-group">
-                    {!! Form::label('title', trans('labels.backend.reasons.fields.title') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), [
-                        'class' => 'form-control',
-                        'placeholder' => 'Enter Category Name',
-                        'required' => false,
-                    ]) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.reasons.fields.title') }} *</label>
+                    <input class="form-control" placeholder="Enter Category Name" name="title" type="text" value="{{ old('title', $reason->title) }}">
 
                 </div>
                 <div class="col-md-12 col-lg-6 form-group">
@@ -65,7 +65,6 @@
                     </div>
                 @else
                     <div class="col-12 col-lg-4 form-group">
-
                         {!! Form::label('news_image', trans('labels.backend.pages.fields.featured_image').' '.trans('labels.backend.pages.max_file_size'), ['class' => 'control-label']) !!}
                         {!! Form::file('news_image', ['class' => 'form-control']) !!}
                         {!! Form::hidden('news_image_max_size', 8) !!}
@@ -74,23 +73,19 @@
                     </div>
                 @endif --}}
                 <div class="col-12 form-group">
-                    {!! Form::label('content', trans('labels.backend.reasons.fields.content') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::textarea('content', old('content'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.reasons.fields.content'),
-                        'required' => false,
-                    ]) !!}
+                    <label for="content" class="control-label">{{ trans('labels.backend.reasons.fields.content') }} *</label>
+                    <textarea class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.content') }}" name="content" cols="50" rows="10">{{ old('content', $reason->content) }}</textarea>
 
                 </div>
 
                 <div class="col-12 form-group text-right">
 
-                    {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'add-btn']) !!}
+                    <button class="add-btn" type="submit">{{ trans('strings.backend.general.app_save') }}</button>
                 </div>
             </div>
         </div>
     </div>
-    {{ html()->form()->close() }}
+    </form>
 @endsection
 
 @push('after-scripts')

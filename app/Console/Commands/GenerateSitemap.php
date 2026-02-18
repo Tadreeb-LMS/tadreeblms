@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GenerateSitemap extends Command
 {
@@ -61,10 +62,10 @@ class GenerateSitemap extends Command
         $course_sitemap_ctr = ceil($course_count / $chunk_size);
         for ($i = 1; $i <= $course_sitemap_ctr; $i++) {
 
-            $sitemap->addSitemap(env('APP_URL') . '/sitemap-' . str_slug(config('app.name')) . '/' . 'course-list-' . $i . '.xml', date('Y-m-d H:i:s'));
+            $sitemap->addSitemap(env('APP_URL') . '/sitemap-' . Str::slug(config('app.name')) . '/' . 'course-list-' . $i . '.xml', date('Y-m-d H:i:s'));
         }
         $content = $sitemap->render('sitemapindex');
-        Storage::disk('local')->put('sitemap-' . str_slug(config('app.name')) . '/sitemap-index.xml', $content->original);
+        Storage::disk('local')->put('sitemap-' . Str::slug(config('app.name')) . '/sitemap-index.xml', $content->original);
 
 
         //==========================Creating index for Bundles===================================//
@@ -72,10 +73,10 @@ class GenerateSitemap extends Command
         $bundle_sitemap_ctr = ceil($bundle_count / $chunk_size);
         for ($i = 1; $i <= $bundle_sitemap_ctr; $i++) {
 
-            $sitemap->addSitemap(env('APP_URL') . '/sitemap-' . str_slug(config('app.name')) . '/' . 'bundle-list-' . $i . '.xml', date('Y-m-d H:i:s'));
+            $sitemap->addSitemap(env('APP_URL') . '/sitemap-' . Str::slug(config('app.name')) . '/' . 'bundle-list-' . $i . '.xml', date('Y-m-d H:i:s'));
         }
         $content = $sitemap->render('sitemapindex');
-        Storage::disk('local')->put('sitemap-' . str_slug(config('app.name')) . '/sitemap-index.xml', $content->original);
+        Storage::disk('local')->put('sitemap-' . Str::slug(config('app.name')) . '/sitemap-index.xml', $content->original);
 
 
         //==========================Creating index for Blog===================================//
@@ -83,10 +84,10 @@ class GenerateSitemap extends Command
         $blog_sitemap_ctr = ceil($blog_count / $chunk_size);
         for ($i = 1; $i <= $blog_sitemap_ctr; $i++) {
 
-            $sitemap->addSitemap(env('APP_URL') . '/sitemap-' . str_slug(config('app.name')) . '/' . 'blog-list-' . $i . '.xml', date('Y-m-d H:i:s'));
+            $sitemap->addSitemap(env('APP_URL') . '/sitemap-' . Str::slug(config('app.name')) . '/' . 'blog-list-' . $i . '.xml', date('Y-m-d H:i:s'));
         }
         $content = $sitemap->render('sitemapindex');
-        Storage::disk('local')->put('sitemap-' . str_slug(config('app.name')) . '/sitemap-index.xml', $content->original);
+        Storage::disk('local')->put('sitemap-' . Str::slug(config('app.name')) . '/sitemap-index.xml', $content->original);
 
 
         //============================Creating sitemap for Course======================================//
@@ -101,7 +102,7 @@ class GenerateSitemap extends Command
             }
             $content = $sitemap_courses->render('xml');
 
-            Storage::disk('local')->put('sitemap-' . str_slug(config('app.name')) . '/course-list-' . $this->c . '.xml', $content->original);
+            Storage::disk('local')->put('sitemap-' . Str::slug(config('app.name')) . '/course-list-' . $this->c . '.xml', $content->original);
             $this->c = intval($this->c) + 1;
         });
 
@@ -118,7 +119,7 @@ class GenerateSitemap extends Command
             }
             $content = $sitemap_bundles->render('xml');
 
-            Storage::disk('local')->put('sitemap-' . str_slug(config('app.name')) . '/bundle-list-' . $this->bd . '.xml', $content->original);
+            Storage::disk('local')->put('sitemap-' . Str::slug(config('app.name')) . '/bundle-list-' . $this->bd . '.xml', $content->original);
             $this->bd = intval($this->bd) + 1;
         });
 
@@ -134,7 +135,7 @@ class GenerateSitemap extends Command
             }
             $content = $sitemap_blogs->render('xml');
 
-            Storage::disk('local')->put('sitemap-' . str_slug(config('app.name')) . '/blog-list-' . $this->bl . '.xml', $content->original);
+            Storage::disk('local')->put('sitemap-' . Str::slug(config('app.name')) . '/blog-list-' . $this->bl . '.xml', $content->original);
             $this->bl = intval($this->bl) + 1;
         });
 

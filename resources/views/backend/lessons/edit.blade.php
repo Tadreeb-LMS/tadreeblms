@@ -35,7 +35,9 @@
 
 @endpush
 @section('content')
-    {!! Form::model($lesson, ['method' => 'PUT', 'route' => ['admin.lessons.update', $lesson->id], 'files' => true,'autocomplete'=>'off']) !!}
+    <form method="POST" action="{{ route('admin.lessons.update', $lesson->id) }}" enctype="multipart/form-data" autocomplete="off">
+    @csrf
+    @method('PUT')
 
     <div class="pb-3 d-flex justify-content-between align-items-center">
         <h4 class="">@lang('labels.backend.lessons.edit')</h4>
@@ -67,8 +69,8 @@
     </div>
                 </div>
                 <div class="col-md-12 col-lg-6 form-group">
-                    {!! Form::label('title', trans('labels.backend.lessons.fields.title').'*', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.lessons.fields.title'), 'required' => '']) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.lessons.fields.title') }}*</label>
+                    <input type="text" name="title" value="{{ old('title', $lesson->title) }}" class="form-control" placeholder="{{ trans('labels.backend.lessons.fields.title') }}" required>
 
                 </div>
 
@@ -86,18 +88,18 @@
 
             <div class="row">
                 <div class="col-md-12 col-lg-6 form-group">
-                    {!! Form::label('slug', trans('labels.backend.lessons.fields.slug'), ['class' => 'control-label']) !!}
-                    {!! Form::text('slug', old('slug'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.lessons.slug_placeholder')]) !!}
+                    <label for="slug" class="control-label">{{ trans('labels.backend.lessons.fields.slug') }}</label>
+                    <input type="text" name="slug" value="{{ old('slug', $lesson->slug) }}" class="form-control" placeholder="{{ trans('labels.backend.lessons.slug_placeholder') }}">
                 </div>
                 @if ($lesson->lesson_image)
 
                     <div class="col-md-12 col-lg-5 form-group">
 
-                        {!! Form::label('lesson_image', trans('labels.backend.lessons.fields.lesson_image').' '.trans('labels.backend.lessons.max_file_size'), ['class' => 'control-label']) !!}
-                        {!! Form::file('lesson_image', ['class' => 'form-control', 'accept' => 'image/jpeg,image/gif,image/png', 'style' => 'margin-top: 4px;']) !!}
-                        {!! Form::hidden('lesson_image_max_size', 8) !!}
-                        {!! Form::hidden('lesson_image_max_width', 4000) !!}
-                        {!! Form::hidden('lesson_image_max_height', 4000) !!}
+                        <label for="lesson_image" class="control-label">{{ trans('labels.backend.lessons.fields.lesson_image').' '.trans('labels.backend.lessons.max_file_size') }}</label>
+                        <input type="file" name="lesson_image" class="form-control" accept="image/jpeg,image/gif,image/png" style="margin-top: 4px;">
+                        <input type="hidden" name="lesson_image_max_size" value="8">
+                        <input type="hidden" name="lesson_image_max_width" value="4000">
+                        <input type="hidden" name="lesson_image_max_height" value="4000">
                     </div>
                     <div class="col-lg-1 col-12 form-group">
                         <a href="{{ asset('uploads/'.$lesson->lesson_image) }}" target="_blank"><img
@@ -123,32 +125,32 @@
 
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('short_text', trans('labels.backend.lessons.fields.short_text'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('short_text', old('short_text'), ['class' => 'form-control ', 'placeholder' => trans('labels.backend.lessons.short_description_placeholder')]) !!}
+                    <label for="short_text" class="control-label">{{ trans('labels.backend.lessons.fields.short_text') }}</label>
+                    <textarea name="short_text" class="form-control" placeholder="{{ trans('labels.backend.lessons.short_description_placeholder') }}">{{ old('short_text', $lesson->short_text) }}</textarea>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('full_text', trans('labels.backend.lessons.fields.full_text'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('full_text', old('full_text'), ['class' => 'form-control editor', 'placeholder' => '','id' => 'editor']) !!}
+                     <label for="full_text" class="control-label">{{ trans('labels.backend.lessons.fields.full_text') }}</label>
+                     <textarea name="full_text" id="full_text" class="form-control" rows="10" placeholder="">{{ old('full_text', $lesson->full_text) }}</textarea>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('downloadable_files', trans('labels.backend.lessons.fields.downloadable_files').' '.trans('labels.backend.lessons.max_file_size'), ['class' => 'control-label']) !!}
+                    <label for="downloadable_files" class="control-label">{{ trans('labels.backend.lessons.fields.downloadable_files').' '.trans('labels.backend.lessons.max_file_size') }}</label>
                      <div class="custom-file-upload-wrapper">
                             <input type="file" name="image" id="customFileInput" class="custom-file-input">
                             <label for="customFileInput" class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
                         </div>
-                    <!-- {!! Form::file('downloadable_files[]', [
+                    {{-- {!! Form::file('downloadable_files[]', [
                         'multiple',
                         'class' => 'form-control file-upload',
                          'id' => 'downloadable_files',
                         'accept' => "image/jpeg,image/gif,image/png,application/msword,audio/mpeg,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint,application/pdf,video/mp4", 'style' => 'padding: 3px;'
 
-                        ]) !!} -->
+                        ]) !!} --}}
                     <div class="photo-block mt-3">
                         <div class="files-list">
                             @if(count($lesson->media) > 0)
@@ -170,7 +172,7 @@
             </div>
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('pdf_files', trans('labels.backend.lessons.fields.add_pdf'), ['class' => 'control-label']) !!}
+                    <label for="pdf_files" class="control-label">{{ trans('labels.backend.lessons.fields.add_pdf') }}</label>
                     <div class="custom-file-upload-wrapper">
                             <input type="file" name="image" id="customFileInput" class="custom-file-input">
                             <label for="customFileInput" class="custom-file-label">
@@ -201,7 +203,7 @@
 
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('pdf_files', trans('labels.backend.lessons.fields.add_audio'), ['class' => 'control-label']) !!}
+                    <label for="pdf_files" class="control-label">{{ trans('labels.backend.lessons.fields.add_audio') }}</label>
                    <div class="custom-file-upload-wrapper">
                             <input type="file" name="image" id="customFileInput" class="custom-file-input">
                             <label for="customFileInput" class="custom-file-label">
@@ -232,15 +234,22 @@
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    {!! Form::label('add_video', trans('labels.backend.lessons.fields.add_video'), ['class' => 'control-label']) !!}
-                    {!! Form::select('media_type', ['youtube' => 'Youtube','vimeo' => 'Vimeo','upload' => 'Upload','embed' => 'Embed'],($lesson->mediavideo) ? $lesson->mediavideo->type : null,['class' => 'form-control', 'placeholder' => 'Select One','id'=>'media_type' ]) !!}
+                     <label for="add_video" class="control-label">{{ trans('labels.backend.lessons.fields.add_video') }}</label>
+                     
+                     <select class="form-control" placeholder="Select One" id="media_type" name="media_type">
+                        <option value="" disabled {{ $lesson->mediavideo ? '' : 'selected' }}>Select One</option>
+                        <option value="youtube" {{ ($lesson->mediavideo && $lesson->mediavideo->type == 'youtube') ? 'selected' : '' }}>Youtube</option>
+                        <option value="vimeo" {{ ($lesson->mediavideo && $lesson->mediavideo->type == 'vimeo') ? 'selected' : '' }}>Vimeo</option>
+                        <option value="upload" {{ ($lesson->mediavideo && $lesson->mediavideo->type == 'upload') ? 'selected' : '' }}>Upload</option>
+                        <option value="embed" {{ ($lesson->mediavideo && $lesson->mediavideo->type == 'embed') ? 'selected' : '' }}>Embed</option>
+                     </select>
 
 
-                    {!! Form::text('video', ($lesson->mediavideo) ? $lesson->mediavideo->url : null, ['class' => 'form-control mt-3 d-none', 'placeholder' => trans('labels.backend.lessons.enter_video_url'),'id'=>'video'  ]) !!}
+                    <input class="form-control mt-3 d-none" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video" name="video" type="text" value="{{ ($lesson->mediavideo) ? $lesson->mediavideo->url : null }}">
 
 
 
-                    {!! Form::file('video_file', ['class' => 'form-control mt-3 d-none', 'placeholder' => trans('labels.backend.lessons.enter_video_url'),'id'=>'video_file','accept' =>'video/mp4', 'style' => 'padding: 3px;'  ]) !!}
+                    <input class="form-control mt-3 d-none" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video_file" accept="video/mp4" style="padding: 3px;" name="video_file" type="file">
 
                     <input type="hidden" name="old_video_file"
                            value="{{($lesson->mediavideo && $lesson->mediavideo->type == 'upload') ? $lesson->mediavideo->url  : ""}}">
@@ -270,25 +279,25 @@
             </div>
             <div class="form-group row">
                 <div class="col-lg-4 col-md-12">
-                    {{ html()->label('Duration')->class('form-control-label')->for('duration') }}
+                     <label for="duration" class="form-control-label">Duration</label>
 
                     <div class="">
-                       {!! Form::text('duration', old('duration'), ['class' => 'form-control', 'placeholder' => 'Duration [minutes]', ]) !!}
+                       <input class="form-control" placeholder="Duration [minutes]" name="duration" type="text" value="{{ old('duration', $lesson->duration) }}">
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-12">
-                    {{ html()->label('Lesson Start Date')->class('form-control-label')->for('lesson_start_date') }}
+                     <label for="lesson_start_date" class="form-control-label">Lesson Start Date</label>
 
                     <div class="">
                        
-                       <input type="text" value="{{ !empty($lesson->lesson_start_date) ? date('Y-m-d H:i',strtotime($lesson->lesson_start_date)):'' }}" class="form-control date" id="lesson_start_date" name="lesson_start_date"  >
+                       <input type="date" value="{{ !empty($lesson->lesson_start_date) ? date('Y-m-d',strtotime($lesson->lesson_start_date)) : '' }}" class="form-control" id="lesson_start_date" name="lesson_start_date"  >
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-12  form-group" style="margin-top: 30px;">
-                    {!! Form::hidden('published', 0) !!}
-                    {!! Form::checkbox('published', 1, old('published'), []) !!}
-                    {!! Form::label('published', trans('labels.backend.lessons.fields.published'), ['class' => 'control-label control-label font-weight-bold']) !!}
+                    <input type="hidden" name="published" value="0">
+                    <input type="checkbox" name="published" value="1" {{ old('published', $lesson->published) ? 'checked' : '' }}>
+                    <label for="published" class="control-label control-label font-weight-bold">{{ trans('labels.backend.lessons.fields.published') }}</label>
                 </div>
             </div>
 
@@ -296,12 +305,12 @@
 
             <div class="row">
                 <div class="col-12  text-right  form-group " >
-                    {!! Form::submit(trans('strings.backend.general.app_update'), ['class' => 'btn  btn-primary pl-4 pr-4']) !!}
+                    <button type="submit" class="btn btn-primary pl-4 pr-4">{{ trans('strings.backend.general.app_update') }}</button>
                 </div>
             </div>
         </div>
     </div>
-    {!! Form::close() !!}
+    </form>
 @stop
 
 @push('after-scripts')
@@ -313,22 +322,22 @@
     <script>
         $(document).ready(function () {
             //$.datetimepicker.setLocale('pt-BR');
-       	    //$('#datetimepicker').datetimepicker();
-           $('#lesson_start_date').datetimepicker({
+            //$('#datetimepicker').datetimepicker();
+           /* $('#lesson_start_date').datetimepicker({
                 format:'Y-m-d H:00',
-           });
+           }); */
           
        });
 
         $('.editor').each(function () {
 
-            CKEDITOR.replace($(this).attr('id'), {
+            CKEDITOR.replace(this, {
                 filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
                 filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{csrf_token()}}',
                 filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
                 filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{csrf_token()}}',
 
-                extraPlugins: 'smiley,lineutils,widget,codesnippet,prism,flash,colorbutton,colordialog,codesnippet',
+                extraPlugins: 'smiley,lineutils,widget,codesnippet,prism,flash,colorbutton,colordialog',
             });
 
         });

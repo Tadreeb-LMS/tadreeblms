@@ -15,7 +15,8 @@
 </div>
 <div class="card">
     <div class="card-body">
-        {!! Form::open(['method' => 'POST', 'route' => ['admin.libraries.store'], 'files' => true]) !!}
+        <form method="POST" action="{{ route('admin.libraries.store') }}" enctype="multipart/form-data">
+            @csrf
 
         <div class="col-md-3 mb-4 pl-0 mt-2 custom-select-wrapper">
             <select name="lang" id="change-lang" class="form-control custom-select-box">
@@ -32,12 +33,8 @@
 
 
             <div class="col-md-12 col-lg-4 form-group">
-                {!! Form::label('title', trans('labels.backend.reasons.fields.title') . ' *', ['class' => 'control-label']) !!}
-                {!! Form::text('title', old('title'), [
-                'class' => 'form-control',
-                'placeholder' => trans('labels.backend.reasons.fields.title'),
-                'required' => false,
-                ]) !!}
+                <label for="title" class="control-label">{{ trans('labels.backend.reasons.fields.title') }} *</label>
+                <input class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.title') }}" name="title" type="text" value="{{ old('title') }}">
 
             </div>
 
@@ -48,15 +45,11 @@
             </div>
 
             <div class="col-12 col-lg-4 form-group">
-                {!! Form::label(
-                'news_image',
-                trans('labels.backend.pages.fields.featured_image') . ' ' . trans('labels.backend.pages.max_file_size'),
-                ['class' => 'control-label'],
-                ) !!}
-                <!-- {!! Form::file('news_image', ['class' => 'form-control','style' => 'padding:3px', 'accept' => 'image/jpeg,image/gif,image/png']) !!}
+                <label for="news_image" class="control-label">{{ trans('labels.backend.pages.fields.featured_image') . ' ' . trans('labels.backend.pages.max_file_size') }}</label>
+                {{-- {!! Form::file('news_image', ['class' => 'form-control','style' => 'padding:3px', 'accept' => 'image/jpeg,image/gif,image/png']) !!}
                             {!! Form::hidden('news_image_max_size', 8) !!}
                             {!! Form::hidden('news_image_max_width', 4000) !!}
-                            {!! Form::hidden('news_image_max_height', 4000) !!} -->
+                            {!! Form::hidden('news_image_max_height', 4000) !!} --}}
                 <div class="custom-file-upload-wrapper">
                     <input type="file" name="image" id="customFileInput" class="custom-file-input">
                     <label for="customFileInput" class="custom-file-label">
@@ -66,18 +59,14 @@
 
             </div>
             <div class="col-12 form-group">
-                {!! Form::label('video link', '', ['class' => 'control-label']) !!}
-                {!! Form::text('content', old('content'), [
-                'class' => 'form-control',
-                'placeholder' => trans('labels.backend.reasons.fields.content'),
-                'required' => false,
-                ]) !!}
+                <label for="video link" class="control-label">video link</label>
+                <input class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.content') }}" name="content" type="text" value="{{ old('content') }}">
 
             </div>
 
             <div class="col-12 form-group text-right">
 
-                {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'add-btn']) !!}
+                <button class="add-btn" type="submit">{{ trans('strings.backend.general.app_save') }}</button>
             </div>
 
 
@@ -87,7 +76,7 @@
 
         </div>
 
-        {!! Form::close() !!}
+        </form>
     </div>
 </div>
 @endsection

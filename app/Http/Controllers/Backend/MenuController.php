@@ -13,6 +13,7 @@ use App\Http\Requests;
 use App\Models\AdminMenuItem;
 use Harimayco\Menu\Models\Menus;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class MenuController extends Controller
 {
@@ -53,21 +54,21 @@ class MenuController extends Controller
         if (!$menus) {
             $new_menu_data = json_encode(['menu_name' => $menu_name]);
             $new_menu = new Config();
-            $new_menu->key = str_slug($menu_name);
+            $new_menu->key = Str::slug($menu_name);
             $new_menu->value = $new_menu_data;
             $new_menu->save();
-            $add_data = ["id" => $new_menu->id, "name" => str_slug($menu_name)];
+            $add_data = ["id" => $new_menu->id, "name" => Str::slug($menu_name)];
         } else {
             foreach ($menus as $item) {
-                if (str_slug($menu_name) == str_slug($item->name)) {
+                if (Str::slug($menu_name) == Str::slug($item->name)) {
                     return back()->withFlashDanger(__('alerts.backend.menu-manager.exist'));
                 } else {
                     $new_menu_data = json_encode(['menu_name' => $menu_name]);
                     $new_menu = new Config();
-                    $new_menu->key = str_slug($menu_name);
+                    $new_menu->key = Str::slug($menu_name);
                     $new_menu->value = $new_menu_data;
                     $new_menu->save();
-                    $add_data = ["id" => $new_menu->id, "name" => str_slug($menu_name)];
+                    $add_data = ["id" => $new_menu->id, "name" => Str::slug($menu_name)];
                 }
             }
         }
@@ -88,8 +89,8 @@ class MenuController extends Controller
         $menu = Config::findOrFail($request->menu_id);
         if ($menu) {
             $menu_data = json_decode($menu->value);
-            if (str_slug($menu_data->menu_name) != str_slug($request->menu_name)) {
-                $menu_data->menu_name = str_slug($request->menu_name);
+            if (Str::slug($menu_data->menu_name) != Str::slug($request->menu_name)) {
+                $menu_data->menu_name = Str::slug($request->menu_name);
                 $menu->value = json_encode($menu_data);
                 $menu->save();
                 return redirect(route('admin.menu-manager') . '?menu=' . $menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu-manager.updated'));
@@ -142,7 +143,7 @@ class MenuController extends Controller
     public function createnewmenu()
     {
         $menu = new Menus();
-        $menu->name = str_slug(request()->input("menuname"));
+        $menu->name = Str::slug(request()->input("menuname"));
         $menu->save();
         return json_encode(array("resp" => $menu->id));
     }
@@ -211,7 +212,7 @@ class MenuController extends Controller
         $main = NULL;
         $menu = Menus::find(request()->input("idmenu"));
         $menu_bag_data = AdminMenuItem::where('menu', '=', $menu)->get();
-        $menu->name = str_slug(request()->input("menuname"));
+        $menu->name = Str::slug(request()->input("menuname"));
         $menu->save();
         $value = 0;
         if (request('meta')[0]['nav_menu'] == 'true') {
@@ -240,9 +241,9 @@ class MenuController extends Controller
                 if ($menuItems != null) {
                     $allMenu = [];
                     foreach ($menuItems as $item) {
-                        $allMenu[str_slug($item['label'])] = $item['label'];
+                        $allMenu[Str::slug($item['label'])] = $item['label'];
                     }
-                    $main[str_slug($menu->name)] = $allMenu;
+                    $main[Str::slug($menu->name)] = $allMenu;
                     $file = fopen(public_path('../resources/lang/en/custom-menu.php'), 'w');
                     if ($file !== false) {
                         ftruncate($file, 0);

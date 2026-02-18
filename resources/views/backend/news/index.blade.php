@@ -186,7 +186,7 @@
             var id = $(this).data('id');
             $.ajax({
                 type: "POST",
-                url: "{{ route('admin.reasons.status') }}",
+                url: "{{ route('admin.news.status') }}",
                 data: {
                     _token:'{{ csrf_token() }}',
                     id: id,

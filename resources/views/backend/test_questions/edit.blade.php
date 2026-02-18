@@ -2,7 +2,7 @@
 @section('title', __('labels.backend.questions.title').' | '.app_name())
 
 @section('content')
-<!-- {!! Form::open(['method' => 'POST', 'route' => ['admin.questions.store'], 'files' => true,]) !!} -->
+
 
 <div class="pb-3 d-flex justify-content-between align-items-center addcourseheader">
        <h4>
@@ -135,7 +135,7 @@
 
 <div class="btmbtns">
     <div class="col-12 text-right t-3">
-        {!! Form::button(trans('strings.backend.general.app_save'), ['class' => 'add-btn', 'id'=>'save']) !!}
+        <button type="button" class="add-btn" id="save">{{ trans('strings.backend.general.app_save') }}</button>
     </div>
 </div></div>
 
@@ -143,7 +143,7 @@
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.8.0/ckeditor.js"></script>
  -->
  {{-- <script src="//cdn.ckeditor.com/44.3.0/full/ckeditor.js"></script> --}}
-<!-- {!! Form::close() !!} -->
+
 <script src="{{asset('ckeditor/ckeditor.js')}}" type="text/javascript"></script>
 <script type="text/javascript">
     CKEDITOR.replace('question');

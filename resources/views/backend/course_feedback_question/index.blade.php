@@ -45,17 +45,16 @@ width: 58% !important;
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-12 col-lg-6 form-group ">
-                    {!! Form::label('course_id', trans('labels.backend.lessons.fields.course'), ['class' => 'control-label']) !!}
+                    <label for="course_id" class="control-label">{{ trans('labels.backend.lessons.fields.course') }}</label>
                     <div class="custom-select-wrapper">
-
-                        {!! Form::select('course_id', $courses, request('course_id') ? request('course_id') : old('course_id'), [
-                            'class' => 'form-control custom-select-box js-example-placeholder-single select2',
-                            'id' => 'course_id',
-                            
-                        ]) !!}
+                        <select name="course_id" id="course_id" class="form-control custom-select-box js-example-placeholder-single select2">
+                            @foreach($courses as $k => $v)
+                                <option value="{{ $k }}" {{ (request('course_id') == $k || old('course_id') == $k) ? 'selected' : '' }}>{{ $v }}</option>
+                            @endforeach
+                        </select>
                         <span class="custom-select-icon">
-            <i class="fa fa-chevron-down"></i>
-        </span>
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
                     </div>
                 </div>
             </div>

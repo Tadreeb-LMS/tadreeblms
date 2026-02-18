@@ -87,11 +87,7 @@
                         ->prepend('Please select', '');
                 @endphp
                 <div class="col-md-12 col-lg-6 form-group mb-3">
-                    <!-- {!! Form::label('course_id', trans('labels.backend.lessons.fields.course'), ['class' => 'control-label']) !!}
-                    {!! Form::select('course_id', $courses, request('course_id') ? request('course_id') : old('course_id'), [
-                        'class' => 'form-control js-example-placeholder-single select2 ',
-                        'id' => 'course_id',
-                    ]) !!} -->
+
                      <label for="course_id" class="control-label">
                     {{ trans('labels.backend.lessons.fields.course') }}
                 </label>

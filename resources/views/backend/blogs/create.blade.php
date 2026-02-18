@@ -36,7 +36,8 @@
 @endpush
 
 @section('content')
-    {!! Form::open(['method' => 'POST', 'route' => ['admin.blogs.store'], 'files' => true,]) !!}
+    <form method="POST" action="{{ route('admin.blogs.store') }}" enctype="multipart/form-data">
+    @csrf
 
     <div class="pb-3 d-flex justify-content-between align-items-center">
         <h4 >@lang('labels.backend.blogs.create')</h4>
@@ -50,13 +51,17 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-12 col-lg-6 form-group">
-                    {!! Form::label('title', trans('labels.backend.blogs.fields.title'), ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.blogs.fields.title'), ]) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.blogs.fields.title') }}</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.blogs.fields.title') }}" name="title" type="text" value="{{ old('title') }}" id="title">
                 </div>
 
                 <div class="col-12 col-lg-6 form-group">
-                    {!! Form::label('category', trans('labels.backend.blogs.fields.category'), ['class' => 'control-label']) !!}
-                    {!! Form::select('category', $category,  (request('category')) ? request('category') : old('category'), ['class' => 'form-control select2',]) !!}
+                    <label for="category" class="control-label">{{ trans('labels.backend.blogs.fields.category') }}</label>
+                    <select class="form-control select2" name="category" id="category">
+                        @foreach($category as $key => $value)
+                            <option value="{{ $key }}" {{ (old('category') == $key) ? 'selected' : '' }}>{{ $value }}</option>
+                        @endforeach
+                    </select>
                     <span class="custom-select-icon" style="right: 23px; top:45px">
             <i class="fa fa-chevron-down"></i>
         </span>
@@ -66,16 +71,13 @@
 
             <div class="row">
                 <div class="col-12 col-lg-6 form-group">
-                    {!! Form::label('slug',trans('labels.backend.blogs.fields.slug'), ['class' => 'control-label']) !!}
-                    {!! Form::text('slug', old('slug'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.lessons.slug_placeholder')]) !!}
+                    <label for="slug" class="control-label">{{ trans('labels.backend.blogs.fields.slug') }}</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.lessons.slug_placeholder') }}" name="slug" type="text" value="{{ old('slug') }}" id="slug">
 
                 </div>
                 <div class="col-12 col-lg-6 form-group">
-                    {!! Form::label('featured_image', trans('labels.backend.blogs.fields.featured_image').' '.trans('labels.backend.blogs.max_file_size'), ['class' => 'control-label']) !!}
-                    <!-- {!! Form::file('featured_image', ['class' => 'form-control','style' => 'padding:3px' , 'accept' => 'image/jpeg,image/gif,image/png']) !!}
-                    {!! Form::hidden('featured_image_max_size', 8) !!}
-                    {!! Form::hidden('featured_image_max_width', 4000) !!}
-                    {!! Form::hidden('featured_image_max_height', 4000) !!} -->
+                    <label for="featured_image" class="control-label">{{ trans('labels.backend.blogs.fields.featured_image').' '.trans('labels.backend.blogs.max_file_size') }}</label>
+
                                                                <div class="custom-file-upload-wrapper">
     <input type="file" name="image" id="customFileInput" class="custom-file-input">
     <label for="customFileInput" class="custom-file-label">
@@ -88,30 +90,30 @@
 
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('content', trans('labels.backend.blogs.fields.content'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('content', old('content'), ['class' => 'form-control editor', 'placeholder' => '','id' => 'editor']) !!}
+                    <label for="content" class="control-label">{{ trans('labels.backend.blogs.fields.content') }}</label>
+                    <textarea class="form-control editor" placeholder="" id="editor" name="content" cols="50" rows="10">{{ old('content') }}</textarea>
 
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    {!! Form::text('tags', old('tags'), ['class' => 'form-control','data-role' => 'tagsinput', 'placeholder' => trans('labels.backend.blogs.fields.tags_placeholder'),'id'=>'tags']) !!}
+                    <input class="form-control" data-role="tagsinput" placeholder="{{ trans('labels.backend.blogs.fields.tags_placeholder') }}" id="tags" name="tags" type="text" value="{{ old('tags') }}">
 
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('meta_title',trans('labels.backend.blogs.fields.meta_title'), ['class' => 'control-label']) !!}
-                    {!! Form::text('meta_title', old('meta_title'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.blogs.fields.meta_title')]) !!}
+                    <label for="meta_title" class="control-label">{{ trans('labels.backend.blogs.fields.meta_title') }}</label>
+                    <input class="form-control" placeholder="{{ trans('labels.backend.blogs.fields.meta_title') }}" name="meta_title" type="text" value="{{ old('meta_title') }}" id="meta_title">
 
                 </div>
                 <div class="col-12 form-group">
-                    {!! Form::label('meta_description',trans('labels.backend.blogs.fields.meta_description'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('meta_description', old('meta_description'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.blogs.fields.meta_description')]) !!}
+                    <label for="meta_description" class="control-label">{{ trans('labels.backend.blogs.fields.meta_description') }}</label>
+                    <textarea class="form-control" placeholder="{{ trans('labels.backend.blogs.fields.meta_description') }}" name="meta_description" cols="50" rows="10" id="meta_description">{{ old('meta_description') }}</textarea>
                 </div>
                 <div class="col-12 form-group">
-                    {!! Form::label('meta_keywords',trans('labels.backend.blogs.fields.meta_keywords'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('meta_keywords', old('meta_keywords'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.blogs.fields.meta_keywords')]) !!}
+                    <label for="meta_keywords" class="control-label">{{ trans('labels.backend.blogs.fields.meta_keywords') }}</label>
+                    <textarea class="form-control" placeholder="{{ trans('labels.backend.blogs.fields.meta_keywords') }}" name="meta_keywords" cols="50" rows="10" id="meta_keywords">{{ old('meta_keywords') }}</textarea>
                 </div>
             </div>
             <div class="row">
@@ -134,7 +136,9 @@
             </div>
 
         </div>
+        </div>
     </div>
+    </form>
 
 @endsection
 

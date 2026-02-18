@@ -7,6 +7,7 @@ use App\Models\BlogComment;
 use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
@@ -33,7 +34,7 @@ class BlogController extends Controller
     {
         $popular_tags = Tag::has('blogs', '>', 4)->get();
 
-        $category = Category::where('slug', '=', str_slug($request->category))->first();
+        $category = Category::where('slug', '=', Str::slug($request->category))->first();
         $categories = Category::has('blogs')->where('status', '=', 1)->paginate(10);
         if ($category != "") {
             $blogs = $category->blogs()->paginate(6);
@@ -73,7 +74,7 @@ class BlogController extends Controller
     public function getByTag(Request $request)
     {
         $popular_tags = Tag::has('blogs', '>', 4)->get();
-        $tag = Tag::where('slug', '=', str_slug($request->tag))->first();
+        $tag = Tag::where('slug', '=', Str::slug($request->tag))->first();
         $categories = Category::has('blogs')->where('status', '=', 1)->paginate(10);
         if ($tag != "") {
             $blogs = $tag->blogs()->paginate(6);

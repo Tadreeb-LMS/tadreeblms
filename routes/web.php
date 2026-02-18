@@ -72,7 +72,7 @@ Route::get('email-test', function () {
 Route::get('lang/{lang}', [LanguageController::class, 'swap']);
 
 
-Route::get('/sitemap-' . str_slug(config('app.name')) . '/{file?}', 'SitemapController@index');
+Route::get('/sitemap-' . \Illuminate\Support\Str::slug(config('app.name')) . '/{file?}', 'SitemapController@index');
 
 
 //============ Remove this  while creating zip for Envato ===========//

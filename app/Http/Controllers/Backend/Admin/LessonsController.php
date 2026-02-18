@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\Backend\LessonNotification;
 use App\Services\NotificationSettingsService;
+use Illuminate\Support\Str;
 
 class LessonsController extends Controller
 {
@@ -241,7 +242,7 @@ class LessonsController extends Controller
 
         //dd( $course); 
 
-        $courses = Course::has('category')->get()->pluck('title', 'category_id')->prepend('Please select', '');
+        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
          $courses_all = null;
     $temp_id = uniqid();
         return view('backend.lessons.create', compact('courses' ,   'courses_all','temp_id'));
@@ -273,7 +274,7 @@ class LessonsController extends Controller
                 $slug = "";
                 
                 
-                $slug = uniqid() . $request->title[$i];
+                $slug = uniqid() . Str::slug($request->title[$i]);
                 
 
                 $slug_lesson = Lesson::where('slug', '=', $slug)->first();
@@ -505,7 +506,7 @@ class LessonsController extends Controller
            
             $slug = "";
             if (($request->slug == "") || $request->slug == null) {
-                $slug = str_slug($request->title);
+                $slug = Str::slug($request->title);
             } elseif ($request->slug != null) {
                 $slug = $request->slug;
             }

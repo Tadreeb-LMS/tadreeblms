@@ -3,7 +3,8 @@
 
 @section('content')
 
-{!! Form::open(['method' => 'POST', 'route' => ['admin.feedback.store'], 'files' => true]) !!}
+<form method="POST" action="{{ route('admin.feedback.store') }}" enctype="multipart/form-data">
+@csrf
 
 <div class="card">
     <div class="card-header">
@@ -18,20 +19,20 @@
         <div class="row">
 
             <div class="col-12 form-group">
-                {!! Form::label('question', trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
-                {!! Form::textarea('question', old('question'), ['class' => 'form-control editor', 'placeholder' => trans('labels.backend.courses.fields.description')]) !!}
+                <label for="question" class="control-label">{{ trans('labels.backend.courses.fields.description') }}</label>
+                <textarea class="form-control editor" placeholder="{{ trans('labels.backend.courses.fields.description') }}" name="question" cols="50" rows="10">{{ old('question') }}</textarea>
 
             </div>
         </div>
         @endif
         <div class="row">
             <div class="col-12 text-center form-group">
-                {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
+                <button class="btn btn-lg btn-danger" type="submit">{{ trans('strings.backend.general.app_save') }}</button>
             </div>
         </div>
     </div>
 </div>
-{!! Form::close() !!}
+</form>
 @stop
 
 @push('after-scripts')
