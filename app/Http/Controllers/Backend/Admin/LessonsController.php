@@ -242,7 +242,7 @@ class LessonsController extends Controller
 
         //dd( $course); 
 
-        $courses = Course::has('category')->get()->pluck('title', 'category_id')->prepend('Please select', '');
+        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
          $courses_all = null;
     $temp_id = uniqid();
         return view('backend.lessons.create', compact('courses' ,   'courses_all','temp_id'));
