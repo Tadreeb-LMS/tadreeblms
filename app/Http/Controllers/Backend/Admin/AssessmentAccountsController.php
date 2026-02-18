@@ -557,9 +557,9 @@ class AssessmentAccountsController extends Controller
 
         $this->validate($request, 
             [
-                // 'title' => 'required',
+                'title' => 'required',
                 'course_id' => 'required',
-                // 'due_date' => 'required',    
+                'due_date' => 'required',
                 'teachers' => 'required_without:department_id',
                 'department_id' => 'required_without:teachers',
             ],
@@ -613,7 +613,7 @@ class AssessmentAccountsController extends Controller
 
         foreach ($course_ids_arr as $course_id) {
             $course_Ass = new courseAssignment;
-            // $course_Ass->title = $request->title;
+            $course_Ass->title = $request->title;
             $course_Ass->course_id = $course_id;
 
 
@@ -621,8 +621,8 @@ class AssessmentAccountsController extends Controller
             $course_Ass->assign_date =  date('Y-m-d');
             $course_Ass->assign_to = $assign_to;
             //dd($course_Ass->assign_to);
-            // $course_Ass->due_date = $request->due_date;
-            // $course_Ass->message = $request->message;
+            $course_Ass->due_date = $request->due_date;
+            $course_Ass->message = $request->message;
             $course_Ass->department_id = $request->department_id;
             $course_Ass->save();
 
@@ -1120,10 +1120,10 @@ class AssessmentAccountsController extends Controller
     {
 
         DB::table('course_assignment')->where('id', $request->user_id)->update([
-            // 'title' => $request->title,
-            // 'due_date' => $request->due_date,
+            'title' => $request->title,
+            'due_date' => $request->due_date,
             'assign_to' => isset($request->teachers) ? count($request->teachers) > 0 ? implode(',', $request->teachers) : null : null,
-            // 'message' => $request->message,  
+            'message' => $request->message,
             'department_id' => $request->department_id,
             'course_id' => $request->course_id,
         ]);

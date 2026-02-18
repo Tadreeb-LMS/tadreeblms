@@ -70,23 +70,23 @@ class CoursesController extends Controller
                 return abort(401);
             }
             $courses = Course::query()->onlyTrashed()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->ofTeacher()->orderBy('created_at', 'desc');
         } elseif (request('teacher_id') != "") {
             $id = request('teacher_id');
             $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->whereHas('teachers', function ($q) use ($id) {
                     $q->where('course_user.user_id', '=', $id);
                 })->orderBy('created_at', 'desc');
         } elseif (request('cat_id') != "") {
             $id = request('cat_id');
             $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->where('category_id', '=', $id)->orderBy('created_at', 'desc');
         } else {
             $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->orderBy('created_at', 'desc');
         }
 
@@ -209,23 +209,23 @@ class CoursesController extends Controller
                 return abort(401);
             }
             $courses = Course::query()->onlyTrashed()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->ofTeacher()->orderBy('created_at', 'desc');
         } elseif (request('teacher_id') != "") {
             $id = request('teacher_id');
             $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->whereHas('teachers', function ($q) use ($id) {
                     $q->where('course_user.user_id', '=', $id);
                 })->orderBy('created_at', 'desc');
         } elseif (request('cat_id') != "") {
             $id = request('cat_id');
             $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->where('category_id', '=', $id)->orderBy('created_at', 'desc');
         } else {
             $courses = Course::query()
-                // ->whereHas('category')
+                ->whereHas('category')
                 ->orderBy('created_at', 'desc');
             //dd("jlj");
         }
@@ -590,12 +590,7 @@ class CoursesController extends Controller
 
             $uniqueId = uniqid();
 
-            if (!$request->category_id) {
-                $defaultCategory = Category::first();   // get any existing category
-                $request->merge(['category_id' => $defaultCategory->id]);
-                }
-                $course = Course::create($request->all());
-
+            $course = Course::create($request->all());
             $course->slug = $uniqueId . '-' . $slug;
             $course->department_id = $request->department_id;
             $course->cms = $request->cms;

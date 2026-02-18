@@ -95,29 +95,6 @@ class EmployeeController extends Controller
     {
         return view('backend.employee.external_index');
     }
-    public function import(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
-        ]);
-
-        try {
-            Excel::import(new EmployeeImport, $request->file('file'));
-
-            return redirect()->back()->with('success', 'Employees imported successfully!');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = $e->failures();
-            return redirect()->back()->withErrors($failures);
-        }
-    }
-
-    public function downloadSample()
-    {
-        return Excel::download(
-            new EmployeeSampleExport(),
-            'employee_import_sample.xlsx'
-        );
-    }
 
 
     /**
