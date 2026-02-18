@@ -37,7 +37,7 @@
                         </tr>
                         <tr>
                             <th>@lang('labels.backend.tests.fields.published')</th>
-                            <td>{{ Form::checkbox("published", 1, $test->published == 1 ? true : false, ["disabled"]) }}</td>
+                            <td><input type=\"checkbox\" value=\"1\" @if($test->published == 1) checked @endif disabled></td>
                         </tr>
                     </table>
                 </div>

@@ -133,19 +133,13 @@ class Course extends Model
     public function getAssesmentLinkAttribute()
 {
      $buttons = '';
-
     if ($this->latest_assesment->count()) {
-        $buttons .= '<div><a target="_blank" class="btn1" href="' . route('online_assessment', 'assignment=' . $this->latest_assesment[0]->url_code) . '">
-       Create Test 
-                   <!--   <i class="fa fa-folder-open" style="font-size:20px" aria-hidden="true"></i> -->
-                     </a></div>';
-        $buttons .= '<div><a class="btn2" href="/user/tests/create?course_id=' . $this->id . '&new_test"> Online Assignment
-                      <!-- <i class="fa fa-plus-circle" aria-hidden="true" style="font-size:20px;margin-bottom:-3px"></i>  -->
-                     </a></div>';
+        // Swap links: first button should lead to creating a new test, second to viewing the online assessment
+        $buttons .= '<div><a class="btn1" href="/user/tests/create?course_id=' . $this->id . '&new_test">Create Test</a></div>';
+        $buttons .= '<div><a target="_blank" class="btn2" href="' . route('online_assessment', 'assignment=' . $this->latest_assesment[0]->url_code) . '">Online Assignment</a></div>';
     } else {
-        $buttons .= '<div><a class="btn2" href="' . route('admin.assessment_accounts.assignment_create', ['course_id' => $this->id]) . '">Online Assignment
-                     <!-- <i class="fa fa-plus-circle " aria-hidden="true" style="font-size:20px;margin-bottom:-3px"></i> 
-                     </a></div>';
+        // If no test exists, show link to create a test
+        $buttons .= '<div><a class="btn2" href="/user/tests/create?course_id=' . $this->id . '&new_test">Create Test</a></div>';
     }
 
     return $buttons;

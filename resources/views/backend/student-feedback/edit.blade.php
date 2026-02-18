@@ -5,7 +5,9 @@
     <link rel="stylesheet" href="{{asset('plugins/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css')}}"/>
 @endpush
 @section('content')
-    {!! Form::model($reason, ['method' => 'POST', 'route' => ['admin.events.update', $reason->id], 'files' => true,]) !!}
+    <form method="POST" action="{{ route('admin.events.update', $reason->id) }}" enctype="multipart/form-data" class="form-horizontal">
+        @csrf
+        @method('POST')
 
     <div class="alert alert-danger d-none" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -25,8 +27,8 @@
         <div class="card-body">
             <div class="row justify-content-center">
                 <div class="col-12 col-lg-5 form-group">
-                    {!! Form::label('title', trans('labels.backend.reasons.fields.title').' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), ['class' => 'form-control', 'placeholder' => 'Enter Category Name', 'required' => false]) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.reasons.fields.title') }} *</label>
+                    <input type="text" name="title" id="title" value="{{ old('title', $reason->title ?? '') }}" class="form-control" placeholder="Enter Category Name">
 
                 </div>
                 <div class="col-12 col-lg-3 form-group">
@@ -38,11 +40,11 @@
 
                 @if ($reason->icon)
                     <div class="col-12 col-lg-4 form-group">
-                        {!! Form::label('news_image', trans('labels.backend.pages.fields.featured_image').' '.trans('labels.backend.pages.max_file_size'), ['class' => 'control-label']) !!}
-                        {!! Form::file('news_image', ['class' => 'form-control', 'accept' => 'image/jpeg,image/gif,image/png']) !!}
-                        {!! Form::hidden('news_image_max_size', 8) !!}
-                        {!! Form::hidden('news_image_max_width', 4000) !!}
-                        {!! Form::hidden('news_image_max_height', 4000) !!}
+                        <label for="news_image" class="control-label">{{ trans('labels.backend.pages.fields.featured_image') }} {{ trans('labels.backend.pages.max_file_size') }}</label>
+                        <input type="file" name="news_image" id="news_image" class="form-control" accept="image/jpeg,image/gif,image/png">
+                        <input type="hidden" name="news_image_max_size" value="8">
+                        <input type="hidden" name="news_image_max_width" value="4000">
+                        <input type="hidden" name="news_image_max_height" value="4000">
                     </div>
                     <div class="col-lg-1 col-12 form-group">
                         <a href="{{ asset('storage/uploads/'.$reason->icon) }}" target="_blank"><img
@@ -52,27 +54,26 @@
                 @else
                     <div class="col-12 col-lg-4 form-group">
 
-                        {!! Form::label('news_image', trans('labels.backend.pages.fields.featured_image').' '.trans('labels.backend.pages.max_file_size'), ['class' => 'control-label']) !!}
-                        {!! Form::file('news_image', ['class' => 'form-control']) !!}
-                        {!! Form::hidden('news_image_max_size', 8) !!}
-                        {!! Form::hidden('news_image_max_width', 4000) !!}
-                        {!! Form::hidden('news_image_max_height', 4000) !!}
+                        <label for="news_image" class="control-label">{{ trans('labels.backend.pages.fields.featured_image') }} {{ trans('labels.backend.pages.max_file_size') }}</label>
+                        <input type="file" name="news_image" id="news_image" class="form-control">
+                        <input type="hidden" name="news_image_max_size" value="8">
+                        <input type="hidden" name="news_image_max_width" value="4000">
+                        <input type="hidden" name="news_image_max_height" value="4000">
                     </div>
                 @endif
                 <div class="col-12 form-group">
-                    {!! Form::label('content', trans('labels.backend.reasons.fields.content').' *', ['class' => 'control-label']) !!}
-                    {!! Form::textarea('content', old('content'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.reasons.fields.content'), 'required' => false]) !!}
+                    <label for="content" class="control-label">{{ trans('labels.backend.reasons.fields.content') }} *</label>
+                    <textarea name="content" id="content" class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.content') }}">{{ old('content', $reason->content ?? '') }}</textarea>
 
                 </div>
 
                 <div class="col-12 form-group text-center">
-
-                    {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn mt-auto  btn-danger']) !!}
+                    <button type="submit" class="btn mt-auto btn-danger">{{ trans('strings.backend.general.app_save') }}</button>
                 </div>
             </div>
         </div>
     </div>
-    {{ html()->form()->close() }}
+    </form>
 @endsection
 
 @push('after-scripts')

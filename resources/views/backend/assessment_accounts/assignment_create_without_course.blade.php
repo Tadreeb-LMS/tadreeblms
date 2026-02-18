@@ -16,7 +16,8 @@
 </style>
 <!-- {{ html()->form('POST', route('admin.assessment_accounts.assignment_store'))->acceptsFiles()->class('form-horizontal')->open() }} -->
 
-{!! Form::open(['id' => 'addUserAssisment' , 'files' => true]) !!}
+<form id="addUserAssisment" enctype="multipart/form-data" method="POST" action="{{ route('admin.assessment_accounts.assignment_store') }}">
+    @csrf
 <div class="card">
     <div class="card-header">
         <h3 class="page-title d-inline">Add Assessment</h3>
@@ -120,7 +121,7 @@
     </div>
 </div>
 <!-- {{ html()->form()->close() }} -->
-{!! Form::close() !!}
+</form>
 @endsection
 @push('after-scripts')
 <script>

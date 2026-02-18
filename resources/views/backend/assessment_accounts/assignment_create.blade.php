@@ -15,8 +15,8 @@
 
 </style>
 
-
-{!! Form::open(['id' => 'addUserAssisment' , 'files' => true]) !!}
+<form id="addUserAssisment" enctype="multipart/form-data" method="POST" action="{{ route('admin.assessment_accounts.assignment_store') }}">
+    @csrf
 <div class="pb-3 d-flex justify-content-between align-items-center">
     <h4 class="page-title d-inline">Add Course Assessment</h4>
     <div class="">
@@ -97,7 +97,7 @@
     </div>
 </div>
 
-{!! Form::close() !!}
+</form>
 @endsection
 @push('after-scripts')
 <script>

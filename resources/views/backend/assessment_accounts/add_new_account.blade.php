@@ -49,7 +49,8 @@
     <label for="tab-btn-2">@lang('Add Assessment Manually')</label>
  @endif
     <div id="content-1">
-    {!! Form::open(['id' => 'addAssisment' , 'files' => true]) !!}
+    <form id="addAssisment" enctype="multipart/form-data" method="POST" action="{{ route('admin.assessment_accounts.store') }}">
+        @csrf
        <!-- {{ html()->form('POST', route('admin.assessment_accounts.store'))->acceptsFiles()->class('form-horizontal')->open() }} -->
 <div class="card">
     <div class="card-header">
@@ -124,8 +125,8 @@
                 <div class="form-group row justify-content-center">
                     <div class="col-12">
                         {{ form_cancel(route('admin.assessment_accounts.index'), __('buttons.general.cancel')) }}
-                        {!! Form::submit(trans('Next'), ['class' => 'btn btn-lg btn-danger create_done next frm_submit','id'=>'nextBtn']) !!}
-                        {!! Form::submit(trans('Done'), ['class' => 'btn btn-lg create_done frm_submit','id'=>'doneBtn']) !!}
+                        <button type="submit" value="Next" name="action" class="btn btn-lg btn-danger create_done next frm_submit" id="nextBtn">{{ trans('Next') }}</button>
+                        <button type="submit" value="Done" name="action" class="btn btn-lg create_done frm_submit" id="doneBtn">{{ trans('Done') }}</button>
                         <!-- {{ form_submit(__('buttons.general.crud.create')) }} -->
                     </div>
                 </div>
@@ -146,10 +147,11 @@
     </div>
 </div>
 <!-- {{ html()->form()->close() }} -->
-{!! Form::close() !!}
+    </form>
     </div>
     <div id="content-2">
-    {!! Form::open(['id' => 'addAssisment' , 'files' => true]) !!}
+    <form id="addAssisment" enctype="multipart/form-data" method="POST" action="{{ route('admin.assessment_accounts.store') }}">
+        @csrf
     <!-- {{ html()->form('POST', route('admin.assessment_accounts.store'))->acceptsFiles()->class('form-horizontal')->open() }} -->
 <div class="card">
     <div class="card-header">
@@ -189,7 +191,11 @@
               <div class="form-group row">
                 <label class="col-lg-3 col-md-3 col-sm-4 form-control-label" for="test_id">@lang('Users')</label>
                     <div class="col-lg-6 col-md-6 col-sm-7 mb-3 or_optional">
-                    {!! Form::select('teachers[]', $teachers, old('teachers'), ['class' => 'form-control select2 js-example-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
+                    <select name="teachers[]" class="form-control select2 js-example-placeholder-multiple" multiple>
+                        @foreach($teachers as $key => $teacher)
+                            <option value="{{ $key }}" @if(is_array(old('teachers')) && in_array($key, old('teachers'))) selected @endif>{{ $teacher }}</option>
+                        @endforeach
+                    </select>
                     </div>
 
                     <div class="col-lg-3 col-md-3 col-sm-6">
@@ -259,8 +265,8 @@
                 <div class="form-group row justify-content-center">
                     <div class="col-12">
                         {{ form_cancel(route('admin.assessment_accounts.index'), __('buttons.general.cancel')) }}
-                        {!! Form::submit(trans('Next'), ['class' => 'btn btn-lg btn-danger create_done next frm_submit','id'=>'nextBtn']) !!}
-                        {!! Form::submit(trans('Done'), ['class' => 'btn btn-lg create_done frm_submit','id'=>'doneBtn']) !!}
+                        <button type="submit" value="Next" name="action" class="btn btn-lg btn-danger create_done next frm_submit" id="nextBtn">{{ trans('Next') }}</button>
+                        <button type="submit" value="Done" name="action" class="btn btn-lg create_done frm_submit" id="doneBtn">{{ trans('Done') }}</button>
                         <!-- {{ form_submit(__('buttons.general.crud.create')) }} -->
                     </div>
                 </div>
@@ -271,7 +277,7 @@
     <input type="hidden" id="feedback_index" value="{{ route('admin.feedback.create_course_feedback') }}">
 </div>
 <!-- {{ html()->form()->close() }} -->
-{!! Form::close() !!}
+    </form>
     </div>
 
   </div>
@@ -283,7 +289,7 @@
     var nxt_url_val= '';
 
     $('.frm_submit').on('click', function (){
-        nxt_url_val = $(this).val();
+        nxt_url_val = $(this).attr('value');
     });
 $(document).on('submit', '#addAssisment', function (e) {
     e.preventDefault();
@@ -305,7 +311,7 @@ $(document).on('submit', '#addAssisment', function (e) {
                     window.location.href = redirect_url;
                     return;
                 }
-                if(nxt_url_val = 'Done'){
+                if(nxt_url_val == 'Done'){
                     window.location.href = redirect_url_course;
                     return;
                 }

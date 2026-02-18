@@ -110,8 +110,12 @@ use App\Models\Course;
                 $courses = $courses = Course::has('category')->ofTeacher()->pluck('title', 'id')->prepend('Please select', '');
                 @endphp
                 <div class="col-12 col-lg-6 form-group">
-                    {!! Form::label('course_id', trans('labels.backend.lessons.fields.course'), ['class' => 'control-label']) !!}
-                    {!! Form::select('course_id', $courses, (request('course_id')) ? request('course_id') : old('course_id'), ['class' => 'form-control js-example-placeholder-single select2 ', 'id' => 'course_id']) !!}
+                    <label for="course_id" class="control-label">{{ trans('labels.backend.lessons.fields.course') }}</label>
+                    <select name="course_id" id="course_id" class="form-control js-example-placeholder-single select2">
+                        @foreach($courses as $key => $course)
+                            <option value="{{ $key }}" @if((request('course_id') ? request('course_id') : old('course_id')) == $key) selected @endif>{{ $course }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
             <div class="row">

@@ -18,8 +18,9 @@
 @endpush
 @section('content')
 
-    <!-- {!! Form::open(['method' => 'POST', 'route' => ['admin.tests.store']]) !!} -->
-    {!! Form::open(['method' => 'POST', 'id' => 'addTest']) !!}
+    <!-- <form method="POST" action="{{ route('admin.tests.store') }}" class="form-horizontal"> -->
+    <form method="POST" id="addTest" class="form-horizontal">
+        @csrf
 
     <div class="card">
         <div class="card-header">
@@ -36,40 +37,27 @@
 
                     </div> -->
 
-                <div class="col-12 col-lg-6  form-group">
-                    {!! Form::label('title', trans('labels.backend.tests.fields.title'), ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.tests.fields.title'),
-                    ]) !!}
-
+                <div class="col-12 col-lg-6 form-group">
+                    <label for="title" class="control-label">{{ trans('labels.backend.tests.fields.title') }}</label>
+                    <input type="text" name="title" id="title" value="{{ old('title') }}" class="form-control" placeholder="{{ trans('labels.backend.tests.fields.title') }}">
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('description', trans('labels.backend.tests.fields.description'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('description', old('description'), [
-                        'class' => 'form-control ',
-                        'placeholder' => trans('labels.backend.tests.fields.description'),
-                    ]) !!}
+                    <label for="description" class="control-label">{{ trans('labels.backend.tests.fields.description') }}</label>
+                    <textarea name="description" id="description" class="form-control" placeholder="{{ trans('labels.backend.tests.fields.description') }}">{{ old('description') }}</textarea>
                 </div>
             </div>
             <div class="row">
                 <div class="col-4 form-group">
-                    {!! Form::label('passing_score', trans('labels.backend.tests.fields.score_field'), ['class' => 'control-label']) !!}
-                    {!! Form::text('passing_score', old('passing_score'), [
-                        'class' => 'form-control',
-                        'placeholder' => trans('labels.backend.tests.fields.score_field_placeholder'),
-                    ]) !!}
+                    <label for="passing_score" class="control-label">{{ trans('labels.backend.tests.fields.score_field') }}</label>
+                    <input type="text" name="passing_score" id="passing_score" value="{{ old('passing_score') }}" class="form-control" placeholder="{{ trans('labels.backend.tests.fields.score_field_placeholder') }}">
                 </div>
                 <div class="col-4 form-group">
-                    {!! Form::hidden('published', 0) !!}
-                    {!! Form::checkbox('published', 1, false, []) !!}
-                    {!! Form::label('published', trans('labels.backend.tests.fields.published'), [
-                        'class' => 'control-label font-weight-bold',
-                    ]) !!}
-
+                    <input type="hidden" name="published" value="0">
+                    <input type="checkbox" name="published" id="published" value="1" @if(old('published')) checked @endif>
+                    <label for="published" class="control-label font-weight-bold">{{ trans('labels.backend.tests.fields.published') }}</label>
                 </div>
             </div>
         </div>
@@ -83,7 +71,7 @@
 
     <button type="submit" value="submit_add_question" id="submit_add_question" class="frm_submit submit btn btn-info">Save
         & Add Questions</button>
-    {!! Form::close() !!}
+    </form>
 @stop
 @push('after-scripts')
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>

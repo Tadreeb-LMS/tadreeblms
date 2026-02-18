@@ -19,7 +19,9 @@
 @endpush
 @section('content')
 
-    {!! Form::model($test, ['method' => 'PUT', 'route' => ['admin.tests.update', $test->id]]) !!}
+    <form method="POST" action="{{ route('admin.tests.update', $test->id) }}" class="form-horizontal">
+        @csrf
+        @method('PUT')
 
     <div class="pb-3 d-flex justify-content-between align-items-center">
         <h3 class="page-title float-left mb-0">@lang('labels.backend.tests.edit')</h3>
@@ -52,21 +54,21 @@
                 </div>
 
                 <div class="col-md-12 col-lg-6 form-group">
-                    {!! Form::label('title', trans('labels.backend.tests.fields.title'), ['class' => 'control-label']) !!}
-                    {!! Form::text('title', old('title'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.tests.fields.title')]) !!}
+                    <label for="title" class="control-label">{{ trans('labels.backend.tests.fields.title') }}</label>
+                    <input type="text" name="title" id="title" value="{{ old('title', $test->title ?? '') }}" class="form-control" placeholder="{{ trans('labels.backend.tests.fields.title') }}">
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 form-group">
-                    {!! Form::label('description', trans('labels.backend.tests.fields.description'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('description', old('description'), ['class' => 'form-control ', 'placeholder' => trans('labels.backend.tests.fields.description')]) !!}
+                    <label for="description" class="control-label">{{ trans('labels.backend.tests.fields.description') }}</label>
+                    <textarea name="description" id="description" class="form-control" placeholder="{{ trans('labels.backend.tests.fields.description') }}">{{ old('description', $test->description ?? '') }}</textarea>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-lg-4 col-md-12 form-group">
-                    {!! Form::label('passing_score',trans('labels.backend.tests.fields.score_field'), ['class' => 'control-label']) !!}
-                    {!! Form::text('passing_score', old('passing_score'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.tests.fields.score_field_placeholder')]) !!}
+                    <label for="passing_score" class="control-label">{{ trans('labels.backend.tests.fields.score_field') }}</label>
+                    <input type="text" name="passing_score" id="passing_score" value="{{ old('passing_score', $test->passing_score ?? '') }}" class="form-control" placeholder="{{ trans('labels.backend.tests.fields.score_field_placeholder') }}">
                 </div>
                 {{-- <div class="col-4 form-group">
                     {!! Form::hidden('published', 0) !!}
@@ -78,9 +80,8 @@
 
         </div>
         <div class="col-12 mb-3 text-right">
-    
-            {!! Form::submit(trans('strings.backend.general.app_update'), ['class' => 'btn  add-btn']) !!}
-            {!! Form::close() !!}
+            <button type="submit" class="btn add-btn">{{ trans('strings.backend.general.app_update') }}</button>
+        </form>
         </div>
     </div>
 

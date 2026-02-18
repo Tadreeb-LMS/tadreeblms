@@ -6,11 +6,9 @@
     <a href="{{ route($routeKey.'.edit', $row->id) }}" class="btn btn-xs btn-info">@lang('global.app_edit')</a>
 @endcan
 @can($gateKey.'delete')
-    {!! Form::open(array(
-        'style' => 'display: inline-block;',
-        'method' => 'DELETE',
-        'onsubmit' => "return confirm('".trans("global.app_are_you_sure")."');",
-        'route' => [$routeKey.'.destroy', $row->id])) !!}
-    {!! Form::submit(trans('global.app_delete'), array('class' => 'btn btn-xs btn-danger')) !!}
-    {!! Form::close() !!}
+    <form style="display: inline-block;" method="POST" action="{{ route($routeKey.'.destroy', $row->id) }}" onsubmit="return confirm('{{ trans('global.app_are_you_sure') }}')?">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-xs btn-danger">{{ trans('global.app_delete') }}</button>
+    </form>
 @endcan
