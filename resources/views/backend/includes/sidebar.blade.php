@@ -737,6 +737,13 @@
                             <span class="title">@lang('menus.backend.sidebar.settings.license')</span>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps*')) }}"
+                            href="{{ route('admin.external-apps.index') }}">
+                            <span class="title"><i class="fas fa-puzzle-piece mr-1"></i>External Apps</span>
+                        </a>
+                    </li>
                     @endif
                     {{-- <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'footer' ? 'active' : '' }}"

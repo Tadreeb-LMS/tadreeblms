@@ -197,6 +197,16 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@save'])->name('smtp-settings.save');
     Route::post('settings/smtp/test', ['uses' => 'Admin\SmtpSettingsController@sendTestEmail'])->name('smtp-settings.test');
 
+    //===== External Apps Routes =====//
+    Route::get('external-apps', ['uses' => 'Admin\ExternalAppsController@index', 'as' => 'external-apps.index']);
+    Route::get('external-apps/create', ['uses' => 'Admin\ExternalAppsController@create', 'as' => 'external-apps.create']);
+    Route::post('external-apps/store', ['uses' => 'Admin\ExternalAppsController@store', 'as' => 'external-apps.store']);
+    Route::get('external-apps/{slug}', ['uses' => 'Admin\ExternalAppsController@show', 'as' => 'external-apps.show']);
+    Route::post('external-apps/{slug}/toggle-status', ['uses' => 'Admin\ExternalAppsController@toggleStatus', 'as' => 'external-apps.toggle-status']);
+    Route::get('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@editConfig', 'as' => 'external-apps.edit-config']);
+    Route::post('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@updateConfig', 'as' => 'external-apps.update-config']);
+    Route::delete('external-apps/{slug}', ['uses' => 'Admin\ExternalAppsController@destroy', 'as' => 'external-apps.destroy']);
+
 
     //===== Slider Routes =====/
     Route::resource('sliders', 'Admin\SliderController');
