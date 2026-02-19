@@ -330,7 +330,28 @@ class EmployeeController extends Controller
     
     public function get_ldap_data(Request $request)
     {
-        $ldapUsers = LdapUser::query()->get();
+        // If the underlying table for LdapUser doesn't exist (migration not run),
+        // or LDAP is unreachable, return an empty DataTable to avoid frontend errors.
+        try {
+            $ldapModel = new LdapUser();
+            $ldapTable = $ldapModel->getTable();
+            if (!\Illuminate\Support\Facades\Schema::hasTable($ldapTable)) {
+                return DataTables::of(collect())->make(true);
+            }
+        } catch (\Throwable $e) {
+            return DataTables::of(collect())->make(true);
+        }
+
+        try {
+            $ldapUsers = LdapUser::query()->get();
+        } catch (\Throwable $e) {
+            // Could not connect to LDAP or query failed — return empty set
+            return DataTables::of(collect())->make(true);
+        }
+
+        if (empty($ldapUsers) || $ldapUsers->isEmpty()) {
+            return DataTables::of(collect())->make(true);
+        }
 
         $teachers = $ldapUsers->map(function ($user, $i) {
             return [

@@ -198,10 +198,8 @@ class ConfigController extends Controller
         $lang = request()->lang ?? 'en';
         $type = config('theme_layout');
 
-        // Read from .env instead of database
-        //$ldap_toggle = env('LDAP_TOGGLE', false) ? 1 : 0;
-        $ldap_toggle = Config::where('key', 'ldap_toggle')->value('value') ?? 0;
-        //$ldap_connected = session('ldap_connected', 0); // since we are no longer storing in DB
+        // Read toggle state from database (stored by saveLdapEnv)
+        $ldap_toggle = (int) (Config::where('key', 'ldap_toggle')->value('value') ?? 0);
 
         $ldap_host = env('LDAP_HOST', '127.0.0.1');
         $ldap_port = (int) env('LDAP_PORT', 1389);
@@ -227,7 +225,6 @@ class ConfigController extends Controller
     {
         try {
 
-
             $this->setEnv([
                 'LDAP_CONNECTION' => 'default',
                 'LDAP_HOST' => $request->ldap_host,
@@ -237,9 +234,12 @@ class ConfigController extends Controller
                 'LDAP_PASSWORD' => $request->ldap_password,
             ]);
 
+            // Save toggle state: explicitly check the value sent from JavaScript
+            // If not present or falsy, save as 0; if present and 1, save as 1
+            $toggle_value = (int) $request->input('ldap_toggle', 0);
             Config::updateOrCreate(
                 ['key' => 'ldap_toggle'],
-                ['value' => $request->has('ldap_toggle') ? 1 : 0]
+                ['value' => $toggle_value]
             );
 
             return response()->json([
@@ -306,12 +306,23 @@ class ConfigController extends Controller
 
         foreach ($data as $key => $value) {
             $value = (string) $value;
+
+            // Escape backslashes and double quotes so the value can be safely quoted
+            $escaped = str_replace(["\\", '"'], ["\\\\", '\\"'], $value);
+
+            // If the value contains whitespace, save it as a quoted string in .env
+            if (preg_match('/\s/', $escaped)) {
+                $valueForEnv = '"' . $escaped . '"';
+            } else {
+                $valueForEnv = $escaped;
+            }
+
             $pattern = "/^{$key}=.*$/m";
 
             if (preg_match($pattern, $env)) {
-                $env = preg_replace($pattern, "{$key}={$value}", $env);
+                $env = preg_replace($pattern, "{$key}={$valueForEnv}", $env);
             } else {
-                $env .= PHP_EOL . "{$key}={$value}";
+                $env .= PHP_EOL . "{$key}={$valueForEnv}";
             }
         }
 
