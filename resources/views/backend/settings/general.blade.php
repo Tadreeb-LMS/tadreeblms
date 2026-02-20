@@ -69,7 +69,7 @@
     </style>
 @endpush
 @section('content')
-    <form method="POST" action="{{ route('admin.general-settings') }}" id="general-settings-form" class="form-horizontal" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.settings.general.update') }}" id="general-settings-form" class="form-horizontal" enctype="multipart/form-data">
     @csrf
 
     <div class="card">
@@ -111,6 +111,7 @@
                                 </label>
                                 <div class="col-md-10">
                                     <input type="text" name="app_name" id="app_name" class="form-control"
+                                        value="{{ old('app_name', $settings['app_name'] ?? '') }}"
                                         placeholder="{{ __('labels.backend.general_settings.app_name') }}"
                                         maxlength="191" value="{{ config('app.name') }}" autofocus>
                                 </div>
@@ -148,28 +149,36 @@
                                 </label>
                                 <div class="col-md-10">
                                     <input type="text" name="app_url" id="app_url" class="form-control"
+                                        value="{{ old('app_name', $settings['app_name'] ?? '') }}"
                                         placeholder="{{ __('labels.backend.general_settings.app_url') }}"
                                         maxlength="191" value="{{ config('app.url') }}">
                                 </div>
                             </div>
 
                             <!-- Our Vision -->
-                            <div class="form-group row">
+                            <!-- <div class="form-group row">
                                 <label for="our_vision" class="col-md-2 form-control-label">Our Vision</label>
                                 <div class="col-md-10">
                                     <textarea name="our_vision" id="our_vision" class="form-control"
                                         placeholder="Our Vision">{{ $our_vision->value ?? '' }}</textarea>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Our Mission -->
-                            <div class="form-group row">
+                            <!-- <div class="form-group row">
                                 <label for="our_mission" class="col-md-2 form-control-label">Our Mission</label>
                                 <div class="col-md-10">
                                     <textarea name="our_mission" id="our_mission" class="form-control"
                                         placeholder="Our Mission">{{ $our_mission->value ?? '' }}</textarea>
                                 </div>
-                            </div>
+                            </div> -->
+
+                            <div class="text-end mt-3">
+    <button type="submit" class="btn btn-primary">
+        Save Settings
+    </button>
+</div>
+</form>
 
                         </div>
                     </div>
