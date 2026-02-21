@@ -141,7 +141,6 @@
                                     @endif
                                 </div>
                             </div>
-
                             <!-- App URL -->
                             <div class="form-group row">
                                 <label for="app_url" class="col-md-2 form-control-label">

@@ -5,6 +5,7 @@
 @endphp
 
 @if($footer_data != "")
+@if(isset($disabled_landing_page) && $disabled_landing_page == 0)
 <footer>
     <section id="footer-area" class="footer-area-section">
         <div class="container">
@@ -263,6 +264,7 @@
 
 
 </footer>
+@endif
 @endif
 <!-- End of footer area
 ============================================= -->
