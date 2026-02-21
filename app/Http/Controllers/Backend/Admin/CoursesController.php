@@ -47,7 +47,13 @@ class CoursesController extends Controller
             return abort(401);
         }
 
-        return view('backend.courses.index');
+        $teachers = \App\Models\Auth\User::whereHas('roles', function ($q) {
+            $q->where('role_id', 2);
+        })->get()->pluck('name', 'id');
+
+        $categories = Category::where('status', '=', 1)->pluck('name', 'id');
+
+        return view('backend.courses.index', compact('teachers', 'categories'));
     }
     public function cmsCourse()
     {
@@ -202,33 +208,39 @@ class CoursesController extends Controller
         $has_view = false;
         $has_delete = false;
         $has_edit = false;
-        $courses = "";
+
+        $courses = Course::query();
 
         if (request('show_deleted') == 1) {
             if (!Gate::allows('course_delete')) {
                 return abort(401);
             }
-            $courses = Course::query()->onlyTrashed()
-                // ->whereHas('category')
-                ->ofTeacher()->orderBy('created_at', 'desc');
-        } elseif (request('teacher_id') != "") {
-            $id = request('teacher_id');
-            $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
-                ->whereHas('teachers', function ($q) use ($id) {
-                    $q->where('course_user.user_id', '=', $id);
-                })->orderBy('created_at', 'desc');
-        } elseif (request('cat_id') != "") {
-            $id = request('cat_id');
-            $courses = Course::query()->ofTeacher()
-                // ->whereHas('category')
-                ->where('category_id', '=', $id)->orderBy('created_at', 'desc');
-        } else {
-            $courses = Course::query()
-                // ->whereHas('category')
-                ->orderBy('created_at', 'desc');
-            //dd("jlj");
+            $courses = $courses->onlyTrashed();
         }
+
+        $courses = $courses->ofTeacher();
+
+        if (request()->filled('teacher_id')) {
+            $id = request('teacher_id');
+            $courses = $courses->whereHas('teachers', function ($q) use ($id) {
+                $q->where('course_user.user_id', '=', $id);
+            });
+        }
+
+        if (request()->filled('cat_id')) {
+            $id = request('cat_id');
+            $courses = $courses->where('category_id', '=', $id);
+        }
+
+        if (request()->filled('status')) {
+            if (request('status') === 'published') {
+                $courses = $courses->where('published', '=', 1);
+            } elseif (request('status') === 'draft') {
+                $courses = $courses->where('published', '=', 0);
+            }
+        }
+
+        $courses = $courses->orderBy('created_at', 'desc');
 
         $courses = $courses->with('courseFeedback');
         //dd($courses->get());
