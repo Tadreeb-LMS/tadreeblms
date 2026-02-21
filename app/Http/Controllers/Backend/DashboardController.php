@@ -125,7 +125,7 @@ class DashboardController extends Controller
             ->when($teacherId, function ($query) use ($teacherId) {
                 $query->join('subscribe_courses as sc', 's.user_id', '=', 'sc.user_id')
                     ->join('courses as c', 'sc.course_id', '=', 'c.id')
-                    ->join('course_user as cu', 'sc.course_id', '=', 'cu.course_id')
+                    ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
                     ->where('cu.user_id', $teacherId);
             })
             ->whereNull('u.deleted_at')
@@ -192,6 +192,20 @@ class DashboardController extends Controller
             ->distinct()
             ->count('s.user_id');
 
+        // --- Latest course assignments (for dashboard card) ---
+        $latest_course_assignments = courseAssignment::with(['course:id,title', 'assignedBy:id,first_name,last_name', 'department:id,title'])
+            ->notPathway()
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->whereHas('course', function ($q) use ($teacherId) {
+                    $q->whereHas('teachers', function ($q2) use ($teacherId) {
+                        $q2->where('course_user.user_id', $teacherId);
+                    });
+                });
+            })
+            ->orderByRaw('COALESCE(assign_date, created_at) DESC')
+            ->take(10)
+            ->get();
+
         return [
             'internal_users' => $internal_users,
             'published_courses' => $published_courses,
@@ -216,6 +230,7 @@ class DashboardController extends Controller
                 'not_completed' => $not_completed_assessments,
                 'avg_score' => $av_completed_score,
             ],
+            'latest_course_assignments' => $latest_course_assignments,
         ];
     }
 
@@ -269,8 +284,9 @@ class DashboardController extends Controller
             })->count();
 
             // --- Recents ---
-                    $recent_orders        = Order::latest()->take(10)
-                        ->get(['id', 'created_at']);            $recent_subscriptions = SubscribeCourse::latest()->take(10)
+            $recent_orders        = Order::latest()->take(10)
+                ->get(['id', 'created_at']);
+            $recent_subscriptions = SubscribeCourse::latest()->take(10)
                 ->get(['id', 'course_id', 'user_id', 'created_at']);
             $recent_contacts      = Contact::latest()->take(10)->get(['id', 'name', 'email', 'created_at']);
 
@@ -285,12 +301,13 @@ class DashboardController extends Controller
 
             $total_certificate_issued = DB::table('certificates as s')
                 ->join('users as u', 's.user_id', '=', 'u.id')
-                            ->when($teacherId, function ($query) use ($teacherId) {
-                                $query->join('subscribe_courses as sc', 's.user_id', '=', 'sc.user_id')
-                                    ->join('courses as c', 'sc.course_id', '=', 'c.id')
-                                    ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
-                                    ->where('cu.user_id', $teacherId);
-                            })                ->whereNull('u.deleted_at')
+                ->when($teacherId, function ($query) use ($teacherId) {
+                    $query->join('subscribe_courses as sc', 's.user_id', '=', 'sc.user_id')
+                        ->join('courses as c', 'sc.course_id', '=', 'c.id')
+                        ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
+                        ->where('cu.user_id', $teacherId);
+                })
+                ->whereNull('u.deleted_at')
                 ->where('u.active', 1)
                 ->count('s.id');
 
@@ -338,7 +355,6 @@ class DashboardController extends Controller
             $av_completed_score        = $totalAssessmentsTaken > 0
                 ? round($totalScore / $totalAssessmentsTaken, 0)
                 : 0;
-            //$av_completed_score = 45;
 
             // --- Assigned Users ---
             $assigned_users_count = DB::table('subscribe_courses as s')
@@ -391,7 +407,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        //dd("dash");
         $av_completed_score = 0;
         $av_not_completed_score = null;
         $categories = null;
@@ -417,6 +432,7 @@ class DashboardController extends Controller
         $recent_subscriptions = NULL;
         $subscribed_bundles = NULL;
         $subscribed_courses = NULL;
+        $latest_course_assignments = collect(); // ← initialised as empty collection
 
         $total_completed = null;
         $total_pending = null;
@@ -426,15 +442,10 @@ class DashboardController extends Controller
 
         $cache_duration = 10;
 
-
-        //dd(CustomHelper::progress(51));
         if (\Auth::check()) {
-
 
             $user = auth()->user();
             $userId = $user->id;
-
-
 
             if (auth()->user()->hasRole('teacher')) {
                 //IF logged in user is teacher
@@ -465,6 +476,8 @@ class DashboardController extends Controller
                 $completed_assesment       = $adminStats['assessment_stats']['completed'] ?? 0;
                 $not_completed_assesment   = $adminStats['assessment_stats']['not_completed'] ?? 0;
 
+                $latest_course_assignments = $adminStats['latest_course_assignments'] ?? collect();
+
                 return view('backend.dashboard', array_merge(
                     compact('adminStats'),
                     compact(
@@ -488,13 +501,13 @@ class DashboardController extends Controller
                         'total_pending',
                         'av_completed_score',
                         'completed_assesment',
-                        'not_completed_assesment'
+                        'not_completed_assesment',
+                        'latest_course_assignments'
                     )
                 ));
 
             } elseif (auth()->user()->hasRole('administrator')) {
 
-                //dd("admin");
                 $userId = auth()->user()->id;
                 $cacheKey = "admin_dashboard_stats_{$userId}";
 
@@ -510,8 +523,6 @@ class DashboardController extends Controller
                     }
                 }
 
-                //dd($adminStats);
-
                 $av_completion_rate       = $adminStats['course_completion']['avg_completion_rate'] ?? 0;
                 $total_completed          = $adminStats['course_completion']['completed'] ?? 0;
                 $total_pending            = $adminStats['course_completion']['not_completed'] ?? 0;
@@ -519,6 +530,8 @@ class DashboardController extends Controller
                 $av_completed_score        = $adminStats['assessment_stats']['avg_score'] ?? 0;
                 $completed_assesment       = $adminStats['assessment_stats']['completed'] ?? 0;
                 $not_completed_assesment   = $adminStats['assessment_stats']['not_completed'] ?? 0;
+
+                $latest_course_assignments = $adminStats['latest_course_assignments'] ?? collect();
 
                 return view('backend.dashboard', array_merge(
                     compact('adminStats'),
@@ -541,15 +554,14 @@ class DashboardController extends Controller
                         'total_pending',
                         'av_completed_score',
                         'completed_assesment',
-                        'not_completed_assesment'
+                        'not_completed_assesment',
+                        'latest_course_assignments'
                     )
                 ));
+
             } elseif (auth()->user()->employee_type == 'internal') {
 
-
                 $learning_pathways = null;
-
-                //dd($this->cacheWritable());
 
                 if ($this->cacheWritable()) {
                     try {
@@ -564,7 +576,6 @@ class DashboardController extends Controller
                                 ->first();
                         });
                     } catch (\Throwable $e) {
-                        //dd($e->getMessage());
                         $course_completion_data = DB::table('subscribe_courses as s')
                             ->whereNull('s.deleted_at')
                             ->where('s.user_id', $userId)
@@ -574,8 +585,6 @@ class DashboardController extends Controller
                             ')
                             ->first();
                     }
-
-                    //dd($course_completion_data);
                 } else {
                     $course_completion_data = DB::table('subscribe_courses as s')
                         ->whereNull('s.deleted_at')
@@ -592,7 +601,6 @@ class DashboardController extends Controller
 
                 $total_rows = $completedCount + $notCompletedCount;
 
-                // Avoid division by zero
                 $av_completion_rate = $total_rows > 0
                     ? round(($completedCount / $total_rows) * 100, 0)
                     : 0;
@@ -649,7 +657,6 @@ class DashboardController extends Controller
                     );
                 } catch (\Throwable $e) {
 
-
                     // Fallback: If cache fails, run the same calculation WITHOUT cache
                     $subscriptions = SubscribeCourse::where('user_id', $userId)
                         ->whereHas('course.courseAssignments')
@@ -690,14 +697,13 @@ class DashboardController extends Controller
                     ];
                 }
 
-
                 $completed_assesment     = $assessmentStats['completed'];
                 $not_completed_assesment  = $assessmentStats['not_completed'];
                 $av_completed_score       = $assessmentStats['avg_score'];
                 $totalAssessments         = $assessmentStats['total'];
                 $total_certificate_issued = $assessmentStats['total_certificate_issued'];
-            }else {
-                //dd("admin");
+
+            } else {
                 $userId = auth()->user()->id;
                 $cacheKey = "user_dashboard_stats_{$userId}";
 
@@ -713,8 +719,6 @@ class DashboardController extends Controller
                     }
                 }
 
-                //dd($adminStats);
-
                 $av_completion_rate       = $adminStats['course_completion']['avg_completion_rate'] ?? 0;
                 $total_completed          = $adminStats['course_completion']['completed'] ?? 0;
                 $total_pending            = $adminStats['course_completion']['not_completed'] ?? 0;
@@ -722,6 +726,8 @@ class DashboardController extends Controller
                 $av_completed_score        = $adminStats['assessment_stats']['avg_score'] ?? 0;
                 $completed_assesment       = $adminStats['assessment_stats']['completed'] ?? 0;
                 $not_completed_assesment   = $adminStats['assessment_stats']['not_completed'] ?? 0;
+
+                $latest_course_assignments = $adminStats['latest_course_assignments'] ?? collect();
 
                 return view('backend.dashboard', array_merge(
                     compact('adminStats'),
@@ -744,14 +750,52 @@ class DashboardController extends Controller
                         'total_pending',
                         'av_completed_score',
                         'completed_assesment',
-                        'not_completed_assesment'
+                        'not_completed_assesment',
+                        'latest_course_assignments'
                     )
                 ));
             }
         }
 
+        // --- Fallback return (catches student / internal / any remaining path) ---
+        // Ensure latest_course_assignments is always available
+        if (!isset($latest_course_assignments) || is_null($latest_course_assignments)) {
+            $latest_course_assignments = collect();
+        }
 
-        return view('backend.dashboard', compact('not_completed_assesment', 'completed_assesment', 'total_completed', 'total_pending', 'av_completed_score', 'av_not_completed_score', 'categories', 'departments', 'published_courses', 'internal_users', 'av_rem_completion_rate', 'av_completion_rate', 'total_certificate_issued', 'total_assignments', 'assigned_users_count', 'subscribe_courses', 'purchased_courses', 'students_count', 'recent_reviews', 'threads', 'purchased_bundles', 'teachers_count', 'courses_count', 'recent_orders', 'recent_contacts', 'pending_orders', 'subscribed_courses', 'subscribed_bundles', 'recent_subscriptions', 'learning_pathways'));
+        return view('backend.dashboard', compact(
+            'not_completed_assesment',
+            'completed_assesment',
+            'total_completed',
+            'total_pending',
+            'av_completed_score',
+            'av_not_completed_score',
+            'categories',
+            'departments',
+            'published_courses',
+            'internal_users',
+            'av_rem_completion_rate',
+            'av_completion_rate',
+            'total_certificate_issued',
+            'total_assignments',
+            'assigned_users_count',
+            'subscribe_courses',
+            'purchased_courses',
+            'students_count',
+            'recent_reviews',
+            'threads',
+            'purchased_bundles',
+            'teachers_count',
+            'courses_count',
+            'recent_orders',
+            'recent_contacts',
+            'pending_orders',
+            'subscribed_courses',
+            'subscribed_bundles',
+            'recent_subscriptions',
+            'learning_pathways',
+            'latest_course_assignments'  // ← ADDED
+        ));
     }
 
 
@@ -790,13 +834,9 @@ class DashboardController extends Controller
             $user_ids = EmployeeProfile::where('department', $department_id)->pluck('user_id')->toArray();
         }
 
-        //dd($user_ids);
-
         if ($category_id) {
             $course_ids = Course::where('category_id', $category_id)->pluck('id')->toArray();
         }
-
-        //dd($course_ids, $user_ids);
 
         $course_completion_data = DB::table('subscribe_courses as s')
             ->whereNull('s.deleted_at')
@@ -806,26 +846,18 @@ class DashboardController extends Controller
             ->when(count($user_ids), function ($q) use ($user_ids) {
                 $q->whereIn('s.user_id', $user_ids);
             })
-
-            //->whereIn('s.user_id' , $user_ids)
-
             ->selectRaw('
-                                                COUNT(CASE WHEN s.is_completed = 1 THEN 1 END) as completed_count,
-                                                COUNT(CASE WHEN s.is_completed = 0 THEN 1 END) as not_completed_count
-                                            ')
+                COUNT(CASE WHEN s.is_completed = 1 THEN 1 END) as completed_count,
+                COUNT(CASE WHEN s.is_completed = 0 THEN 1 END) as not_completed_count
+            ')
             ->first();
 
-        //dd($course_completion_data);
-
-            $course_completion_data->completed_count ?? 0;
-            $course_completion_data->not_completed_count ?? 0;
+        $course_completion_data->completed_count ?? 0;
+        $course_completion_data->not_completed_count ?? 0;
 
         $total_rows = $course_completion_data->completed_count + $course_completion_data->not_completed_count;
 
-
-
         $av_completion_rate = $total_rows > 0 ? round(($course_completion_data->completed_count / $total_rows * 100), 0) : 0;
-
 
         $total_completed_data = DB::table('subscribe_courses as s')
             ->whereNull('s.deleted_at')
@@ -837,19 +869,15 @@ class DashboardController extends Controller
                 $q->whereIn('s.user_id', $user_ids);
             })
             ->selectRaw('
-                                            SUM(CAST(REPLACE(s.assignment_score, "%", "") AS UNSIGNED)) as total_score,
-                                            COUNT(CASE WHEN s.is_completed = 1 AND CAST(REPLACE(s.assignment_score, "%", "") AS UNSIGNED) > 0 THEN 1 END) as completed_count
-                                        ')
+                SUM(CAST(REPLACE(s.assignment_score, "%", "") AS UNSIGNED)) as total_score,
+                COUNT(CASE WHEN s.is_completed = 1 AND CAST(REPLACE(s.assignment_score, "%", "") AS UNSIGNED) > 0 THEN 1 END) as completed_count
+            ')
             ->first();
-
-
 
         $av_completed_score = $total_completed_data->completed_count > 0 ? round(($total_completed_data->total_score / ($total_completed_data->completed_count * 100)) * 100, 0) : 0;
 
-
         $total_completed = $course_completion_data->completed_count ?? 0;
         $total_pending = $course_completion_data->not_completed_count;
-
 
         $totalScoreData = SubscribeCourse::whereIn('user_id', $user_ids)
             ->whereHas('course.courseAssignments')
@@ -880,14 +908,10 @@ class DashboardController extends Controller
             $av_completed_score = 0;
         }
 
-
-
         return response()->json([
             'total_completed' => $total_completed,
             'total_pending' => $total_pending,
             'av_completion_rate' => $av_completion_rate,
-            //'av_rem_completion_rate' => $av_rem_completion_rate,
-
             'av_completed_score' => $av_completed_score,
             'completed_assesment' => $completed_assesment,
             'not_completed_assesment' => $not_completed_assesment,
@@ -895,12 +919,9 @@ class DashboardController extends Controller
     }
 
 
-
-
     public function setvaluesession($type)
     {
         Session::put('setvaluesession', $type);
-        //print_r(Session::get('setvaluesession'));die;
         return back();
     }
 }
