@@ -29,7 +29,9 @@ class SmtpSettingsController extends Controller
             'mail_from_name' => env('MAIL_FROM_NAME', ''),
         ];
 
-        return view('backend.settings.smtp', compact('smtpSettings'));
+        $smtpEnabled = filter_var(env('SMTP_ENABLED', 'true'), FILTER_VALIDATE_BOOLEAN);
+
+        return view('backend.settings.smtp', compact('smtpSettings', 'smtpEnabled'));
     }
 
     /**
@@ -41,16 +43,33 @@ class SmtpSettingsController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $validator = Validator::make($request->all(), [
-            'mail_mailer' => 'required|string|in:smtp,sendmail,mailgun,ses,postmark,log',
-            'mail_host' => 'required|string|max:255',
-            'mail_port' => 'required|integer|min:1|max:65535',
-            'mail_username' => 'nullable|string|max:255',
-            'mail_password' => 'nullable|string|max:255',
-            'mail_encryption' => 'nullable|string|in:tls,ssl,null',
-            'mail_from_address' => 'required|email|max:255',
-            'mail_from_name' => 'required|string|max:255',
-        ]);
+        $smtpEnabled = $request->boolean('smtp_enabled');
+
+        if ($smtpEnabled) {
+            $rules = [
+                'mail_mailer' => 'required|string|in:smtp,sendmail,mailgun,ses,postmark,log',
+                'mail_host' => 'required|string|max:255',
+                'mail_port' => 'required|integer|min:1|max:65535',
+                'mail_username' => 'required|string|max:255',
+                'mail_password' => env('MAIL_PASSWORD') ? 'nullable|string|max:255' : 'required|string|max:255',
+                'mail_encryption' => 'nullable|string|in:tls,ssl,null',
+                'mail_from_address' => 'required|email|max:255',
+                'mail_from_name' => 'required|string|max:255',
+            ];
+        } else {
+            $rules = [
+                'mail_mailer' => 'nullable|string|in:smtp,sendmail,mailgun,ses,postmark,log',
+                'mail_host' => 'nullable|string|max:255',
+                'mail_port' => 'nullable|integer|min:1|max:65535',
+                'mail_username' => 'nullable|string|max:255',
+                'mail_password' => 'nullable|string|max:255',
+                'mail_encryption' => 'nullable|string|in:tls,ssl,null',
+                'mail_from_address' => 'nullable|email|max:255',
+                'mail_from_name' => 'nullable|string|max:255',
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -61,18 +80,22 @@ class SmtpSettingsController extends Controller
             $envContent = file_get_contents($envFile);
 
             $settings = [
-                'MAIL_MAILER' => $request->mail_mailer,
-                'MAIL_HOST' => $request->mail_host,
-                'MAIL_PORT' => $request->mail_port,
-                'MAIL_USERNAME' => $request->mail_username ?? '',
-                'MAIL_ENCRYPTION' => $request->mail_encryption === 'null' ? 'null' : $request->mail_encryption,
-                'MAIL_FROM_ADDRESS' => $request->mail_from_address,
-                'MAIL_FROM_NAME' => $request->mail_from_name,
+                'SMTP_ENABLED' => $smtpEnabled ? 'true' : 'false',
             ];
 
-            // Only update password if a new one is provided
-            if ($request->filled('mail_password')) {
-                $settings['MAIL_PASSWORD'] = $request->mail_password;
+            if ($smtpEnabled) {
+                $settings['MAIL_MAILER'] = $request->mail_mailer;
+                $settings['MAIL_HOST'] = $request->mail_host;
+                $settings['MAIL_PORT'] = $request->mail_port;
+                $settings['MAIL_USERNAME'] = $request->mail_username ?? '';
+                $settings['MAIL_ENCRYPTION'] = $request->mail_encryption === 'null' ? 'null' : $request->mail_encryption;
+                $settings['MAIL_FROM_ADDRESS'] = $request->mail_from_address;
+                $settings['MAIL_FROM_NAME'] = $request->mail_from_name;
+
+                // Only update password if a new one is provided
+                if ($request->filled('mail_password')) {
+                    $settings['MAIL_PASSWORD'] = $request->mail_password;
+                }
             }
 
             foreach ($settings as $key => $value) {
@@ -81,9 +104,13 @@ class SmtpSettingsController extends Controller
 
             file_put_contents($envFile, $envContent);
 
+            $message = $smtpEnabled
+                ? __('labels.backend.smtp_settings.save_success')
+                : __('labels.backend.smtp_settings.smtp_disabled_save_success');
+
             return response()->json([
                 'success' => true,
-                'message' => __('labels.backend.smtp_settings.save_success')
+                'message' => $message
             ]);
 
         } catch (\Exception $e) {

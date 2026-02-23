@@ -127,7 +127,7 @@
                                                 class="switch-input"
                                                 name="ldap_toggle"
                                                 value="1"
-                                                {{ $ldap_toggle == 1 ? 'checked' : '' }}>
+                                                {{ (int) $ldap_toggle === 1 ? 'checked' : '' }}>
                                             <span class="switch-label"></span>
                                             <span class="switch-handle"></span>
                                         </label>

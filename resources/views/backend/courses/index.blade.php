@@ -51,6 +51,40 @@
             </div>
         </div> -->
         <div class="card-body">
+            {{-- Advanced Filters Section --}}
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <label for="filter_status" class="font-weight-bold">Status Filter</label>
+                    <select id="filter_status" class="form-control">
+                        <option value="">All</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filter_category" class="font-weight-bold">Category Filter</label>
+                    <select id="filter_category" class="form-control">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filter_teacher" class="font-weight-bold">Trainer Filter</label>
+                    <select id="filter_teacher" class="form-control">
+                        <option value="">All Trainers</option>
+                        @foreach($teachers as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button id="btn_filter" class="btn btn-primary"><i class="fa fa-filter"></i> Apply Filter</button>
+                    <button id="btn_reset" class="btn btn-secondary"><i class="fa fa-undo"></i> Reset</button>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <div class="d-block">
                     <ul class="list-inline">
@@ -201,7 +235,14 @@
                 },
             ],
                
-                ajax: route,
+                ajax: {
+                    url: route,
+                    data: function (d) {
+                        d.status = $('#filter_status').val();
+                        d.teacher_id = $('#filter_teacher').val();
+                        d.cat_id = $('#filter_category').val();
+                    }
+                },
                 columns: [
                     @if (request('show_deleted') != 1)
                         {
@@ -320,6 +361,16 @@
                 }
             }); 
            
+            $('#btn_filter').click(function(){
+                $('#myTable').DataTable().ajax.reload();
+            });
+
+            $('#btn_reset').click(function(){
+                $('#filter_status').val('');
+                $('#filter_teacher').val('');
+                $('#filter_category').val('');
+                $('#myTable').DataTable().ajax.reload();
+            });
         });
 
         $(document).on('click', '.copy-offline-link', function (e) {
