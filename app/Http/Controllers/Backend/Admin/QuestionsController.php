@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Backend\Admin;
 use App\Models\Question;
 use App\Models\QuestionsOption;
 use App\Models\Test;
-use function foo\func;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
@@ -47,14 +46,16 @@ class QuestionsController extends Controller
         $has_edit = false;
 
         /*TODO:: Show All questions if Admin, Show related if  Teacher*/
-        $questions = Question::orderBy('created_at', 'desc');
+        $questions = Question::query();
 
-        if ($request->test_id != "") {
-            $test_id = $request->test_id;
-            $questions = Question::query()->whereHas('tests', function ($q) use ($test_id) {
-                $q->where('test_id', $test_id);
-            })->orderBy('created_at', 'desc');
-        }
+     if ($request->filled('test_id')) {
+    $test_id = $request->test_id;
+    $questions->whereHas('tests', function ($q) use ($test_id) {
+        $q->where('test_id', $test_id);
+    });
+}
+
+$questions->latest();
 
         if (!auth()->user()->role('administrator')) {
             $questions->where('user_id', '=', auth()->user()->id);
@@ -64,7 +65,7 @@ class QuestionsController extends Controller
             if (!Gate::allows('question_delete')) {
                 return abort(401);
             }
-            $questions->onlyTrashed()->get();
+$questions = $questions->onlyTrashed();
         }
 
 
