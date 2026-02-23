@@ -21,17 +21,24 @@ class StoreCoursesRequest extends FormRequest
      * @return array
      */
     public function rules()
-    {
-        return [
-            'teachers.*' => 'exists:users,id',
-            'internalStudents.*' => 'exists:users,id',
-            'externalStudents.*' => 'exists:users,id',
-            'title' => 'required|max:200',
-            'category_id' => 'nullable',
-            'course_code' => 'required|max:100',
-            //'arabic_title' => 'required|max:200',
-            // 'marks_required' => 'required',
-            //'start_date' => 'date_format:'.config('app.date_format'),
-        ];
-    }
+{
+    return [
+        'title' => 'required|string|max:255',
+        'course_type' => 'required|string',
+
+        // Conditional Validation
+        'start_date' => [
+            'nullable',
+            'required_unless:course_type,Online',
+            'date'
+        ],
+
+        'end_date' => [
+            'nullable',
+            'required_unless:course_type,Online',
+            'date',
+            'after_or_equal:start_date'
+        ],
+    ];
+}
 }
