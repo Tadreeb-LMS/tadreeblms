@@ -716,12 +716,26 @@
                         </a>
                     </li>
 
+
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/smtp*')) }}"
                             href="{{ route('admin.smtp-settings') }}">
                             <span class="title">@lang('menus.backend.sidebar.settings.smtp')</span>
                         </a>
                     </li>
+
+                    {{-- Show Zoom Configuration only if enabled --}}
+                    @php
+                        $enabledApps = Cache::get('enabled_external_apps', []);
+                    @endphp
+                    @if (!empty($enabledApps['zoom']) && $enabledApps['zoom'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/zoom/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'zoom']) }}">
+                            <span class="title">Zoom Configuration</span>
+                        </a>
+                    </li>
+                    @endif
 
                     <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/ldap-setting')) }}"

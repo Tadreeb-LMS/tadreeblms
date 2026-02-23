@@ -40,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Cache enabled external apps for sidebar
+        if (\Schema::hasTable('external_apps')) {
+            $enabledApps = \App\Models\ExternalApp::where('is_enabled', 1)->pluck('is_enabled', 'slug')->toArray();
+            \Cache::put('enabled_external_apps', $enabledApps, 3600); // cache for 1 hour
+        }
+
         if (app()->runningInConsole() 
             || !Schema::hasTable('locales')) {
             return;

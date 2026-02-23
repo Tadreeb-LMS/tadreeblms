@@ -3,99 +3,69 @@
 @section('title', 'External Apps')
 
 @section('content')
+
 <div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-end">
+            <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus mr-1"></i>Upload New Module
+            </a>
+        </div>
+    </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">
-                            <i class="fas fa-puzzle-piece mr-2"></i>External Apps Management
-                        </h4>
-                        <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus mr-1"></i>Upload New Module
-                        </a>
-                    </div>
-                </div>
                 <div class="card-body">
                     @if ($message = Session::get('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle mr-2"></i>{{ $message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle mr-2"></i>{{ $message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     @endif
-
                     @if ($message = Session::get('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle mr-2"></i>{{ $message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle mr-2"></i>{{ $message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     @endif
 
                     @if (count($apps) > 0)
-                    <div class="row">
-                        @foreach ($apps as $app)
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 border-left-{{ $app->getStatusBadge() }}">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="mb-1">{{ $app->name }}</h5>
-                                        <small class="text-muted">v{{ $app->version ?? '1.0.0' }}</small>
-                                    </div>
-                                    <span class="badge badge-{{ $app->getStatusBadge() }}">
-                                        {{ ucfirst($app->status) }}
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-muted small">{{ $app->description ?? 'No description provided' }}</p>
-                                    
-                                    <div class="mb-3">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input toggle-app-status" 
-                                                   id="toggle-{{ $app->slug }}" 
-                                                   data-slug="{{ $app->slug }}"
-                                                   {{ $app->is_enabled ? 'checked' : '' }}
-                                                   {{ $app->status !== 'active' ? 'disabled' : '' }}>
-                                            <label class="custom-control-label" for="toggle-{{ $app->slug }}">
-                                                {{ $app->is_enabled ? 'Enabled' : 'Disabled' }}
-                                            </label>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th class="text-center">Enable/Disable</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($apps as $app)
+                                <tr>
+                                    <td>
+                                        <strong>{{ $app->name }}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="custom-control custom-switch d-inline-block">
+                                            <input type="checkbox" class="custom-control-input toggle-app-status" id="toggle-{{ $app->slug }}" data-slug="{{ $app->slug }}" {{ $app->is_enabled ? 'checked' : '' }} {{ $app->status !== 'active' ? 'disabled' : '' }}>
+                                            <label class="custom-control-label" for="toggle-{{ $app->slug }}"></label>
                                         </div>
-                                    </div>
-
-                                    @if ($app->installed_at)
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-calendar-check mr-1"></i>
-                                        Installed: {{ $app->installed_at->format('M d, Y H:i') }}
-                                    </small>
-                                    @endif
-
-                                    @if ($app->error_message)
-                                    <div class="alert alert-danger alert-sm mb-3">
-                                        <small>{{ $app->error_message }}</small>
-                                    </div>
-                                    @endif
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="btn-group btn-group-sm w-100" role="group">
-                                        <a href="{{ route('admin.external-apps.edit-config', $app->slug) }}" 
-                                           class="btn btn-outline-primary" 
-                                           {{ $app->status !== 'active' ? 'disabled' : '' }}>
-                                            <i class="fas fa-cog mr-1"></i>Configure
-                                        </a>
-                                        <button type="button" class="btn btn-outline-danger delete-app" 
-                                                data-slug="{{ $app->slug }}" 
-                                                data-name="{{ $app->name }}">
+                                    </td>
+                                    <td class="text-center">
+                                        @if(!$app->is_enabled)
+                                        <button type="button" class="btn btn-outline-danger btn-sm delete-app" data-slug="{{ $app->slug }}" data-name="{{ $app->name }}">
                                             <i class="fas fa-trash mr-1"></i>Uninstall
                                         </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                     @else
                     <div class="text-center py-5">
@@ -169,7 +139,7 @@ $(document).ready(function() {
         const $toggle = $(this);
 
         $.ajax({
-            url: '/admin/external-apps/' + slug + '/toggle-status',
+            url: '/user/external-apps/' + slug + '/toggle-status',
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -179,8 +149,11 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // Show success message
+                    // Show success message and reload page to update sidebar
                     showAlert(response.message, 'success');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 800);
                 } else {
                     showAlert(response.message, 'error');
                     $toggle.prop('checked', !enabled);
@@ -200,7 +173,7 @@ $(document).ready(function() {
         const name = $(this).data('name');
 
         $('#appNameDisplay').text(name);
-        $('#deleteForm').attr('action', '/admin/external-apps/' + slug);
+        $('#deleteForm').attr('action', '/user/external-apps/' + slug);
         $('#deleteModal').modal('show');
     });
 });
