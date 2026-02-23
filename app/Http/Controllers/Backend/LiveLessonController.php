@@ -20,14 +20,19 @@ class LiveLessonController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        if (!Gate::allows('live_lesson_access')) {
-            return abort(401);
-        }
-        $courses = $courses = Course::has('category')->ofTeacher()->pluck('title', 'id')->prepend('Please select', '');
-        return view('backend.live-lessons.index', compact('courses'));
+{
+    if (!Gate::allows('live_lesson_access')) {
+        return abort(401);
     }
 
+    $courses = Course::has('category')->ofTeacher()
+        ->pluck('title', 'id')
+        ->prepend('Please select', '');
+
+    $lessons = Lesson::latest()->get(); // DEFAULT: load all lessons
+
+    return view('backend.live-lessons.index', compact('courses','lessons'));
+}
     /**
      * Display a listing of Lessons via ajax DataTable.
      *
@@ -38,13 +43,15 @@ class LiveLessonController extends Controller
         $has_view = false;
         $has_delete = false;
         $has_edit = false;
-        $liveLessons = "";
-        $liveLessons = Lesson::query()->where('live_lesson', '=', 1)->whereIn('course_id', Course::ofTeacher()->pluck('id'));
+        $liveLessons = Lesson::query()
+    ->where('live_lesson', 1)
+    ->whereIn('course_id', Course::ofTeacher()->pluck('id'));
 
+if ($request->filled('course_id')) {
+    $liveLessons->where('course_id', (int)$request->course_id);
+ }
 
-        if ($request->course_id != "") {
-            $liveLessons = $liveLessons->where('course_id', (int)$request->course_id)->orderBy('created_at', 'desc');
-        }
+       $liveLessons->latest();
 
         if ($request->show_deleted == 1) {
             if (!Gate::allows('live_lesson_delete')) {
