@@ -289,15 +289,20 @@
 </div>
 
                 </div>
-                <div class="col-sm-12 col-lg-4 col-md-12  form-group">
-                    <label for="start_date">
-    Start Date (yyyy-mm-dd)<span id="start_date_required" class="text-danger"> *</span>
-</label> 
+                <div class="col-sm-12 col-lg-4 col-md-12  form-group" id="startDateWrapper">
+                    {!! Form::label('start_date', trans('labels.backend.courses.fields.start_date') . ' (yyyy-mm-dd) *', [
+                        'class' => 'control-label',
+                         'id' => 'startDateLabel'
+                    ]) !!}
 
-                   <input class="form-control" id="start_date" autocomplete="off" placeholder="(Ex . 2019-01-01)" name="start_date" type="text" value="{{ old('start_date') }}">
-
-
+                   {!! Form::text('start_date', old('start_date'), [
+    'class' => 'form-control',
+    'id' => 'start_date',
+    'autocomplete' => 'off',
+    'placeholder' => 'yyyy-mm-dd'
+]) !!}
                 </div>
+
                 @if (Auth::user()->isAdmin())
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                         <label for="expire_at">
@@ -509,7 +514,7 @@ $('#expire_at').datepicker({
         })
 
 
-       $(document).on('change', '.course-type', function () {
+        $(document).on('change', '.course-type', function () {
     const type = $(this).val();
 
     if (type === 'Live-Classroom') {
@@ -517,26 +522,24 @@ $('#expire_at').datepicker({
         $('#live-online').hide();
         $('#live-classroom').show();
 
-        $('#lesson-module-block')
-            .hide()
-            .find('input')
-            .prop('disabled', true);
+        $('#main-flow').hide();
+        $('#online-flow').show();
 
-            $('#main-flow').hide()
-            $('#online-flow').show()
+        // Start Date REQUIRED
+        $('#startDateWrapper').show();
+        $('#start_date').prop('required', true);
 
-    } else if (type === 'Offline') {
+    } else if (type === 'Offline') { // Live-Online
         $('#e-learning').hide();
         $('#live-online').show();
         $('#live-classroom').hide();
 
-        $('#lesson-module-block')
-            .hide()
-            .find('input')
-            .prop('disabled', true);
+        $('#main-flow').hide();
+        $('#online-flow').show();
 
-             $('#main-flow').hide()
-            $('#online-flow').show()
+        // Start Date REQUIRED
+        $('#startDateWrapper').show();
+        $('#start_date').prop('required', true);
 
     } else {
         // E-Learning
@@ -544,14 +547,19 @@ $('#expire_at').datepicker({
         $('#live-online').hide();
         $('#live-classroom').hide();
 
-        $('#lesson-module-block')
-            .show()
-            .find('input')
-            .prop('disabled', false);
+        $('#main-flow').show();
+        $('#online-flow').hide();
 
-            $('#main-flow').show()
-            $('#online-flow').hide()
+        // Start Date NOT required
+        $('#startDateWrapper').hide();
+        $('#start_date').val('').prop('required', false);
     }
+});
+
+
+
+$(document).ready(function () {
+    $('.course-type:checked').trigger('change');
 });
 
 
@@ -583,6 +591,25 @@ $('#expire_at').datepicker({
         $(document).on('submit', '#addCourse', function(e) {
             e.preventDefault();
             var startDateVal = $('#start_date').val();
+            var expireDateVal = $('#expire_at').val();
+            var courseType = $('.course-type:checked').val();
+
+        if (courseType !== 'Online') {
+    if (!startDateVal || !expireDateVal) {
+        alert('Start Date and Expire Date are required.');
+        return false;
+    }
+
+    if (expireDateVal < startDateVal) {
+        alert('Expire Date cannot be earlier than Start Date.');
+        return false;
+    }
+
+    var today = new Date().toISOString().slice(0, 10);
+    if (startDateVal < today) {
+        alert('Start Date cannot be earlier than today.');
+        return false;
+    }
 var expireDateVal = $('#expire_at').val();
 var today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
 
