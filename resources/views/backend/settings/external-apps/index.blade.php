@@ -139,7 +139,11 @@ $(document).ready(function() {
         const $toggle = $(this);
 
         $.ajax({
+<<<<<<< HEAD
             url: '/user/external-apps/' + slug + '/toggle-status',
+=======
+            url: '/admin/external-apps/' + slug + '/toggle-status',
+>>>>>>> MarketPlace
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -149,11 +153,16 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+<<<<<<< HEAD
                     // Show success message and reload page to update sidebar
                     showAlert(response.message, 'success');
                     setTimeout(function() {
                         location.reload();
                     }, 800);
+=======
+                    // Show success message
+                    showAlert(response.message, 'success');
+>>>>>>> MarketPlace
                 } else {
                     showAlert(response.message, 'error');
                     $toggle.prop('checked', !enabled);
@@ -173,7 +182,11 @@ $(document).ready(function() {
         const name = $(this).data('name');
 
         $('#appNameDisplay').text(name);
+<<<<<<< HEAD
         $('#deleteForm').attr('action', '/user/external-apps/' + slug);
+=======
+        $('#deleteForm').attr('action', '/admin/external-apps/' + slug);
+>>>>>>> MarketPlace
         $('#deleteModal').modal('show');
     });
 });
