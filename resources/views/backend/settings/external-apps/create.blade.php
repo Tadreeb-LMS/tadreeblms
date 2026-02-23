@@ -28,18 +28,6 @@
                     <form action="{{ route('admin.external-apps.store') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
                         @csrf
 
-                        <div class="form-group">
-                            <label for="module_name">Module Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('module_name') is-invalid @enderror" 
-                                   id="module_name" name="module_name" placeholder="e.g., google-meet, microsoft-teams"
-                                   value="{{ old('module_name') }}" required>
-                            <small class="form-text text-muted">
-                                Use lowercase letters, numbers, and hyphens only (e.g., google-meet, ms-teams)
-                            </small>
-                            @error('module_name')
-                            <span class="invalid-feedback d-block">{{ $message }}</span>
-                            @enderror
-                        </div>
 
                         <div class="form-group">
                             <label for="zip_file">Upload Zip File <span class="text-danger">*</span></label>
@@ -98,20 +86,6 @@ $(document).ready(function() {
         $(this).next('.custom-file-label').html(fileName);
     });
 
-    // Validate module name format
-    $('#module_name').on('blur', function() {
-        let value = $(this).val();
-        if (value && !/^[a-z0-9\-]+$/.test(value)) {
-            $(this).addClass('is-invalid');
-            if (!$(this).next('.invalid-feedback').length) {
-                $('<span class="invalid-feedback d-block">Module name must contain only lowercase letters, numbers, and hyphens</span>')
-                    .insertAfter(this);
-            }
-        } else {
-            $(this).removeClass('is-invalid');
-            $(this).next('.invalid-feedback').remove();
-        }
-    });
 
     // Form submission
     $('#uploadForm').on('submit', function() {

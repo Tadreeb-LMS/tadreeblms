@@ -55,19 +55,31 @@ class ExternalAppsController extends Controller
 
         $request->validate([
             'zip_file' => 'required|file|mimes:zip|max:102400', // Max 100MB
-            'module_name' => 'required|string|min:3|max:100|regex:/^[a-z0-9\-]+$/',
         ], [
             'zip_file.required' => 'Please upload a zip file',
             'zip_file.mimes' => 'File must be a zip archive',
             'zip_file.max' => 'File size cannot exceed 100MB',
-            'module_name.required' => 'Module name is required',
-            'module_name.regex' => 'Module name must contain only lowercase letters, numbers, and hyphens',
         ]);
 
         try {
+            $zipFile = $request->file('zip_file');
+            $moduleName = $request->input('module_name');
+
+            // Auto-collect module name from zip file name if not provided
+            if (!$moduleName) {
+                $fileName = $zipFile->getClientOriginalName();
+                $moduleName = pathinfo($fileName, PATHINFO_FILENAME);
+                // Sanitize: lowercase, alphanumeric and hyphens
+                $moduleName = \Illuminate\Support\Str::slug($moduleName);
+            }
+
+            if (empty($moduleName)) {
+                return redirect()->back()->with('error', 'Could not determine module name from file name. Please rename the file and try again.');
+            }
+
             $result = $this->externalAppService->uploadAndInstall(
-                $request->file('zip_file'),
-                $request->input('module_name')
+                $zipFile,
+                $moduleName
             );
 
             if ($result['success']) {
