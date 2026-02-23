@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ExternalApp;
 use App\Services\ExternalApps\ExternalAppService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 class ExternalAppsController extends Controller
@@ -154,8 +155,20 @@ class ExternalAppsController extends Controller
 
         $app = $this->externalAppService->getApp($slug);
 
+        // For zoom, read credentials directly from .env — no DB involvement
+        if ($slug === 'zoom') {
+            $zoomConfig = [
+                'ZOOM_ACCOUNT_ID'    => env('ZOOM_ACCOUNT_ID', ''),
+                'ZOOM_CLIENT_ID'     => env('ZOOM_CLIENT_ID', ''),
+                'ZOOM_CLIENT_SECRET' => env('ZOOM_CLIENT_SECRET', ''),
+            ];
+            return view('backend.settings.external-apps.configure', compact('app', 'zoomConfig'));
+        }
+
         return view('backend.settings.external-apps.configure', compact('app'));
     }
+
+    use \App\Http\Controllers\Traits\EnvManagerTrait;
 
     /**
      * Update configuration for external app
@@ -167,17 +180,28 @@ class ExternalAppsController extends Controller
         }
 
         try {
+            // For zoom, write directly to .env — skip DB entirely
+            if ($slug === 'zoom') {
+                $this->setEnv([
+                    'ZOOM_ACCOUNT_ID'    => trim($request->input('ZOOM_ACCOUNT_ID', '')),
+                    'ZOOM_CLIENT_ID'     => trim($request->input('ZOOM_CLIENT_ID', '')),
+                    'ZOOM_CLIENT_SECRET' => trim($request->input('ZOOM_CLIENT_SECRET', '')),
+                ]);
+
+                return redirect()->route('admin.external-apps.edit-config', $slug)
+                    ->with('success', 'Zoom credentials updated successfully.');
+            }
+
             $app = $this->externalAppService->getApp($slug);
 
-            // Custom validation based on module requirements
-            // This can be extended per module
-            $configuration = $request->except('_token');
+            $currentConfig = $app->configuration ?? [];
+            $newValues = $request->except('_token');
+            $configuration = array_merge($currentConfig, $newValues);
 
-            // Validate configuration if module has validator
             $this->externalAppService->validateConfiguration($slug, $configuration);
 
             $app->update([
-                'configuration' => $configuration,
+                'configuration'  => $configuration,
                 'last_updated_at' => now(),
             ]);
 
