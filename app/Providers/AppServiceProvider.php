@@ -259,5 +259,25 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Collection::macro('lists', function ($a, $b = null) {
             return collect($this->items)->pluck($a, $b);
         });
+
+        // Dynamically load PSR-4 namespaces for external modules
+        $loader = collect(spl_autoload_functions())->first(function ($loader) {
+            return is_array($loader) && $loader[0] instanceof \Composer\Autoload\ClassLoader;
+        })[0] ?? null;
+
+        if ($loader) {
+            $modulesPath = base_path('modules');
+            if (file_exists($modulesPath)) {
+                $modules = array_diff(scandir($modulesPath), ['.', '..']);
+                foreach ($modules as $module) {
+                    $moduleSrcPath = $modulesPath . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+                    if (is_dir($moduleSrcPath)) {
+                        $studlySlug = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $module)));
+                        $namespace = 'Modules\\' . $studlySlug . '\\';
+                        $loader->setPsr4($namespace, $moduleSrcPath);
+                    }
+                }
+            }
+        }
     }
 }

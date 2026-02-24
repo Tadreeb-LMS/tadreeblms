@@ -536,7 +536,12 @@ class CoursesController extends Controller
         $categories = Category::where('status', '=', 1)->pluck('name', 'id');
         $departments = Department::all();
 
-        return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments'));
+        $enabledMeetingProviders = [];
+        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->exists()) {
+            $enabledMeetingProviders['zoom'] = 'Zoom';
+        }
+
+        return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
     }
 
     /**
@@ -605,8 +610,21 @@ class CoursesController extends Controller
             if (!$request->category_id) {
                 $defaultCategory = Category::first();   // get any existing category
                 $request->merge(['category_id' => $defaultCategory->id]);
-                }
-                $course = Course::create($request->all());
+            }
+
+            if ($request->course_type !== 'Offline') {
+                $request->merge([
+                    'meeting_provider' => null,
+                    'meeting_id'       => null,
+                    'meeting_join_url' => null,
+                    'meeting_host_url' => null,
+                    'meeting_start_at' => null,
+                    'meeting_duration' => null,
+                    'meeting_timezone' => null,
+                ]);
+            }
+
+            $course = Course::create($request->all());
 
             $course->slug = $uniqueId . '-' . $slug;
             $course->department_id = $request->department_id;
@@ -819,6 +837,18 @@ class CoursesController extends Controller
             } else {
                 $redirect_url = route('admin.test_questions.create') . '?course_id=' . $course->id;
             }
+
+            if ($request->meeting_provider && $request->course_type === 'Offline') {
+                $meetingData = $this->createMeetingViaModule(
+                    $request->meeting_provider, $request, $course
+                );
+                if ($meetingData) {
+                    $course->fill($meetingData)->save();
+                    $this->sendMeetingInviteToStudents($course, $students);
+                } else {
+                    \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
+                }
+            }
             
             //dd($redirect_url);
             
@@ -871,7 +901,12 @@ class CoursesController extends Controller
         $course = Course::with('latestModuleWeightage')->findOrFail($id);
         //dd($course);
 
-        return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments'));
+        $enabledMeetingProviders = [];
+        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->exists()) {
+            $enabledMeetingProviders['zoom'] = 'Zoom';
+        }
+
+        return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
     }
 
     /**
@@ -975,6 +1010,17 @@ class CoursesController extends Controller
 
         //dd( $course, $request->all());
 
+        if ($request->course_type !== 'Offline') {
+            $request->merge([
+                'meeting_provider' => null,
+                'meeting_id'       => null,
+                'meeting_join_url' => null,
+                'meeting_host_url' => null,
+                'meeting_start_at' => null,
+                'meeting_duration' => null,
+                'meeting_timezone' => null,
+            ]);
+        }
         
         $course->update($request->all());
 
@@ -1537,5 +1583,36 @@ class CoursesController extends Controller
     {
         ini_set('max_execution_time', 300);
         return Excel::download(new CourseAssignmentReportExport, 'course-assignment-report.csv');
+    }
+
+    private function createMeetingViaModule(string $provider, Request $request, Course $course): ?array
+    {
+        if ($provider === 'zoom') {
+            $service = new \Modules\Zoom\Services\ZoomMeetingService();
+            $meeting = $service->createMeeting(
+                $course->title,
+                $request->meeting_start_at,
+                $request->meeting_duration,
+                $request->meeting_timezone
+            );
+
+            if ($meeting) {
+                return [
+                    'meeting_id'       => $meeting['id'],
+                    'meeting_join_url' => $meeting['join_url'],
+                    'meeting_host_url' => $meeting['host_url'] ?? null,
+                ];
+            }
+        }
+        return null;
+    }
+
+    private function sendMeetingInviteToStudents(Course $course, array $studentIds): void
+    {
+        $students = User::whereIn('id', $studentIds)->get();
+        foreach ($students as $student) {
+            \Illuminate\Support\Facades\Mail::to($student->email)
+                ->send(new \App\Mail\CourseMeetingInvite($course));
+        }
     }
 }

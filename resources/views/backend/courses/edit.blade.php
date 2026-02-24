@@ -84,7 +84,7 @@
 
     @include('backend.includes.partials.course-steps', ['step' => 1, 'course_id' => $course->id, 'course' => $course ])
 
-    <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" enctype="multipart/form-data" id="updateCourse">
     @csrf
     @method('PUT')
 
@@ -296,22 +296,14 @@
                 
                <div id="date-fields" class="row">
     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-        {!! Form::label('start_date', trans('labels.backend.courses.fields.start_date') . ' (yyyy-mm-dd) *') !!}
-        {!! Form::text('start_date', old('start_date', $course->start_date), [
-            'class' => 'form-control',
-            'id' => 'start_date',
-            'autocomplete' => 'off'
-        ]) !!}
+        <label for="start_date" class="control-label">{{ trans('labels.backend.courses.fields.start_date') }} (yyyy-mm-dd) *</label>
+        <input class="form-control" id="start_date" autocomplete="off" name="start_date" type="text" value="{{ old('start_date', $course->start_date) }}">
     </div>
 
     @if (Auth::user()->isAdmin())
     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-        {!! Form::label('expire_at', trans('labels.backend.courses.fields.expire_at') . ' (yyyy-mm-dd) *') !!}
-        {!! Form::text('expire_at', old('expire_at', $course->expire_at), [
-            'class' => 'form-control',
-            'id' => 'expire_at',
-            'autocomplete' => 'off'
-        ]) !!}
+        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) *</label>
+        <input class="form-control" id="expire_at" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at', $course->expire_at) }}">
     </div>
     @endif
 </div>
@@ -344,6 +336,44 @@
                     </span>
                     <span id="live-online" style="display: none;">
                         Live-Online type course is a course can be done on goole meet/Zoom link.
+                        @if(count($enabledMeetingProviders ?? []))
+                            <div class="card mt-3" id="meeting-config-section">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_provider">Meeting Provider *</label>
+                                            <select name="meeting_provider" id="meeting_provider" class="form-control">
+                                                @foreach($enabledMeetingProviders as $key => $label)
+                                                    <option value="{{ $key }}" {{ $course->meeting_provider == $key ? 'selected' : '' }}>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_timezone">Timezone</label>
+                                            <input type="text" name="meeting_timezone" id="meeting_timezone" class="form-control" value="{{ $course->meeting_timezone ?? 'Asia/Riyadh' }}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_date">Start Date *</label>
+                                            <input type="date" name="meeting_start_date" id="meeting_start_date" class="form-control" value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_time">Start Time *</label>
+                                            <input type="time" name="meeting_start_time" id="meeting_start_time" class="form-control" value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('H:i') : '' }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_duration">Duration (mins) *</label>
+                                            <input type="number" name="meeting_duration" id="meeting_duration" class="form-control" value="{{ $course->meeting_duration ?? 60 }}">
+                                            <input type="hidden" name="meeting_start_at" id="meeting_start_at">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </span>
                     <span id="live-classroom" style="display: none;">
                         Live-Classroom type course is a course can be happen on a specific classroom location.
@@ -583,8 +613,13 @@ $('#expire_at').datepicker({
         $('#e-learning').show();
         $('#live-online, #live-classroom').hide();
 
-        $('#date-fields').hide();
+        $('#date-fields').show();
         $('#start_date, #expire_at').prop('required', false);
+
+        // Meeting Config NOT REQUIRED
+        $('#meeting_start_date').prop('required', false);
+        $('#meeting_start_time').prop('required', false);
+        $('#meeting_duration').prop('required', false);
     } else {
         // Live Courses
         $('#e-learning').hide();
@@ -592,6 +627,18 @@ $('#expire_at').datepicker({
 
         $('#date-fields').show();
         $('#start_date, #expire_at').prop('required', true);
+
+        if (type === 'Offline') {
+            @if(count($enabledMeetingProviders ?? []))
+                $('#meeting_start_date').prop('required', true);
+                $('#meeting_start_time').prop('required', true);
+                $('#meeting_duration').prop('required', true);
+            @endif
+        } else {
+            $('#meeting_start_date').prop('required', false);
+            $('#meeting_start_time').prop('required', false);
+            $('#meeting_duration').prop('required', false);
+        }
     }
 }
 
@@ -656,6 +703,16 @@ $(document).ready(function () {
     let selectedType = $('input[name="course_type"]:checked').val();
     toggleCourseWeightage(selectedType);
 });
+</script>
+
+<script>
+    $('#updateCourse').on('submit', function(e) {
+        let courseType = $('.course-type:checked').val();
+        // Populate meeting_start_at if offline course
+        if (courseType === 'Offline' && $('#meeting_start_date').val() && $('#meeting_start_time').val()) {
+            $('#meeting_start_at').val($('#meeting_start_date').val() + ' ' + $('#meeting_start_time').val() + ':00');
+        }
+    });
 </script>
 
     <script>

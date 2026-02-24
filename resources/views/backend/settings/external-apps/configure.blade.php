@@ -144,6 +144,26 @@
                             </div>
                         @endif
 
+                        @if ($app->slug === 'zoom')
+                            <hr class="mt-4 mb-4">
+                            <h5 class="mb-4 d-flex align-items-center">
+                                <i class="fas fa-plug mr-2 text-primary"></i>
+                                Test Connection
+                            </h5>
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Click the button below to test if the Zoom API credentials provided above are working correctly. You do not need to save the configuration first.
+                            </div>
+                            <div id="testConnectionAlertContainer"></div>
+                            <div class="row">
+                                <div class="col text-left">
+                                    <button type="button" class="btn btn-info" id="btnTestConnection">
+                                        <i class="fas fa-link mr-1"></i> Test Zoom Connection
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
                         <hr class="mt-4 mb-4">
 
                         <div class="row">
@@ -181,6 +201,52 @@ $(document).ready(function () {
             icon.removeClass('fa-eye-slash').addClass('fa-eye');
         }
     });
+
+    @if ($app->slug === 'zoom')
+    $('#btnTestConnection').on('click', function() {
+        var btn = $(this);
+        var btnHtml = btn.html();
+        var alertContainer = $('#testConnectionAlertContainer');
+
+        // Clear previous alerts
+        alertContainer.empty();
+
+        // Get values from the form
+        var accountId = $('#field_ZOOM_ACCOUNT_ID').val();
+        var clientId = $('#field_ZOOM_CLIENT_ID').val();
+        var clientSecret = $('#field_ZOOM_CLIENT_SECRET').val();
+
+        if (!accountId || !clientId || !clientSecret) {
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in Account ID, Client ID, and Client Secret before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            return;
+        }
+
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+
+        $.ajax({
+            url: '{{ url("external-apps/zoom/test-connection") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                ZOOM_ACCOUNT_ID: accountId,
+                ZOOM_CLIENT_ID: clientId,
+                ZOOM_CLIENT_SECRET: clientSecret
+            },
+            success: function(response) {
+                alertContainer.html('<div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle mr-2"></i>' + response.message + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+                btn.prop('disabled', false).html(btnHtml);
+            },
+            error: function(xhr) {
+                var msg = 'Failed to connect to Zoom API.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                alertContainer.html('<div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>' + msg + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+                btn.prop('disabled', false).html(btnHtml);
+            }
+        });
+    });
+    @endif
 });
 </script>
 @endpush
