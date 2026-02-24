@@ -14,6 +14,7 @@ class ExternalApp extends Model
         'slug',
         'description',
         'is_enabled',
+        'is_setup',
         'version',
         'installed_path',
         'config_file',
@@ -26,6 +27,7 @@ class ExternalApp extends Model
 
     protected $casts = [
         'is_enabled' => 'boolean',
+        'is_setup' => 'boolean',
         'configuration' => 'array',
         'installed_at' => 'datetime',
         'last_updated_at' => 'datetime',

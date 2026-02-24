@@ -537,8 +537,11 @@ class CoursesController extends Controller
         $departments = Department::all();
 
         $enabledMeetingProviders = [];
-        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->exists()) {
+        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['zoom'] = 'Zoom';
+        }
+        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet'] = 'Google Meet';
         }
 
         return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -902,8 +905,11 @@ class CoursesController extends Controller
         //dd($course);
 
         $enabledMeetingProviders = [];
-        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->exists()) {
+        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['zoom'] = 'Zoom';
+        }
+        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet'] = 'Google Meet';
         }
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));

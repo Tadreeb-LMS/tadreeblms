@@ -179,7 +179,7 @@ class ExternalAppsController extends Controller
             $this->externalAppService->setModuleEnv($slug, $data);
 
             // Touch the DB record so last_updated_at is current
-            $app->update(['last_updated_at' => now()]);
+            $app->update(['is_setup' => true, 'last_updated_at' => now()]);
 
             return redirect()->route('admin.external-apps.edit-config', $slug)
                 ->with('success', 'Configuration saved successfully.');
