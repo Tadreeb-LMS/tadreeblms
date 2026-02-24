@@ -9,12 +9,12 @@ use ZipArchive;
 
 class ExternalAppService
 {
-    protected $storagePath = 'external-modules';
     protected $appStoragePath;
 
     public function __construct()
     {
-        $this->appStoragePath = storage_path('app/' . $this->storagePath);
+        // Modules live at {project-root}/modules/
+        $this->appStoragePath = base_path('modules');
         if (!File::exists($this->appStoragePath)) {
             File::makeDirectory($this->appStoragePath, 0755, true);
         }
@@ -83,7 +83,8 @@ class ExternalAppService
      */
     public static function staticGetModuleEnv(string $slug, string $key, $default = null)
     {
-        $path = storage_path('app/external-modules/' . $slug . '/.env');
+        // Resolve project root without needing Laravel bootstrap (ExternalAppService.php is 3 dirs deep)
+        $path = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $slug . DIRECTORY_SEPARATOR . '.env';
 
         if (!file_exists($path)) {
             return $default;
@@ -470,7 +471,8 @@ class ExternalAppService
      */
     public function getAssetPath($slug)
     {
-        return url('storage/external-modules/' . $slug . '/public');
+        // Assets served via public/modules symlink → {project-root}/modules/{slug}/public
+        return url('modules/' . $slug . '/public');
     }
 
     /**
