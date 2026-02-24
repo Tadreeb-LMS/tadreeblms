@@ -30,6 +30,7 @@
                     </div>
                     @endif
 
+                    {{-- Module info summary --}}
                     <div class="alert alert-info mb-4">
                         <h5><i class="fas fa-info-circle mr-2"></i>Module Information</h5>
                         <table class="table table-sm mb-0">
@@ -47,126 +48,99 @@
                                     </span>
                                 </td>
                             </tr>
+                            <tr>
+                                <td><strong>Credentials stored in:</strong></td>
+                                <td>
+                                    <code class="text-muted" style="font-size:.85em;">
+                                        {{ $app->installed_path }}/.env
+                                    </code>
+                                </td>
+                            </tr>
                         </table>
                     </div>
 
                     <form action="{{ route('admin.external-apps.update-config', $app->slug) }}" method="POST">
                         @csrf
 
-                        {{-- ===== ZOOM: read from .env only ===== --}}
-                        @if (isset($zoomConfig))
+                        @php
+                            // Field metadata from config.json (stored in DB configuration column)
+                            $fields = $app->configuration['metadata']['fields'] ?? [];
+                        @endphp
+
+                        @if (!empty($fields))
                             <h5 class="mb-4 d-flex align-items-center">
                                 <i class="fas fa-sliders-h mr-2 text-primary"></i>
                                 Configuration Settings
-                                <small class="ml-2 text-muted" style="font-size:.75rem;">(stored in .env)</small>
+                                <small class="ml-2 text-muted" style="font-size:.75rem;">
+                                    (stored in module .env)
+                                </small>
                             </h5>
 
-                            <div class="form-group row mb-3">
-                                <label for="ZOOM_ACCOUNT_ID" class="col-md-3 col-form-label font-weight-bold">
-                                    ZOOM_ACCOUNT_ID <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <input type="text" class="form-control"
-                                           id="ZOOM_ACCOUNT_ID" name="ZOOM_ACCOUNT_ID"
-                                           value="{{ old('ZOOM_ACCOUNT_ID', $zoomConfig['ZOOM_ACCOUNT_ID']) }}"
-                                           placeholder="e.g. aBcDeFgH1234" required>
-                                </div>
-                            </div>
+                            @foreach ($fields as $key => $meta)
+                                @php
+                                    $label       = $meta['label']       ?? ucwords(str_replace('_', ' ', $key));
+                                    $type        = $meta['type']        ?? 'text';
+                                    $required    = $meta['required']    ?? false;
+                                    $placeholder = $meta['placeholder'] ?? '';
+                                    // Value comes from the module .env, falling back to empty string
+                                    $currentVal  = $moduleEnv[$key] ?? '';
+                                @endphp
 
-                            <div class="form-group row mb-3">
-                                <label for="ZOOM_CLIENT_ID" class="col-md-3 col-form-label font-weight-bold">
-                                    ZOOM_CLIENT_ID <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <input type="text" class="form-control"
-                                           id="ZOOM_CLIENT_ID" name="ZOOM_CLIENT_ID"
-                                           value="{{ old('ZOOM_CLIENT_ID', $zoomConfig['ZOOM_CLIENT_ID']) }}"
-                                           placeholder="e.g. xYzAbC123456" required>
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-3">
-                                <label for="ZOOM_CLIENT_SECRET" class="col-md-3 col-form-label font-weight-bold">
-                                    ZOOM_CLIENT_SECRET <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <div class="input-group">
-                                        <input type="password" class="form-control password-field"
-                                               id="ZOOM_CLIENT_SECRET" name="ZOOM_CLIENT_SECRET"
-                                               value="{{ old('ZOOM_CLIENT_SECRET', $zoomConfig['ZOOM_CLIENT_SECRET']) }}"
-                                               placeholder="Enter your Zoom Client Secret"
-                                               autocomplete="new-password" required>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-secondary toggle-password" type="button">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        {{-- ===== Other modules: dynamic fields from DB config ===== --}}
-                        @elseif ($app->configuration && count($app->configuration) > 0)
-                            <h5 class="mb-4 d-flex align-items-center">
-                                <i class="fas fa-sliders-h mr-2 text-primary"></i>
-                                Configuration Settings
-                            </h5>
-
-                            @php
-                                $metadata = $app->configuration['metadata'] ?? [];
-                                $fields = $metadata['fields'] ?? [];
-                            @endphp
-
-                            @foreach ($app->configuration as $key => $value)
-                                @if (!in_array($key, ['name', 'description', 'version', 'metadata']))
-                                    @php
-                                        $fieldMeta   = $fields[$key] ?? [];
-                                        $label       = $fieldMeta['label']       ?? ucwords(str_replace('_', ' ', $key));
-                                        $type        = $fieldMeta['type']        ?? 'text';
-                                        $required    = $fieldMeta['required']    ?? false;
-                                        $placeholder = $fieldMeta['placeholder'] ?? '';
-                                    @endphp
-
-                                    <div class="form-group row mb-3">
-                                        <label for="config_{{ $key }}" class="col-md-3 form-control-label">
-                                            {{ $label }}{{ $required ? '*' : '' }}
-                                        </label>
-                                        <div class="col-md-9">
-                                            @if (is_array($value))
-                                                <textarea class="form-control" id="config_{{ $key }}" name="{{ $key }}" rows="4" {{ $required ? 'required' : '' }}>{{ json_encode($value, JSON_PRETTY_PRINT) }}</textarea>
-                                            @elseif (is_bool($value) || $type === 'switch')
-                                                <div class="custom-control custom-switch mt-2">
-                                                    <input type="checkbox" class="custom-control-input"
-                                                           id="config_{{ $key }}" name="{{ $key }}" value="1"
-                                                           {{ $value ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="config_{{ $key }}">Enabled</label>
-                                                </div>
-                                            @elseif ($type === 'password')
-                                                <div class="input-group">
-                                                    <input type="password" class="form-control password-field"
-                                                           id="config_{{ $key }}" name="{{ $key }}"
-                                                           value="{{ $value }}" placeholder="{{ $placeholder }}"
-                                                           {{ $required ? 'required' : '' }}>
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-outline-secondary toggle-password" type="button">
-                                                            <i class="fas fa-eye"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <input type="{{ $type }}" class="form-control"
-                                                       id="config_{{ $key }}" name="{{ $key }}"
-                                                       value="{{ $value }}" placeholder="{{ $placeholder }}"
+                                <div class="form-group row mb-3">
+                                    <label for="field_{{ $key }}" class="col-md-3 col-form-label font-weight-bold">
+                                        {{ $label }}{{ $required ? ' *' : '' }}
+                                    </label>
+                                    <div class="col-md-9">
+                                        @if ($type === 'password')
+                                            <div class="input-group">
+                                                <input type="password"
+                                                       class="form-control password-field"
+                                                       id="field_{{ $key }}"
+                                                       name="{{ $key }}"
+                                                       value="{{ old($key, $currentVal) }}"
+                                                       placeholder="{{ $placeholder }}"
+                                                       autocomplete="new-password"
                                                        {{ $required ? 'required' : '' }}>
-                                            @endif
-                                        </div>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @elseif ($type === 'switch' || is_bool($currentVal))
+                                            <div class="custom-control custom-switch mt-2">
+                                                <input type="checkbox"
+                                                       class="custom-control-input"
+                                                       id="field_{{ $key }}"
+                                                       name="{{ $key }}"
+                                                       value="1"
+                                                       {{ $currentVal ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="field_{{ $key }}">Enabled</label>
+                                            </div>
+                                        @elseif ($type === 'textarea')
+                                            <textarea class="form-control"
+                                                      id="field_{{ $key }}"
+                                                      name="{{ $key }}"
+                                                      rows="4"
+                                                      placeholder="{{ $placeholder }}"
+                                                      {{ $required ? 'required' : '' }}>{{ old($key, $currentVal) }}</textarea>
+                                        @else
+                                            <input type="{{ $type }}"
+                                                   class="form-control"
+                                                   id="field_{{ $key }}"
+                                                   name="{{ $key }}"
+                                                   value="{{ old($key, $currentVal) }}"
+                                                   placeholder="{{ $placeholder }}"
+                                                   {{ $required ? 'required' : '' }}>
+                                        @endif
                                     </div>
-                                @endif
+                                </div>
                             @endforeach
+
                         @else
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                                No configuration options available for this module.
+                                No configuration fields defined for this module.
                             </div>
                         @endif
 
@@ -195,6 +169,7 @@
 @push('after-scripts')
 <script>
 $(document).ready(function () {
+    // Toggle password visibility
     $('.toggle-password').on('click', function () {
         var input = $(this).closest('.input-group').find('.password-field');
         var icon  = $(this).find('i');

@@ -20,6 +20,205 @@ class ExternalAppService
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Module .env Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get the absolute path to a module's .env file.
+     */
+    protected function moduleDotEnvPath(string $slug): string
+    {
+        return $this->appStoragePath . '/' . $slug . '/.env';
+    }
+
+    /**
+     * Parse a module's .env file and return all key-value pairs as an array.
+     * Lines starting with # are comments and are ignored.
+     */
+    public function getModuleEnvAll(string $slug): array
+    {
+        $path = $this->moduleDotEnvPath($slug);
+
+        if (!File::exists($path)) {
+            return [];
+        }
+
+        $lines  = explode("\n", str_replace("\r\n", "\n", File::get($path)));
+        $result = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+            if (!str_contains($line, '=')) {
+                continue;
+            }
+            [$key, $value] = explode('=', $line, 2);
+            // Strip surrounding quotes if present
+            $value = trim($value);
+            if (
+                (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+                (str_starts_with($value, "'") && str_ends_with($value, "'"))
+            ) {
+                $value = substr($value, 1, -1);
+            }
+            $result[trim($key)] = $value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Read a single value from a module's .env file.
+     */
+    public function getModuleEnv(string $slug, string $key, $default = null)
+    {
+        return $this->getModuleEnvAll($slug)[$key] ?? $default;
+    }
+
+    /**
+     * Static version of getModuleEnv — usable from config files (no DI).
+     */
+    public static function staticGetModuleEnv(string $slug, string $key, $default = null)
+    {
+        $path = storage_path('app/external-modules/' . $slug . '/.env');
+
+        if (!file_exists($path)) {
+            return $default;
+        }
+
+        $lines = explode("\n", str_replace("\r\n", "\n", file_get_contents($path)));
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+            if (!str_contains($line, '=')) {
+                continue;
+            }
+            [$envKey, $value] = explode('=', $line, 2);
+            if (trim($envKey) === $key) {
+                $value = trim($value);
+                if (
+                    (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+                    (str_starts_with($value, "'") && str_ends_with($value, "'"))
+                ) {
+                    $value = substr($value, 1, -1);
+                }
+                return $value;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Write / update key-value pairs into a module's .env file.
+     * Creates the file if it does not exist.
+     */
+    public function setModuleEnv(string $slug, array $data): void
+    {
+        $path = $this->moduleDotEnvPath($slug);
+
+        $envContent = File::exists($path) ? File::get($path) : '';
+
+        foreach ($data as $key => $value) {
+            $value   = (string) $value;
+            $escaped = str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
+
+            // Quote values that contain whitespace, quotes, # or are empty
+            if (preg_match('/[\s"\'#]/', $escaped) || $escaped === '') {
+                $valueForEnv = '"' . $escaped . '"';
+            } else {
+                $valueForEnv = $escaped;
+            }
+
+            $pattern = "/^{$key}=.*$/m";
+
+            if (preg_match($pattern, $envContent)) {
+                $envContent = preg_replace($pattern, "{$key}={$valueForEnv}", $envContent);
+            } else {
+                $envContent .= PHP_EOL . "{$key}={$valueForEnv}";
+            }
+        }
+
+        File::put($path, ltrim($envContent));
+    }
+
+    /**
+     * Create a module's .env file with empty keys derived from config.json fields.
+     * Existing files are not overwritten (preserves saved credentials on re-installs).
+     */
+    protected function createModuleDotEnv(string $slug, array $moduleConfig): void
+    {
+        $path = $this->moduleDotEnvPath($slug);
+
+        // Don't overwrite so that re-installs keep saved credentials
+        if (File::exists($path)) {
+            return;
+        }
+
+        $fields = $moduleConfig['metadata']['fields'] ?? [];
+        $lines  = ["# {$moduleConfig['name']} credentials — managed by External Apps module"];
+
+        foreach ($fields as $key => $meta) {
+            $lines[] = "{$key}=";
+        }
+
+        File::put($path, implode(PHP_EOL, $lines) . PHP_EOL);
+    }
+
+    // -------------------------------------------------------------------------
+    // Main .env Flag Helpers (via inline write — same logic as EnvManagerTrait)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Write or update a single key in the main .env file.
+     */
+    protected function writeMainEnvFlag(string $key, string $value): void
+    {
+        $envPath = base_path('.env');
+
+        if (!File::exists($envPath)) {
+            return;
+        }
+
+        $envContent = File::get($envPath);
+
+        // Quote if necessary
+        $escaped = str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
+        $valueForEnv = preg_match('/[\s"\'#]/', $escaped) || $escaped === ''
+            ? '"' . $escaped . '"'
+            : $escaped;
+
+        $pattern = "/^{$key}=.*$/m";
+
+        if (preg_match($pattern, $envContent)) {
+            $envContent = preg_replace($pattern, "{$key}={$valueForEnv}", $envContent);
+        } else {
+            $envContent .= PHP_EOL . "{$key}={$valueForEnv}";
+        }
+
+        File::put($envPath, $envContent);
+    }
+
+    /**
+     * Derive the main .env integration flag key from module config.
+     * Falls back to SLUG_INTEGRATION (uppercased) if not defined in config.json.
+     */
+    protected function integrationFlagKey(string $slug, array $moduleConfig): string
+    {
+        return $moduleConfig['integration_key']
+            ?? strtoupper(str_replace('-', '_', $slug)) . '_INTEGRATION';
+    }
+
+    // -------------------------------------------------------------------------
+    // CRUD Operations
+    // -------------------------------------------------------------------------
+
     /**
      * Upload and extract external app zip file
      */
@@ -52,7 +251,7 @@ class ExternalAppService
 
             // Create the final installation directory
             $installPath = $this->appStoragePath . '/' . $moduleName;
-            
+
             if (File::exists($installPath)) {
                 File::deleteDirectory($installPath);
             }
@@ -63,37 +262,45 @@ class ExternalAppService
             $externalApp = ExternalApp::updateOrCreate(
                 ['slug' => $moduleName],
                 [
-                    'name' => $moduleConfig['name'] ?? ucwords(str_replace('-', ' ', $moduleName)),
-                    'description' => $moduleConfig['description'] ?? null,
-                    'version' => $moduleConfig['version'] ?? '1.0.0',
+                    'name'           => $moduleConfig['name'] ?? ucwords(str_replace('-', ' ', $moduleName)),
+                    'description'    => $moduleConfig['description'] ?? null,
+                    'version'        => $moduleConfig['version'] ?? '1.0.0',
                     'installed_path' => $installPath,
-                    'config_file' => $installPath . '/config.json',
-                    'configuration' => $moduleConfig,
-                    'status' => 'active',
-                    'error_message' => null,
-                    'installed_at' => now(),
+                    'config_file'    => $installPath . '/config.json',
+                    'configuration'  => $moduleConfig,
+                    'status'         => 'active',
+                    'error_message'  => null,
+                    'installed_at'   => now(),
                     'last_updated_at' => now(),
                 ]
             );
+
+            // Create the module's .env file (with empty credential keys)
+            $this->createModuleDotEnv($moduleName, $moduleConfig);
+
+            // Write integration flag to the main .env
+            $flagKey = $this->integrationFlagKey($moduleName, $moduleConfig);
+            $this->writeMainEnvFlag($flagKey, 'true');
 
             // Run any installation commands if they exist
             $this->runInstallationCommands($installPath);
 
             Log::info("External app '$moduleName' installed successfully", [
-                'path' => $installPath,
-                'version' => $moduleConfig['version'] ?? '1.0.0'
+                'path'    => $installPath,
+                'version' => $moduleConfig['version'] ?? '1.0.0',
+                'flag'    => $flagKey,
             ]);
 
             return [
                 'success' => true,
                 'message' => "Module '$moduleName' installed successfully",
-                'app' => $externalApp
+                'app'     => $externalApp,
             ];
 
         } catch (\Exception $e) {
             Log::error("Failed to install external app", [
                 'module' => $moduleName,
-                'error' => $e->getMessage()
+                'error'  => $e->getMessage(),
             ]);
 
             // Clean up temp directory if it exists
@@ -105,7 +312,7 @@ class ExternalAppService
             ExternalApp::updateOrCreate(
                 ['slug' => $moduleName],
                 [
-                    'status' => 'error',
+                    'status'        => 'error',
                     'error_message' => $e->getMessage(),
                 ]
             );
@@ -122,9 +329,8 @@ class ExternalAppService
      */
     protected function validateModuleStructure($modulePath)
     {
-        // Check for required files
         $requiredFiles = [
-            'config.json', // Module configuration
+            'config.json',
         ];
 
         foreach ($requiredFiles as $file) {
@@ -140,13 +346,13 @@ class ExternalAppService
     protected function readModuleConfig($modulePath)
     {
         $configPath = $modulePath . '/config.json';
-        
+
         if (!File::exists($configPath)) {
             return [];
         }
 
         $config = json_decode(File::get($configPath), true);
-        
+
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Invalid config.json file');
         }
@@ -160,10 +366,9 @@ class ExternalAppService
     protected function runInstallationCommands($modulePath)
     {
         $installScript = $modulePath . '/install.php';
-        
+
         if (File::exists($installScript)) {
             try {
-                // Include the installation script in a safe way
                 include $installScript;
             } catch (\Exception $e) {
                 Log::warning("Installation script returned warning: " . $e->getMessage());
@@ -177,13 +382,13 @@ class ExternalAppService
     public function toggleStatus($slug, $enabled)
     {
         $app = ExternalApp::where('slug', $slug)->firstOrFail();
-        
+
         if (!$app->isInstalled()) {
             throw new \Exception('Module is not properly installed');
         }
 
         $app->update([
-            'is_enabled' => $enabled,
+            'is_enabled'      => $enabled,
             'last_updated_at' => now(),
         ]);
 
@@ -200,6 +405,10 @@ class ExternalAppService
         try {
             $app = ExternalApp::where('slug', $slug)->firstOrFail();
 
+            // Determine integration flag key before deleting
+            $moduleConfig = $app->configuration ?? [];
+            $flagKey      = $this->integrationFlagKey($slug, $moduleConfig);
+
             // Run uninstall script if exists
             if ($app->installed_path && File::exists($app->installed_path . '/uninstall.php')) {
                 try {
@@ -209,10 +418,13 @@ class ExternalAppService
                 }
             }
 
-            // Remove from filesystem
+            // Remove from filesystem (this also removes the module's .env)
             if ($app->installed_path && File::exists($app->installed_path)) {
                 File::deleteDirectory($app->installed_path);
             }
+
+            // Set integration flag to false in the main .env
+            $this->writeMainEnvFlag($flagKey, 'false');
 
             // Delete from database
             $app->delete();
@@ -221,18 +433,18 @@ class ExternalAppService
 
             return [
                 'success' => true,
-                'message' => "Module '$slug' uninstalled successfully"
+                'message' => "Module '$slug' uninstalled successfully",
             ];
 
         } catch (\Exception $e) {
             Log::error("Failed to uninstall external app", [
-                'slug' => $slug,
-                'error' => $e->getMessage()
+                'slug'  => $slug,
+                'error' => $e->getMessage(),
             ]);
 
             return [
                 'success' => false,
-                'message' => 'Failed to uninstall module: ' . $e->getMessage()
+                'message' => 'Failed to uninstall module: ' . $e->getMessage(),
             ];
         }
     }
@@ -262,9 +474,10 @@ class ExternalAppService
     }
 
     /**
-     * Validate module configuration
+     * Validate module configuration against the module's validate-config.php.
+     * The $configuration array comes from the module .env, not the DB.
      */
-    public function validateConfiguration($slug, $config)
+    public function validateConfiguration($slug, $configuration)
     {
         $app = $this->getApp($slug);
 
