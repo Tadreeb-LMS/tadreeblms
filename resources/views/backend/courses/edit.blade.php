@@ -359,7 +359,7 @@
                                     <div class="row">
                                         <div class="col-md-4 form-group">
                                             <label for="meeting_start_date">Start Date *</label>
-                                            <input type="date" name="meeting_start_date" id="meeting_start_date" class="form-control" value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}">
+                                            <input type="date" name="meeting_start_date" id="meeting_start_date" class="form-control" value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}" min="{{ date('Y-m-d') }}">
                                         </div>
                                         <div class="col-md-4 form-group">
                                             <label for="meeting_start_time">Start Time *</label>
@@ -592,6 +592,34 @@ $('#expire_at').datepicker({
 
             $(".js-example-external-student-placeholder-multiple").select2({
                 placeholder: "{{ trans('labels.backend.courses.select_external_students') }}",
+            });
+
+            $('#meeting_start_date').on('change', function() {
+                var selectedDate = $(this).val();
+                var today = new Date().toISOString().split('T')[0];
+                if (selectedDate === today) {
+                    var now = new Date();
+                    var hours = String(now.getHours()).padStart(2, '0');
+                    var minutes = String(now.getMinutes()).padStart(2, '0');
+                    $('#meeting_start_time').attr('min', hours + ':' + minutes);
+                } else {
+                    $('#meeting_start_time').removeAttr('min');
+                }
+            });
+
+            $('#meeting_start_date').trigger('change');
+            
+            $('#meeting_start_time').on('change', function() {
+                var selectedDate = $('#meeting_start_date').val();
+                var today = new Date().toISOString().split('T')[0];
+                if (selectedDate === today) {
+                    var selectedTime = $(this).val();
+                    var minTime = $(this).attr('min');
+                    if (selectedTime && minTime && selectedTime < minTime) {
+                        alert('Meeting start time cannot be in the past for today.');
+                        $(this).val('');
+                    }
+                }
             });
         });
 
