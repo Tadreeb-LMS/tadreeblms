@@ -829,24 +829,6 @@ class CoursesController extends Controller
 
             $course->teachers()->sync($teachers);
 
-            // Trainer assigned notification
-            try {
-                $notificationSettings = app(NotificationSettingsService::class);
-                if ($notificationSettings->shouldNotify('trainers', 'trainer_assigned', 'email')) {
-                    foreach ($teachers as $teacherId) {
-                        if ($teacherId != \Auth::id()) {
-                            $trainer = User::find($teacherId);
-                            if ($trainer) {
-                                CourseNotification::sendTrainerAssignedEmail($trainer, $course, \Auth::user());
-                                CourseNotification::createTrainerAssignedBell($trainer, $course, \Auth::user());
-                            }
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to send trainer assigned notification: ' . $e->getMessage());
-            }
-
             $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
             $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
 
@@ -880,11 +862,30 @@ class CoursesController extends Controller
                 if ($meetingData) {
                     $course->fill($meetingData)->save();
                     // $this->sendMeetingInviteToStudents($course, $students);
-                    $this->sendMeetingInviteToTeachers($course, $teachers);
+                    // $this->sendMeetingInviteToTeachers($course, $teachers); // Replaced by Trainer assigned notification
                 } else {
                     \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
                 }
             }
+
+            // Trainer assigned notification
+            try {
+                $notificationSettings = app(NotificationSettingsService::class);
+                if ($notificationSettings->shouldNotify('trainers', 'trainer_assigned', 'email')) {
+                    foreach ($teachers as $teacherId) {
+                        if ($teacherId != \Auth::id()) {
+                            $trainer = User::find($teacherId);
+                            if ($trainer) {
+                                CourseNotification::sendTrainerAssignedEmail($trainer, $course, \Auth::user());
+                                CourseNotification::createTrainerAssignedBell($trainer, $course, \Auth::user());
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send trainer assigned notification: ' . $e->getMessage());
+            }
+
             
             //dd($redirect_url);
             
@@ -1692,12 +1693,4 @@ class CoursesController extends Controller
         }
     }
 
-    private function sendMeetingInviteToTeachers(Course $course, array $teacherIds): void
-    {
-        $teachers = User::whereIn('id', $teacherIds)->get();
-        foreach ($teachers as $teacher) {
-            \Illuminate\Support\Facades\Mail::to($teacher->email)
-                ->send(new \App\Mail\CourseMeetingHostInvite($course));
-        }
-    }
 }
