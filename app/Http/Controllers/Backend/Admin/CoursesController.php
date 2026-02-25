@@ -847,7 +847,8 @@ class CoursesController extends Controller
                 );
                 if ($meetingData) {
                     $course->fill($meetingData)->save();
-                    $this->sendMeetingInviteToStudents($course, $students);
+                    // $this->sendMeetingInviteToStudents($course, $students);
+                    $this->sendMeetingInviteToTeachers($course, $teachers);
                 } else {
                     \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
                 }
@@ -1619,6 +1620,15 @@ class CoursesController extends Controller
         foreach ($students as $student) {
             \Illuminate\Support\Facades\Mail::to($student->email)
                 ->send(new \App\Mail\CourseMeetingInvite($course));
+        }
+    }
+
+    private function sendMeetingInviteToTeachers(Course $course, array $teacherIds): void
+    {
+        $teachers = User::whereIn('id', $teacherIds)->get();
+        foreach ($teachers as $teacher) {
+            \Illuminate\Support\Facades\Mail::to($teacher->email)
+                ->send(new \App\Mail\CourseMeetingHostInvite($course));
         }
     }
 }
