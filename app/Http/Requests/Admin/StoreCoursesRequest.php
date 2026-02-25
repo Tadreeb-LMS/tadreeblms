@@ -28,7 +28,7 @@ class StoreCoursesRequest extends FormRequest
             'externalStudents.*' => 'exists:users,id',
             'title' => 'required|max:200',
             'category_id' => 'nullable',
-            'course_code' => 'required|max:100',
+            'course_code' => 'required|max:100|unique:courses,course_code',
             //'arabic_title' => 'required|max:200',
             // 'marks_required' => 'required',
             //'start_date' => 'date_format:'.config('app.date_format'),

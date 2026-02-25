@@ -47,7 +47,7 @@ Route::get('/ldap-users', function () {
 
 Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 
-Route::get('syncCourseAssignmentAndSubscribeCourseData', function () {
+Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
 });
 
@@ -106,6 +106,11 @@ Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
 Route::get('/refresh-captcha', [\App\Http\Controllers\Frontend\Auth\LoginController::class, 'refreshCaptcha'])
     ->name('refresh.captcha');
 
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
+    Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');

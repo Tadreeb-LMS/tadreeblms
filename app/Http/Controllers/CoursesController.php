@@ -313,14 +313,29 @@ class CoursesController extends Controller
         $course_id = $course->id;
 
         $logged_in_user_id = auth()->user()->id;
+       
         $subscribe_data = SubscribeCourse::where('user_id',$logged_in_user_id)
-                            ->where('course_id', $course_id)
-                            ->first();
-        $has_subscribtion = isset($subscribe_data) ? 1 : 0;
+    ->where('course_id', $course_id)
+    ->first();
+
+// E-Learning must not require dates or assessment
+if (!$this->isLiveCourse($course) && $subscribe_data) {
+    $subscribe_data->due_date = null;
+    $subscribe_data->has_assesment  = 0;
+    $subscribe_data->has_feedback = 0;
+}
+// E-Learning → certificates should be lesson-based
+if (!$this->isLiveCourse($course) && $subscribe_data) {
+    $subscribe_data->grant_certificate = 1;
+}
+
+
+
+        $has_subscribtion = $subscribe_data ? 1 : 0;
             
-            $isAssignmentTaken = $subscribe_data->assesment_taken;
-            $hasAssessmentLink = $subscribe_data->has_assesment;
-            $hasFeedBack = $subscribe_data->has_feedback;
+            $isAssignmentTaken = $subscribe_data ? ($subscribe_data->assesment_taken ?? 0) : 0;
+$hasAssessmentLink = $subscribe_data ? ($subscribe_data->has_assesment ?? 0) : 0;
+$hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
             $courseFeedbackLink = '';
             $lessonController = new LessonsController;
 
@@ -368,9 +383,14 @@ class CoursesController extends Controller
 
             //dd($is_attended);
 
-            $due_date_time = Carbon::parse($subscribe_data->due_date);
-            $now = Carbon::now();
-            
+$now = Carbon::now();
+
+if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
+    $due_date_time = Carbon::parse($subscribe_data->due_date);
+} else {
+    $due_date_time = null;
+}
+
             $course_assign_data = CourseAssignmentToUser::query()
                                 ->with('assignment')
                                 ->where('user_id', $logged_in_user_id)
@@ -378,7 +398,10 @@ class CoursesController extends Controller
                                 ->first();
             //($course_assign_data);
 
-            $end_meeting_attend_time = $course_assign_data->assignment->meeting_end_datetime ? $course_assign_data->assignment->meeting_end_datetime : null;
+            $end_meeting_attend_time = isset($course_assign_data->assignment->meeting_end_datetime)
+    ? $course_assign_data->assignment->meeting_end_datetime
+    : null;
+
 
             if ($end_meeting_attend_time) {
                 $end_meeting_attend_time = Carbon::parse($end_meeting_attend_time);
@@ -390,8 +413,16 @@ class CoursesController extends Controller
             //$due_date_time = Carbon::parse('2025-10-13 19:00:00');
             //$end_meeting_attend_time = Carbon::parse('2025-10-13 20:05:00');
 
-            $is_course_started =  $now->greaterThan($due_date_time);
-            $is_course_completed =  $now->lessThan($end_meeting_attend_time);
+            if ($this->isLiveCourse($course) && $due_date_time && $end_meeting_attend_time) {
+    $is_course_started   = $now->greaterThan($due_date_time);
+    $is_course_completed = $now->lessThan($end_meeting_attend_time);
+} else {
+    // E-Learning or missing schedule → always accessible
+    $is_course_started   = true;
+    $is_course_completed = false;
+}
+
+
 
 
             //dd($is_course_started, $is_course_completed);
@@ -675,11 +706,12 @@ class CoursesController extends Controller
 
             
 
-            if(isset($subscribe_data->due_date) && $subscribe_data->due_date) {
-                $due_date_time = Carbon::parse($subscribe_data->due_date);
-            } else {
-                $due_date_time = null;
-            }
+            if ($this->isLiveCourse($course) && !empty($subscribe_data->due_date)) {
+    $due_date_time = Carbon::parse($subscribe_data->due_date);
+} else {
+    $due_date_time = null;   // E-Learning
+}
+
             
             $now = Carbon::now();
             //dd($now);
@@ -699,19 +731,31 @@ class CoursesController extends Controller
                 $buffer_minutes = null;
             }
 
-            // Flag 1: is current time after due date
-            $is_after_due = $now->greaterThan($due_date_time);
+            if ($this->isLiveCourse($course) && $due_date_time) {
+    $is_after_due = $now->greaterThan($due_date_time);
+    $is_within_buffer = $now->lessThanOrEqualTo(
+        $due_date_time->copy()->addMinutes($buffer_minutes ?? 0)
+    );
+    $is_before = $now->lessThanOrEqualTo($due_date_time);
+    $both_pass = $is_after_due && $is_within_buffer;
+} else {
+    // E-Learning → no time restriction
+    $is_after_due = false;
+    $is_within_buffer = true;
+    $is_before = false;
+    $both_pass = true;
+}
 
-            // Flag 2: is current time within 15-minute buffer after due date
-            $is_within_buffer = isset($due_date_time) ? $now->lessThanOrEqualTo($due_date_time->copy()->addMinutes($buffer_minutes)) : 0;
 
-            $is_before = $now->lessThanOrEqualTo($due_date_time);
+            if ($this->isLiveCourse($course) && $due_date_time) {
+    $is_course_started = $now->greaterThan($due_date_time);
+    $is_course_completed = $now->lessThan($end_meeting_attend_time);
+} else {
+    // E-Learning → always accessible
+    $is_course_started = true;
+    $is_course_completed = false;
+}
 
-            // Final flag: both conditions are true
-            $both_pass = $is_after_due && $is_within_buffer;
-
-            $is_course_started =  $now->greaterThan($due_date_time);
-            $is_course_completed =  $now->lessThan($end_meeting_attend_time);
 
             //dd($due_date_time, $now, $is_before, $is_after_due,  $is_within_buffer, $both_pass);
 
@@ -1017,25 +1061,32 @@ class CoursesController extends Controller
                 ->with(['learningPathwayCoursesOrdered' => function ($q) use ($course_status, $by_due_date) {
 
                     // Filter by related subscribedCourse fields
-                    $q->when(!isset($course_status) || !isset($by_due_date), function ($query) use ($course_status, $by_due_date) {
+                   $q->when(isset($course_status) || isset($by_due_date), function ($query) use ($course_status, $by_due_date) {
+    $query->whereHas('subscribedCourse', function ($sub) use ($course_status, $by_due_date) {
 
-                        $query->whereHas('subscribedCourse', function ($sub) use ($course_status, $by_due_date) {
-                            // filter by course progress
-                            $sub->when(isset($course_status), function ($s) use ($course_status) {
-                                //$s->where('course_progress_status', $course_status);
-                            });
+        // Status filter (unchanged)
+        if (isset($course_status)) {
+            // $sub->where('course_progress_status', $course_status);
+        }
 
-                            // filter by due date
-                            $sub->when(isset($by_due_date), function ($s) use ($by_due_date) {
-                                $s->when($by_due_date === 'late', function ($x) {
-                                    $x->where('due_date', '<', Carbon::now());
-                                });
-                                $s->when($by_due_date === 'soon', function ($x) {
-                                    $x->whereBetween('due_date', [Carbon::now(), Carbon::now()->addDays(7)]);
-                                });
-                            });
-                        });
-                    });
+        // Due date filter — E-Learning MUST be included
+        if (isset($by_due_date)) {
+            if ($by_due_date === 'late') {
+                $sub->where(function ($q) {
+                    $q->where('due_date', '<', Carbon::now())
+                      ->orWhereNull('due_date'); // E-Learning
+                });
+            }
+
+            if ($by_due_date === 'soon') {
+                $sub->where(function ($q) {
+                    $q->whereBetween('due_date', [Carbon::now(), Carbon::now()->addDays(7)])
+                      ->orWhereNull('due_date'); // E-Learning
+                });
+            }
+        }
+    });
+});
 
                     // eager load subscribedCourse itself
                 $q->with('subscribedCourse')->orderBy('position');
@@ -1120,11 +1171,24 @@ class CoursesController extends Controller
                 return $q->course->courseAllLessonDuration ? $q->course->courseAllLessonDuration : '';
             })
             ->addColumn('due_date', function ($q) {
-                return $q->subscribedCourse->due_date ? date('d/m/Y', strtotime($q->subscribedCourse->due_date)) : '';
-            })
+    if (!isset($q->subscribedCourse) || !$q->subscribedCourse->due_date) {
+        return 'Self-Paced';
+    }
+
+    return date('d/m/Y', strtotime($q->subscribedCourse->due_date));
+})
+
+
             ->addColumn('progress', function ($q) {
-                return $q->subscribedCourse->assignment_progress ? $q->subscribedCourse->assignment_progress . '%' : '';
-            })
+    if (!isset($q->subscribedCourse)) {
+        return '0%';
+    }
+
+    return $q->subscribedCourse->assignment_progress
+        ? $q->subscribedCourse->assignment_progress . '%'
+        : '0%';
+})
+
             ->addColumn('download_certificate', function ($q) {
                 $download_certificate = route('admin.certificates.generate', ['course_id' => $q->course->id, 'user_id' => auth()->id()]);
                 return $q->subscribedCourse->grant_certificate ? "<a class='btn btn-success' download
@@ -1140,4 +1204,12 @@ class CoursesController extends Controller
             ->rawColumns(['download_certificate','actions'])
             ->make();
     }
+
+    private function isLiveCourse($course)
+{
+    return in_array($course->is_online, ['Live-Online', 'Live-Classroom', 'Offline']);
 }
+
+}
+
+

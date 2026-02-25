@@ -12,9 +12,6 @@ use App\Models\Slider;
 use Barryvdh\TranslationManager\Manager;
 use Barryvdh\TranslationManager\Models\Translation;
 use Carbon\Carbon;
-use Harimayco\Menu\Facades\Menu;
-use Harimayco\Menu\Models\MenuItems;
-use Harimayco\Menu\Models\Menus;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -117,24 +114,34 @@ class AppServiceProvider extends ServiceProvider
         $disabled_landing_page = CustomHelper::redirect_based_on_setting();
         View::share('disabled_landing_page', $disabled_landing_page);
 
-        if (Schema::hasTable('admin_menu_items') && $disabled_landing_page == 0) {
+        
+            if (
+    Schema::hasTable('admin_menu_items') &&
+    $disabled_landing_page == 0 &&
+    class_exists(\Harimayco\Menu\Models\MenuItems::class) &&
+    class_exists(\Harimayco\Menu\Models\Menus::class)
+) {
 
-            $menu_name = NULL;
-            $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
-                ->orderBy('sort')
-                ->get();
-            $menu_name = Menus::find((int)config('nav_menu'));
-            $menu_name = ($menu_name != NULL) ? $menu_name->name : NULL;
-            $custom_menus = menuList($custom_menus);
-            $max_depth = MenuItems::max('depth');
-            View::share('custom_menus', $custom_menus);
-            View::share('max_depth', $max_depth);
-            View::share('menu_name', $menu_name);
-        } else {
-            View::share('custom_menus', []);
-            View::share('max_depth', 0);
-            View::share('menu_name', null);
-        }
+    $custom_menus = \Harimayco\Menu\Models\MenuItems::where('menu', '=', config('nav_menu'))
+        ->orderBy('sort')
+        ->get();
+
+    $menu_name = \Harimayco\Menu\Models\Menus::find((int)config('nav_menu'));
+    $menu_name = ($menu_name != null) ? $menu_name->name : null;
+
+    $custom_menus = $this->menuList($custom_menus);
+    $max_depth = \Harimayco\Menu\Models\MenuItems::max('depth');
+
+    View::share('custom_menus', $custom_menus);
+    View::share('max_depth', $max_depth);
+    View::share('menu_name', $menu_name);
+
+} else {
+
+    View::share('custom_menus', []);
+    View::share('max_depth', 0);
+    View::share('menu_name', null);
+}
 
         //        view()->composer(['frontend.layouts.partials.right-sidebar', 'frontend-rtl.layouts.partials.right-sidebar'], function ($view) {
 
