@@ -475,6 +475,30 @@ class CoursesController extends Controller
 
                 return $text;
             })
+            ->addColumn('start_date', function ($q) {
+    if (empty($q->start_date)) {
+        return '-';
+    }
+
+    return \Carbon\Carbon::parse($q->start_date)
+        ->format(config('app.date_format'));
+})
+
+->addColumn('expiry_date', function ($q) {
+
+    if (empty($q->expire_at)) {
+        return '-';
+    }
+
+    $expiry = \Carbon\Carbon::parse($q->expire_at);
+    $formatted = $expiry->format(config('app.date_format'));
+
+    if ($expiry->isPast()) {
+        return '<span class="badge badge-danger">'.$formatted.'</span>';
+    }
+
+    return '<span class="badge badge-success">'.$formatted.'</span>';
+})
             ->editColumn('price', function ($q) {
                 if ($q->free == 1) {
                     return trans('labels.backend.courses.fields.free');
@@ -506,7 +530,7 @@ class CoursesController extends Controller
                 }
                 //return '<a class="add-btn" style="padding:7px 20px 11px 20px"  href="' . route('admin.enrolled_student', ['course_id' => $q->id]) . '"> (' . CustomHelper::totalEnrolled($q->id) . ') <i class="fa fa-eye ml-1" aria-hidden="true"></i> </a>';
             })
-            ->rawColumns(['teachers', 'assignment', 'department', 'duration', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status','qr_code'])
+            ->rawColumns(['teachers', 'assignment', 'department', 'duration', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status','qr_code',  'expiry_date'])
             ->make();
     }
 

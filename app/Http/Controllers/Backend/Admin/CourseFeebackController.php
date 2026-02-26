@@ -64,12 +64,14 @@ class CourseFeebackController extends Controller
                         // $actions .= '<a title="Edit" href="'.$edit_route.'">
                         //                 <i class="fa fa-edit"></i>
                         //             </a>';
-                        $actions .= '<a title="Delete" href="#" class="delete-record"
-                                        data-name="course feedback question" 
-                                        data-type="delete" 
-                                        data-url="/user/course-feedback-questions/delete/' . $single->id . '">
-                                        <i class="fa fa-trash"></i>
-                                    </a>';
+                    
+
+                                    $actions .= '<a title="Delete" href="#" class="delete-record"
+        data-name="course feedback question" 
+        data-type="delete" 
+      data-url="/user/course-feedback-questions/delete/' . $single->id . '">
+        <i class="fa fa-trash"></i>
+    </a>';
                         $actions .= '</div>';
                         return $actions;
                     })
