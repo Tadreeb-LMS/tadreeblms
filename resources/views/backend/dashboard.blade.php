@@ -458,6 +458,7 @@ $local_lang = App::getLocale() ?? 'en';
         </div>
     </div>
 </div>
+@endif
 
 {{-- Recent Courses (Last 10 Created) - Admin only --}}
 @if(auth()->user()->hasRole('administrator') && isset($recent_courses))
