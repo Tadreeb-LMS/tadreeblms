@@ -553,10 +553,17 @@ class CoursesController extends Controller
         if (!Gate::allows('course_create')) {
             return abort(401);
         }
-        $request->validate([
-             'start_date' => 'required|date',
-    'expire_at'  => 'required|date|after_or_equal:start_date',
-        ]);
+        if ($request->course_type !== 'Online') {
+            $request->validate([
+                'start_date' => 'required|date',
+                'expire_at'  => 'required|date|after_or_equal:start_date',
+            ]);
+        } else {
+            $request->validate([
+                'start_date' => 'nullable|date',
+                'expire_at'  => 'nullable|date|after_or_equal:start_date',
+            ]);
+        }
         DB::beginTransaction();
 
         try {
@@ -888,8 +895,21 @@ class CoursesController extends Controller
             return abort(401);
         }
         $course = Course::findOrFail($id);
+
+        if ($request->course_type !== 'Online') {
+            $request->validate([
+                'start_date' => 'required|date',
+                'expire_at'  => 'required|date|after_or_equal:start_date',
+            ]);
+        } else {
+            $request->validate([
+                'start_date' => 'nullable|date',
+                'expire_at'  => 'nullable|date|after_or_equal:start_date',
+            ]);
+        }
+
         $course->course_lang = $request->course_lang ?? 'english';
-        
+
         $slug = "";
         if (($request->slug == "") || $request->slug == null) {
             $slug = Str::slug($request->title);

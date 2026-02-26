@@ -289,19 +289,11 @@
 </div>
 
                 </div>
-                <div class="col-sm-12 col-lg-4 col-md-12  form-group" id="startDateWrapper">
-                    {!! Form::label('start_date', trans('labels.backend.courses.fields.start_date') . ' (yyyy-mm-dd) *', [
-                        'class' => 'control-label',
-                         'id' => 'startDateLabel'
-                    ]) !!}
+                <div class="col-sm-12 col-lg-4 col-md-12  form-group">
+                    <label for="start_date" class="control-label">{{ trans('labels.backend.courses.fields.start_date') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
 
-                   {!! Form::text('start_date', old('start_date'), [
-    'class' => 'form-control',
-    'id' => 'start_date',
-    'autocomplete' => 'off',
-    'placeholder' => 'yyyy-mm-dd'
-]) !!}
-                </div>
+                   <input class="form-control" id="start_date" autocomplete="off" placeholder="yyyy-mm-dd" name="start_date" type="text" value="{{ old('start_date') }}">
+                   </div>
 
                 @if (Auth::user()->isAdmin())
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
@@ -309,6 +301,8 @@
     Expire Date (yyyy-mm-dd) <span id="expire_date_required" class="text-danger">*</span>
 </label>
                         <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="(Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
+                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
+                        <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
                     </div>
                 @endif
@@ -434,20 +428,12 @@ function validateWeightage() {
     });
 
     if (total > 100) {
-        alert('Total module weightage cannot exceed 100%.');
+        toastr.remove();
+        toastr.error('Total module weightage cannot exceed 100%.');
         return false;
     }
     return true;
 }
-
-// Bind to form submit
-$('#addCourse').on('submit', function(e) {
-    if (!validateWeightage()) {
-        e.preventDefault(); // stop submission
-        return false;
-    }
-});
-
 
 document.querySelectorAll('.sm-input').forEach(function(input) {
     input.addEventListener('input', function() {
@@ -456,8 +442,9 @@ document.querySelectorAll('.sm-input').forEach(function(input) {
             total += parseInt(i.value) || 0;
         });
         if (total > 100) {
-            input.value = ''; // reset last input
-            alert('Total module weightage cannot exceed 100%');
+            input.value = '';
+            toastr.remove();
+            toastr.error('Total module weightage cannot exceed 100%');
         }
     });
 });
@@ -554,6 +541,13 @@ $('#expire_at').datepicker({
         $('#startDateWrapper').hide();
         $('#start_date').val('').prop('required', false);
     }
+
+    // Toggle date required asterisks based on course type
+    if (type === 'Online') {
+        $('.date-required-star').hide();
+    } else {
+        $('.date-required-star').show();
+    }
 });
 
 
@@ -588,22 +582,18 @@ $(document).ready(function () {
         $('.frm_submit').on('click', function() {
             nxt_url_val = $(this).val();
         });
-        $(document).on('submit', '#addCourse', function(e) {
+        $('#addCourse').on('submit', function(e) {
             e.preventDefault();
-            var startDateVal = $('#start_date').val();
-            var expireDateVal = $('#expire_at').val();
-            var courseType = $('.course-type:checked').val();
+            var $form = $(this);
 
-        if (courseType !== 'Online') {
-    if (!startDateVal || !expireDateVal) {
-        alert('Start Date and Expire Date are required.');
-        return false;
-    }
+            function enableButtons() {
+                $form.find('input[type=submit], button[type=submit]').removeAttr('disabled').prop('disabled', false);
+            }
 
-    if (expireDateVal < startDateVal) {
-        alert('Expire Date cannot be earlier than Start Date.');
-        return false;
-    }
+            function clearInlineErrors() {
+                $form.find('.inline-error').remove();
+                $form.find('.is-invalid').removeClass('is-invalid');
+            }
 
     var today = new Date().toISOString().slice(0, 10);
     if (startDateVal < today) {
@@ -632,7 +622,56 @@ if (selectedType !== 'Online') {
         return false;
     }
 }
+            function showInlineError(field, message) {
+                var $field = $form.find(field);
+                $field.addClass('is-invalid');
+                $field.closest('.form-group').find('.inline-error').remove();
+                $field.after('<span class="text-danger inline-error w-100 d-block mt-1">' + message + '</span>');
+            }
 
+            clearInlineErrors();
+
+            // Validate weightage
+            if (!validateWeightage()) {
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                return false;
+            }
+
+            var startDateVal = $('#start_date').val();
+            var expireDateVal = $('#expire_at').val();
+            var courseType = $('input[name="course_type"]:checked').val();
+            var hasError = false;
+
+            if (courseType !== 'Online') {
+                if (!startDateVal) {
+                    showInlineError('#start_date', 'Start Date is required.');
+                    hasError = true;
+                }
+                if (!expireDateVal) {
+                    showInlineError('#expire_at', 'Expire Date is required.');
+                    hasError = true;
+                }
+            }
+
+            if (startDateVal && expireDateVal && expireDateVal < startDateVal) {
+                showInlineError('#expire_at', 'Expire Date cannot be earlier than Start Date.');
+                hasError = true;
+            }
+
+            var today = new Date().toISOString().slice(0, 10);
+
+            if (startDateVal && startDateVal < today) {
+                showInlineError('#start_date', 'Start Date cannot be earlier than today.');
+                hasError = true;
+            }
+
+            if (hasError) {
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                scrollToClass('inline-error');
+                return false;
+            }
 
             hrefurl = $(location).attr("href");
             last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 8)

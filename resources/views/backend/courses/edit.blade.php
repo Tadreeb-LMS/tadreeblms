@@ -84,7 +84,7 @@
 
     @include('backend.includes.partials.course-steps', ['step' => 1, 'course_id' => $course->id, 'course' => $course ])
 
-    <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" id="editCourse" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
@@ -293,30 +293,18 @@
                     </div>
 
                 </div>
-                
-               <div id="date-fields" class="row">
-    <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-        {!! Form::label('start_date', trans('labels.backend.courses.fields.start_date') . ' (yyyy-mm-dd) *') !!}
-        {!! Form::text('start_date', old('start_date', $course->start_date), [
-            'class' => 'form-control',
-            'id' => 'start_date',
-            'autocomplete' => 'off'
-        ]) !!}
-    </div>
+                <div class="col-sm-12 col-lg-4 col-md-12  form-group">
+                    <label for="start_date" class="control-label">{{ trans('labels.backend.courses.fields.start_date') }} (yyyy-mm-dd) <span class="date-required-star" @if($course->is_online == 'Online') style="display:none" @endif>*</span></label>
+                    <input class="form-control date" id="start_date" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.start_date') }} (Ex . 2019-01-01)" autocomplete="off" name="start_date" type="text" value="{{ old('start_date', $course->start_date) }}">
 
-    @if (Auth::user()->isAdmin())
-    <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-        {!! Form::label('expire_at', trans('labels.backend.courses.fields.expire_at') . ' (yyyy-mm-dd) *') !!}
-        {!! Form::text('expire_at', old('expire_at', $course->expire_at), [
-            'class' => 'form-control',
-            'id' => 'expire_at',
-            'autocomplete' => 'off'
-        ]) !!}
-    </div>
-    @endif
-</div>
+                </div>
+                @if (Auth::user()->isAdmin())
+                    <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" @if($course->is_online == 'Online') style="display:none" @endif>*</span></label>
+                        <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at', $course->expire_at) }}">
 
-            </div>
+                    </div>
+                @endif
 
             <!-- <div class="row">
                         <label class="col-md-2 form-control-label" for="first_name">Select Department</label>
@@ -522,7 +510,9 @@
 @stop
 
 @push('after-scripts')
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
     <script src="{{ asset('/vendor/laravel-filemanager/js/lfm.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="/js/helpers/form-submit.js"></script>
@@ -585,25 +575,15 @@ $('#expire_at').datepicker({
 
         $('#date-fields').hide();
         $('#start_date, #expire_at').prop('required', false);
+        $('.date-required-star').hide();
     } else {
         // Live Courses
         $('#e-learning').hide();
         type === 'Offline' ? $('#live-online').show() : $('#live-classroom').show();
 
-        $('#date-fields').show();
-        $('#start_date, #expire_at').prop('required', true);
+        $('.date-required-star').show();
     }
 }
-
-
-$(document).on('change', '.course-type', function () {
-    toggleCourseType($(this).val());
-});
-
-$(document).ready(function () {
-    toggleCourseType($('input[name="course_type"]:checked').val());
-});
-
 
         $(document).on('change', '#media_type', function() {
             if ($(this).val()) {
@@ -648,13 +628,28 @@ function toggleCourseWeightage(type) {
 
 // change event
 $(document).on('change', '.course-type', function () {
-    toggleCourseWeightage($(this).val());
+    var type = $(this).val();
+    toggleCourseWeightage(type);
+
+    // Toggle date required asterisks
+    if (type === 'Online') {
+        $('.date-required-star').hide();
+    } else {
+        $('.date-required-star').show();
+    }
 });
 
 // EDIT PAGE LOAD FIX (IMPORTANT)
 $(document).ready(function () {
     let selectedType = $('input[name="course_type"]:checked').val();
     toggleCourseWeightage(selectedType);
+
+    // Toggle date required asterisks on load
+    if (selectedType === 'Online') {
+        $('.date-required-star').hide();
+    } else {
+        $('.date-required-star').show();
+    }
 });
 </script>
 
@@ -664,71 +659,55 @@ $(document).ready(function () {
             nxt_url_val = $(this).val();
             $('#submit-btn').val(nxt_url_val)
         });
-        $(document).on('submit..', '#addCourse', function(e) {
-            e.preventDefault();
-            hrefurl = $(location).attr("href");
-            last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 8)
-            // alert(last_part);
-            setTimeout(() => {
-                //let data = $('#addCourse').serialize();
-                var form = $('#addCourse')[0];
-                var data = new FormData(form);
-                let url = '{{ route('admin.courses.store') }}'
-                let val = $('#nextBtn').val();
-                let valDone = $('#doneBtn').val();
-                var redirect_url = $("#lesson").val()
-                var redirect_url_course = $("#course_index").val()
-                var redirect_url_assi = $("#new-assisment").val()
-                const obj = $(this);
+        $('#editCourse').on('submit', function(e) {
+            var $form = $(this);
 
-                $.ajax({
-                    type: 'POST',
-                    url: url,
-                    data: data,
-                    datatype: "json",
-                    enctype: 'multipart/form-data',
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    timeout: 600000,
-                    success: function(res) {
-                        //console.log(res.redirect_url)
-                        //alert(res.clientmsg)
-                        redirect_url = res.redirect_url;
+            function enableButtons() {
+                $form.find('input[type=submit], button[type=submit]').removeAttr('disabled').prop('disabled', false);
+            }
 
-                        if (last_part == null || last_part == undefined || last_part == '') {
-                            if (nxt_url_val == 'Next') {
-                                window.location.href = redirect_url + '&uuid=' + res.temp_id;
-                                return;
-                            }
-                            if (nxt_url_val == 'Done') {
-                                window.location.href = redirect_url_course;
-                                return;
-                            } else {
-                                window.location.href = redirect_url_course;
-                                return;
-                            }
-                        }
+            function clearInlineErrors() {
+                $form.find('.inline-error').remove();
+                $form.find('.is-invalid').removeClass('is-invalid');
+            }
 
-                        if (nxt_url_val == 'Done' && last_part == 'course_new') {
-                            window.location.href = redirect_url_assi;
-                            return;
-                        } else {
-                            window.location.href = redirect_url_course;
-                            return;
-                        }
+            function showInlineError(field, message) {
+                var $field = $form.find(field);
+                $field.addClass('is-invalid');
+                $field.closest('.form-group').find('.inline-error').remove();
+                $field.after('<span class="text-danger inline-error w-100 d-block mt-1">' + message + '</span>');
+            }
 
-                    },
-                    error: function(xhr, status, error) {
-                        console.log(xhr)
-                        res = JSON.parse(xhr.responseText)
-                        alert(res.clientmsg);
-                        let submitbtn = obj.find("[type=submit]");
-                        submitbtn.prop("disabled", false);
-                        showErrorMessage(obj, xhr)
-                    }
-                })
-            }, 100);
+            clearInlineErrors();
+
+            var startDateVal = $('input[name="start_date"]').val();
+            var expireDateVal = $('input[name="expire_at"]').val();
+            var courseType = $('input[name="course_type"]:checked').val();
+            var hasError = false;
+
+            if (courseType !== 'Online') {
+                if (!startDateVal) {
+                    showInlineError('#start_date', 'Start Date is required.');
+                    hasError = true;
+                }
+                if (!expireDateVal) {
+                    showInlineError('#expire_at', 'Expire Date is required.');
+                    hasError = true;
+                }
+            }
+
+            if (startDateVal && expireDateVal && expireDateVal < startDateVal) {
+                showInlineError('#expire_at', 'Expire Date cannot be earlier than Start Date.');
+                hasError = true;
+            }
+
+            if (hasError) {
+                e.preventDefault();
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                scrollToClass('inline-error');
+                return false;
+            }
         });
     </script>
     <script>
