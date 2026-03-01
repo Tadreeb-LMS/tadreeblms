@@ -340,8 +340,24 @@ class ExternalAppService
             // Create the final installation directory
             $installPath = $this->appStoragePath . '/' . $moduleName;
 
-            if (File::exists($installPath)) {
-                File::deleteDirectory($installPath);
+            // Block re-upload if the module is already installed
+            $existingApp = ExternalApp::where('slug', $moduleName)->first();
+            if (File::exists($installPath) && $existingApp) {
+                // Clean up temp files
+                if ($extractPath !== $tempPath && File::exists($extractPath)) {
+                    File::deleteDirectory($extractPath);
+                }
+                if (File::exists($tempPath)) {
+                    File::deleteDirectory($tempPath);
+                }
+
+                $displayName = $existingApp->name ?? $moduleName;
+                $status      = $existingApp->is_enabled ? 'enabled' : 'disabled';
+
+                return [
+                    'success' => false,
+                    'message' => "Module '{$displayName}' is already installed (currently {$status}). Please uninstall it first if you want to re-upload.",
+                ];
             }
 
             File::moveDirectory($tempPath, $installPath);
