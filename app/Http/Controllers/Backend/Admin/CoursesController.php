@@ -540,6 +540,9 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['zoom'] = 'Zoom';
         }
+        if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['teams'] = 'Microsoft Teams';
+        }
         if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['google-meet'] = 'Google Meet';
         }
@@ -566,7 +569,7 @@ class CoursesController extends Controller
              'expire_at'  => 'required|date|after_or_equal:start_date',
         ]);
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -942,6 +945,9 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['zoom'] = 'Zoom';
         }
+        if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['teams'] = 'Microsoft Teams';
+        }
         if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['google-meet'] = 'Google Meet';
         }
@@ -977,7 +983,7 @@ class CoursesController extends Controller
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -1666,6 +1672,22 @@ class CoursesController extends Controller
     {
         if ($provider === 'zoom') {
             $service = new \Modules\Zoom\Services\ZoomMeetingService();
+            $meeting = $service->createMeeting(
+                $course->title,
+                $request->meeting_start_at,
+                $request->meeting_duration,
+                $request->meeting_timezone
+            );
+
+            if ($meeting) {
+                return [
+                    'meeting_id'       => $meeting['id'],
+                    'meeting_join_url' => $meeting['join_url'],
+                    'meeting_host_url' => $meeting['host_url'] ?? null,
+                ];
+            }
+        } elseif ($provider === 'teams') {
+            $service = new \Modules\Teams\Services\TeamsMeetingService();
             $meeting = $service->createMeeting(
                 $course->title,
                 $request->meeting_start_at,

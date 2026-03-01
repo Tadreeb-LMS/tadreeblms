@@ -124,8 +124,8 @@ class AppServiceProvider extends ServiceProvider
             if (
     Schema::hasTable('admin_menu_items') &&
     $disabled_landing_page == 0 &&
-    class_exists(\Harimayco\Menu\Models\MenuItems::class) &&
-    class_exists(\Harimayco\Menu\Models\Menus::class)
+    class_exists('Harimayco\\Menu\\Models\\MenuItems') &&
+    class_exists('Harimayco\\Menu\\Models\\Menus')
 ) {
 
     $custom_menus = \Harimayco\Menu\Models\MenuItems::where('menu', '=', config('nav_menu'))

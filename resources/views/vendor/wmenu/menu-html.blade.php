@@ -1,6 +1,6 @@
 <?php
 $currentUrl = url()->current();
-if (config('nav_menu') != 0) {
+if (config('nav_menu') != 0 && class_exists('Harimayco\Menu\Models\Menus')) {
     $nav_menu = \Harimayco\Menu\Models\Menus::findOrFail(config('nav_menu'));
 }
 ?>

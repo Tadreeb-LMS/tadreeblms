@@ -737,6 +737,15 @@
                     </li>
                     @endif
 
+                    @if (!empty($enabledApps['teams']) && $enabledApps['teams'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/teams/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'teams']) }}">
+                            <span class="title">Microsoft Teams Configuration</span>
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/ldap-setting')) }}"
                             href="{{ route('admin.ldap-setting') }}">
