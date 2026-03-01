@@ -724,7 +724,7 @@
                         </a>
                     </li>
 
-                    {{-- Show Zoom Configuration only if enabled --}}
+                    {{-- Show external module configurations only if enabled --}}
                     @php
                         $enabledApps = Cache::get('enabled_external_apps', []);
                     @endphp
@@ -733,6 +733,14 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/zoom/configure')) }}"
                             href="{{ route('admin.external-apps.edit-config', ['slug' => 'zoom']) }}">
                             <span class="title">Zoom Configuration</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if (!empty($enabledApps['external-storage']) && $enabledApps['external-storage'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/s3-storage-settings*')) }}"
+                            href="{{ route('admin.s3-storage-settings') }}">
+                            <span class="title"><i class="fas fa-cloud mr-1"></i>S3 Storage Settings</span>
                         </a>
                     </li>
                     @endif

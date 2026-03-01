@@ -207,6 +207,11 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@updateConfig', 'as' => 'external-apps.update-config']);
     Route::delete('external-apps/{slug}', ['uses' => 'Admin\ExternalAppsController@destroy', 'as' => 'external-apps.destroy']);
 
+    //===== S3 Storage Settings =====//
+    Route::get('s3-storage-settings', ['uses' => 'Admin\S3StorageSettingsController@index', 'as' => 's3-storage-settings']);
+    Route::post('s3-storage-settings', ['uses' => 'Admin\S3StorageSettingsController@store', 'as' => 's3-storage-settings.store']);
+    Route::post('s3-storage-settings/test-connection', ['uses' => 'Admin\S3StorageSettingsController@testConnection', 'as' => 's3-storage-settings.test-connection']);
+
 
     //===== Slider Routes =====/
     Route::resource('sliders', 'Admin\SliderController');

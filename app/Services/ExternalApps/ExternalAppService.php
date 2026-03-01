@@ -3,6 +3,7 @@
 namespace App\Services\ExternalApps;
 
 use App\Models\ExternalApp;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
@@ -216,6 +217,89 @@ class ExternalAppService
             ?? strtoupper(str_replace('-', '_', $slug)) . '_INTEGRATION';
     }
 
+    /**
+     * Refresh the cached list of enabled external apps used by the sidebar.
+     */
+    protected function refreshEnabledAppsCache(): void
+    {
+        $enabledApps = ExternalApp::where('is_enabled', 1)->pluck('is_enabled', 'slug')->toArray();
+        Cache::put('enabled_external_apps', $enabledApps, 3600);
+    }
+
+    /**
+     * Dispatch a background job to sync one test file from local uploads/ to S3.
+     */
+    protected function dispatchTestFileSync(): void
+    {
+        $uploadsDir = public_path('storage/uploads');
+
+        if (!File::exists($uploadsDir)) {
+            Log::info('dispatchTestFileSync: No uploads directory found, skipping.');
+            return;
+        }
+
+        // Pick the first file in uploads/
+        $files = File::files($uploadsDir);
+
+        if (empty($files)) {
+            Log::info('dispatchTestFileSync: No files in uploads/, skipping.');
+            return;
+        }
+
+        $file = $files[0];
+        $localPath = $file->getPathname();
+        $s3Path = 'uploads/' . $file->getFilename();
+
+        \App\Jobs\SyncLocalFileToS3Job::dispatch($localPath, $s3Path);
+
+        Log::info("dispatchTestFileSync: Queued {$s3Path} for S3 upload.");
+    }
+
+    /**
+     * Dispatch a background job to download one test file from S3 back to local.
+     * Uses the same first file that dispatchTestFileSync would have uploaded.
+     */
+    protected function dispatchTestFileDownload(): void
+    {
+        $uploadsDir = public_path('storage/uploads');
+
+        if (!File::exists($uploadsDir)) {
+            File::makeDirectory($uploadsDir, 0777, true);
+        }
+
+        // Pick the first file in uploads/ to know what was synced
+        $files = File::files($uploadsDir);
+
+        if (empty($files)) {
+            Log::info('dispatchTestFileDownload: No files in uploads/ to reference, skipping.');
+            return;
+        }
+
+        $file = $files[0];
+        $s3Path = 'uploads/' . $file->getFilename();
+        $localPath = $uploadsDir . '/' . $file->getFilename();
+
+        \App\Jobs\SyncS3FileToLocalJob::dispatch($s3Path, $localPath);
+
+        Log::info("dispatchTestFileDownload: Queued {$s3Path} for local download.");
+    }
+
+    /**
+     * Sync storage driver and S3 credentials to the main .env file.
+     * Called when S3 settings are saved so that Laravel's built-in
+     * Storage::disk('s3') and config('filesystems.default') work correctly.
+     */
+    public function syncStorageEnv(string $driver, array $credentials = []): void
+    {
+        $this->writeMainEnvFlag('FILESYSTEM_DRIVER', $driver === 's3' ? 's3' : 'local');
+
+        if ($driver === 's3') {
+            foreach ($credentials as $key => $value) {
+                $this->writeMainEnvFlag($key, (string) $value);
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------
     // CRUD Operations
     // -------------------------------------------------------------------------
@@ -232,8 +316,8 @@ class ExternalAppService
             }
 
             // Create a temporary directory for extraction
-            $tempPath = $this->appStoragePath . '/' . uniqid('temp_');
-            File::makeDirectory($tempPath, 0755, true);
+            $extractPath = $this->appStoragePath . '/' . uniqid('temp_');
+            File::makeDirectory($extractPath, 0755, true);
 
             // Extract zip file
             $zip = new ZipArchive();
@@ -241,8 +325,11 @@ class ExternalAppService
                 throw new \Exception('Failed to open zip file');
             }
 
-            $zip->extractTo($tempPath);
+            $zip->extractTo($extractPath);
             $zip->close();
+
+            // If the zip contained a single wrapper directory, unwrap it
+            $tempPath = $this->unwrapSingleDirectory($extractPath);
 
             // Validate module structure (check for required files)
             $this->validateModuleStructure($tempPath);
@@ -258,6 +345,11 @@ class ExternalAppService
             }
 
             File::moveDirectory($tempPath, $installPath);
+
+            // Clean up the outer temp directory if it was unwrapped
+            if ($extractPath !== $tempPath && File::exists($extractPath)) {
+                File::deleteDirectory($extractPath);
+            }
 
             // Save to database
             $externalApp = ExternalApp::updateOrCreate(
@@ -279,17 +371,15 @@ class ExternalAppService
             // Create the module's .env file (with empty credential keys)
             $this->createModuleDotEnv($moduleName, $moduleConfig);
 
-            // Write integration flag to the main .env
-            $flagKey = $this->integrationFlagKey($moduleName, $moduleConfig);
-            $this->writeMainEnvFlag($flagKey, 'true');
-
             // Run any installation commands if they exist
             $this->runInstallationCommands($installPath);
+
+            // Refresh the sidebar cache so changes appear immediately
+            $this->refreshEnabledAppsCache();
 
             Log::info("External app '$moduleName' installed successfully", [
                 'path'    => $installPath,
                 'version' => $moduleConfig['version'] ?? '1.0.0',
-                'flag'    => $flagKey,
             ]);
 
             return [
@@ -304,8 +394,11 @@ class ExternalAppService
                 'error'  => $e->getMessage(),
             ]);
 
-            // Clean up temp directory if it exists
-            if (isset($tempPath) && File::exists($tempPath)) {
+            // Clean up temp directories if they exist
+            if (isset($extractPath) && File::exists($extractPath)) {
+                File::deleteDirectory($extractPath);
+            }
+            if (isset($tempPath) && $tempPath !== ($extractPath ?? null) && File::exists($tempPath)) {
                 File::deleteDirectory($tempPath);
             }
 
@@ -323,6 +416,23 @@ class ExternalAppService
                 'message' => 'Failed to install module: ' . $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * If the extracted zip contains a single top-level directory (wrapper),
+     * return the path to that inner directory instead.
+     * e.g. temp_xxx/External-Storage/config.json → returns temp_xxx/External-Storage
+     */
+    protected function unwrapSingleDirectory(string $path): string
+    {
+        $items = File::glob($path . '/*');
+
+        // If there's exactly one item and it's a directory, unwrap it
+        if (count($items) === 1 && File::isDirectory($items[0])) {
+            return $items[0];
+        }
+
+        return $path;
     }
 
     /**
@@ -393,6 +503,24 @@ class ExternalAppService
             'last_updated_at' => now(),
         ]);
 
+        // Refresh the sidebar cache so changes appear immediately
+        $this->refreshEnabledAppsCache();
+
+        // When external-storage module is disabled, revert to local storage and download test file back
+        if ($slug === 'external-storage' && !$enabled) {
+            $this->writeMainEnvFlag('FILESYSTEM_DRIVER', 'local');
+            $this->dispatchTestFileDownload();
+        }
+
+        // When external-storage module is enabled, sync storage driver and queue one test file upload
+        if ($slug === 'external-storage' && $enabled) {
+            $moduleDriver = $this->getModuleEnv('external-storage', 'STORAGE_DRIVER') ?: 'local';
+            $this->writeMainEnvFlag('FILESYSTEM_DRIVER', $moduleDriver === 's3' ? 's3' : 'local');
+
+            // Dispatch a test sync: pick the first file from uploads/
+            $this->dispatchTestFileSync();
+        }
+
         Log::info("External app '$slug' status changed to: " . ($enabled ? 'enabled' : 'disabled'));
 
         return $app;
@@ -405,10 +533,6 @@ class ExternalAppService
     {
         try {
             $app = ExternalApp::where('slug', $slug)->firstOrFail();
-
-            // Determine integration flag key before deleting
-            $moduleConfig = $app->configuration ?? [];
-            $flagKey      = $this->integrationFlagKey($slug, $moduleConfig);
 
             // Run uninstall script if exists
             if ($app->installed_path && File::exists($app->installed_path . '/uninstall.php')) {
@@ -424,11 +548,16 @@ class ExternalAppService
                 File::deleteDirectory($app->installed_path);
             }
 
-            // Set integration flag to false in the main .env
-            $this->writeMainEnvFlag($flagKey, 'false');
+            // Revert to local storage if external-storage module is being uninstalled
+            if ($slug === 'external-storage') {
+                $this->writeMainEnvFlag('FILESYSTEM_DRIVER', 'local');
+            }
 
             // Delete from database
             $app->delete();
+
+            // Refresh the sidebar cache so changes appear immediately
+            $this->refreshEnabledAppsCache();
 
             Log::info("External app '$slug' uninstalled successfully");
 

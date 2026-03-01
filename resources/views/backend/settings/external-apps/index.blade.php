@@ -98,11 +98,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="deleteForm" method="POST" style="display: inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Uninstall</button>
-                </form>
+                <button type="button" class="btn btn-danger" id="confirmUninstallBtn">Uninstall</button>
             </div>
         </div>
     </div>
@@ -132,6 +128,8 @@
 
 <script>
 $(document).ready(function() {
+    var pendingDeleteSlug = null;
+
     // Toggle app status
     $('.toggle-app-status').on('change', function() {
         const slug = $(this).data('slug');
@@ -149,11 +147,11 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // Show success message and reload page to update sidebar
                     showAlert(response.message, 'success');
+                    // Delay reload to allow .env changes to settle
                     setTimeout(function() {
                         location.reload();
-                    }, 800);
+                    }, 2500);
                 } else {
                     showAlert(response.message, 'error');
                     $toggle.prop('checked', !enabled);
@@ -167,14 +165,48 @@ $(document).ready(function() {
         });
     });
 
-    // Delete app
+    // Delete app - show modal
     $('.delete-app').on('click', function() {
-        const slug = $(this).data('slug');
+        pendingDeleteSlug = $(this).data('slug');
         const name = $(this).data('name');
 
         $('#appNameDisplay').text(name);
-        $('#deleteForm').attr('action', '/user/external-apps/' + slug);
         $('#deleteModal').modal('show');
+    });
+
+    // Confirm uninstall via AJAX
+    $('#confirmUninstallBtn').on('click', function() {
+        if (!pendingDeleteSlug) return;
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Uninstalling...');
+
+        $.ajax({
+            url: '/user/external-apps/' + pendingDeleteSlug,
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $('#deleteModal').modal('hide');
+                if (response.success) {
+                    showAlert(response.message, 'success');
+                    // Delay reload to allow .env changes to settle
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2500);
+                } else {
+                    showAlert(response.message, 'error');
+                    $btn.prop('disabled', false).html('Uninstall');
+                }
+            },
+            error: function(xhr) {
+                $('#deleteModal').modal('hide');
+                const response = xhr.responseJSON || {};
+                showAlert(response.message || 'An error occurred', 'error');
+                $btn.prop('disabled', false).html('Uninstall');
+            }
+        });
     });
 });
 

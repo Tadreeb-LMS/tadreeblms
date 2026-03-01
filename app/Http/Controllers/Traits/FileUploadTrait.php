@@ -463,7 +463,6 @@ trait FileUploadTrait
 
                     $filename = time() . '-' . Str::slug($name) . '.' . $extension;
 
-                    //dd($filename);
                     $storage = config('filesystems.default');
 
                     $url = null;

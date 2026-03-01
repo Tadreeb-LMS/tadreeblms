@@ -196,29 +196,25 @@ class ExternalAppsController extends Controller
     }
 
     /**
-     * Delete/Uninstall external app
+     * Delete/Uninstall external app (AJAX)
      */
     public function destroy($slug)
     {
         if (!auth()->user()->isAdmin()) {
-            return abort(403);
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
         try {
             $result = $this->externalAppService->uninstall($slug);
 
-            if ($result['success']) {
-                return redirect()->route('admin.external-apps.index')
-                    ->with('success', $result['message']);
-            } else {
-                return redirect()->back()
-                    ->with('error', $result['message']);
-            }
+            return response()->json($result);
 
         } catch (\Exception $e) {
             Log::error('Error uninstalling external app', ['error' => $e->getMessage()]);
-            return redirect()->back()
-                ->with('error', 'Error uninstalling module: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uninstalling module: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }
