@@ -166,13 +166,6 @@
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2])))
             <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
-                    href="{{ route('admin.department.index') }}">
-                    <i class="nav-icon fas fa-building"></i>
-                    <span class="title">@lang('menus.backend.sidebar.department')</span>
-                </a>
-            </li>
-            <li class="nav-item ">
                 <a class="nav-link {{ $request->segment(2) == 'position' ? 'active' : '' }}"
                     href="{{ route('admin.position.index') }}">
                     <i class="nav-icon icon-folder-alt"></i>
@@ -627,6 +620,17 @@
                             @endif
                         </a>
                     </li>
+                    @if (null == Session::get('setvaluesession') ||
+                    (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2]))
+                    )
+                    <li class="nav-item ">
+                        <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
+                            href="{{ route('admin.department.index') }}">
+                            <i class="nav-icon fas fa-building"></i>
+                            <span class="title">@lang('menus.backend.sidebar.department')</span>
+                        </a>
+                    </li>
+                    @endif
                     @if (true)
                     @if (null == Session::get('setvaluesession') ||
                     (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2,3]))
