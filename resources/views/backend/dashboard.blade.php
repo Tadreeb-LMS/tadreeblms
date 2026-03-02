@@ -459,6 +459,61 @@ $local_lang = App::getLocale() ?? 'en';
     </div>
 </div>
 @endif
+
+{{-- Recent Courses (Last 10 Created) - Admin only --}}
+@if(auth()->user()->hasRole('administrator') && isset($recent_courses))
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@lang('strings.backend.dashboard.Recent-Courses')</h5>
+                <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                @if($recent_courses->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Course Title</th>
+                                <th>Category</th>
+                                <th>Trainer</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recent_courses as $course)
+                            <tr>
+                                <td>{{ $course->title }}</td>
+                                <td>{{ $course->category->name ?? '-' }}</td>
+                                <td>{{ $course->teachers->map(fn($t) => trim($t->first_name . ' ' . $t->last_name))->implode(', ') ?: '-' }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $course->published ? 'success' : 'secondary' }}">
+                                        {{ $course->published ? 'Published' : 'Draft' }}
+                                    </span>
+                                </td>
+                                <td>{{ $course->created_at ? $course->created_at->format(config('app.date_format', 'Y-m-d')) : '-' }}</td>
+                                <td>
+                                    <a href="{{ route('admin.courses.show', $course->id) }}" class="btn btn-sm btn-info mr-1">View</a>
+                                    <a href="{{ route('admin.courses.edit', $course->id) }}" class="btn btn-sm btn-success">Edit</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="p-3">
+                    <p class="mb-0">No courses yet.</p>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 <div class="row">
 @if (auth()->user()->hasRole('student'))
 <div class="col-12 text-left heading-text userheading">
