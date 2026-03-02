@@ -83,9 +83,9 @@
 
 {{-- Department --}}
 <div class="col-lg-6 mt-3">
-    <label class="form-control-label">Department</label>
+    <label class="form-control-label">@lang('Department')</label>
     <select name="department" class="form-control">
-        <option value="">Select One</option>
+        <option value="">@lang('Select Department')</option>
         @foreach($departments as $row)
             <option value="{{ $row->id }}"
                 {{ optional($teacher->employee->department_details)->id == $row->id ? 'selected' : '' }}>

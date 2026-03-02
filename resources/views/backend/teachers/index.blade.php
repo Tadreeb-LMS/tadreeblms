@@ -87,7 +87,7 @@
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Email</th>
-                        <th>Department</th>
+                        <th>@lang('Department')</th>
                         @if(request('show_deleted') != 1)
                         <th>Status</th>
                         @endif

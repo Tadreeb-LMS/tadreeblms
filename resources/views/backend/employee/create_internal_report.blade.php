@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="form-group row">
-                        <label class="col-md-2 form-control-label" for="first_name">Select Department</label>
+                        <label class="col-md-2 form-control-label" for="first_name">@lang('Select Department')</label>
                         <div class="col-md-10">
                             <select name="department" class="form-control">
                                 <option value=""> Select One </option>

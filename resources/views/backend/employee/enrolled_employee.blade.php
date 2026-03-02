@@ -156,9 +156,9 @@
                     {{-- Department Tab --}}
                     <div class="enroll-tab-content" id="tab-department">
                         <div class="form-group">
-                            <label for="enroll_department">Select Department <span class="text-danger">*</span></label>
+                            <label for="enroll_department">@lang('Select Department') <span class="text-danger">*</span></label>
                             <select name="department_id" id="enroll_department" class="form-control select2" style="width: 100%;">
-                                <option value="">Select One</option>
+                                <option value="">@lang('select-one')</option>
                                 @foreach ($departments as $row)
                                     <option value="{{ $row->id }}">{{ $row->title }}</option>
                                 @endforeach
