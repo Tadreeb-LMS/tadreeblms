@@ -185,7 +185,8 @@ return array(
       'Added-Courses' => 'Added Courses',
       'Assigned-Users' => 'Assigned Users',
       'Assignments' => 'Assignments',
-      'Certificate-Issued' => 'Certificate Issued'
+      'Certificate-Issued' => 'Certificate Issued',
+      'Recent-Courses' => 'Recent Courses (Last 10 Created)'
     ),
     'search' =>
     array(

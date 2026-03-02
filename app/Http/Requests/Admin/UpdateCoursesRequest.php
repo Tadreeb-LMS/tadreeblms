@@ -27,7 +27,7 @@ class UpdateCoursesRequest extends FormRequest
             'teachers.*' => 'exists:users,id',
             'title' => 'required|max:200',
             'start_date' => 'nullable|date_format:'.config('app.date_format'),
-            'course_code' => 'required|max:100',
+            'course_code' => 'required|max:100|unique:courses,course_code,'.$this->route('course'),
             'course_type' => 'required'
             //'arabic_title' => 'required|max:200',
         ];

@@ -131,6 +131,8 @@
                             <th>@lang('TSE')</th>
                             <th>@lang('TD')</th>
                             <th>@lang('labels.backend.courses.fields.status')</th>
+                            <th>Start Date</th>
+<th>Expiry Date</th>
                             <th>@lang('labels.backend.courses.fields.qr_code')</th>
                             <th>@lang('labels.backend.lessons.title')</th>
                             <th >@lang('Test')</th>
@@ -301,6 +303,14 @@
                         data: "status",
                         name: "status"
                     },
+                    {
+    data: "start_date",
+    name: "start_date"
+},
+{
+    data: "expiry_date",
+    name: "expiry_at"
+},
                     {
                         data: "qr_code",
                         name: "qr_code"

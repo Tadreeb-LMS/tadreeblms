@@ -171,7 +171,8 @@ class TeachersController extends Controller
 
         return view('backend.auth.user.create',[ 'return_to' => route('admin.teachers.index')])
             ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
-            ->withPermissions($permissionRepository->get(['id', 'name']));
+            ->withPermissions($permissionRepository->get(['id', 'name']))
+            ->withDepartments(Department::where('published', 1)->orderBy('title')->get());
     }
 
     /**

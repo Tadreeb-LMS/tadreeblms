@@ -304,7 +304,7 @@
 
                 @if (Auth::user()->isAdmin())
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) *</label>
+                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
                         <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
                     </div>
@@ -469,20 +469,12 @@ function validateWeightage() {
     });
 
     if (total > 100) {
-        alert('Total module weightage cannot exceed 100%.');
+        toastr.remove();
+        toastr.error('Total module weightage cannot exceed 100%.');
         return false;
     }
     return true;
 }
-
-// Bind to form submit
-$('#addCourse').on('submit', function(e) {
-    if (!validateWeightage()) {
-        e.preventDefault(); // stop submission
-        return false;
-    }
-});
-
 
 document.querySelectorAll('.sm-input').forEach(function(input) {
     input.addEventListener('input', function() {
@@ -491,8 +483,9 @@ document.querySelectorAll('.sm-input').forEach(function(input) {
             total += parseInt(i.value) || 0;
         });
         if (total > 100) {
-            input.value = ''; // reset last input
-            alert('Total module weightage cannot exceed 100%');
+            input.value = '';
+            toastr.remove();
+            toastr.error('Total module weightage cannot exceed 100%');
         }
     });
 });
@@ -634,6 +627,13 @@ $('#expire_at').datepicker({
         $('#meeting_start_time').prop('required', false);
         $('#meeting_duration').prop('required', false);
     }
+
+    // Toggle date required asterisks based on course type
+    if (type === 'Online') {
+        $('.date-required-star').hide();
+    } else {
+        $('.date-required-star').show();
+    }
 });
 
 
@@ -670,11 +670,39 @@ $(document).ready(function () {
         $('.frm_submit').on('click', function() {
             nxt_url_val = $(this).val();
         });
-        $(document).on('submit', '#addCourse', function(e) {
+        $('#addCourse').on('submit', function(e) {
             e.preventDefault();
+            var $form = $(this);
+
+            function enableButtons() {
+                $form.find('input[type=submit], button[type=submit]').removeAttr('disabled').prop('disabled', false);
+            }
+
+            function clearInlineErrors() {
+                $form.find('.inline-error').remove();
+                $form.find('.is-invalid').removeClass('is-invalid');
+            }
+
+            function showInlineError(field, message) {
+                var $field = $form.find(field);
+                $field.addClass('is-invalid');
+                $field.closest('.form-group').find('.inline-error').remove();
+                $field.after('<span class="text-danger inline-error w-100 d-block mt-1">' + message + '</span>');
+            }
+
+            clearInlineErrors();
+
+            // Validate weightage
+            if (!validateWeightage()) {
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                return false;
+            }
+
             var startDateVal = $('#start_date').val();
             var expireDateVal = $('#expire_at').val();
-            var courseType = $('.course-type:checked').val();
+            var courseType = $('input[name="course_type"]:checked').val();
+            var hasError = false;
 
             // Populate meeting_start_at if offline course
             if (courseType === 'Offline' && $('#meeting_start_date').val() && $('#meeting_start_time').val()) {
@@ -687,17 +715,12 @@ $(document).ready(function () {
         return false;
     }
 
-    if (expireDateVal < startDateVal) {
-        alert('Expire Date cannot be earlier than Start Date.');
-        return false;
-    }
+            if (startDateVal && expireDateVal && expireDateVal < startDateVal) {
+                showInlineError('#expire_at', 'Expire Date cannot be earlier than Start Date.');
+                hasError = true;
+            }
 
-    var today = new Date().toISOString().slice(0, 10);
-    if (startDateVal < today) {
-        alert('Start Date cannot be earlier than today.');
-        return false;
-    }
-var expireDateVal = $('#expire_at').val();
+            var today = new Date().toISOString().slice(0, 10);
 
 if (!startDateVal || !expireDateVal) {
     alert('Start Date and Expire Date are required.');
@@ -718,6 +741,12 @@ if (startDateVal < today) {
     }
 }
 
+            if (hasError) {
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                scrollToClass('inline-error');
+                return false;
+            }
 
             hrefurl = $(location).attr("href");
             last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 8)
