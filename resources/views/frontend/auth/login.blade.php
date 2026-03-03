@@ -93,14 +93,15 @@
 
     /* Captcha Styling */
     .captcha-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f4f6f8;
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #e0e0e0;
-    }
+    display: flex;
+    align-items: center;
+    gap: 12px; /* equal spacing between ALL elements */
+    background: #f4f6f8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+    
     
     .captcha-text {
         font-weight: bold;
@@ -115,6 +116,7 @@
         height: 34px !important;
         font-size: 13px;
         text-align: center;
+        margin-left: auto;
     }
 
     /* Links */
@@ -251,11 +253,15 @@
                     {{-- Captcha --}}
                     <div class="form-group">
                         <div class="captcha-container">
-                            <span class="captcha-text">
+                            <span class="captcha-text" id="captcha-text">
                                 Captcha: {{ $captha }}
                             </span>
+                            <button type="button" id="refresh-captcha" style="border:none; background:none; cursor:pointer;">
+                                🔄
+                            </button>
 
                             <input type="text"
+                            id="captcha-input"
                                 name="captcha"
                                 class="form-control captcha-input"
                                 placeholder="Code"
@@ -348,6 +354,30 @@ $(document).ready(function () {
                 location.reload();
             }
         });
+    });
+
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const refreshBtn = document.getElementById('refresh-captcha');
+    const captchaText = document.getElementById('captcha-text');
+    const captchaInput = document.getElementById('captcha-input');
+
+    refreshBtn.addEventListener('click', function () {
+
+        fetch("{{ route('refresh.captcha') }}")
+            .then(response => response.json())
+            .then(data => {
+
+                captchaText.innerHTML = "Captcha: " + data.captcha;
+
+                // Clear input
+                captchaInput.value = '';
+
+            })
+            .catch(error => console.error('Captcha refresh error:', error));
     });
 
 });
