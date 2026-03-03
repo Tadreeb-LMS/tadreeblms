@@ -81,8 +81,21 @@ return [
             'driver' => 'dropbox',
             'token' => env('DROPBOX_ACCESS_TOKEN'),
             'app_secret' => env('DROPBOX_SECRET'),
-        ]
-
+        ],
+        // --- External Storage Module (external-s3 disk) ---
+        'external-s3' => [
+            'driver' => 's3',
+            'key' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_ACCESS_KEY_ID'),
+            'secret' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_SECRET_ACCESS_KEY'),
+            'region' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_DEFAULT_REGION') ?: 'us-east-1',
+            'bucket' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_BUCKET'),
+            'url' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_URL') ?: null,
+            'endpoint' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_ENDPOINT') ?: null,
+            'root' => \App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_ROOT') ?: null,
+            'use_path_style_endpoint' => !empty(\App\Services\ExternalApps\ExternalAppService::staticGetModuleEnv('external-storage', 'S3_ENDPOINT')),
+            'visibility' => 'private',
+        ],
+        // --- End External Storage Module ---
 
     ],
 
