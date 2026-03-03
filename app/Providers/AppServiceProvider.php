@@ -121,11 +121,11 @@ class AppServiceProvider extends ServiceProvider
         View::share('disabled_landing_page', $disabled_landing_page);
 
         
-            if (
+if (
     Schema::hasTable('admin_menu_items') &&
     $disabled_landing_page == 0 &&
-    class_exists('Harimayco\\Menu\\Models\\MenuItems') &&
-    class_exists('Harimayco\\Menu\\Models\\Menus')
+    class_exists('Harimayco\Menu\Models\MenuItems', false) &&
+    class_exists('Harimayco\Menu\Models\Menus', false)
 ) {
 
     $custom_menus = \Harimayco\Menu\Models\MenuItems::where('menu', '=', config('nav_menu'))
