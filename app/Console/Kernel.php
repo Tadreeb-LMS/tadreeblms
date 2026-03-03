@@ -48,6 +48,7 @@ class Kernel extends ConsoleKernel
         // LessonTestChaterStudentsFix::class,
         // RemoveUnwantedFiles::class,
         // UpdateAssesmentStatusAndScoreInSubscribeCourses::class
+        \App\Console\Commands\UnpublishExpiredCourses::class,
     ];
 
     /**
@@ -59,7 +60,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
-        
+        $schedule->command('courses:unpublish-expired')->daily();
         $schedule->command(DispatchSubscribeCourseJobs::class)->daily()->withoutOverlapping();
         $schedule->command(SendManualAssignmentReminder::class)->daily()->withoutOverlapping();
         $schedule->command(SendCourseNotifications::class)->daily()->withoutOverlapping();

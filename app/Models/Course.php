@@ -68,6 +68,14 @@ class Course extends Model
         });
     }
 
+    public function scopeActive($query)
+{
+    return $query->where('published', 1)
+        ->where(function ($q) {
+            $q->whereNull('expire_at')
+              ->orWhereDate('expire_at', '>=', now());
+        });
+}
 public function setExpiryDateAttribute($input)
 {
     if ($input != null && $input != '') {

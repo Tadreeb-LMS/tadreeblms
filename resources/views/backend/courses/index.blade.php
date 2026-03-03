@@ -308,8 +308,8 @@
     name: "start_date"
 },
 {
-    data: "expiry_date",
-    name: "expiry_at"
+    data: "expire_at",
+    name: "expire_at"
 },
                     {
                         data: "qr_code",
