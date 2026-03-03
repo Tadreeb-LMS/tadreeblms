@@ -367,10 +367,10 @@ Route::get('lessons/add', function () {
 
 
 Route::resource('lessons', 'Admin\LessonsController');
-Route::resource('course-feedback-questions', 'Admin\CourseFeebackController');
-Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeebackController@destroy');
-Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeebackController@edit')->name('course.coursefeedbackquestion.edit');
-Route::post('course-feedback-questions/update', 'Admin\CourseFeebackController@update');
+Route::resource('course-feedback-questions', 'Admin\CourseFeedbackController');
+Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeedbackController@destroy');
+Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeedbackController@edit')->name('course.coursefeedbackquestion.edit');
+Route::post('course-feedback-questions/update', 'Admin\CourseFeedbackController@update');
 Route::get('get-lessons-data', ['uses' => 'Admin\LessonsController@getData', 'as' => 'lessons.get_data']);
 Route::post('lessons_mass_destroy', ['uses' => 'Admin\LessonsController@massDestroy', 'as' => 'lessons.mass_destroy']);
 Route::post('lessons_restore/{id}', ['uses' => 'Admin\LessonsController@restore', 'as' => 'lessons.restore']);
