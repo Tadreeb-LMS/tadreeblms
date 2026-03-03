@@ -6,6 +6,7 @@ use App\Models\ExternalApp;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use ZipArchive;
 
 class ExternalAppService
@@ -305,15 +306,23 @@ class ExternalAppService
     // -------------------------------------------------------------------------
 
     /**
-     * Upload and extract external app zip file
+     * Upload and extract external app zip file.
+     * The module slug is auto-detected from the zip filename keywords
+     * ("zoom" → zoom, "teams" → teams) or derived from config.json name.
+     * Only the folder containing both config.json and install.php is installed.
      */
-    public function uploadAndInstall($file, $moduleName)
+    public function uploadAndInstall($file, $originalFileName = null)
     {
+        $extractPath = null;
+
         try {
             // Validate file
             if ($file->getMimeType() !== 'application/zip') {
                 throw new \Exception('File must be a zip archive');
             }
+
+            // Use provided filename or fall back to the uploaded file's name
+            $zipFileName = $originalFileName ?: $file->getClientOriginalName();
 
             // Create a temporary directory for extraction
             $extractPath = $this->appStoragePath . '/' . uniqid('temp_');
@@ -328,14 +337,43 @@ class ExternalAppService
             $zip->extractTo($extractPath);
             $zip->close();
 
-            // If the zip contained a single wrapper directory, unwrap it
-            $tempPath = $this->unwrapSingleDirectory($extractPath);
+            // Find the folder that contains both config.json and install.php
+            $contentDir = $this->findModuleContentDir($extractPath);
 
             // Validate module structure (check for required files)
-            $this->validateModuleStructure($tempPath);
+            $this->validateModuleStructure($contentDir);
 
             // Get module metadata from config file
-            $moduleConfig = $this->readModuleConfig($tempPath);
+            $moduleConfig = $this->readModuleConfig($contentDir);
+
+            // ── Determine the module slug ──────────────────────────────
+            // Keyword map: if the zip filename contains a keyword, force that slug
+            $keywordSlugMap = [
+                'zoom'  => 'zoom',
+                'teams' => 'teams',
+            ];
+
+            $moduleName = null;
+            $lowerZipName = strtolower($zipFileName);
+
+            foreach ($keywordSlugMap as $keyword => $slug) {
+                if (str_contains($lowerZipName, $keyword)) {
+                    $moduleName = $slug;
+                    break;
+                }
+            }
+
+            // Fall back: derive slug from config.json "name" field
+            if (!$moduleName) {
+                $configName = $moduleConfig['name'] ?? null;
+                $moduleName = $configName
+                    ? Str::slug($configName)
+                    : Str::slug(pathinfo($zipFileName, PATHINFO_FILENAME));
+            }
+
+            if (empty($moduleName)) {
+                throw new \Exception('Could not determine module name from zip file or config.json.');
+            }
 
             // Create the final installation directory
             $installPath = $this->appStoragePath . '/' . $moduleName;
@@ -344,12 +382,7 @@ class ExternalAppService
             $existingApp = ExternalApp::where('slug', $moduleName)->first();
             if (File::exists($installPath) && $existingApp) {
                 // Clean up temp files
-                if ($extractPath !== $tempPath && File::exists($extractPath)) {
-                    File::deleteDirectory($extractPath);
-                }
-                if (File::exists($tempPath)) {
-                    File::deleteDirectory($tempPath);
-                }
+                File::deleteDirectory($extractPath);
 
                 $displayName = $existingApp->name ?? $moduleName;
                 $status      = $existingApp->is_enabled ? 'enabled' : 'disabled';
@@ -360,10 +393,11 @@ class ExternalAppService
                 ];
             }
 
-            File::moveDirectory($tempPath, $installPath);
+            // Move only the content folder to the final install path
+            File::moveDirectory($contentDir, $installPath);
 
-            // Clean up the outer temp directory if it was unwrapped
-            if ($extractPath !== $tempPath && File::exists($extractPath)) {
+            // Clean up the entire temp directory
+            if (File::exists($extractPath)) {
                 File::deleteDirectory($extractPath);
             }
 
@@ -396,6 +430,7 @@ class ExternalAppService
             Log::info("External app '$moduleName' installed successfully", [
                 'path'    => $installPath,
                 'version' => $moduleConfig['version'] ?? '1.0.0',
+                'zip'     => $zipFileName,
             ]);
 
             return [
@@ -406,26 +441,14 @@ class ExternalAppService
 
         } catch (\Exception $e) {
             Log::error("Failed to install external app", [
-                'module' => $moduleName,
-                'error'  => $e->getMessage(),
+                'zip'   => $originalFileName,
+                'error' => $e->getMessage(),
             ]);
 
-            // Clean up temp directories if they exist
-            if (isset($extractPath) && File::exists($extractPath)) {
+            // Clean up temp directory
+            if ($extractPath && File::exists($extractPath)) {
                 File::deleteDirectory($extractPath);
             }
-            if (isset($tempPath) && $tempPath !== ($extractPath ?? null) && File::exists($tempPath)) {
-                File::deleteDirectory($tempPath);
-            }
-
-            // Update database with error status
-            ExternalApp::updateOrCreate(
-                ['slug' => $moduleName],
-                [
-                    'status'        => 'error',
-                    'error_message' => $e->getMessage(),
-                ]
-            );
 
             return [
                 'success' => false,
@@ -435,20 +458,47 @@ class ExternalAppService
     }
 
     /**
-     * If the extracted zip contains a single top-level directory (wrapper),
-     * return the path to that inner directory instead.
-     * e.g. temp_xxx/External-Storage/config.json → returns temp_xxx/External-Storage
+     * Recursively search the extracted directory for the folder that contains
+     * both config.json and install.php — the actual module content directory.
      */
-    protected function unwrapSingleDirectory(string $path): string
+    protected function findModuleContentDir(string $basePath): string
     {
-        $items = File::glob($path . '/*');
-
-        // If there's exactly one item and it's a directory, unwrap it
-        if (count($items) === 1 && File::isDirectory($items[0])) {
-            return $items[0];
+        // Check the base path itself first
+        if (
+            File::exists($basePath . '/config.json') &&
+            File::exists($basePath . '/install.php')
+        ) {
+            return $basePath;
         }
 
-        return $path;
+        // Search subdirectories recursively
+        $directories = File::directories($basePath);
+
+        foreach ($directories as $dir) {
+            if (
+                File::exists($dir . '/config.json') &&
+                File::exists($dir . '/install.php')
+            ) {
+                return $dir;
+            }
+        }
+
+        // Go one more level deep if not found yet
+        foreach ($directories as $dir) {
+            $subDirs = File::directories($dir);
+            foreach ($subDirs as $subDir) {
+                if (
+                    File::exists($subDir . '/config.json') &&
+                    File::exists($subDir . '/install.php')
+                ) {
+                    return $subDir;
+                }
+            }
+        }
+
+        throw new \Exception(
+            'No valid module found in the zip file. The zip must contain a folder with both config.json and install.php.'
+        );
     }
 
     /**
@@ -458,6 +508,7 @@ class ExternalAppService
     {
         $requiredFiles = [
             'config.json',
+            'install.php',
         ];
 
         foreach ($requiredFiles as $file) {

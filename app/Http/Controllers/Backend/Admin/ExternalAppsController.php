@@ -65,21 +65,10 @@ class ExternalAppsController extends Controller
         ]);
 
         try {
-            $zipFile    = $request->file('zip_file');
-            $moduleName = $request->input('module_name');
+            $zipFile         = $request->file('zip_file');
+            $originalFileName = $zipFile->getClientOriginalName();
 
-            // Auto-collect module name from zip file name if not provided
-            if (!$moduleName) {
-                $fileName   = $zipFile->getClientOriginalName();
-                $moduleName = pathinfo($fileName, PATHINFO_FILENAME);
-                $moduleName = \Illuminate\Support\Str::slug($moduleName);
-            }
-
-            if (empty($moduleName)) {
-                return redirect()->back()->with('error', 'Could not determine module name from file name. Please rename the file and try again.');
-            }
-
-            $result = $this->externalAppService->uploadAndInstall($zipFile, $moduleName);
+            $result = $this->externalAppService->uploadAndInstall($zipFile, $originalFileName);
 
             if ($result['success']) {
                 return redirect()->route('admin.external-apps.index')
