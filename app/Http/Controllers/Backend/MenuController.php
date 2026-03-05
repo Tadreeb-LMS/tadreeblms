@@ -5,13 +5,10 @@ namespace App\Http\Controllers\Backend;
 use App\Models\Config;
 use App\Models\Category;
 use App\Models\Page;
-use Harimayco\Menu\Models\MenuItems;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Harimayco\Menu\Facades\Menu;
 use App\Http\Requests;
 use App\Models\AdminMenuItem;
-use Harimayco\Menu\Models\Menus;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
@@ -23,11 +20,11 @@ class MenuController extends Controller
         $menu = Null;
         $menu_data = Null;
         if ($request->menu) {
-            $menu = Menus::find($request->menu);
+            $menu = \Harimayco\Menu\Models\Menus::find($request->menu);
             $menu_data = json_decode($menu->value);
         }
 
-        $menu_list = Menus::get();
+        $menu_list = \Harimayco\Menu\Models\Menus::get();
 
         //dd( $menu_list );
 
@@ -142,7 +139,7 @@ class MenuController extends Controller
 
     public function createnewmenu()
     {
-        $menu = new Menus();
+        $menu = new \Harimayco\Menu\Models\Menus();
         $menu->name = Str::slug(request()->input("menuname"));
         $menu->save();
         return json_encode(array("resp" => $menu->id));
@@ -160,7 +157,7 @@ class MenuController extends Controller
         $menus = new AdminMenuItem();
         $getall = $menus->getall(request()->input("id"));
         if (count($getall) == 0) {
-            $menudelete = Menus::find(request()->input("id"));
+            $menudelete = \Harimayco\Menu\Models\Menus::find(request()->input("id"));
             $menudelete->delete();
 
             return json_encode(array("resp" => "you delete this item"));
@@ -210,7 +207,7 @@ class MenuController extends Controller
     public function generatemenucontrol(Request $request)
     {
         $main = NULL;
-        $menu = Menus::find(request()->input("idmenu"));
+        $menu = \Harimayco\Menu\Models\Menus::find(request()->input("idmenu"));
         $menu_bag_data = AdminMenuItem::where('menu', '=', $menu)->get();
         $menu->name = Str::slug(request()->input("menuname"));
         $menu->save();

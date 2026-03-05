@@ -179,12 +179,12 @@
                 <p class="mt-3 mb-1">OR</p>
 
                 <div class="row mt-3">
-                    <label class="col-md-12 form-control-label">Select Department</label>
+                    <label class="col-md-12 form-control-label">@lang('Select Department')</label>
 
                     <div class="col-md-12 custom-select-wrapper">
                         <select name="department_id"
                                 class="form-control select2 custom-select-box">
-                            <option value="">Select One</option>
+                            <option value="">@lang('select-one')</option>
 
                             @foreach ($departments as $row)
                                 <option value="{{ $row->id }}">
