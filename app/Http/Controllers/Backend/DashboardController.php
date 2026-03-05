@@ -110,6 +110,14 @@ class DashboardController extends Controller
             ->get(['id', 'course_id', 'user_id', 'created_at']);
         $recent_contacts      = Contact::latest()->take(10)->get(['id', 'name', 'email', 'created_at']);
 
+        // --- Recent courses (Last 10, admin only - when $teacherId is null) ---
+        $recent_courses = $teacherId
+            ? collect()
+            : Course::with(['category', 'teachers'])
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get(['id', 'title', 'category_id', 'published', 'created_at']);
+
         // --- Assignment & Certificate stats ---
         $total_assignments = DB::table('assignments')
             ->when($teacherId, function ($query) use ($teacherId) {
@@ -203,6 +211,7 @@ class DashboardController extends Controller
             'recent_orders' => $recent_orders,
             'recent_subscriptions' => $recent_subscriptions,
             'recent_contacts' => $recent_contacts,
+            'recent_courses' => $recent_courses,
             'total_assignments' => $total_assignments,
             'total_certificate_issued' => $total_certificate_issued,
             'assigned_users_count' => $assigned_users_count,
@@ -541,7 +550,8 @@ class DashboardController extends Controller
                         'total_pending',
                         'av_completed_score',
                         'completed_assesment',
-                        'not_completed_assesment'
+                        'not_completed_assesment',
+                        'recent_courses'
                     )
                 ));
             } elseif (auth()->user()->employee_type == 'internal') {

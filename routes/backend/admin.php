@@ -197,6 +197,21 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@save'])->name('smtp-settings.save');
     Route::post('settings/smtp/test', ['uses' => 'Admin\SmtpSettingsController@sendTestEmail'])->name('smtp-settings.test');
 
+    //===== External Apps Routes =====//
+    Route::get('external-apps', ['uses' => 'Admin\ExternalAppsController@index', 'as' => 'external-apps.index']);
+    Route::get('external-apps/create', ['uses' => 'Admin\ExternalAppsController@create', 'as' => 'external-apps.create']);
+    Route::post('external-apps/store', ['uses' => 'Admin\ExternalAppsController@store', 'as' => 'external-apps.store']);
+    Route::get('external-apps/{slug}', ['uses' => 'Admin\ExternalAppsController@show', 'as' => 'external-apps.show']);
+    Route::post('external-apps/{slug}/toggle-status', ['uses' => 'Admin\ExternalAppsController@toggleStatus', 'as' => 'external-apps.toggle-status']);
+    Route::get('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@editConfig', 'as' => 'external-apps.edit-config']);
+    Route::post('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@updateConfig', 'as' => 'external-apps.update-config']);
+    Route::delete('external-apps/{slug}', ['uses' => 'Admin\ExternalAppsController@destroy', 'as' => 'external-apps.destroy']);
+
+    //===== S3 Storage Settings =====//
+    Route::get('s3-storage-settings', ['uses' => 'Admin\S3StorageSettingsController@index', 'as' => 's3-storage-settings']);
+    Route::post('s3-storage-settings', ['uses' => 'Admin\S3StorageSettingsController@store', 'as' => 's3-storage-settings.store']);
+    Route::post('s3-storage-settings/test-connection', ['uses' => 'Admin\S3StorageSettingsController@testConnection', 'as' => 's3-storage-settings.test-connection']);
+
 
     //===== Slider Routes =====/
     Route::resource('sliders', 'Admin\SliderController');
@@ -367,10 +382,10 @@ Route::get('lessons/add', function () {
 
 
 Route::resource('lessons', 'Admin\LessonsController');
-Route::resource('course-feedback-questions', 'Admin\CourseFeebackController');
-Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeebackController@destroy');
-Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeebackController@edit')->name('course.coursefeedbackquestion.edit');
-Route::post('course-feedback-questions/update', 'Admin\CourseFeebackController@update');
+Route::resource('course-feedback-questions', 'Admin\CourseFeedbackController');
+Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeedbackController@destroy');
+Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeedbackController@edit')->name('course.coursefeedbackquestion.edit');
+Route::post('course-feedback-questions/update', 'Admin\CourseFeedbackController@update');
 Route::get('get-lessons-data', ['uses' => 'Admin\LessonsController@getData', 'as' => 'lessons.get_data']);
 Route::post('lessons_mass_destroy', ['uses' => 'Admin\LessonsController@massDestroy', 'as' => 'lessons.mass_destroy']);
 Route::post('lessons_restore/{id}', ['uses' => 'Admin\LessonsController@restore', 'as' => 'lessons.restore']);

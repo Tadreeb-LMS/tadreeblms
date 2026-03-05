@@ -1,0 +1,24 @@
+name: Deploy to Staging Server
+
+on:
+  push:
+    branches:
+      - Staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH and deploy to staging
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo "Connected to staging"
+            cd /var/www/html/stag/tadreeblms
+            git pull --ff-only 
+            php artisan migrate
+            echo "Staging deployment completed"

@@ -88,3 +88,9 @@ Server.txt
 url_links.txt
 
 README.md
+
+# --------------------------
+# External Modules (runtime-installed, never committed)
+# --------------------------
+/modules/*
+!/modules/.gitkeep

@@ -1,7 +1,7 @@
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
 
-@section('title', 'Department'.' | '.app_name())
+@section('title', __('menus.backend.sidebar.department').' | '.app_name())
 @push('after-styles')
     <link rel="stylesheet" href="{{ asset('assets/css/colors/switch.css') }}">
        <style>
@@ -21,12 +21,12 @@
 
     <div class="pb-3">
         <div class="d-flex justify-content-between">
-            <h4>@lang('Department')</h4>
+            <h4>@lang('menus.backend.sidebar.department')</h4>
 
             @can('blog_create')
                 <div>
                     <a href="{{ route('admin.department.create') }}" class="btn add-btn">
-                        @lang('Add Department')
+                        @lang('Add User Group')
                     </a>
                 </div>
             @endcan

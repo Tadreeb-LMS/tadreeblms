@@ -176,7 +176,7 @@ return array(
       'Employee' => 'Select Employee',
       'select-one' => 'Select One',
       'Period' => 'Period',
-      'Department' => 'Department',
+      'Department' => 'User Group',
       'Course' => 'Select Course',
       'Course-Categeory' => 'Select Category',
       'search' => 'Search',
@@ -185,7 +185,8 @@ return array(
       'Added-Courses' => 'Added Courses',
       'Assigned-Users' => 'Assigned Users',
       'Assignments' => 'Assignments',
-      'Certificate-Issued' => 'Certificate Issued'
+      'Certificate-Issued' => 'Certificate Issued',
+      'Recent-Courses' => 'Recent Courses (Last 10 Created)'
     ),
     'search' =>
     array(

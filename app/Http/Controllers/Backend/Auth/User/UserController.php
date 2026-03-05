@@ -69,7 +69,6 @@ class UserController extends Controller
                 ->orderBy('users.created_at', 'desc');
         }else{
             $users = User::with('roles', 'permissions', 'providers')
-                ->whereNull('employee_type')
                 ->orderBy('users.created_at', 'desc');
         }
 

@@ -77,7 +77,7 @@
 
                         <th>@lang('labels.backend.courses.fields.category')</th>
 
-                        <th>Department</th>
+                        <th>@lang('Department')</th>
                         @if (Auth::user()->isAdmin())
                                 {{-- <th>@lang('labels.general.sr_no')</th>
                                 <th>@lang('labels.general.id') --}}

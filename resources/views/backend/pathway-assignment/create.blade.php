@@ -84,27 +84,6 @@
                     Make a New Assignment (Step-1)
                 </label>
 
-                {{-- Title --}}
-                <div class="form-group row">
-                    <label class="col-md-12 form-control-label required">Title</label>
-                    <div class="col-md-12">
-                        <input type="text" name="title" id="title" class="form-control"
-                               placeholder="Title for assignment" value="{{ old('title') }}" required autofocus>
-                    </div>
-                </div>
-
-                {{-- Due Date --}}
-                <div class="form-group row">
-                    <label class="col-md-12 form-control-label required">Due Date</label>
-                    <div class="col-md-12">
-                        <input type="date" name="due_date" id="due_date" class="form-control" value="{{ old('due_date') }}" required>
-                    </div>
-                </div>
-
-                <label class="step-title">
-                    Make a New Assignment (Step-2)
-                </label>
-
                 {{-- Learning Pathway --}}
                 <div class="form-group row mb-3">
                     <label class="col-md-12 form-control-label required">Learning Pathway</label>
@@ -124,7 +103,7 @@
                 </div>
 
                 <label class="step-title">
-                    Make a New Assignment (Step-3)
+                    Make a New Assignment (Step-2)
                 </label>
 
                 <label class="required">Assign to...</label>
@@ -150,11 +129,11 @@
 
                 {{-- Department --}}
                 <div class="row">
-                    <label class="col-md-12 form-control-label">Select Department</label>
+                    <label class="col-md-12 form-control-label">@lang('Select Department')</label>
                     <div class="col-md-12">
                         <div class="custom-select-wrapper position-relative">
                             <select name="department_id" class="form-control select2">
-                                <option value="" selected disabled>Select Department</option>
+                                <option value="" selected disabled>@lang('Select Department')</option>
                                 @foreach ($departments as $row)
                                     <option value="{{ $row->id }}" {{ old('department_id') == $row->id ? 'selected' : '' }}>
                                         {{ $row->title }}
@@ -167,14 +146,6 @@
                 </div>
 
                 <br>
-
-                {{-- Custom Message --}}
-                <div class="form-group row">
-                    <label class="col-md-12 form-control-label">Add Custom Message</label>
-                    <div class="col-md-12">
-                        <input type="text" name="message" id="message" class="form-control" value="{{ old('message') }}">
-                    </div>
-                </div>
 
                 {{-- Submit --}}
                 <div class="form-group row">

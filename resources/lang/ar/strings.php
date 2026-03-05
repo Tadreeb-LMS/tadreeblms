@@ -29,7 +29,7 @@ return array(
       'Employee' => 'حدد واحدًا',
       'select-one' => 'حدد واحدًا',
       'Period' => 'فترة',
-      'Department' => 'قسم',
+      'Department' => 'مجموعة المستخدمين',
       'Course' => 'حدد الدورة التدريبية',
       'Course-Categeory' => 'حدد الفئة',
       'search' => 'يبحث',
