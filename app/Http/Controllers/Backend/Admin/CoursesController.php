@@ -145,25 +145,46 @@ class CoursesController extends Controller
                     ->with(['route' => route('admin.courses.publish', ['id' => $q->id])])->render();
                 return $view;
             })
-            ->addColumn('status', function ($q) {
+           
 
-    // Expired (only if published)
-    if ($q->published == 1 && $q->expire_at && \Carbon\Carbon::parse($q->expire_at)->isPast()) {
-        return "<p class='pill-expired'>Expired</p>";
+    ->addColumn('status', function ($q) {
+
+    $expired = false;
+
+    if ($q->expire_at) {
+        $expired = \Carbon\Carbon::parse($q->expire_at)->isPast();
+    }
+
+    // Expired status (highest priority)
+    if ($expired) {
+        $text = "<span class='badge badge-danger' 
+                title='This course has passed its expiry date'>
+                Expired
+                </span>";
     }
 
     // Published
-    if ($q->published == 1) {
-        return "<p class='pill-publish'>Published</p>";
+    elseif ($q->published == 1) {
+        $text = "<span class='badge badge-success'>Published</span>";
     }
 
-    // Unpublished (-1)
-    if ($q->published == -1) {
-        return "<p class='pill-unpublish'>Unpublished</p>";
+    // Draft
+    elseif ($q->published == 0) {
+        $text = "<span class='badge badge-secondary'>Draft</span>";
     }
 
-    // Draft (0)
-    return "<p class='pill-draft'>Draft</p>";
+    // Unpublished
+    else {
+        $text = "<span class='badge badge-warning'>Unpublished</span>";
+    }
+
+    if (auth()->user()->isAdmin()) {
+        $text .= ($q->featured == 1) ? "<span class='badge badge-warning ml-1'>Featured</span>" : "";
+        $text .= ($q->trending == 1) ? "<span class='badge badge-success ml-1'>Trending</span>" : "";
+        $text .= ($q->popular == 1) ? "<span class='badge badge-primary ml-1'>Popular</span>" : "";
+    }
+
+    return $text;
 })
             ->addColumn('teachers', function ($q) {
                 $teachers = "";
@@ -219,8 +240,8 @@ class CoursesController extends Controller
         $has_delete = false;
         $has_edit = false;
 
-        $courses = Course::query();
-
+        // $courses = Course::query();
+$courses = Course::with(['category','teachers']);
         if (request('show_deleted') == 1) {
             if (!Gate::allows('course_delete')) {
                 return abort(401);
@@ -243,12 +264,28 @@ class CoursesController extends Controller
         }
 
         if (request()->filled('status')) {
-            if (request('status') === 'published') {
-                $courses = $courses->where('published', '=', 1);
-            } elseif (request('status') === 'draft') {
-                $courses = $courses->where('published', '=', 0);
-            }
-        }
+
+    // Published but not expired
+    if (request('status') === 'published') {
+        $courses = $courses->where('published', 1)
+            ->where(function ($q) {
+                $q->whereNull('expire_at')
+                  ->orWhere('expire_at', '>=', now());
+            });
+    }
+
+    // Draft
+    elseif (request('status') === 'draft') {
+        $courses = $courses->where('published', 0);
+    }
+
+    // Expired
+    elseif (request('status') === 'expired') {
+        $courses = $courses
+            ->whereNotNull('expire_at')
+            ->whereDate('expire_at', '<', now());
+    }
+}
 
         $courses = $courses->orderBy('created_at', 'desc');
 
@@ -352,6 +389,8 @@ class CoursesController extends Controller
             ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
             ->render();
     }
+
+    
 
     $type = ($q->published == 1) ? 'action-unpublish' : 'action-publish';
 
@@ -517,8 +556,8 @@ class CoursesController extends Controller
     $formatted = $expiry->format(config('app.date_format'));
 
     if ($expiry->isPast()) {
-        return '<span class="badge badge-danger">'.$formatted.'</span>';
-    }
+    return '<span class="badge badge-danger" title="Course expired">'.$formatted.'</span>';
+}
 
     return '<span class="badge badge-success">'.$formatted.'</span>';
 })

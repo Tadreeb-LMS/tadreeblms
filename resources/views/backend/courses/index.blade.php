@@ -59,6 +59,7 @@
                         <option value="">All</option>
                         <option value="published">Published</option>
                         <option value="draft">Draft</option>
+                        <option value="expired">Expired</option>
                     </select>
                 </div>
                 <div class="col-md-3">
