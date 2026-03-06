@@ -866,6 +866,22 @@ class AssessmentAccountsController extends Controller
 
             $email_template = CustomHelper::emailTemplates('course_assignment', $user_fav_lang, $variables);
 
+            if ($course->meeting_join_url) {
+                $meeting_date = \Carbon\Carbon::parse($course->meeting_start_at)->format('F j, Y g:i A');
+                $timezone = $course->meeting_timezone;
+                $duration = $course->meeting_duration;
+                $join_url = $course->meeting_join_url;
+                
+                $meetingDetailsHtml = '<br><br><div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #eaeaea;">';
+                $meetingDetailsHtml .= '<p style="margin-top: 0; font-size: 16px; color: #0056b3;"><strong>Live Meeting Details:</strong></p>';
+                $meetingDetailsHtml .= "<p><strong>Date & Time:</strong> {$meeting_date} ({$timezone})</p>";
+                $meetingDetailsHtml .= "<p><strong>Duration:</strong> {$duration} minutes</p>";
+                $meetingDetailsHtml .= "<p style=\"margin-bottom: 0;\"><strong>Participant Join URL:</strong> <a href=\"{$join_url}\" style=\"word-break: break-all;\">{$join_url}</a></p>";
+                $meetingDetailsHtml .= '</div>';
+                
+                $email_template['email_content'] .= $meetingDetailsHtml;
+            }
+
             $details = [
                 'to_email' => $emp->email,
                 'subject' => $email_template['subject'],

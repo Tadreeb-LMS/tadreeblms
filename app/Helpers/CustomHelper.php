@@ -1320,12 +1320,6 @@ class CustomHelper
         ]);
 
         return $s3Path;
-
-        // Return Temporary URL (1 hour)
-        // return Storage::disk('s3')->temporaryUrl(
-        //     $s3Path,
-        //     now()->addMinutes(60)
-        // );
     }
 
 

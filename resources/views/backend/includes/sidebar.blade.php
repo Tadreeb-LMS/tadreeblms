@@ -716,12 +716,52 @@
                         </a>
                     </li>
 
+
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/smtp*')) }}"
                             href="{{ route('admin.smtp-settings') }}">
                             <span class="title">@lang('menus.backend.sidebar.settings.smtp')</span>
                         </a>
                     </li>
+
+                    {{-- Show external module configurations only if enabled --}}
+                    @php
+                        $enabledApps = Cache::get('enabled_external_apps', []);
+                    @endphp
+                    @if (!empty($enabledApps['zoom']) && $enabledApps['zoom'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/zoom/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'zoom']) }}">
+                            <span class="title">Zoom Configuration</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if (!empty($enabledApps['s3-external-storage']) && $enabledApps['s3-external-storage'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/s3-storage-settings*')) }}"
+                            href="{{ route('admin.s3-storage-settings') }}">
+                            <span class="title"><i class="fas fa-cloud mr-1"></i>S3 Storage Settings</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if (!empty($enabledApps['teams']) && $enabledApps['teams'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/teams/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'teams']) }}">
+                            <span class="title">Microsoft Teams Configuration</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if (!empty($enabledApps['interactive-whiteboard']) && $enabledApps['interactive-whiteboard'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('external-apps/whiteboard/dashboard*') ? 'active' : '' }}"
+                            href="{{ url('external-apps/whiteboard/dashboard') }}">
+                            <span class="title">Whiteboard Module</span>
+                        </a>
+                    </li>
+                    @endif
 
                     <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/ldap-setting')) }}"
@@ -735,6 +775,13 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/license*')) }}"
                             href="{{ route('admin.license-settings') }}">
                             <span class="title">@lang('menus.backend.sidebar.settings.license')</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps*')) }}"
+                            href="{{ route('admin.external-apps.index') }}">
+                            <span class="title"><i class="fas fa-puzzle-piece mr-1"></i>External Apps</span>
                         </a>
                     </li>
                     @endif

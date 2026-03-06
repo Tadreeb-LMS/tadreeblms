@@ -228,11 +228,11 @@
          <div class="row">
 
              <div class="col-md-12">
-               <label class=" form-control-label" for="first_name">Select Department</label>
+               <label class=" form-control-label" for="first_name">@lang('Select Department')</label>
    
                <div class=" custom-select-wrapper">
                    <select name="department_id" class="form-control custom-select-box select2">
-                       <option value=""> Select One </option>
+                       <option value=""> @lang('select-one') </option>
                        @foreach($departments as $row)
                        <option value="{{ $row->id }}"> {{ $row->title }} </option>
                        @endforeach

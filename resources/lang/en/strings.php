@@ -176,7 +176,7 @@ return array(
       'Employee' => 'Select Employee',
       'select-one' => 'Select One',
       'Period' => 'Period',
-      'Department' => 'Department',
+      'Department' => 'User Group',
       'Course' => 'Select Course',
       'Course-Categeory' => 'Select Category',
       'search' => 'Search',

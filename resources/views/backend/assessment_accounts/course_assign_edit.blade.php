@@ -116,12 +116,12 @@
 
          OR
          <br>
-          <div class="row">
-            <label class="col-md-12 form-control-label" for="first_name">Select Department</label>
+           <div class="row">
+             <label class="col-md-12 form-control-label" for="first_name">@lang('Select Department')</label>
 
-            <div class="col-md-12">
-                <select name="department_id" class="form-control">
-                    <option value=""> Select One </option>
+             <div class="col-md-12">
+                 <select name="department_id" class="form-control">
+                     <option value=""> @lang('select-one') </option>
                     @foreach($departments as $row)
                     <option value="{{ $row->id }}" @if($assessment->department_id == $row->id) selected="" @endif> {{ $row->title }} </option>
                     @endforeach

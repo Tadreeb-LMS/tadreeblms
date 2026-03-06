@@ -39,7 +39,7 @@
                         </tr>
 
                         <tr>
-                            <th>Department</th>
+                            <th>@lang('Department')</th>
                             <td>{{ $teacher->employee->department_details->title }}</td>
                         </tr>
 
