@@ -127,6 +127,12 @@ class ExternalAppService
     {
         $path = $this->moduleDotEnvPath($slug);
 
+        // Ensure the module directory exists before writing the .env file
+        $dir = dirname($path);
+        if (!File::exists($dir)) {
+            File::makeDirectory($dir, 0755, true);
+        }
+
         $envContent = File::exists($path) ? File::get($path) : '';
 
         foreach ($data as $key => $value) {
@@ -163,6 +169,12 @@ class ExternalAppService
         // Don't overwrite so that re-installs keep saved credentials
         if (File::exists($path)) {
             return;
+        }
+
+        // Ensure the module directory exists
+        $dir = dirname($path);
+        if (!File::exists($dir)) {
+            File::makeDirectory($dir, 0755, true);
         }
 
         $fields = $moduleConfig['metadata']['fields'] ?? [];
@@ -346,8 +358,10 @@ class ExternalAppService
             // ── Determine the module slug ──────────────────────────────
             // Keyword map: if the zip filename contains a keyword, force that slug
             $keywordSlugMap = [
-                'zoom'  => 'zoom',
-                'teams' => 'teams',
+                'zoom'             => 'zoom',
+                'teams'            => 'teams',
+                'external-storage' => 'external-storage',
+                'storage'          => 'external-storage',
             ];
 
             $moduleName = null;
