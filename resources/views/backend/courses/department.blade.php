@@ -35,10 +35,10 @@
         @endif
             <input type="hidden" name="course_id">
         <div class="row">
-            <label class="col-md-2 form-control-label" for="first_name">Select Department</label>
+            <label class="col-md-2 form-control-label" for="first_name">@lang('Select Department')</label>
             <div class="col-md-10">
                 <select name="department_id" class="form-control">
-                    <option value=""> Select One </option>
+                    <option value=""> @lang('select-one') </option>
                     @foreach($departments as $row)
                     <option value="{{ $row->id }}"> {{ $row->title }} </option>
                     @endforeach

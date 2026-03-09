@@ -35,6 +35,11 @@ class SendEmailJob implements ShouldQueue
      */
     public function handle()
     {
+        if (!filter_var(env('SMTP_ENABLED', 'true'), FILTER_VALIDATE_BOOLEAN)) {
+            \Log::info('SendEmailJob skipped: SMTP is disabled. Subject: ' . ($this->details['subject'] ?? 'N/A'));
+            return;
+        }
+
         $details = $this->details;
 
         $to_email = $details['to_email']; //'akumar@beyondtech.club'; //$details['to_email'];

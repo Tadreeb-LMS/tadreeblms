@@ -24,7 +24,28 @@
 
                         <hr/>
 
-                        <div class="row mt-4 mb-4">
+                        {{-- SMTP Enable/Disable Toggle --}}
+                        <div class="form-group row mb-4">
+                            <label class="col-md-2 form-control-label">{{ __('labels.backend.smtp_settings.smtp_enabled') }}</label>
+                            <div class="col-md-10">
+                                <div class="custom-control custom-switch">
+                                    <input type="hidden" name="smtp_enabled" value="0">
+                                    <input type="checkbox" class="custom-control-input" id="smtp_enabled" name="smtp_enabled" value="1" {{ $smtpEnabled ? 'checked' : '' }}>
+                                    <label class="custom-control-label" for="smtp_enabled">
+                                        <span id="smtpStatusText">{{ $smtpEnabled ? __('labels.general.active') : __('labels.general.inactive') }}</span>
+                                    </label>
+                                </div>
+                                <span class="help-text font-italic">{{ __('labels.backend.smtp_settings.smtp_enabled_note') }}</span>
+                                <div id="smtpDisabledWarning" class="alert alert-warning mt-2 {{ $smtpEnabled ? 'd-none' : '' }}" role="alert">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    {{ __('labels.backend.smtp_settings.smtp_disabled_warning') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <div id="smtpFieldsContainer" class="row mt-4 mb-4" {!! !$smtpEnabled ? 'style="opacity:0.5;pointer-events:none;"' : '' !!}>
                             <div class="col">
                                 {{-- Mail Mailer --}}
                                 <div class="form-group row">
@@ -143,7 +164,7 @@
             <form id="testEmailForm" method="POST">
                 @csrf
 
-                <div class="card mt-4">
+                <div id="testEmailContainer" class="card mt-4" {!! !$smtpEnabled ? 'style="opacity:0.5;pointer-events:none;"' : '' !!}>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-sm-5">
@@ -193,6 +214,36 @@
 @push('after-scripts')
 <script>
 $(document).ready(function() {
+    // Toggle SMTP enabled/disabled
+    $('#smtp_enabled').on('change', function() {
+        var isEnabled = $(this).is(':checked');
+        var fieldsContainer = $('#smtpFieldsContainer');
+        var testContainer = $('#testEmailContainer');
+        var warning = $('#smtpDisabledWarning');
+        var statusText = $('#smtpStatusText');
+
+        if (isEnabled) {
+            fieldsContainer.css({'opacity': '1', 'pointer-events': 'auto'});
+            testContainer.css({'opacity': '1', 'pointer-events': 'auto'});
+            warning.addClass('d-none');
+            statusText.text('{{ __("labels.general.active") }}');
+            // Re-enable required attributes
+            $('#mail_host, #mail_port, #mail_from_address, #mail_from_name, #mail_username').prop('required', true);
+        } else {
+            fieldsContainer.css({'opacity': '0.5', 'pointer-events': 'none'});
+            testContainer.css({'opacity': '0.5', 'pointer-events': 'none'});
+            warning.removeClass('d-none');
+            statusText.text('{{ __("labels.general.inactive") }}');
+            // Remove required attributes so form can submit
+            $('#mail_host, #mail_port, #mail_from_address, #mail_from_name, #mail_username').prop('required', false);
+        }
+    });
+
+    // Initialize required state based on toggle
+    if (!$('#smtp_enabled').is(':checked')) {
+        $('#mail_host, #mail_port, #mail_from_address, #mail_from_name, #mail_username').prop('required', false);
+    }
+
     // Toggle password visibility
     $('#togglePassword').on('click', function() {
         var passwordField = $('#mail_password');

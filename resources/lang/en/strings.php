@@ -176,7 +176,7 @@ return array(
       'Employee' => 'Select Employee',
       'select-one' => 'Select One',
       'Period' => 'Period',
-      'Department' => 'Department',
+      'Department' => 'User Group',
       'Course' => 'Select Course',
       'Course-Categeory' => 'Select Category',
       'search' => 'Search',
@@ -195,6 +195,7 @@ return array(
       'Assigned-Date' => 'Assigned Date',
       'Quick-View' => 'Quick View',
       'No-assignments-yet' => 'No recent course assignments.'
+      'Recent-Courses' => 'Recent Courses (Last 10 Created)'
     ),
     'search' =>
     array(

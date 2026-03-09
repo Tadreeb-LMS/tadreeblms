@@ -303,6 +303,30 @@ class CourseNotification
 
     public static function sendTrainerAssignedEmail($trainer, $course, $assignedBy)
     {
+        $meetingDetails = '';
+        if ($course->meeting_start_at) {
+            $meetingDate = \Carbon\Carbon::parse($course->meeting_start_at)->format('F j, Y g:i A');
+            $meetingDetails = '
+                <h4 style="margin-top: 20px; color: #333;">Meeting Details</h4>
+                <p><strong>Date & Time:</strong> ' . e($meetingDate) . ' (' . e($course->meeting_timezone) . ')</p>
+                <p><strong>Duration:</strong> ' . e($course->meeting_duration) . ' minutes</p>';
+
+            if ($course->meeting_host_url) {
+                $meetingDetails .= '
+                    <p style="margin-top: 15px;">
+                        <a href="' . e($course->meeting_host_url) . '" style="display: inline-block; padding: 12px 30px; background: linear-gradient(90deg, #223a6a, #cc8a03); color: white; text-decoration: none; border-radius: 30px; font-size: 16px;">Start the Meeting as Host</a>
+                    </p>
+                    <p>Or copy and paste this link into your browser to start the meeting:</p>
+                    <p><a href="' . e($course->meeting_host_url) . '" style="color: #223a6a;">' . e($course->meeting_host_url) . '</a></p>';
+            } elseif ($course->meeting_join_url) {
+                $meetingDetails .= '
+                    <p style="margin-top: 15px;">
+                        <a href="' . e($course->meeting_join_url) . '" style="display: inline-block; padding: 12px 30px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">Join the Meeting</a>
+                    </p>
+                    <p><a href="' . e($course->meeting_join_url) . '" style="font-size: 0.9em; word-break: break-all; color: #223a6a;">' . e($course->meeting_join_url) . '</a></p>';
+            }
+        }
+
         $content = [
             'email_heading' => app_name(),
             'sub_heading' => 'Trainer Assigned to Course',
@@ -313,7 +337,8 @@ class CourseNotification
                         <p>You have been assigned as a trainer to the following course:</p>
                         <p><strong>Course:</strong> ' . e($course->title) . '</p>
                         <p><strong>Assigned by:</strong> ' . e($assignedBy->full_name) . '</p>
-                        <p><strong>Date:</strong> ' . e(now()->format('d M Y, h:i A')) . '</p>
+                        <p><strong>Date:</strong> ' . e(now()->format('d M Y, h:i A')) . '</p>' . 
+                        $meetingDetails . '
                     </td>
                 </tr>
             </table>',

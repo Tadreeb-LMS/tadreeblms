@@ -271,6 +271,12 @@ try {
             if (strpos($env, 'KEYGEN_API_TOKEN=') === false) {
                 $env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"";
             }
+
+            // External module integration flags (false by default; set to true when module is installed & configured)
+            if (strpos($env, 'ZOOM_INTEGRATION=') === false) {
+                $env .= "\nZOOM_INTEGRATION=false";
+            }
+
             $env .= "\n";
             file_put_contents($envFile, $env);
 

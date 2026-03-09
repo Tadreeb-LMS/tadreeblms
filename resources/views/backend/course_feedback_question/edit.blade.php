@@ -35,8 +35,12 @@
         }
     }
 </style>
-
-{!! Form::open(['method' => 'POST', 'id' => 'addFeedbackQue', 'files' => true]) !!}
+{!! Form::open([
+    'method' => 'POST',
+    'route' => ['admin.course-feedback-questions.update', $cf->id],
+    'data-update-url' => route('admin.course-feedback-questions.update', $cf->id),
+    'id' => 'addFeedbackQue'
+]) !!}
 <div>
     <div class="grow py-3">
         <h5 class="text-20">Edit Course Feedback Question</h5>
@@ -71,7 +75,7 @@
                 </div>
                 <div class="col-md-10">
                     @php
-    // Ensure selected questions is always an array for proper multi-select handling
+ // Ensure selected questions is always an array for proper multi-select handling
     $selectedQuestions = [];
     if (isset($cf) && isset($cf->feedback_question_id)) {
         $selectedQuestions = is_array($cf->feedback_question_id) 
@@ -80,7 +84,7 @@
     }
 @endphp
 
-{!! Form::select('feedback_question_ids[]', $questions, $selectedQuestions, [
+{!! Form::select('feedback_question_ids[]', $questions->toArray(), $selectedQuestions, [
     'class' => 'form-control select2 js-example-questions-placeholder-multiple',
     'multiple' => 'multiple',
     'required' => true,
@@ -91,10 +95,11 @@
 
             <div class="mt-4 row">
                 <div class="col-12  form-group text-right">
-                    {!! Form::submit(trans('Save'), [
+                    {!! Form::submit(trans('Update'), [
                     'class' => 'btn add-btn frm_submit',
                     'id' => 'nextBtn',
                     ]) !!}
+                   <a href="{{ route('admin.course-feedback-questions.index') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </div>
         </div>
@@ -154,8 +159,11 @@
         e.preventDefault();
         // alert('ho');
         setTimeout(() => {
-            let data = $('#addFeedbackQue').serialize();
-            let url = '{{ route("admin.course-feedback-questions.update") }}';
+             let $form = $(this);
+    let url = $form.data('update-url'); // grab from data attribute
+    let data = $form.serializeArray();
+            // let data = $('#addFeedbackQue').serialize();
+            // let url = '{{ route("admin.course-feedback-questions.update", $cf->id) }}';
             var redirect_url = $("#final_index").val();
             var redirect_url_course = $("#feedback_index").val();
             // alert(redirect_url_course);
@@ -163,11 +171,24 @@
                 type: 'POST',
                 url: url,
                 data: data,
+                headers: {
+    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+},
                 datatype: "json",
-                success: function(res) {
-                    alert('Course feedback question updated successfully');
-                    window.location.href = {{ route("admin.course-feedback-questions.index") }};
-                }
+                 success: function(res) {
+            if(res.status === 'success'){
+                alert(res.message);
+                window.location.href = res.redirect;
+            }
+        },
+        error: function(xhr){
+            let errors = xhr.responseJSON.errors;
+            if(errors) {
+                alert(Object.values(errors).join("\n"));
+            } else {
+                alert('Something went wrong!');
+            }
+        }
             })
         }, 100);
     })

@@ -46,53 +46,41 @@ $(function () {
     const name = $(this).attr("data-name");
     const type = $(this).attr("data-type");
     $("#Modal_head").html(`${type} ${name}`);
-    $("#Modal_msg").html(`Are you sure! Do you want to ${type} the ${name}?`);
-
+    $("#Modal_msg").html(`Are you sure you want to ${type} this ${name}?`);
     $("#confirm-delete").attr("data-url", data_url);
     $("#confirm-delete").attr("data-method", data_method);
     $("#delete_modal_name").text(name);
 
     $("#confirmModal").modal("show");
   });
+$(document).on("click", "#confirm-delete", function () {
+  const button = $(this);
+  button.addClass("disabled");
 
-  $(document).on("click", "#confirm-delete", function () {
-    $(this).addClass("disabled");
-    $.ajax({
-      type: $(this).data("method"),
-      url: $(this).data("url"),
-      beforeSend: function () {
-        $("#loaderOverlay").addClass("d-flex");
-      },
-      complete: function () {
-        $("#loaderOverlay").removeClass("d-flex");
-      },
-      success: function (response) {
-        displayNotification("success", "Operation successful", 5000);
-        $("#confirmModal").modal("hide");
-      },
-      error: function (response) {
-        const errors = response?.responseJSON?.errors;
+  $.ajax({
+    type: button.data("method") || "DELETE",
+    url: button.data("url"),
+    data: {
+      _token: $('meta[name="csrf-token"]').attr("content")
+    },
+    success: function (response) {
+      toastr.success(response.message ?? "Deleted successfully");
+      $("#confirmModal").modal("hide");
 
-        if (errors) {
-          $.each(errors, function (key, value) {
-            $.each(value, function (index, message) {
-              displayNotification("error", message, 5000);
-              // Example: Append to an error list
-              $("#error-container").append("<li>" + message + "</li>");
-            });
-          });
-        } else {
-          displayNotification(
-            "error",
-            response?.responseJSON?.message ?? "Something went wrong!",
-            5000,
-          );
-        }
-
-        $("#confirmModal").modal("hide");
-      },
-    });
+      // Refresh DataTable
+      if ($.fn.DataTable.isDataTable('#myTable')) {
+        $('#myTable').DataTable().draw(false);
+      }
+    },
+    error: function (response) {
+      toastr.error(response?.responseJSON?.message ?? "Something went wrong!");
+      $("#confirmModal").modal("hide");
+    },
+    complete: function () {
+      button.removeClass("disabled");
+    }
   });
+});
   $(document).on("click", '[data-bs-dismiss="modal"]', function () {
     $("#confirmModal").modal("hide");
   });

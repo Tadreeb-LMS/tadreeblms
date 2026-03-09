@@ -289,16 +289,22 @@
 </div>
 
                 </div>
-                <div class="col-sm-12 col-lg-4 col-md-12  form-group">
-                    <label for="start_date" class="control-label">{{ trans('labels.backend.courses.fields.start_date') }} (yyyy-mm-dd) *</label>
-
-                   <input class="form-control" id="start_date" autocomplete="off" placeholder="yyyy-mm-dd" name="start_date" type="text" value="{{ old('start_date') }}">
-
-
+                <div class="col-sm-12 col-lg-4 col-md-12  form-group" id="startDateWrapper">
+                    <label for="start_date" id="startDateLabel" class="control-label">
+                        {{ trans('labels.backend.courses.fields.start_date') }} (yyyy-mm-dd) *
+                    </label>
+                    <input type="text"
+                           name="start_date"
+                           id="start_date"
+                           class="form-control"
+                           autocomplete="off"
+                           placeholder="yyyy-mm-dd"
+                           value="{{ old('start_date') }}">
                 </div>
+
                 @if (Auth::user()->isAdmin())
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) *</label>
+                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
                         <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
                     </div>
@@ -330,6 +336,44 @@
                     </span>
                     <span id="live-online" style="display: none;">
                         Live-Online type course is a course can be done on goole meet/Zoom link.
+                        @if(count($enabledMeetingProviders ?? []))
+                            <div class="card mt-3" id="meeting-config-section">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_provider">Meeting Provider *</label>
+                                            <select name="meeting_provider" id="meeting_provider" class="form-control">
+                                                @foreach($enabledMeetingProviders as $key => $label)
+                                                    <option value="{{ $key }}">{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_timezone">Timezone</label>
+                                            <input type="text" name="meeting_timezone" id="meeting_timezone" class="form-control" value="Asia/Riyadh">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_date">Start Date *</label>
+                                            <input type="date" name="meeting_start_date" id="meeting_start_date" class="form-control" min="{{ date('Y-m-d') }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_time">Start Time *</label>
+                                            <input type="time" name="meeting_start_time" id="meeting_start_time" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_duration">Duration (mins) *</label>
+                                            <input type="number" name="meeting_duration" id="meeting_duration" class="form-control" value="60">
+                                            <input type="hidden" name="meeting_start_at" id="meeting_start_at">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </span>
                     <span id="live-classroom" style="display: none;">
                         Live-Classroom type course is a course can be happen on a specific classroom location.
@@ -425,20 +469,12 @@ function validateWeightage() {
     });
 
     if (total > 100) {
-        alert('Total module weightage cannot exceed 100%.');
+        toastr.remove();
+        toastr.error('Total module weightage cannot exceed 100%.');
         return false;
     }
     return true;
 }
-
-// Bind to form submit
-$('#addCourse').on('submit', function(e) {
-    if (!validateWeightage()) {
-        e.preventDefault(); // stop submission
-        return false;
-    }
-});
-
 
 document.querySelectorAll('.sm-input').forEach(function(input) {
     input.addEventListener('input', function() {
@@ -447,8 +483,9 @@ document.querySelectorAll('.sm-input').forEach(function(input) {
             total += parseInt(i.value) || 0;
         });
         if (total > 100) {
-            input.value = ''; // reset last input
-            alert('Total module weightage cannot exceed 100%');
+            input.value = '';
+            toastr.remove();
+            toastr.error('Total module weightage cannot exceed 100%');
         }
     });
 });
@@ -489,6 +526,34 @@ $('#expire_at').datepicker({
     $(".js-example-external-student-placeholder-multiple").select2({
         placeholder: "{{ trans('labels.backend.courses.select_external_students') }}",
     });
+
+    $('#meeting_start_date').on('change', function() {
+        var selectedDate = $(this).val();
+        var today = new Date().toISOString().split('T')[0];
+        if (selectedDate === today) {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            $('#meeting_start_time').attr('min', hours + ':' + minutes);
+        } else {
+            $('#meeting_start_time').removeAttr('min');
+        }
+    });
+
+    $('#meeting_start_date').trigger('change');
+    
+    $('#meeting_start_time').on('change', function() {
+        var selectedDate = $('#meeting_start_date').val();
+        var today = new Date().toISOString().split('T')[0];
+        if (selectedDate === today) {
+            var selectedTime = $(this).val();
+            var minTime = $(this).attr('min');
+            if (selectedTime && minTime && selectedTime < minTime) {
+                alert('Meeting start time cannot be in the past for today.');
+                $(this).val('');
+            }
+        }
+    });
 });
 
 
@@ -505,7 +570,7 @@ $('#expire_at').datepicker({
         })
 
 
-       $(document).on('change', '.course-type', function () {
+        $(document).on('change', '.course-type', function () {
     const type = $(this).val();
 
     if (type === 'Live-Classroom') {
@@ -513,26 +578,36 @@ $('#expire_at').datepicker({
         $('#live-online').hide();
         $('#live-classroom').show();
 
-        $('#lesson-module-block')
-            .hide()
-            .find('input')
-            .prop('disabled', true);
+        $('#main-flow').hide();
+        $('#online-flow').show();
 
-            $('#main-flow').hide()
-            $('#online-flow').show()
+        // Start Date REQUIRED
+        $('#startDateWrapper').show();
+        $('#start_date').prop('required', true);
 
-    } else if (type === 'Offline') {
+        // Meeting Config NOT REQUIRED
+        $('#meeting_start_date').prop('required', false);
+        $('#meeting_start_time').prop('required', false);
+        $('#meeting_duration').prop('required', false);
+
+    } else if (type === 'Offline') { // Live-Online
         $('#e-learning').hide();
         $('#live-online').show();
         $('#live-classroom').hide();
 
-        $('#lesson-module-block')
-            .hide()
-            .find('input')
-            .prop('disabled', true);
+        $('#main-flow').hide();
+        $('#online-flow').show();
 
-             $('#main-flow').hide()
-            $('#online-flow').show()
+        // Start Date REQUIRED
+        $('#startDateWrapper').show();
+        $('#start_date').prop('required', true);
+        
+        // Meeting Config REQUIRED if enabled
+        @if(count($enabledMeetingProviders ?? []))
+            $('#meeting_start_date').prop('required', true);
+            $('#meeting_start_time').prop('required', true);
+            $('#meeting_duration').prop('required', true);
+        @endif
 
     } else {
         // E-Learning
@@ -540,14 +615,33 @@ $('#expire_at').datepicker({
         $('#live-online').hide();
         $('#live-classroom').hide();
 
-        $('#lesson-module-block')
-            .show()
-            .find('input')
-            .prop('disabled', false);
+        $('#main-flow').show();
+        $('#online-flow').hide();
 
-            $('#main-flow').show()
-            $('#online-flow').hide()
+        // Start Date NOT required
+        $('#startDateWrapper').show();
+        $('#start_date').prop('required', false);
+        
+        // Meeting Config NOT REQUIRED
+        $('#meeting_start_date').prop('required', false);
+        $('#meeting_start_time').prop('required', false);
+        $('#meeting_duration').prop('required', false);
     }
+
+    // Toggle date required asterisks based on course type
+    if (type === 'Online') {
+        $('.date-required-star').hide();
+    } else {
+        $('.date-required-star').show();
+    }
+});
+
+
+
+
+
+$(document).ready(function () {
+    $('.course-type:checked').trigger('change');
 });
 
 
@@ -576,10 +670,57 @@ $('#expire_at').datepicker({
         $('.frm_submit').on('click', function() {
             nxt_url_val = $(this).val();
         });
-        $(document).on('submit', '#addCourse', function(e) {
+        $('#addCourse').on('submit', function(e) {
             e.preventDefault();
+            var $form = $(this);
+
+            function enableButtons() {
+                $form.find('input[type=submit], button[type=submit]').removeAttr('disabled').prop('disabled', false);
+            }
+
+            function clearInlineErrors() {
+                $form.find('.inline-error').remove();
+                $form.find('.is-invalid').removeClass('is-invalid');
+            }
+
+            function showInlineError(field, message) {
+                var $field = $form.find(field);
+                $field.addClass('is-invalid');
+                $field.closest('.form-group').find('.inline-error').remove();
+                $field.after('<span class="text-danger inline-error w-100 d-block mt-1">' + message + '</span>');
+            }
+
+            clearInlineErrors();
+
+            // Validate weightage
+            if (!validateWeightage()) {
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                return false;
+            }
+
             var startDateVal = $('#start_date').val();
-var expireDateVal = $('#expire_at').val();
+            var expireDateVal = $('#expire_at').val();
+            var courseType = $('input[name="course_type"]:checked').val();
+            var hasError = false;
+
+            // Populate meeting_start_at if offline course
+            if (courseType === 'Offline' && $('#meeting_start_date').val() && $('#meeting_start_time').val()) {
+                $('#meeting_start_at').val($('#meeting_start_date').val() + ' ' + $('#meeting_start_time').val() + ':00');
+            }
+
+        if (courseType !== 'Online') {
+    if (!startDateVal || !expireDateVal) {
+        alert('Start Date and Expire Date are required.');
+        return false;
+    }
+
+            if (startDateVal && expireDateVal && expireDateVal < startDateVal) {
+                showInlineError('#expire_at', 'Expire Date cannot be earlier than Start Date.');
+                hasError = true;
+            }
+
+            var today = new Date().toISOString().slice(0, 10);
 
 if (!startDateVal || !expireDateVal) {
     alert('Start Date and Expire Date are required.');
@@ -596,9 +737,16 @@ var today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
 
 if (startDateVal < today) {
     alert('Start Date cannot be earlier than today.');
-    return false;
+        return false;
+    }
 }
 
+            if (hasError) {
+                enableButtons();
+                setTimeout(enableButtons, 0);
+                scrollToClass('inline-error');
+                return false;
+            }
 
             hrefurl = $(location).attr("href");
             last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 8)

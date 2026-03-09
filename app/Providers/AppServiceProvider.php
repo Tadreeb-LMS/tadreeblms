@@ -12,9 +12,6 @@ use App\Models\Slider;
 use Barryvdh\TranslationManager\Manager;
 use Barryvdh\TranslationManager\Models\Translation;
 use Carbon\Carbon;
-use Harimayco\Menu\Facades\Menu;
-use Harimayco\Menu\Models\MenuItems;
-use Harimayco\Menu\Models\Menus;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -43,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Cache enabled external apps for sidebar
+        if (\Schema::hasTable('external_apps')) {
+            $enabledApps = \App\Models\ExternalApp::where('is_enabled', 1)->pluck('is_enabled', 'slug')->toArray();
+            \Cache::put('enabled_external_apps', $enabledApps, 3600); // cache for 1 hour
+        }
+
         if (app()->runningInConsole() 
             || !Schema::hasTable('locales')) {
             return;
@@ -117,24 +120,34 @@ class AppServiceProvider extends ServiceProvider
         $disabled_landing_page = CustomHelper::redirect_based_on_setting();
         View::share('disabled_landing_page', $disabled_landing_page);
 
-        if (Schema::hasTable('admin_menu_items') && $disabled_landing_page == 0) {
+        
+if (
+    Schema::hasTable('admin_menu_items') &&
+    $disabled_landing_page == 0 &&
+    class_exists('Harimayco\Menu\Models\MenuItems', false) &&
+    class_exists('Harimayco\Menu\Models\Menus', false)
+) {
 
-            $menu_name = NULL;
-            $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
-                ->orderBy('sort')
-                ->get();
-            $menu_name = Menus::find((int)config('nav_menu'));
-            $menu_name = ($menu_name != NULL) ? $menu_name->name : NULL;
-            $custom_menus = menuList($custom_menus);
-            $max_depth = MenuItems::max('depth');
-            View::share('custom_menus', $custom_menus);
-            View::share('max_depth', $max_depth);
-            View::share('menu_name', $menu_name);
-        } else {
-            View::share('custom_menus', []);
-            View::share('max_depth', 0);
-            View::share('menu_name', null);
-        }
+    $custom_menus = \Harimayco\Menu\Models\MenuItems::where('menu', '=', config('nav_menu'))
+        ->orderBy('sort')
+        ->get();
+
+    $menu_name = \Harimayco\Menu\Models\Menus::find((int)config('nav_menu'));
+    $menu_name = ($menu_name != null) ? $menu_name->name : null;
+
+    $custom_menus = $this->menuList($custom_menus);
+    $max_depth = \Harimayco\Menu\Models\MenuItems::max('depth');
+
+    View::share('custom_menus', $custom_menus);
+    View::share('max_depth', $max_depth);
+    View::share('menu_name', $menu_name);
+
+} else {
+
+    View::share('custom_menus', []);
+    View::share('max_depth', 0);
+    View::share('menu_name', null);
+}
 
         //        view()->composer(['frontend.layouts.partials.right-sidebar', 'frontend-rtl.layouts.partials.right-sidebar'], function ($view) {
 
@@ -246,5 +259,25 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Collection::macro('lists', function ($a, $b = null) {
             return collect($this->items)->pluck($a, $b);
         });
+
+        // Dynamically load PSR-4 namespaces for external modules
+        $loader = collect(spl_autoload_functions())->first(function ($loader) {
+            return is_array($loader) && $loader[0] instanceof \Composer\Autoload\ClassLoader;
+        })[0] ?? null;
+
+        if ($loader) {
+            $modulesPath = base_path('modules');
+            if (file_exists($modulesPath)) {
+                $modules = array_diff(scandir($modulesPath), ['.', '..']);
+                foreach ($modules as $module) {
+                    $moduleSrcPath = $modulesPath . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+                    if (is_dir($moduleSrcPath)) {
+                        $studlySlug = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $module)));
+                        $namespace = 'Modules\\' . $studlySlug . '\\';
+                        $loader->setPsr4($namespace, $moduleSrcPath);
+                    }
+                }
+            }
+        }
     }
 }

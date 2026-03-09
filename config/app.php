@@ -211,7 +211,7 @@ return [
         Jenssegers\Agent\AgentServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
         //ConsoleTVs\Invoices\InvoicesServiceProvider::class,
-        class_exists(\Harimayco\Menu\MenuServiceProvider::class) ? \Harimayco\Menu\MenuServiceProvider::class : null,
+        class_exists('Harimayco\\Menu\\MenuServiceProvider') ? 'Harimayco\\Menu\\MenuServiceProvider' : null,
 
 
         Spatie\CookieConsent\CookieConsentServiceProvider::class,
@@ -229,6 +229,7 @@ return [
         App\Providers\BladeServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\LegacyFormServiceProvider::class,
         App\Providers\ObserverServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         class_exists(\LdapRecord\Laravel\LdapServiceProvider::class) ? \LdapRecord\Laravel\LdapServiceProvider::class : null,
@@ -290,14 +291,14 @@ return [
          */
         'Gravatar' => Creativeorange\Gravatar\Facades\Gravatar::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-        // 'Form' => Collective\Html\FormFacade::class,
+        'Form' => App\Support\LegacyForm\FormFacade::class,
         // 'Html' => Collective\Html\HtmlFacade::class,
         'Image' => class_exists(\Intervention\Image\Facades\Image::class) ? \Intervention\Image\Facades\Image::class : null,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 //        'Messenger' => Gerardojbaez\Messenger\Facades\Messenger::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
-        'Menu' => class_exists(\Harimayco\Menu\Facades\Menu::class) ? \Harimayco\Menu\Facades\Menu::class : null,
+        'Menu' => class_exists('Harimayco\\Menu\\Facades\\Menu') ? 'Harimayco\\Menu\\Facades\\Menu' : null,
         'PDF' => Barryvdh\DomPDF\Facade::class,
 
         'CustomHelper' => 'App\Helpers\CustomHelper',

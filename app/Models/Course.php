@@ -34,7 +34,7 @@ class Course extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step'];
+    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step', 'meeting_provider', 'meeting_id', 'meeting_join_url', 'meeting_host_url', 'meeting_start_at', 'meeting_duration', 'meeting_timezone'];
 
     protected $appends = ['image'];
 
@@ -68,7 +68,28 @@ class Course extends Model
         });
     }
 
+public function setExpiryDateAttribute($input)
+{
+    if ($input != null && $input != '') {
+        $this->attributes['expiry_date'] =
+            Carbon::createFromFormat(config('app.date_format'), $input)
+                ->format('Y-m-d');
+    } else {
+        $this->attributes['expiry_date'] = null;
+    }
+}
 
+public function getExpiryDateAttribute($input)
+{
+    $zeroDate = str_replace(['Y', 'm', 'd'], ['0000', '00', '00'], config('app.date_format'));
+
+    if ($input != $zeroDate && $input != null) {
+        return Carbon::createFromFormat('Y-m-d', $input)
+            ->format(config('app.date_format'));
+    } else {
+        return '';
+    }
+}
 
     public function latestModuleWeightage()
     {

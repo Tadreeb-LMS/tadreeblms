@@ -14,6 +14,8 @@ use App\Jobs\SendEmailJob;
 use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\Backend\SettingsController;
+use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
@@ -46,7 +48,7 @@ Route::get('/ldap-users', function () {
 
 Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 
-Route::get('syncCourseAssignmentAndSubscribeCourseData', function () {
+Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
 });
 
@@ -111,11 +113,25 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
+    Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
+});
+
 /*
  * Backend Routes
  * Namespaces indicate folder structure
  */
-Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'admin'], function () {
+Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
+Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
+    ->name('course-feedback-questions.edit');
+
+Route::post('course-feedback-questions/{id}/update', [CourseFeedbackController::class, 'update'])
+    ->name('course-feedback-questions.update');
+        
+Route::post('settings/general/update',
+        [SettingsController::class, 'updateGeneral'])
+    ->name('settings.general.update');
     /*
      * These routes need view-backend permission
      * (good if you want to allow more than one group in the backend,
