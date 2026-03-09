@@ -564,7 +564,7 @@ class DashboardController extends Controller
                         'av_completed_score',
                         'completed_assesment',
                         'not_completed_assesment',
-                        'latest_course_assignments'
+                        'latest_course_assignments',
                         'recent_courses'
                     )
                 ));

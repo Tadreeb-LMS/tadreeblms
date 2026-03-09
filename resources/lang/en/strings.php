@@ -194,7 +194,7 @@ return array(
       'Due-Date' => 'Due Date',
       'Assigned-Date' => 'Assigned Date',
       'Quick-View' => 'Quick View',
-      'No-assignments-yet' => 'No recent course assignments.'
+      'No-assignments-yet' => 'No recent course assignments.',
       'Recent-Courses' => 'Recent Courses (Last 10 Created)'
     ),
     'search' =>
