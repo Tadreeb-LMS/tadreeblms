@@ -756,9 +756,9 @@
 
                     @if (!empty($enabledApps['interactive-whiteboard']) && $enabledApps['interactive-whiteboard'])
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('external-apps/whiteboard/dashboard*') ? 'active' : '' }}"
-                            href="{{ url('external-apps/whiteboard/dashboard') }}">
-                            <span class="title">Whiteboard Module</span>
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/interactive-whiteboard/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'interactive-whiteboard']) }}">
+                            <span class="title">Whiteboard Config</span>
                         </a>
                     </li>
                     @endif

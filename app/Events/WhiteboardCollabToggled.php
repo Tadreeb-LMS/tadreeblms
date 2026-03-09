@@ -53,4 +53,16 @@ class WhiteboardCollabToggled implements ShouldBroadcast
             'collab_mode' => $this->collabMode,
         ];
     }
+
+    /**
+     * Determine if this event should broadcast.
+     *
+     * @return bool
+     */
+    public function broadcastWhen()
+    {
+        return \App\Models\ExternalApp::where('slug', 'interactive-whiteboard')
+            ->where('is_active', true)
+            ->exists();
+    }
 }
