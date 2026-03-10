@@ -763,6 +763,15 @@
                     </li>
                     @endif
 
+                    @if (!empty($enabledApps['payment-gateways']) && $enabledApps['payment-gateways'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/payment-gateways*')) }}"
+                            href="{{ url('external-apps/payment-gateways/settings') }}">
+                            <span class="title"><i class="fas fa-credit-card mr-1"></i>Payment Gateways</span>
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/ldap-setting')) }}"
                             href="{{ route('admin.ldap-setting') }}">

@@ -435,6 +435,9 @@ class ExternalAppService
             // Run any installation commands if they exist
             $this->runInstallationCommands($installPath);
 
+            // Create public symlink for serving module assets (JS, CSS, images)
+            $this->ensurePublicSymlink($moduleName, $installPath);
+
             // Refresh the sidebar cache so changes appear immediately
             $this->refreshEnabledAppsCache();
 
@@ -683,6 +686,9 @@ class ExternalAppService
                 }
             }
 
+            // Remove public symlink for module assets
+            $this->removePublicSymlink($app->slug);
+
             // Remove from filesystem (this also removes the module's .env)
             if ($app->installed_path && File::exists($app->installed_path)) {
                 File::deleteDirectory($app->installed_path);
@@ -728,6 +734,55 @@ class ExternalAppService
     public function getApp($slug)
     {
         return ExternalApp::where('slug', $slug)->firstOrFail();
+    }
+
+    /**
+     * Create a symlink from public/modules/{slug} → modules/{slug}
+     * so that module assets (JS, CSS) are web-accessible.
+     */
+    protected function ensurePublicSymlink(string $slug, string $installPath): void
+    {
+        $publicModulesDir = public_path('modules');
+        $linkPath = $publicModulesDir . DIRECTORY_SEPARATOR . $slug;
+
+        // Create public/modules/ directory if it doesn't exist
+        if (!File::isDirectory($publicModulesDir)) {
+            File::makeDirectory($publicModulesDir, 0755, true);
+        }
+
+        // Remove existing link or directory if present
+        if (is_link($linkPath)) {
+            unlink($linkPath);
+        } elseif (File::isDirectory($linkPath)) {
+            File::deleteDirectory($linkPath);
+        }
+
+        // Create symlink: public/modules/{slug} → modules/{slug}
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            // Windows: use junction for directory symlinks
+            exec('mklink /J "' . str_replace('/', '\\', $linkPath) . '" "' . str_replace('/', '\\', $installPath) . '"');
+        } else {
+            symlink($installPath, $linkPath);
+        }
+
+        Log::info("Public symlink created for module '$slug'", [
+            'link' => $linkPath,
+            'target' => $installPath,
+        ]);
+    }
+
+    /**
+     * Remove the public symlink for a module.
+     */
+    protected function removePublicSymlink(string $slug): void
+    {
+        $linkPath = public_path('modules' . DIRECTORY_SEPARATOR . $slug);
+
+        if (is_link($linkPath)) {
+            unlink($linkPath);
+        } elseif (File::isDirectory($linkPath)) {
+            File::deleteDirectory($linkPath);
+        }
     }
 
     /**
