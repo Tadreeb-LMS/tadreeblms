@@ -436,7 +436,7 @@ class ExternalAppService
             $this->runInstallationCommands($installPath);
 
             // Create public symlink for serving module assets (JS, CSS, images)
-            $this->ensurePublicSymlink($moduleName, $installPath);
+            // $this->ensurePublicSymlink($moduleName, $installPath);
 
             // Refresh the sidebar cache so changes appear immediately
             $this->refreshEnabledAppsCache();
@@ -687,7 +687,7 @@ class ExternalAppService
             }
 
             // Remove public symlink for module assets
-            $this->removePublicSymlink($app->slug);
+            // $this->removePublicSymlink($app->slug);
 
             // Remove from filesystem (this also removes the module's .env)
             if ($app->installed_path && File::exists($app->installed_path)) {
