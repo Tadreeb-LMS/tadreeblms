@@ -160,7 +160,7 @@
                     {{ trans('labels.backend.lessons.fields.lesson_image') }} {{ trans('labels.backend.lessons.max_file_size') }}
                 </div>
                 <div class="custom-file-upload-wrapper">
-                            <input type="file" class="custom-file-input">
+<input type="file" name="lesson_image[]" class="custom-file-input">
             <label class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
@@ -192,16 +192,12 @@
                 <label for="full_text" class="control-label">
                     {{ trans('labels.backend.lessons.fields.full_text') }}
                 </label>
-                <textarea name="full_text[]" class="form-control editor" placeholder="" id="editor">
+                <textarea name="full_text[]" class="form-control editor" placeholder="">
                     {{ old('full_text') }}
                 </textarea>
                 
 
             </div>
-
-
-
-
  </div>
   </div>
 
@@ -276,24 +272,57 @@
 
         <div class="row addvideocol">
             <div class="col-md-4 form-group parent_group mt-2">
-                <label for="add_video" class="control-label blocklabel">
-                    {{ trans('labels.backend.lessons.fields.add_video') }}
-                </label>
-                
-                <select name="media_type_1[]" class="form-control media_type" id="media_type">
-                    <option value="" disabled selected>Select One</option>
-                    <option value="youtube">Youtube</option>
-                    <option value="vimeo">Vimeo</option>
-                    <option value="upload">Upload</option>
-                    <option value="embed">Embed</option>
-                </select>
-                
-                <input type="text" name="video" value="{{ old('video') }}" class="form-control mt-3 d-none video" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video">
-                
-                <input type="file" name="video_file_1[]" class="form-control mt-3 d-none video_file" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video_file">
-                
-                
-                
+                <div class="videos-section">
+
+<h5>Lesson Videos</h5>
+
+<div id="videos-wrapper"></div>
+
+<button type="button" id="addVideo" class="btn btn-primary mt-2">
+Add Video
+</button>
+
+</div>
+
+
+<!-- VIDEO TEMPLATE -->
+<div class="video-template d-none">
+
+<div class="video-item card p-3 mb-3">
+
+<label>Video Title</label>
+<input type="text" name="videos[INDEX][title]" class="form-control">
+
+<label>Type</label>
+<select name="videos[INDEX][type]" class="form-control video-type">
+<option value="upload">Upload</option>
+<option value="youtube">YouTube</option>
+<option value="vimeo">Vimeo</option>
+<option value="embed">Embed</option>
+</select>
+
+<div class="video-url mt-2">
+<label>Video URL</label>
+<input type="text" name="videos[INDEX][url]" class="form-control">
+</div>
+
+<div class="video-file mt-2">
+<label>Upload File</label>
+<input type="file" name="videos[INDEX][file]" class="form-control">
+</div>
+
+<label class="mt-2">
+<input type="checkbox" name="videos[INDEX][is_preview]" value="1">
+ Preview Video
+</label>
+
+<button type="button" class="removeVideo btn btn-danger btn-sm mt-2">
+Remove
+</button>
+
+</div>
+
+</div>
 
             </div>
             <div class="col-md-8 mt-2">
@@ -396,20 +425,51 @@
 <script src="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
 
-<script src="{{asset('/vendor/laravel-filemanager/js/lfm.js')}}"></script>
 <script>
-    $(document).ready(function() {
+function initEditors(container){
 
-       /* $('#lesson_start_date').datetimepicker({
-    format: 'Y-m-d',
-    timepicker: false
-}); */
+    container.find('.editor').each(function(){
 
-        $('.custom-date-picker').datetimepicker({
-            format: 'Y-m-d',
-            timepicker: false
-        });
+        let id = $(this).attr('id');
+
+        if(!id){
+            id = 'editor_' + Date.now() + Math.floor(Math.random()*1000);
+            $(this).attr('id', id);
+        }
+
+        if(CKEDITOR.instances[id]){
+            CKEDITOR.instances[id].destroy(true);
+        }
+
+        CKEDITOR.replace(id);
+
     });
+
+}
+
+window.videoIndex = window.videoIndex || 0;
+$(document).on('click','#addVideo',function(){
+
+    let template = $('.video-template').html();
+
+    template = template.replace(/INDEX/g, videoIndex);
+
+    $(this).siblings('#videos-wrapper').append(template);
+
+    videoIndex++;
+
+});
+
+$(document).on('click','.removeVideo',function(){
+
+    $(this).closest('.video-item').remove();
+});
+</script>
+<script>
+$(document).ready(function(){
+    initEditors($(document));
+});
+
 
     
 
@@ -478,65 +538,58 @@
         $('#btn_clicked').val(clickedButtonId);
     });
     $(document).on('submit', '#addLesson', function(e) {
-        e.preventDefault();
 
-        $('.loading').text('processing please wait...');
+    e.preventDefault();
 
-        setTimeout(() => {
-            //let data = $('#addLesson').serialize();
-            var form = $('#addLesson')[0];
-            var data = new FormData(form);
-            let url = '{{route('admin.lessons.store')}}';
-            var redirect_url = $("#ass_index").val();
-            var redirect_url_course = $("#lesson_index").val();
+    $('.loading').text('processing please wait...');
+    $('#nextBtn,#doneBtn').prop('disabled',true);
 
-            var redirect_question_url = $("#add_question_url").val();
-            var temp_id = $('#temp_id').val();
-            var course_id = $(".course_id").val();
+    var form = $('#addLesson')[0];
+    var data = new FormData(form);
 
-            data.append('btn_clicked', $('#btn_clicked').val())
-            nxt_url_val = $('#btn_clicked').val()
-            //return false;
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: data,
-                datatype: "json",
-                enctype: 'multipart/form-data',
-                processData: false,
-                contentType: false,
-                cache: false,
-                timeout: 6000000,
-                success: function(res) {
-                    $('.loading').text('');
-                    //alert(nxt_url_val)
-                    if (nxt_url_val == 'nextBtn') {
-                        //window.location.href = redirect_url + "&course_id=" + course_id;
-                        window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
-                        return;
-                    } 
-                    if (nxt_url_val == 'doneBtn') {
-                        //alert(redirect_url_course)
-                        window.location.href = redirect_url_course;
-                        return;
-                    }
+    let url = '{{route('admin.lessons.store')}}';
+    let redirect_url_course = $("#lesson_index").val();
+    let redirect_question_url = $("#add_question_url").val();
+    let course_id = $(".course_id").val();
 
-                    
-                },
-                error: function(xhr, status, error) {
-                    //alert("someting went wrong")
-                    $('.loading').text('');
-                    if (xhr?.responseJSON?.clientmsg) {
-                        alert(xhr?.responseJSON?.clientmsg);
-                        $('#nextBtn,#doneBtn').prop('disabled',false);
-                        return;
-                   }
-                    res = JSON.parse(xhr.responseText);
-                    
-                }
-            })
-        }, 100);
-    })
+    $.ajax({
+        type:'POST',
+        url:url,
+        data:data,
+        processData:false,
+        contentType:false,
+
+        success:function(res){
+
+            console.log(res);
+
+            $('.loading').text('');
+
+            let clicked = $('#btn_clicked').val();
+
+            if(clicked === 'nextBtn'){
+                window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
+            }
+
+            if(clicked === 'doneBtn'){
+                window.location.href = redirect_url_course;
+            }
+
+        },
+
+        error:function(xhr){
+
+            $('.loading').text('');
+            $('#nextBtn,#doneBtn').prop('disabled',false);
+
+            console.log(xhr.responseText);
+
+            alert('Something went wrong');
+
+        }
+    });
+
+});
 </script>
 
 <script>
@@ -563,16 +616,20 @@
     clone.find('.video, .video_file').addClass('d-none').prop('required', false);
     clone.find('.media_type').val('');
 
-    clone.find('[id]').removeAttr('id');
+clone.find('.editor').each(function () {
 
+    let id = 'editor_' + Date.now() + Math.floor(Math.random()*1000);
+
+    $(this).attr('id', id);
+
+});
     // show delete icon on clones
     clone.find('.remove_less_slug').show();
 
     $(".mo_create").append(clone);
 
-    clone.find('.editor').each(function () {
-        CKEDITOR.replace(this);
-    });
+      initEditors(clone);
+
 });
 
 
@@ -581,10 +638,10 @@
 
     // destroy CKEditor instance inside before removing
     box.find('.editor').each(function () {
-        let name = this.name;
-        if (CKEDITOR.instances[name]) {
-            CKEDITOR.instances[name].destroy(true);
-        }
+        let id = $(this).attr('id');
+if (CKEDITOR.instances[id]) {
+    CKEDITOR.instances[id].destroy(true);
+}
     });
 
     box.remove();
