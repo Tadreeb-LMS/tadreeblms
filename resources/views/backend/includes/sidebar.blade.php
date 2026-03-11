@@ -736,7 +736,7 @@
                         </a>
                     </li>
                     @endif
-                    @if (!empty($enabledApps['s3-external-storage']) && $enabledApps['s3-external-storage'])
+                    @if (!empty($enabledApps['external-storage']) && $enabledApps['external-storage'])
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/s3-storage-settings*')) }}"
                             href="{{ route('admin.s3-storage-settings') }}">
