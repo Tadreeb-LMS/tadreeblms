@@ -120,7 +120,7 @@
                             <th>@lang('labels.backend.courses.fields.title')</th>
                             <!-- <th>@lang('Arabic Title')</th> -->
                             <th>@lang('labels.backend.courses.fields.category')</th>
-
+                            <th>Price</th>
                             
                             @if (Auth::user()->isAdmin())
                                
@@ -279,6 +279,10 @@
                         data: "category",
                         name: 'category'
                     },
+                    {
+    data: "price",
+    name: 'price'
+},
                     // {data: "department", name: 'department'},
                     @if (Auth::user()->isAdmin())
                         // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
