@@ -26,6 +26,9 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
+Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
+->name('admin.course.assign');
+Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);
 Route::get('/lesson/check-course', [App\Http\Controllers\Backend\Admin\LessonsController::class, 'checkCourse'])
     ->name('lessons.course.check');
 Route::get('/ldap-test', function () {

@@ -153,10 +153,53 @@
             </div>
         </div>
     </div>
+    @if(session('course_created'))
+<div class="modal fade" id="courseCreatedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Course Created</h5>
+            </div>
+
+            <div class="modal-body text-center">
+                <p>
+                    Your Course has been created successfully.
+                    Would you like to assign this course to users?
+                </p>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+
+          <a href="{{ route('admin.asmnt_0_withcourse') }}?course_id={{ session('course_id') }}"
+   class="btn btn-success">
+   Yes, Assign Now
+</a>
+
+                <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal">
+                    I'll Assign Later
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+@endif
 @stop
 
 @push('after-scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+@if(session('course_created'))
+<script>
+window.addEventListener('load', function () {
+    setTimeout(function(){
+        $('#courseCreatedModal').modal('show');
+    }, 500);
+});
+</script>
+@endif
     <script>
         $(document).ready(function() {
             var route = '{{ route('admin.courses.get_data') }}';
