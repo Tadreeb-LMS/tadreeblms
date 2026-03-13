@@ -12,6 +12,17 @@
             </a>
         </div>
     </div>
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info mb-0" role="alert">
+                <i class="fas fa-info-circle mr-2"></i>
+                Download external applications from the Marketplace:
+                <a href="https://tadreeblms.com/marketplaces" target="_blank" rel="noopener noreferrer">
+                    https://tadreeblms.com/marketplaces
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="card">

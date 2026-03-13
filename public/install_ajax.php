@@ -190,7 +190,7 @@ try {
             } else {
 
                 $composerVersion = trim(shell_exec("$phpBin $composerBin --version 2>&1"));
-                if (strpos($composerVersion, '2.7.8') !== false) {
+                if (version_compare(preg_replace('/[^0-9.]/', '', $composerVersion), '2.7.8', '>=')) {
                     $msg .= "✔ Composer $composerVersion OK<br>";
                 } else {
                     $msg .= "❌ Composer 2.7 required, found $composerVersion<br>";
