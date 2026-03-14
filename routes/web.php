@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Backend\SettingsController;
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
+use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
@@ -45,6 +46,12 @@ Route::get('/ldap-users', function () {
         ];
     });
 });
+
+
+Route::post(
+    'assessment_accounts/course-assignment',
+    [AssessmentAccountsController::class, 'courseAssignment']
+)->name('admin.assessment_accounts.course-assignment');
 
 Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 
