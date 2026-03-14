@@ -457,6 +457,59 @@ $local_lang = App::getLocale() ?? 'en';
 
         </div>
     </div>
+
+    {{-- Latest Course Assignments card (admin/teacher only) --}}
+    @if(isset($latest_course_assignments) && (auth()->user()->hasRole('administrator') || auth()->user()->hasRole('teacher')))
+    <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="avg-card leftBorder3">
+            <div class="avg-card-head d-flex justify-content-between align-items-center flex-wrap">
+                <h5 class="mb-0">
+                    @lang('strings.backend.dashboard.Latest-Course-Assignments')
+                </h5>
+                <a href="{{ route('admin.assessment_accounts.course-assign-list') }}" class="btn btn-sm btn-outline-primary">
+                    @lang('strings.backend.dashboard.View-All')
+                </a>
+            </div>
+            <div class="mt-3">
+                @if($latest_course_assignments->count() > 0)
+                <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="border-0">@lang('strings.backend.dashboard.Course-Name')</th>
+                                <th class="border-0">@lang('strings.backend.dashboard.Assigned-To')</th>
+                                <th class="border-0">@lang('strings.backend.dashboard.Assigned-By')</th>
+                                <th class="border-0">@lang('strings.backend.dashboard.Due-Date')</th>
+                                <th class="border-0">@lang('strings.backend.dashboard.Assigned-Date')</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($latest_course_assignments->take(8) as $ca)
+                            <tr>
+                                <td class="text-wrapper" style="max-width: 120px;" title="{{ optional($ca->course)->title ?? '-' }}">
+                                    {{ optional($ca->course)->title ?? '-' }}
+                                    @can('course_edit')
+                                    <a href="{{ route('admin.assessment_accounts.course_assign_edit', $ca->id) }}" class="ml-1" title="@lang('strings.backend.dashboard.Quick-View')"><i class="fa fa-external-link-alt fa-xs"></i></a>
+                                    @endcan
+                                </td>
+                                <td class="text-wrapper" style="max-width: 100px;" title="{{ $ca->department_id && $ca->department ? $ca->department->title : ($ca->assigned_user_names ?? '-') }}">
+                                    {{ $ca->department_id && $ca->department ? $ca->department->title : ($ca->assigned_user_names ?? '-') }}
+                                </td>
+                                <td>{{ $ca->assignedBy ? trim($ca->assignedBy->first_name . ' ' . $ca->assignedBy->last_name) : '-' }}</td>
+                                <td>{{ $ca->due_date ? \Carbon\Carbon::parse($ca->due_date)->format('M d, Y') : '-' }}</td>
+                                <td>{{ $ca->assign_date ? \Carbon\Carbon::parse($ca->assign_date)->format('M d, Y') : ($ca->created_at ? $ca->created_at->format('M d, Y') : '-') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <p class="text-muted mb-0">@lang('strings.backend.dashboard.No-assignments-yet')</p>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endif
 

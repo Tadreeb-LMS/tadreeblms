@@ -107,9 +107,9 @@
 
                     <!-- Department -->
                     <div class="col-lg-6 col-sm-12 mt-3">
-                        <label class="form-control-label required">Select Department</label>
+                        <label class="form-control-label required">@lang('Select Department')</label>
                         <select name="department" class="form-control custom-select-box" required>
-                            <option value="">Select One</option>
+                            <option value="">@lang('select-one')</option>
                             @foreach ($departments as $row)
                                 <option value="{{ $row->id }}">{{ $row->title }}</option>
                             @endforeach

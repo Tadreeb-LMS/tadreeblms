@@ -38,13 +38,13 @@
          @csrf()
 
          <div class="pb-3 d-flex justify-content-between align-items-center">
-     <h4 >
-        Create Department
+         <h4 >
+        Create User Group
      </h4>
     
-         <div class="">
+         <div>
               <a href="{{ route('admin.department.index') }}"
-             class="btn add-btn">View Department</a>
+             class="btn add-btn">View User Group</a>
 
          </div>
      

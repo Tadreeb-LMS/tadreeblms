@@ -126,8 +126,8 @@ class PathwayAssignmentController extends Controller
             // Start the transaction
             DB::beginTransaction();
             $request->validate([
-                'title' => 'required|max:255',
-                'due_date' => 'required',
+                'title' => 'nullable|max:255',
+                'due_date' => 'nullable',
                 'teachers' => 'required_without:department_id|array|min:1',
                 'teachers.*' => 'integer|exists:users,id',
                 'department_id' => 'required_without:teachers|nullable|integer|exists:department,id',
@@ -145,10 +145,10 @@ class PathwayAssignmentController extends Controller
             // course assignment
             $course_ids_arr = [];
             $learning_pathway_id = $request->learning_pathway_id;
-            $title = $request->title;
-            $due_date = $request->due_date;
+            $pathway = LearningPathway::find($learning_pathway_id);
+            $title = $pathway ? $pathway->title : 'New Pathway Assignment';
+            $due_date = now()->addDays(30)->format('Y-m-d');
             $users = $request->teachers ?? [];
-
             
 
             if ($request->department_id) {
@@ -192,7 +192,7 @@ class PathwayAssignmentController extends Controller
                     'course_id' => $course_id,
                     'assign_to' => implode(',', $users),
                     'assign_by' => auth()->id(),
-                    'message' => $request->message,
+                    'message' => $request->message ?? 'Pathway Assignment',
                     'assign_date' => date('Y-m-d'),
                     'is_pathway' => true,
                     'department_id' => $request->department_id,
@@ -320,8 +320,8 @@ class PathwayAssignmentController extends Controller
             $lpa = LearningPathwayAssignment::find($id);
             //dd($lpa);
             $request->validate([
-                'title' => 'required|max:255',
-                'due_date' => 'required|max:255',
+                'title' => 'nullable|max:255', 
+                'due_date' => 'nullable|max:255',
                 'teachers' => 'required|array|min:1',
                 'teachers.*' => 'integer|exists:users,id',
             ], [
@@ -329,9 +329,10 @@ class PathwayAssignmentController extends Controller
                 'teachers.min' => 'The users list must contain at least one user.',
             ]);
 
-            $title = $request->title;
-            $due_date = $request->due_date;
             $learning_pathway_id = $request->learning_pathway_id;
+            $pathway = LearningPathway::find($learning_pathway_id);
+            $title = $request->title ?? ($pathway ? $pathway->title : $lpa->title);
+            $due_date = $request->due_date ?? ($lpa->due_date ?? now()->addDays(30)->format('Y-m-d'));
             $users = $request->teachers ?? [];
 
             $lpa->update([

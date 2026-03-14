@@ -146,7 +146,7 @@
                 </label>
                 <div class="col-md-10">
                     <select name="department" id="department" class="form-control">
-                        <option value="">Select Department</option>
+                        <option value="">@lang('Select Department')</option>
                         @if(isset($departments))
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id }}" {{ old('department') == $dept->id ? 'selected' : '' }}>

@@ -107,7 +107,7 @@
                         </tr>
     
                         <tr>
-                            <th>Department</th>
+                            <th>@lang('Department')</th>
                             @if(isset($teacher->employee->department_details->title))
                             <td>{{ $teacher->employee->department_details->title }}</td>
                             @else
