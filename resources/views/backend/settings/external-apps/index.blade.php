@@ -12,16 +12,17 @@
             </a>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="alert alert-info mb-0" role="alert">
-                <i class="fas fa-info-circle mr-2"></i>
-                Download external applications from the Marketplace:
-                <a href="https://tadreeblms.com/marketplaces" target="_blank" rel="noopener noreferrer">
-                    https://tadreeblms.com/marketplaces
-                </a>
-            </div>
-        </div>
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
+        <span>
+            <i class="fas fa-info-circle mr-2"></i>
+            Explore additional external applications from the Marketplace.
+        </span>
+        <a href="https://tadreeblms.com/marketplaces"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-sm btn-outline-primary">
+            View Marketplace
+        </a>
     </div>
     <div class="row">
         <div class="col-12">
