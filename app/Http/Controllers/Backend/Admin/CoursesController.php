@@ -498,8 +498,6 @@ class CoursesController extends Controller
 
     return $text;
 })
-                return $text;
-            })
             ->addColumn('start_date', function ($q) {
     if (empty($q->start_date)) {
         return '-';

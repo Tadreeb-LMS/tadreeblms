@@ -91,11 +91,6 @@ public function getExpiryDateAttribute($input)
 {
     $zeroDate = str_replace(['Y', 'm', 'd'], ['0000', '00', '00'], config('app.date_format'));
 
-
-public function getExpiryDateAttribute($input)
-{
-    $zeroDate = str_replace(['Y', 'm', 'd'], ['0000', '00', '00'], config('app.date_format'));
-
     if ($input != $zeroDate && $input != null) {
         return Carbon::createFromFormat('Y-m-d', $input)
             ->format(config('app.date_format'));
