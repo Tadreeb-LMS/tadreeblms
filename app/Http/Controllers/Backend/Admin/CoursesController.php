@@ -593,7 +593,7 @@ class CoursesController extends Controller
              'expire_at'  => 'required|date|after_or_equal:start_date',
         ]);
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -888,7 +888,7 @@ class CoursesController extends Controller
                 );
                 if ($meetingData) {
                     $course->fill($meetingData)->save();
-                    // $this->sendMeetingInviteToStudents($course, $students);
+                    $this->sendMeetingInviteToStudents($course, $students);
                     // $this->sendMeetingInviteToTeachers($course, $teachers); // Replaced by Trainer assigned notification
                 } else {
                     \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
@@ -1020,7 +1020,7 @@ class CoursesController extends Controller
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -1737,6 +1737,34 @@ class CoursesController extends Controller
                     'meeting_host_url' => $meeting['host_url'] ?? null,
                 ];
             }
+        } elseif (in_array($provider, ['google-meet', 'google_meet'])) {
+            $service = new \Modules\GoogleMeet\Services\GoogleMeetService();
+            
+            $hostEmail = null;
+            $teacherEmails = $course->teachers->pluck('email')->toArray();
+            if (!empty($teacherEmails)) {
+                $hostEmail = $teacherEmails[0];
+            }
+
+            $studentEmails = $course->students->pluck('email')->toArray();
+            $attendees = array_merge($teacherEmails, $studentEmails);
+
+            $meeting = $service->createMeeting(
+                $course->title,
+                $request->meeting_start_at,
+                $request->meeting_duration,
+                $request->meeting_timezone,
+                $hostEmail,
+                $attendees
+            );
+
+            if ($meeting) {
+                return [
+                    'meeting_id'       => $meeting['id'],
+                    'meeting_join_url' => $meeting['join_url'],
+                    'meeting_host_url' => $meeting['host_url'] ?? null,
+                ];
+            }
         }
         return null;
     }
@@ -1744,6 +1772,16 @@ class CoursesController extends Controller
     private function sendMeetingInviteToStudents(Course $course, array $studentIds): void
     {
         $students = User::whereIn('id', $studentIds)->get();
+
+        // Google Meet integration: Add as attendee if course has a meeting
+        if ($course->meeting_provider == 'google-meet' && $course->meeting_id) {
+            $service = new \Modules\GoogleMeet\Services\GoogleMeetService();
+            $hostEmail = $course->teachers->first()->email ?? null;
+            foreach ($students as $student) {
+                $service->addAttendeeToMeeting($course->meeting_id, $student->email, $hostEmail);
+            }
+        }
+
         foreach ($students as $student) {
             \Illuminate\Support\Facades\Mail::to($student->email)
                 ->send(new \App\Mail\CourseMeetingInvite($course));
