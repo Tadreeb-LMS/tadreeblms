@@ -304,10 +304,6 @@
 
                 @if (Auth::user()->isAdmin())
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                        <label for="expire_at">
-    Expire Date (yyyy-mm-dd) <span id="expire_date_required" class="text-danger">*</span>
-</label>
-                        <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="(Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
                         <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
                         <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
@@ -687,33 +683,6 @@ $(document).ready(function () {
                 $form.find('.is-invalid').removeClass('is-invalid');
             }
 
-    var today = new Date().toISOString().slice(0, 10);
-    if (startDateVal < today) {
-        alert('Start Date cannot be earlier than today.');
-        return false;
-    }
-var expireDateVal = $('#expire_at').val();
-var today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
-
-var selectedType = $('input[name="course_type"]:checked').val();
-
-if (selectedType !== 'Online') {
-
-    if (!startDateVal || !expireDateVal) {
-        alert('Start Date and Expire Date are required for Live courses.');
-        return false;
-    }
-
-    if (expireDateVal < startDateVal) {
-        alert('Expire Date cannot be earlier than Start Date.');
-        return false;
-    }
-
-    if (startDateVal < today) {
-        alert('Start Date cannot be earlier than today.');
-        return false;
-    }
-}
             function showInlineError(field, message) {
                 var $field = $form.find(field);
                 $field.addClass('is-invalid');
@@ -852,46 +821,5 @@ if (startDateVal < today) {
             label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
         });
     });
-    document.addEventListener('DOMContentLoaded', function () {
-
-    const courseTypeRadios = document.querySelectorAll('input[name="course_type"]');
-    const startDateRequired = document.getElementById('start_date_required');
-    const expireDateRequired = document.getElementById('expire_date_required');
-    const startDate = document.getElementById('start_date');
-    const expireDate = document.getElementById('expire_at');
-
-    function toggleIndicators() {
-        const selected = document.querySelector('input[name="course_type"]:checked');
-        if (!selected) return;
-
-        if (selected.value === 'Online') {
-            // Hide red *
-            startDateRequired.style.display = 'none';
-            expireDateRequired.style.display = 'none';
-
-            // Remove required attribute
-            startDate.removeAttribute('required');
-            expireDate.removeAttribute('required');
-        } else {
-            // Show red *
-            startDateRequired.style.display = 'inline';
-            expireDateRequired.style.display = 'inline';
-
-            // Add required attribute
-            startDate.setAttribute('required', 'required');
-            expireDate.setAttribute('required', 'required');
-        }
-    }
-
-    // Run on page load
-    toggleIndicators();
-
-    // Run when course type changes
-    courseTypeRadios.forEach(function (radio) {
-        radio.addEventListener('change', toggleIndicators);
-    });
-
-});
-
 </script>
 @endpush

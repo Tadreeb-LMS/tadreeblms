@@ -21,33 +21,6 @@ class StoreCoursesRequest extends FormRequest
      * @return array
      */
     public function rules()
-{
-   return [
-        'teachers.*'        => 'exists:users,id',
-        'internalStudents.*'=> 'exists:users,id',
-        'externalStudents.*'=> 'exists:users,id',
-
-        'title'        => 'required|string|max:255',
-        'course_type'  => 'required|string',
-        'category_id'  => 'nullable',
-        'course_code'  => 'required|max:100|unique:courses,course_code',
-
-        // ✅ Start Date
-        'start_date' => [
-            'nullable',
-            'required_unless:course_type,Online',
-            'date',
-        ],
-
-        // ✅ Expiry Date
-        'expire_at' => [
-            'nullable',
-            'required_unless:course_type,Online',
-            'date',
-            'after_or_equal:start_date'
-        ],
-    ];
-}
     {
         return [
             'teachers.*' => 'exists:users,id',
