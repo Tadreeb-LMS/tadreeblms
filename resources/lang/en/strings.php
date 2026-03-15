@@ -186,6 +186,15 @@ return array(
       'Assigned-Users' => 'Assigned Users',
       'Assignments' => 'Assignments',
       'Certificate-Issued' => 'Certificate Issued',
+      'Latest-Course-Assignments' => 'Latest Course Assignments',
+      'View-All' => 'View All',
+      'Course-Name' => 'Course Name',
+      'Assigned-To' => 'Assigned To',
+      'Assigned-By' => 'Assigned By',
+      'Due-Date' => 'Due Date',
+      'Assigned-Date' => 'Assigned Date',
+      'Quick-View' => 'Quick View',
+      'No-assignments-yet' => 'No recent course assignments.',
       'Recent-Courses' => 'Recent Courses (Last 10 Created)'
     ),
     'search' =>

@@ -435,6 +435,9 @@ class ExternalAppService
             // Run any installation commands if they exist
             $this->runInstallationCommands($installPath);
 
+            // Create public symlink for serving module assets (JS, CSS, images)
+            // $this->ensurePublicSymlink($moduleName, $installPath);
+
             // Refresh the sidebar cache so changes appear immediately
             $this->refreshEnabledAppsCache();
 
@@ -554,6 +557,9 @@ class ExternalAppService
      */
     protected function runInstallationCommands($modulePath)
     {
+        // First, run composer install if composer.json exists
+        $this->runComposerInstall($modulePath);
+
         $installScript = $modulePath . '/install.php';
 
         if (File::exists($installScript)) {
@@ -565,6 +571,48 @@ class ExternalAppService
                 ob_end_clean();
                 Log::warning("Installation script returned warning: " . $e->getMessage());
             }
+        }
+    }
+
+    /**
+     * Run composer install for the module if composer.json exists.
+     */
+    protected function runComposerInstall($modulePath)
+    {
+        if (!File::exists($modulePath . '/composer.json')) {
+            return;
+        }
+
+        Log::info("Running composer install for module at: $modulePath");
+
+        $composerPhar = base_path('composer.phar');
+        if (!File::exists($composerPhar)) {
+            Log::warning("composer.phar not found at project root. Skipping composer install for module.");
+            return;
+        }
+
+        // We use php composer.phar install
+        // --no-dev: Skip dev dependencies
+        // --optimize-autoloader: Generate optimized class map
+        // --working-dir: Specify the module directory
+        $command = "php \"$composerPhar\" install --no-dev --optimize-autoloader --working-dir=\"$modulePath\" 2>&1";
+
+        try {
+            $output = [];
+            $returnVar = 0;
+            exec($command, $output, $returnVar);
+
+            if ($returnVar !== 0) {
+                Log::error("Composer install failed for module at $modulePath", [
+                    'command' => $command,
+                    'output' => implode("\n", $output),
+                    'return_code' => $returnVar
+                ]);
+            } else {
+                Log::info("Composer install successful for module at $modulePath");
+            }
+        } catch (\Exception $e) {
+            Log::error("Exception during composer install for module: " . $e->getMessage());
         }
     }
 
@@ -609,6 +657,10 @@ class ExternalAppService
             }
         }
 
+        if ($slug === 'interactive-whiteboard') {
+            $this->writeMainEnvFlag('WHITEBOARD_INTEGRATION', $enabled ? 'true' : 'false');
+        }
+
         Log::info("External app '$slug' status changed to: " . ($enabled ? 'enabled' : 'disabled'));
 
         return ['app' => $app, 'sync' => $syncInfo];
@@ -633,6 +685,9 @@ class ExternalAppService
                     Log::warning("Uninstall script warning: " . $e->getMessage());
                 }
             }
+
+            // Remove public symlink for module assets
+            // $this->removePublicSymlink($app->slug);
 
             // Remove from filesystem (this also removes the module's .env)
             if ($app->installed_path && File::exists($app->installed_path)) {
@@ -679,6 +734,55 @@ class ExternalAppService
     public function getApp($slug)
     {
         return ExternalApp::where('slug', $slug)->firstOrFail();
+    }
+
+    /**
+     * Create a symlink from public/modules/{slug} → modules/{slug}
+     * so that module assets (JS, CSS) are web-accessible.
+     */
+    protected function ensurePublicSymlink(string $slug, string $installPath): void
+    {
+        $publicModulesDir = public_path('modules');
+        $linkPath = $publicModulesDir . DIRECTORY_SEPARATOR . $slug;
+
+        // Create public/modules/ directory if it doesn't exist
+        if (!File::isDirectory($publicModulesDir)) {
+            File::makeDirectory($publicModulesDir, 0755, true);
+        }
+
+        // Remove existing link or directory if present
+        if (is_link($linkPath)) {
+            unlink($linkPath);
+        } elseif (File::isDirectory($linkPath)) {
+            File::deleteDirectory($linkPath);
+        }
+
+        // Create symlink: public/modules/{slug} → modules/{slug}
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            // Windows: use junction for directory symlinks
+            exec('mklink /J "' . str_replace('/', '\\', $linkPath) . '" "' . str_replace('/', '\\', $installPath) . '"');
+        } else {
+            symlink($installPath, $linkPath);
+        }
+
+        Log::info("Public symlink created for module '$slug'", [
+            'link' => $linkPath,
+            'target' => $installPath,
+        ]);
+    }
+
+    /**
+     * Remove the public symlink for a module.
+     */
+    protected function removePublicSymlink(string $slug): void
+    {
+        $linkPath = public_path('modules' . DIRECTORY_SEPARATOR . $slug);
+
+        if (is_link($linkPath)) {
+            unlink($linkPath);
+        } elseif (File::isDirectory($linkPath)) {
+            File::deleteDirectory($linkPath);
+        }
     }
 
     /**
