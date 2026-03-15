@@ -45,16 +45,6 @@ class LoginController extends Controller
         return route(home_route());
     }
 
-    public function refresh_captcha()
-    {
-        $captha_string = CustomHelper::getCaptcha();
-
-
-        return response()->json([
-            'captcha_question' => $captha_string,
-        ]);
-    }
-
     /**
      * Show login form with simple captcha
      */
@@ -78,14 +68,11 @@ class LoginController extends Controller
     }
     public function refreshCaptcha()
     {
-        $a = rand(1, 9);
-        $b = rand(1, 9);
+        $captcha = CustomHelper::getCaptcha();
 
-        Session::put('captcha_answer', $a + $b);
-
-        return response()->json([
-            'captcha_question' => "$a + $b = ?"
-        ]);
+    return response()->json([
+        'captcha' => $captcha
+    ]);
     }
 
 

@@ -53,7 +53,7 @@ class Create1500441827CoursesTable extends Migration
 
             $table->string('course_code', 191)->nullable();
             $table->string('arabic_title', 191)->nullable();
-
+    
             $table->string('course_lang', 30)->default('english');
             $table->string('is_online', 15)->default('Online');
 
