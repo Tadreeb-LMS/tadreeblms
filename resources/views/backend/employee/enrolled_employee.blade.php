@@ -185,6 +185,40 @@
 
         $(document).ready(function () {
 
+            function closeEnrollModal() {
+                var modalEl = document.getElementById('enrollUsersModal');
+                if (!modalEl) {
+                    return;
+                }
+
+                // Bootstrap 5 API
+                try {
+                    if (window.bootstrap && window.bootstrap.Modal) {
+                        var bs5Instance = window.bootstrap.Modal.getInstance(modalEl);
+                        if (!bs5Instance) {
+                            bs5Instance = new window.bootstrap.Modal(modalEl);
+                        }
+                        bs5Instance.hide();
+                    }
+                } catch (e) {}
+
+                // Bootstrap 4 jQuery bridge
+                try {
+                    if (window.jQuery && typeof $('#enrollUsersModal').modal === 'function') {
+                        $('#enrollUsersModal').modal('hide');
+                    }
+                } catch (e) {}
+
+                // Fallback cleanup in case modal plugin is unavailable or miswired
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                modalEl.setAttribute('aria-hidden', 'true');
+                modalEl.removeAttribute('aria-modal');
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                $('.modal-backdrop').remove();
+            }
+
             // Initialize Select2 inside modal
             $('#enrollUsersModal').on('shown.bs.modal', function () {
                 $('#enroll_teachers').select2({
@@ -257,12 +291,13 @@
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        var msg = response.enrolled + ' user(s) enrolled successfully.';
+                        var enrolledCount = parseInt(response.enrolled, 10) || 0;
+                        var msg = enrolledCount + ' user(s) enrolled successfully.';
                         var alertClass = 'alert-success';
 
                         if (response.already_enrolled > 0) {
                             msg += '\n' + response.already_enrolled + ' user(s) already enrolled: ' + response.already_enrolled_names.join(', ');
-                            alertClass = response.enrolled > 0 ? 'alert-warning' : 'alert-warning';
+                            alertClass = enrolledCount > 0 ? 'alert-warning' : 'alert-warning';
                         }
 
                         if (response.skipped_inactive > 0) {
@@ -272,8 +307,11 @@
                         $alert.removeClass('d-none').addClass(alertClass).css('white-space', 'pre-line').text(msg);
 
                         // Reload DataTable
-                        if (response.enrolled > 0) {
+                        if (enrolledCount > 0) {
                             $('#myTable').DataTable().ajax.reload(null, false);
+                            setTimeout(function () {
+                                closeEnrollModal();
+                            }, 250);
                         }
 
                         // Reset form
