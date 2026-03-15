@@ -736,7 +736,7 @@
                         </a>
                     </li>
                     @endif
-                    @if (!empty($enabledApps['s3-external-storage']) && $enabledApps['s3-external-storage'])
+                    @if (!empty($enabledApps['external-storage']) && $enabledApps['external-storage'])
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/s3-storage-settings*')) }}"
                             href="{{ route('admin.s3-storage-settings') }}">
@@ -756,9 +756,18 @@
 
                     @if (!empty($enabledApps['interactive-whiteboard']) && $enabledApps['interactive-whiteboard'])
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('external-apps/whiteboard/dashboard*') ? 'active' : '' }}"
-                            href="{{ url('external-apps/whiteboard/dashboard') }}">
-                            <span class="title">Whiteboard Module</span>
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/interactive-whiteboard/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'interactive-whiteboard']) }}">
+                            <span class="title">Whiteboard Config</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if (!empty($enabledApps['payment-gateways']) && $enabledApps['payment-gateways'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/payment-gateways*')) }}"
+                            href="{{ url('external-apps/payment-gateways/settings') }}">
+                            <span class="title"><i class="fas fa-credit-card mr-1"></i>Payment Gateways</span>
                         </a>
                     </li>
                     @endif
