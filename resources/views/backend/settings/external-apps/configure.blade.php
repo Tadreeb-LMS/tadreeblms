@@ -12,7 +12,14 @@
                         <h4 class="mb-0">
                             <i class="fas fa-cog mr-2"></i>Configure {{ $app->name }}
                         </h4>
-                        <span class="badge badge-{{ $app->getStatusBadge() }}">{{ ucfirst($app->status) }}</span>
+                        <div>
+                            @if ($app->slug === 'interactive-whiteboard' && $app->is_enabled)
+                                <a href="{{ url('external-apps/whiteboard/dashboard') }}" class="btn btn-sm btn-info mr-2">
+                                    <i class="fas fa-tachometer-alt mr-1"></i> Open Whiteboard Dashboard
+                                </a>
+                            @endif
+                            <span class="badge badge-{{ $app->getStatusBadge() }}">{{ ucfirst($app->status) }}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -144,7 +151,7 @@
                             </div>
                         @endif
 
-                        @if (in_array($app->slug, ['zoom', 'teams']))
+                        @if (in_array($app->slug, ['zoom', 'teams', 'interactive-whiteboard']))
                             <hr class="mt-4 mb-4">
                             <h5 class="mb-4 d-flex align-items-center">
                                 <i class="fas fa-plug mr-2 text-primary"></i>
@@ -165,6 +172,8 @@
                         @endif
 
                         <hr class="mt-4 mb-4">
+
+
 
                         <div class="row">
                             <div class="col text-left">
@@ -284,6 +293,54 @@ $(document).ready(function () {
             },
             error: function(xhr) {
                 var msg = 'Failed to connect to Microsoft Graph API.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                alertContainer.html('<div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>' + msg + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+                btn.prop('disabled', false).html(btnHtml);
+            }
+        });
+    });
+    @endif
+
+    @if ($app->slug === 'interactive-whiteboard')
+    $('#btnTestConnection').on('click', function() {
+        var btn = $(this);
+        var btnHtml = btn.html();
+        var alertContainer = $('#testConnectionAlertContainer');
+
+        // Clear previous alerts
+        alertContainer.empty();
+
+        // Get values from the form
+        var appId = $('#field_PUSHER_APP_ID').val();
+        var appKey = $('#field_PUSHER_APP_KEY').val();
+        var appSecret = $('#field_PUSHER_APP_SECRET').val();
+        var appCluster = $('#field_PUSHER_APP_CLUSTER').val();
+
+        if (!appId || !appKey || !appSecret || !appCluster) {
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in App ID, Key, Secret, and Cluster before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            return;
+        }
+
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+
+        $.ajax({
+            url: '{{ url("external-apps/whiteboard/test-connection") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                PUSHER_APP_ID: appId,
+                PUSHER_APP_KEY: appKey,
+                PUSHER_APP_SECRET: appSecret,
+                PUSHER_APP_CLUSTER: appCluster
+            },
+            success: function(response) {
+                alertContainer.html('<div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle mr-2"></i>' + response.message + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+                btn.prop('disabled', false).html(btnHtml);
+            },
+            error: function(xhr) {
+                var msg = 'Failed to connect to Pusher API.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }
