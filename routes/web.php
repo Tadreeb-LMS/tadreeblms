@@ -46,8 +46,6 @@ Route::get('/ldap-users', function () {
     });
 });
 
-Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
-
 Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
 });

@@ -337,7 +337,7 @@
     
     <script>
 
-        const refreshCaptchaUrl = "{{ route('refresh_captcha') }}";
+        const refreshCaptchaUrl = "{{ route('refresh.captcha') }}";
 
         function loadCaptcha(mode) {
             fetch(refreshCaptchaUrl)

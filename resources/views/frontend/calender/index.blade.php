@@ -15,12 +15,33 @@
         transition: all 0.3s ease !important;
     }
 
-    .userheading .btn-primary:hover, 
+    .userheading .btn-primary:hover,
     .modal-footer .btn-success:hover {
         background: linear-gradient(45deg, #c1902d 0%, #233e74 100%) !important;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         color: #fff !important;
+    }
+
+    .calendar-legend {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px 0;
+    }
+    .calendar-legend .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #555;
+    }
+    .calendar-legend .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
     }
 </style>
 @endpush
@@ -44,6 +65,12 @@
 
 <div class="card" style="border-radius: 5px;">
     <div class="card-body">
+
+        <div class="calendar-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#6c757d;"></span> Lessons</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#4285F4;"></span> Live Sessions (Zoom/Teams/Meet)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#34A853;"></span> Live Lesson Slots</span>
+        </div>
 
         <div id="calendar"></div>
 
@@ -163,6 +190,18 @@
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
+          eventDisplay: 'block',
+          dayMaxEventRows: 3,
+          eventContent: function(arg) {
+              var timeText = arg.timeText || '';
+              var title = arg.event.title || '';
+              var html = '';
+              if (timeText) {
+                  html += '<div class="fc-event-time-top">' + timeText + '</div>';
+              }
+              html += '<div class="fc-event-title-bottom">' + title + '</div>';
+              return { html: html };
+          },
           /*
           events: [
                 {
@@ -216,11 +255,19 @@
            eventSources: [
                {
                    events: {!! $lessons !!},
-
-                   eventClassNames : 'myclassname',
-                    //color: 'grey',   // an option!
-                    //textColor: 'black' // an option!
-                }
+                   color: '#6c757d',
+                   textColor: '#fff',
+               },
+               {
+                   events: {!! $liveSessions !!},
+                   color: '#4285F4',
+                   textColor: '#fff',
+               },
+               {
+                   events: {!! $liveLessonSlots !!},
+                   color: '#34A853',
+                   textColor: '#fff',
+               }
             ]
         });
 

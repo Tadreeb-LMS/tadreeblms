@@ -145,6 +145,26 @@ class CoursesController extends Controller
                     ->with(['route' => route('admin.courses.publish', ['id' => $q->id])])->render();
                 return $view;
             })
+            ->addColumn('status', function ($q) {
+
+    // Expired (only if published)
+    if ($q->published == 1 && $q->expire_at && \Carbon\Carbon::parse($q->expire_at)->isPast()) {
+        return "<p class='pill-expired'>Expired</p>";
+    }
+
+    // Published
+    if ($q->published == 1) {
+        return "<p class='pill-publish'>Published</p>";
+    }
+
+    // Unpublished (-1)
+    if ($q->published == -1) {
+        return "<p class='pill-unpublish'>Unpublished</p>";
+    }
+
+    // Draft (0)
+    return "<p class='pill-draft'>Draft</p>";
+})
             ->addColumn('teachers', function ($q) {
                 $teachers = "";
                 foreach ($q->teachers as $singleTeachers) {
@@ -166,17 +186,7 @@ class CoursesController extends Controller
             ->addColumn('qr_code', function ($q) {
                 return QrCode::size(80)->generate(url('register/course/' . $q->id));
             })
-            ->addColumn('status', function ($q) {
-                $text = "";
-                $text = ($q->published == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-dark p-1 mr-1' >" . trans('labels.backend.courses.fields.published') . "</p>" : "<p class='text-white mb-1 font-weight-bold text-center bg-primary p-1 mr-1' >" . trans('labels.backend.courses.fields.unpublished') . "</p>";
-                if (auth()->user()->isAdmin()) {
-                    $text .= ($q->featured == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-warning p-1 mr-1' >" . trans('labels.backend.courses.fields.featured') . "</p>" : "";
-                    $text .= ($q->trending == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-success p-1 mr-1' >" . trans('labels.backend.courses.fields.trending') . "</p>" : "";
-                    $text .= ($q->popular == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-primary p-1 mr-1' >" . trans('labels.backend.courses.fields.popular') . "</p>" : "";
-                }
-
-                return $text;
-            })
+            
             ->editColumn('price', function ($q) {
                 if ($q->free == 1) {
                     return trans('labels.backend.courses.fields.free');
@@ -458,23 +468,36 @@ class CoursesController extends Controller
     return $html;
 })
             ->addColumn('status', function ($q) {
-                $text = "";
-               if ($q->published == 1) {
-                    $text = "<p class='pill-publish'>" . trans('labels.backend.courses.fields.published') . "</p>";
-                } elseif ($q->published == 0) {
-                    $text = "<p class='pill-draft'>" . trans('labels.backend.courses.fields.draft') . "</p>";
-                } else { // -1
-                    $text = "<p class='pill-unpublish'>" . trans('labels.backend.courses.fields.unpublished') . "</p>";
-                }
 
-                if (auth()->user()->isAdmin()) {
-                    $text .= ($q->featured == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-warning p-1 mr-1' >" . trans('labels.backend.courses.fields.featured') . "</p>" : "";
-                    $text .= ($q->trending == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-success p-1 mr-1' >" . trans('labels.backend.courses.fields.trending') . "</p>" : "";
-                    $text .= ($q->popular == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-primary p-1 mr-1' >" . trans('labels.backend.courses.fields.popular') . "</p>" : "";
-                }
+    // Expired (if published and expire date passed)
+    if (
+        $q->published == 1 &&
+        $q->expire_at &&
+        \Carbon\Carbon::parse($q->expire_at)->isPast()
+    ) {
+        $text = "<p class='pill-expired'>Expired</p>";
+    }
+    // Published
+    elseif ($q->published == 1) {
+        $text = "<p class='pill-publish'>Published</p>";
+    }
+    // Draft
+    elseif ($q->published == 0) {
+        $text = "<p class='pill-draft'>Draft</p>";
+    }
+    // Unpublished (-1)
+    else {
+        $text = "<p class='pill-unpublish'>Unpublished</p>";
+    }
 
-                return $text;
-            })
+    if (auth()->user()->isAdmin()) {
+        $text .= ($q->featured == 1) ? "<p class='bg-warning text-white p-1'>Featured</p>" : "";
+        $text .= ($q->trending == 1) ? "<p class='bg-success text-white p-1'>Trending</p>" : "";
+        $text .= ($q->popular == 1) ? "<p class='bg-primary text-white p-1'>Popular</p>" : "";
+    }
+
+    return $text;
+})
             ->addColumn('start_date', function ($q) {
     if (empty($q->start_date)) {
         return '-';
@@ -1397,35 +1420,24 @@ class CoursesController extends Controller
      * @param  Request
      */
     public function publish($id)
-    {
-        if (!Gate::allows('course_edit')) {
-            return abort(401);
-        }
-
-        $course = Course::findOrFail($id);
-        if ($course->published == 1) {
-            $course->published = -1;
-        } else {
-            if($course->published == -1) {
-                $course->published = 1;
-            }
-        }
-        $course->save();
-
-        // Course published/unpublished notification
-        try {
-            $notificationSettings = app(NotificationSettingsService::class);
-            if ($notificationSettings->shouldNotify('courses', 'course_published', 'email')) {
-                $isPublished = ($course->published == 1);
-                CourseNotification::sendCoursePublishedEmail(\Auth::user(), $course, $isPublished);
-                CourseNotification::createCoursePublishedBell(\Auth::user(), $course, $isPublished);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Failed to send course published notification: ' . $e->getMessage());
-        }
-
-        return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
+{
+    if (!Gate::allows('course_edit')) {
+        return abort(401);
     }
+
+    $course = Course::findOrFail($id);
+
+    // Toggle logic
+    if ($course->published == 1) {
+        $course->published = -1; // Unpublish
+    } else {
+        $course->published = 1; // Publish (works for draft & unpublished)
+    }
+
+    $course->save();
+
+    return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
+}
 
     public function course_detail($course_id, $employee_id)
     {

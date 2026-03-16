@@ -52,3 +52,105 @@
 .fc .fc-button-group > .fc-button {
     margin-right: 10px;
 }
+
+/* =====================================================
+   Fix events overflowing outside date columns
+   ===================================================== */
+
+/* Keep events inside their day cell */
+.fc .fc-daygrid-day {
+    overflow: hidden;
+    position: relative;
+}
+
+.fc .fc-daygrid-day-events {
+    overflow: hidden;
+    min-height: 0 !important;
+}
+
+/* Truncate long event titles */
+.fc .fc-daygrid-event {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.fc .fc-event-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fc .fc-event-main {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Prevent dot-style events from overflowing */
+.fc .fc-daygrid-dot-event {
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.fc .fc-daygrid-dot-event .fc-event-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+/* Ensure the event harness respects column width */
+.fc .fc-daygrid-event-harness {
+    overflow: hidden;
+    max-width: 100%;
+}
+
+/* Table cells should clip content */
+.fc td, .fc th {
+    overflow: hidden;
+}
+
+/* Fix multi-day events stretching beyond grid */
+.fc .fc-h-event {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.fc .fc-h-event .fc-event-main-frame {
+    overflow: hidden;
+}
+
+.fc .fc-h-event .fc-event-title-container {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   Event layout: Time on top, Title below
+   ===================================================== */
+
+.fc .fc-daygrid-event .fc-event-main {
+    display: flex;
+    flex-direction: column;
+    padding: 3px 5px;
+    line-height: 1.3;
+}
+
+.fc-event-time-top {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-event-title-bottom {
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -16,6 +16,7 @@ use Stripe\Customer;
 use Cart;
 use App\Models\stripe\Subscription;
 use Auth;
+use Carbon\Carbon;
 use DB;
 
 class CalenderController extends Controller
@@ -40,57 +41,131 @@ class CalenderController extends Controller
 
     public function show_list()
     {
-        /*
-        $data = array(
-
-            array(
-               'id' => 1,
-               'title' => "Event1",
-               'start' => "2022-05-05",
-               'url' => "http://yahoo.com/"
-            ),
-
-            array(
-               'id' => 2,
-               'title' => "Event2",
-               'start' => "2022-05-05",
-               'end' => "2022-05-05",
-               'url' => "http://yahoo.com/"
-            )
-
-        );
-        */
         $logged_in_user = Auth::user();
         $employee_id = $logged_in_user->id;
-$lesson_data=[];
-        if($logged_in_user->isAdmin()) {
-            $lessons_data = DB::table('lessons')->select('courses.title as course_name','courses.slug as course_slug','lessons.title','lessons.lesson_start_date')
-                                ->leftJoin('courses','courses.id','lessons.course_id');
-            $lessons_data = $lessons_data->get();
+        $isAdmin = $logged_in_user->isAdmin();
+        $isTeacher = $logged_in_user->hasRole('teacher');
+
+        // ─── 1. Regular Lessons (existing) ───
+        $lesson_data = [];
+        if ($isAdmin) {
+            $lessons_data = DB::table('lessons')
+                ->select('courses.title as course_name', 'courses.slug as course_slug', 'lessons.title', 'lessons.lesson_start_date')
+                ->leftJoin('courses', 'courses.id', 'lessons.course_id')
+                ->whereNull('courses.deleted_at')
+                ->get();
+        } elseif ($isTeacher) {
+            $lessons_data = DB::table('lessons')
+                ->select('courses.title as course_name', 'courses.slug as course_slug', 'lessons.title', 'lessons.lesson_start_date')
+                ->leftJoin('courses', 'courses.id', 'lessons.course_id')
+                ->join('course_user', 'course_user.course_id', '=', 'courses.id')
+                ->where('course_user.user_id', $employee_id)
+                ->whereNull('courses.deleted_at')
+                ->get();
         } else {
-            $lessons_data = DB::table('course_student')->select('course_student.course_id','courses.title as course_name','courses.slug as course_slug','lessons.title','lessons.lesson_start_date')
-            ->leftJoin('courses','courses.id','course_student.course_id')
-            ->leftJoin('lessons','lessons.course_id','courses.id');
-            $lessons_data = $lessons_data->where('user_id',$employee_id);
-            $lessons_data = $lessons_data->get();
+            $lessons_data = DB::table('subscribe_courses')
+                ->select('courses.title as course_name', 'courses.slug as course_slug', 'lessons.title', 'lessons.lesson_start_date')
+                ->leftJoin('courses', 'courses.id', 'subscribe_courses.course_id')
+                ->leftJoin('lessons', 'lessons.course_id', 'courses.id')
+                ->where('subscribe_courses.user_id', $employee_id)
+                ->whereNull('courses.deleted_at')
+                ->get();
         }
 
-
-
-        //dd($lessons_data);
-        if( $lessons_data ) {
-            foreach($lessons_data as $key=>$data) {
-                $lesson_data[$key]['title'] = $data->title;
-                $lesson_data[$key]['url'] = route('courses.show',$data->course_slug);
-                $lesson_data[$key]['start'] = date('Y-m-d',strtotime($data->lesson_start_date));
-                $lesson_data[$key]['description'] = $data->course_name;
-
+        if ($lessons_data) {
+            foreach ($lessons_data as $key => $data) {
+                if (!$data->lesson_start_date) continue;
+                $lesson_data[] = [
+                    'title'       => $data->title,
+                    'url'         => route('courses.show', $data->course_slug),
+                    'start'       => date('Y-m-d', strtotime($data->lesson_start_date)),
+                    'description' => $data->course_name,
+                ];
             }
         }
 
-        $lessons = json_encode($lesson_data);
-        return view($this->path . '.calender.index', ['lessons'=>$lessons]);
+        // ─── 2. Course-Level Live Sessions (Zoom/Teams/Meet) ───
+        $live_session_data = [];
+        $meetingQuery = DB::table('courses')
+            ->select(
+                'courses.title', 'courses.slug', 'courses.meeting_provider',
+                'courses.meeting_start_at', 'courses.meeting_duration',
+                'courses.meeting_join_url'
+            )
+            ->whereNotNull('courses.meeting_start_at')
+            ->whereNotNull('courses.meeting_provider')
+            ->whereNull('courses.deleted_at');
 
+        if ($isAdmin) {
+            // no additional filter
+        } elseif ($isTeacher) {
+            $meetingQuery->join('course_user', 'course_user.course_id', '=', 'courses.id')
+                ->where('course_user.user_id', $employee_id);
+        } else {
+            $meetingQuery->join('subscribe_courses', 'subscribe_courses.course_id', '=', 'courses.id')
+                ->where('subscribe_courses.user_id', $employee_id);
+        }
+
+        $meetings_data = $meetingQuery->get();
+
+        foreach ($meetings_data as $data) {
+            $providerLabel = ucfirst($data->meeting_provider);
+            $start = Carbon::parse($data->meeting_start_at);
+            $event = [
+                'title' => "[$providerLabel] " . $data->title,
+                'start' => $start->toIso8601String(),
+                'url'   => $data->meeting_join_url ?: route('courses.show', $data->slug),
+            ];
+            if ($data->meeting_duration) {
+                $event['end'] = $start->copy()->addMinutes((int)$data->meeting_duration)->toIso8601String();
+            }
+            $live_session_data[] = $event;
+        }
+
+        // ─── 3. Live Lesson Slots ───
+        $live_slot_data = [];
+        $slotQuery = DB::table('live_lesson_slots')
+            ->select(
+                'live_lesson_slots.topic', 'live_lesson_slots.start_at',
+                'live_lesson_slots.duration', 'live_lesson_slots.join_url',
+                'courses.title as course_name', 'courses.slug as course_slug',
+                'lessons.title as lesson_title'
+            )
+            ->join('lessons', 'lessons.id', '=', 'live_lesson_slots.lesson_id')
+            ->join('courses', 'courses.id', '=', 'lessons.course_id')
+            ->whereNull('live_lesson_slots.deleted_at')
+            ->whereNull('courses.deleted_at');
+
+        if ($isAdmin) {
+            // no additional filter
+        } elseif ($isTeacher) {
+            $slotQuery->join('course_user', 'course_user.course_id', '=', 'courses.id')
+                ->where('course_user.user_id', $employee_id);
+        } else {
+            $slotQuery->join('subscribe_courses', 'subscribe_courses.course_id', '=', 'courses.id')
+                ->where('subscribe_courses.user_id', $employee_id);
+        }
+
+        $slots_data = $slotQuery->get();
+
+        foreach ($slots_data as $data) {
+            $start = Carbon::parse($data->start_at);
+            $event = [
+                'title' => '[Live] ' . ($data->topic ?: $data->lesson_title),
+                'start' => $start->toIso8601String(),
+                'url'   => $data->join_url ?: route('courses.show', $data->course_slug),
+            ];
+            if ($data->duration) {
+                $event['end'] = $start->copy()->addMinutes((int)$data->duration)->toIso8601String();
+            }
+            $live_slot_data[] = $event;
+        }
+
+        return view($this->path . '.calender.index', [
+            'lessons'          => json_encode($lesson_data),
+            'liveSessions'     => json_encode($live_session_data),
+            'liveLessonSlots'  => json_encode($live_slot_data),
+        ]);
     }
 
     public function all()

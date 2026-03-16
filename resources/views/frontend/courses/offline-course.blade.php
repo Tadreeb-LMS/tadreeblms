@@ -59,14 +59,15 @@
                             <div class="">
                                 <h5>{{ trans('course.welcome_title',['name'=>auth()->user()->full_name]) }},</h5>
                                 <h4> 
-                                    @if($is_course_started == false && !$is_attended)
-                                    {!! trans('course.is_offline_course',['course'=>$course->title])  !!} 
-                                    @elseif($is_course_started == true && $is_course_completed == true && !$is_attended) 
-                                    {!! trans('course.will_be_attendance_taken',['course'=>$course->title])  !!}
-                                    @elseif (@$hasFeedBack && !@$feedback_given && $course->assignmentStatus(auth()->id()) != 'Failed' && $is_attended)
-                                    {!! trans('course.your_attendance_taken',['course'=>$course->title])  !!}
-                                    @else 
-                                    {!! trans('course.your_attendance_taken',['course'=>$course->title])  !!}
+                                    @if($is_attended)
+                                        {{-- Attendance is marked --}}
+                                        {!! trans('course.your_attendance_taken',['course'=>$course->title])  !!}
+                                    @elseif($is_course_started == false)
+                                        {!! trans('course.is_offline_course',['course'=>$course->title])  !!}
+                                    @elseif($is_course_started == true && $is_course_completed == true)
+                                        {!! trans('course.will_be_attendance_taken',['course'=>$course->title])  !!}
+                                    @else
+                                        {!! trans('course.is_offline_course',['course'=>$course->title])  !!}
                                     @endif
                                 </h4>
                             </div>
@@ -124,14 +125,19 @@
                                     
                                 @else
 
-                                    @if($course->is_online == 'Offline' || $course->is_online == 'Live-Classroom')
-                                            @if($is_course_started == true && $is_course_completed == true)    
+                                    @if($course->meeting_join_url)
+                                        <a href="javascript:void(0);" class="btn btn-primary btn-block text-white mb-3 text-uppercase font-weight-bold"
+                                            onclick="window.open('{{ $course->meeting_join_url }}', '_blank'); window.location.href='{{ route('courses.show', [$course->slug]) }}?joined=1';">
+                                            <i class="fa fa-video"></i> @lang('Join')
+                                        </a>
+                                    @elseif($course->is_online == 'Offline' || $course->is_online == 'Live-Classroom')
+                                            @if($is_course_started == true && $is_course_completed == true)
                                                 <a href="{{ route('recordAttendance', ['slug' => $course->slug]) }}"
                                                     class="genius-btn btn-block text-white  gradient-bg text-center text-uppercase  bold-font">
 
                                                     @lang('Attend Course')
 
-                                                    <i class="fa fa-arow-right"></i></a> 
+                                                    <i class="fa fa-arow-right"></i></a>
 
                                                     {{-- <span class="alert alert-success">@lang('Will start at :start_at',['start_at'=>$due_date_time])</span>
                                                     <span class="alert alert-success">@lang('Will end at :end_at',['end_at'=>$end_meeting_attend_time]) Now: {{ $now }}</span> --}}
@@ -140,18 +146,16 @@
                                                 @lang('End at :end_at',['end_at'=>$end_meeting_attend_time]) <br /
                                                 >Now: {{ $now }}</span>
                                             @elseif($is_course_started == true && $is_course_completed == false)
-                                                @if($first_lesson_slug)    
+                                                @if($first_lesson_slug)
                                                     <a href="{{route('lessons.show',['course_id' => $course->id,'slug' => $first_lesson_slug])}}"
                                                         class="genius-btn btn-block text-white  gradient-bg text-center text-uppercase  bold-font">
 
                                                         @lang('labels.frontend.course.continue_course')
 
-                                                        <i class="fa fa-arow-right"></i> 
-                                                    </a> 
+                                                        <i class="fa fa-arow-right"></i>
+                                                    </a>
                                                 @else
-                                                    <span class="alert alert-success">@lang('buttons.No-lessons-yet')
-                                                    </span>
-                                                    <small class="sm-hint">@lang('buttons.admin-will-add-lesson-later')</small>
+                                                    <span class="alert alert-info">@lang('No lessons available for this course.')</span>
                                                 @endif
                                             @endif
 

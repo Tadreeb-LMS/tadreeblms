@@ -309,7 +309,7 @@
 },
 {
     data: "expiry_date",
-    name: "expiry_at"
+    name: "expire_at"
 },
                     {
                         data: "qr_code",
