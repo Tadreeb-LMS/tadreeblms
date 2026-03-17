@@ -125,7 +125,11 @@
                                     
                                 @else
 
-                                    @if($course->meeting_join_url)
+                                    @if($course->meeting_host_url && (auth()->user()->isAdmin() || auth()->user()->hasRole('teacher')))
+                                        <a href="{{ $course->meeting_host_url }}" target="_blank" class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold">
+                                            <i class="fa fa-video"></i> @lang('Host Meeting')
+                                        </a>
+                                    @elseif($course->meeting_join_url)
                                         <a href="javascript:void(0);" class="btn btn-primary btn-block text-white mb-3 text-uppercase font-weight-bold"
                                             onclick="window.open('{{ $course->meeting_join_url }}', '_blank'); window.location.href='{{ route('courses.show', [$course->slug]) }}?joined=1';">
                                             <i class="fa fa-video"></i> @lang('Join')

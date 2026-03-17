@@ -59,6 +59,7 @@
                         <option value="">All</option>
                         <option value="published">Published</option>
                         <option value="draft">Draft</option>
+                        <option value="expired">Expired</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -246,6 +247,7 @@
                     }
                 },
                 columns: [
+                    @can('course_delete')
                     @if (request('show_deleted') != 1)
                         {
                             "data": function(data) {
@@ -257,6 +259,7 @@
                             "name": "id"
                         },
                     @endif
+                    @endcan
 
                     {
                         data: "course_code",
@@ -308,7 +311,7 @@
     name: "start_date"
 },
 {
-    data: "expiry_date",
+    data: "expire_at",
     name: "expire_at"
 },
                     {
@@ -335,6 +338,7 @@
                         name: "actions"
                     }
                 ],
+                @can('course_delete')
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
@@ -346,6 +350,7 @@
                         }
                     ],
                 @endif
+                @endcan
  initComplete: function () {
                      let $searchInput = $('#myTable_filter input[type="search"]');
                 $searchInput

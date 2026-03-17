@@ -99,6 +99,19 @@ public function getExpiryDateAttribute($input)
     }
 }
 
+public function getStatusLabelAttribute()
+{
+    if ($this->expire_at && Carbon::parse($this->expire_at)->isPast()) {
+        return 'expired';
+    }
+
+    if ($this->published == 1) {
+        return 'published';
+    }
+
+    return 'draft';
+}
+
     public function latestModuleWeightage()
     {
         return $this->hasOne(CourseModuleWeightage::class)->latestOfMany();

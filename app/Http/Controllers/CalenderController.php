@@ -90,7 +90,7 @@ class CalenderController extends Controller
             ->select(
                 'courses.title', 'courses.slug', 'courses.meeting_provider',
                 'courses.meeting_start_at', 'courses.meeting_duration',
-                'courses.meeting_join_url'
+                'courses.meeting_join_url', 'courses.meeting_host_url'
             )
             ->whereNotNull('courses.meeting_start_at')
             ->whereNotNull('courses.meeting_provider')
@@ -111,10 +111,14 @@ class CalenderController extends Controller
         foreach ($meetings_data as $data) {
             $providerLabel = ucfirst($data->meeting_provider);
             $start = Carbon::parse($data->meeting_start_at);
+            // Teachers/Admins get host link, students get join link
+            $meetingUrl = ($isAdmin || $isTeacher)
+                ? ($data->meeting_host_url ?: $data->meeting_join_url)
+                : $data->meeting_join_url;
             $event = [
                 'title' => "[$providerLabel] " . $data->title,
                 'start' => $start->toIso8601String(),
-                'url'   => $data->meeting_join_url ?: route('courses.show', $data->slug),
+                'url'   => $meetingUrl ?: route('courses.show', $data->slug),
             ];
             if ($data->meeting_duration) {
                 $event['end'] = $start->copy()->addMinutes((int)$data->meeting_duration)->toIso8601String();
@@ -128,6 +132,7 @@ class CalenderController extends Controller
             ->select(
                 'live_lesson_slots.topic', 'live_lesson_slots.start_at',
                 'live_lesson_slots.duration', 'live_lesson_slots.join_url',
+                'live_lesson_slots.start_url',
                 'courses.title as course_name', 'courses.slug as course_slug',
                 'lessons.title as lesson_title'
             )
@@ -150,10 +155,14 @@ class CalenderController extends Controller
 
         foreach ($slots_data as $data) {
             $start = Carbon::parse($data->start_at);
+            // Teachers/Admins get host (start) link, students get join link
+            $slotUrl = ($isAdmin || $isTeacher)
+                ? ($data->start_url ?: $data->join_url)
+                : $data->join_url;
             $event = [
                 'title' => '[Live] ' . ($data->topic ?: $data->lesson_title),
                 'start' => $start->toIso8601String(),
-                'url'   => $data->join_url ?: route('courses.show', $data->course_slug),
+                'url'   => $slotUrl ?: route('courses.show', $data->course_slug),
             ];
             if ($data->duration) {
                 $event['end'] = $start->copy()->addMinutes((int)$data->duration)->toIso8601String();

@@ -218,7 +218,11 @@
                 info.jsEvent.preventDefault(); // don't let the browser navigate
 
                 if (info.event.url) {
-                window.open(info.event.url);
+                    var newWindow = window.open(info.event.url, '_blank');
+                    // If popup was blocked, fallback to same tab
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                        window.location.href = info.event.url;
+                    }
                 }
             },
 

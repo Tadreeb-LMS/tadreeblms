@@ -64,6 +64,12 @@ class Lesson extends Model
         return NULL;
     }
 
+
+    public function videos()
+{
+    return $this->hasMany(LessonVideo::class)->orderBy('sort_order');
+}
+
     public function getLessonReadtimeAttribute(){
         if($this->full_text != null){
             $text = strip_tags($this->full_text);

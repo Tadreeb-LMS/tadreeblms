@@ -15,7 +15,10 @@ use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Backend\SettingsController;
+
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
+
+
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
@@ -23,7 +26,8 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
-
+Route::get('/lesson/check-course', [App\Http\Controllers\Backend\Admin\LessonsController::class, 'checkCourse'])
+    ->name('lessons.course.check');
 Route::get('/ldap-test', function () {
     try {
         Container::getConnection()->connect();
@@ -120,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
  * Backend Routes
  * Namespaces indicate folder structure
  */
+
 Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
 Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
     ->name('course-feedback-questions.edit');
@@ -130,6 +135,10 @@ Route::post('course-feedback-questions/{id}/update', [CourseFeedbackController::
 Route::post('settings/general/update',
         [SettingsController::class, 'updateGeneral'])
     ->name('settings.general.update');
+
+Route::post('settings/general/update',
+        'SettingsController@updateGeneral'
+    )->name('settings.general.update');
     /*
      * These routes need view-backend permission
      * (good if you want to allow more than one group in the backend,
