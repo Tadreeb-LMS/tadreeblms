@@ -42,31 +42,11 @@ class UserFeedback extends Model
 
     public function getQuestionAnswersAttribute()
     {
-        $trs = "";
+        $trs = '';
 
-        $ufs =  UserFeedback::where('course_id', $this->course_id)
-                    ->where('user_id', $this->user_id)
-                    ->orderBy('id','desc')
-                    ->get()
-                    ->unique('feedback_id')
-                    ->values();
-
-        //dd($ufs);
-
-        foreach ($ufs as $uf) {
-
-            if (in_array($uf->feedback_questions_type, [1, 2])) {
-                if (str_contains($uf->feedback, '[')) {
-                    $fo = FeedbackOption::whereIn('id', json_decode($uf->feedback))->pluck('option_text')->toArray();
-                    $answer = implode(', ', $fo);
-                } else {
-                    $answer = FeedbackOption::firstWhere('id', json_decode($uf->feedback))->option_text??'';
-                }
-            } else {
-                $answer = $uf->feedback;
-            }
-
-            $question = @$uf->feedbackQuestion->question;
+        foreach ($this->getQuestionAnswerRows() as $row) {
+            $question = e($row['question']);
+            $answer = e($row['answer']);
 
             $trs .= "
             <tr>
@@ -87,5 +67,57 @@ class UserFeedback extends Model
         ";
 
         return $html;
+    }
+
+    public function getQuestionAnswersTextAttribute()
+    {
+        $lines = [];
+
+        foreach ($this->getQuestionAnswerRows() as $row) {
+            $question = trim((string) $row['question']);
+            $answer = trim((string) $row['answer']);
+
+            $lines[] = $question !== '' ? $question . ': ' . $answer : $answer;
+        }
+
+        return implode(PHP_EOL, $lines);
+    }
+
+    protected function getQuestionAnswerRows(): array
+    {
+        $rows = [];
+
+        $feedbackEntries = static::where('course_id', $this->course_id)
+            ->where('user_id', $this->user_id)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->unique('feedback_id')
+            ->values();
+
+        foreach ($feedbackEntries as $feedbackEntry) {
+            $rows[] = [
+                'question' => optional($feedbackEntry->feedbackQuestion)->question ?? '',
+                'answer' => $this->resolveFeedbackAnswerText($feedbackEntry),
+            ];
+        }
+
+        return $rows;
+    }
+
+    protected function resolveFeedbackAnswerText(self $feedbackEntry): string
+    {
+        if (in_array($feedbackEntry->feedback_questions_type, [1, 2])) {
+            if (str_contains($feedbackEntry->feedback, '[')) {
+                $optionTexts = FeedbackOption::whereIn('id', json_decode($feedbackEntry->feedback, true) ?? [])
+                    ->pluck('option_text')
+                    ->toArray();
+
+                return implode(', ', $optionTexts);
+            }
+
+            return FeedbackOption::firstWhere('id', json_decode($feedbackEntry->feedback))->option_text ?? '';
+        }
+
+        return (string) $feedbackEntry->feedback;
     }
 }

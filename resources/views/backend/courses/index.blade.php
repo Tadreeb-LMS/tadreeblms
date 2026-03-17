@@ -247,6 +247,7 @@
                     }
                 },
                 columns: [
+                    @can('course_delete')
                     @if (request('show_deleted') != 1)
                         {
                             "data": function(data) {
@@ -258,6 +259,7 @@
                             "name": "id"
                         },
                     @endif
+                    @endcan
 
                     {
                         data: "course_code",
@@ -336,6 +338,7 @@
                         name: "actions"
                     }
                 ],
+                @can('course_delete')
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
@@ -347,6 +350,7 @@
                         }
                     ],
                 @endif
+                @endcan
  initComplete: function () {
                      let $searchInput = $('#myTable_filter input[type="search"]');
                 $searchInput
