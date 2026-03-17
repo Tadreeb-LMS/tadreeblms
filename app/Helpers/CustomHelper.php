@@ -381,7 +381,10 @@ class CustomHelper
 
 
 
-        if ($is_attended == 1 && $is_attended == 1 && $course->is_online == 'Offline') {
+        // Offline/Live-Online course WITH lessons → use lesson-based flow (skip attendance gate)
+        if ($course->is_online == 'Offline' && $total_lessons_count > 0) {
+            // fall through to standard lesson-completion logic below
+        } elseif ($is_attended == 1 && $is_attended == 1 && $course->is_online == 'Offline') {
 
             //$progress_value = self::getCourseProgress($course, $sub_data, $user_id);
             $progress_value = $helper->getCourseProgress($course, $sub_data, $user_id);
@@ -1379,6 +1382,23 @@ class CustomHelper
 
                     if ($sc->is_completed == 0 && $isAllLessonsCommpleted) {
                         return $helper->openAssesmentOrFeedback($sc, $course_id, $open_assesment, $open_feedback);
+                    }
+                }
+                // Offline/Live-Online with lessons but no attendance → use lesson-based flow like Online
+                elseif (!$sc->is_attended && $sc->is_completed == 0) {
+                    $isAllLessonsCommpleted = $helper->getIsAllLessonsCompleted($sc, $course_id);
+                    if ($isAllLessonsCommpleted) {
+                        return $helper->openAssesmentOrFeedback($sc, $course_id, $open_assesment, $open_feedback);
+                    }
+                    if ($isAllLessonsCommpleted == 0) {
+                        return [
+                            'failed_in_assesment_all_attempts' => $failed_in_assesment_all_attempts,
+                            'reattempt_assesment' => false,
+                            'completed_assesment' => false,
+                            'download_certificate' => false,
+                            'open_assesment' => false,
+                            'open_feedback' => false,
+                        ];
                     }
                 }
             }

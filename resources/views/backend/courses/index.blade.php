@@ -290,6 +290,7 @@ window.addEventListener('load', function () {
                     }
                 },
                 columns: [
+                    @can('course_delete')
                     @if (request('show_deleted') != 1)
                         {
                             "data": function(data) {
@@ -301,6 +302,7 @@ window.addEventListener('load', function () {
                             "name": "id"
                         },
                     @endif
+                    @endcan
 
                     {
                         data: "course_code",
@@ -383,6 +385,7 @@ window.addEventListener('load', function () {
                         name: "actions"
                     }
                 ],
+                @can('course_delete')
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
@@ -394,6 +397,7 @@ window.addEventListener('load', function () {
                         }
                     ],
                 @endif
+                @endcan
  initComplete: function () {
                      let $searchInput = $('#myTable_filter input[type="search"]');
                 $searchInput

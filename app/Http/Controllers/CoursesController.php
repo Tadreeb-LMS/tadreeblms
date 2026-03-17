@@ -356,17 +356,21 @@ $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
 
             $assessment_link = "";
 
-           
+            // TEMP: Mark attendance when student clicks Join (TODO: move to teacher flow later)
+            if ($subscribe_data && !$subscribe_data->is_attended && request()->has('joined')) {
+                DB::table('subscribe_courses')->where('id', $subscribe_data->id)->update(['is_attended' => 1]);
+                $subscribe_data->is_attended = 1;
+            }
 
             // updating course progress
             $progress = CustomHelper::progress($course_id, $logged_in_user_id);
 
             if ($hasAssessmentLink) {
                 $assessment_link = $lessonController->assessmentLink($logged_in_user_id, $course_id);
-            } 
+            }
 
             if($hasFeedBack) {
-              $feedbackLink = $feedbackLink;  
+              $feedbackLink = $feedbackLink;
             }
 
             if ($isAssignmentTaken && $feedbackLink) {
@@ -375,7 +379,7 @@ $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
 
 
             //dd($isAssignmentTaken, $feedbackLink, $hasFeedBack, $feedback_given);
-            
+
 
             //dd($logged_in_user_id, $course_id);
 
@@ -405,7 +409,7 @@ if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
 
             if ($end_meeting_attend_time) {
                 $end_meeting_attend_time = Carbon::parse($end_meeting_attend_time);
-                $buffer_minutes = $now->diffInMinutes($end_meeting_attend_time, false); 
+                $buffer_minutes = $now->diffInMinutes($end_meeting_attend_time, false);
             } else {
                 $buffer_minutes = null;
             }
@@ -669,7 +673,7 @@ if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
             if ($hasAssessmentLink) {
                 $assessment_link = $lessonController->assessmentLink($logged_in_user_id, $course_id);
             } else {
-              $courseFeedbackLink = $feedbackLink;  
+              $courseFeedbackLink = $feedbackLink;
             }
 
             if ($isAssignmentTaken && $feedbackLink) {
@@ -697,6 +701,13 @@ if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
             } else {
                 $has_subscribtion = 1;
                 $course_is_ready = 1;
+
+                // TEMP: Mark attendance when student clicks Join (TODO: move to teacher flow later)
+                if (!$subscribe_data->is_attended && request()->has('joined')) {
+                    DB::table('subscribe_courses')->where('id', $subscribe_data->id)->update(['is_attended' => 1]);
+                    $subscribe_data->is_attended = 1;
+                }
+
                 $isGrantCertificate = $subscribe_data->grant_certificate;
                 $is_attended = $subscribe_data->is_attended ?? false;
             }

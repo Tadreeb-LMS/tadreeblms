@@ -14,6 +14,14 @@ return new class extends Migration
         Schema::create('lesson_videos', function (Blueprint $table) {
     $table->id();
     $table->foreignId('lesson_id')->constrained()->cascadeOnDelete();
+        if (Schema::hasTable('lesson_videos')) {
+            return;
+        }
+
+        Schema::create('lesson_videos', function (Blueprint $table) {
+    $table->id();
+    $table->unsignedInteger('lesson_id');
+    $table->foreign('lesson_id')->references('id')->on('lessons')->cascadeOnDelete();
     $table->string('title')->nullable();
     $table->string('type');
     $table->text('url')->nullable();

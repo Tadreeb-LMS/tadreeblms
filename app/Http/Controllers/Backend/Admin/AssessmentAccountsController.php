@@ -643,7 +643,7 @@ public function createWithCourse(Request $request)
             $course_Ass->course_id = $course_id;
 
 
-            $course_Ass->assign_by = 1;
+            $course_Ass->assign_by = auth()->id();
             $course_Ass->assign_date =  date('Y-m-d');
             $course_Ass->assign_to = $assign_to;
             //dd($course_Ass->assign_to);
@@ -819,7 +819,7 @@ public function createWithCourse(Request $request)
         $course_Ass = new courseAssignment;
         $course_Ass->title = 'Course Enrollment - ' . date('Y-m-d');
         $course_Ass->course_id = $course_id;
-        $course_Ass->assign_by = 1;
+        $course_Ass->assign_by = auth()->id();
         $course_Ass->assign_date = date('Y-m-d');
         $course_Ass->assign_to = $assign_to;
         $course_Ass->department_id = $request->department_id;
@@ -1031,7 +1031,7 @@ public function createWithCourse(Request $request)
 
             
 
-            $course_Ass->assign_by = 1;
+            $course_Ass->assign_by = auth()->id();
             $course_Ass->assign_date = date('Y-m-d');
             $course_Ass->assign_to = $assign_to;
             //dd($course_Ass->assign_to);
