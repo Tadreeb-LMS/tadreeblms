@@ -24,7 +24,7 @@ $installedFlag     = $basePath . '/installed';
 | Prevent reinstall
 |--------------------------------------------------------------------------
 */
-if (file_exists($installedFlag) && ($_GET['step'] ?? '') !== 'check') {
+if (file_exists($installedFlag)) {
     echo json_encode(['success' => false, 'message' => '❌ Application already installed']);
     exit;
 }
@@ -331,21 +331,14 @@ try {
         case 'finish':
             file_put_contents($installedFlag, 'installed');
             $env = file_get_contents($envFile);
-            if (strpos($env, 'APP_INSTALLED=true') === false) {
-                $env .= "\nAPP_INSTALLED=true\n";
-            }
-            if (strpos($env, 'APP_INSTALLED=false') === false) {
-                $env .= "\nAPP_INSTALLED=true\n";
-            }
             if (strpos($env, 'APP_INSTALLED=') === false) {
                 $env .= "\nAPP_INSTALLED=true\n";
             }
 
-            //$env .= "\nAPP_URL=" .$siteUrl. "\n";
-
             file_put_contents($envFile, $env);
 
-            
+            // Remove db_config.json now that credentials are in .env
+            @unlink($dbConfigFile);
 
             echo json_encode(['message' => "✔ Installation complete! <a href='/'>Open Application</a>", 'next' => null]);
             exit;

@@ -135,7 +135,7 @@
             @endif
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2])))
-            @can('calender_access')
+            {{-- @can('calender_access') --}} {{-- Removed: permission not seeded; revert by uncommenting if needed --}}
             <li class="nav-item ">
                 <a class="nav-link {{ request()->routeIs('user.calender') ? 'active' : '' }}"
                     href="{{ route('user.calender') }}">
@@ -144,7 +144,7 @@
                     <span class="title">@lang('menus.backend.sidebar.calendar')</span>
                 </a>
             </li>
-            @endcan
+            {{-- @endcan --}}
             @endif
 
 
@@ -565,13 +565,7 @@
                 </li>
 
 
-                <li class="nav-item ">
-                    <a class="nav-link {{ $request->segment(1) == 'user.calender' ? 'active' : '' }}"
-                        href="{{ route('user.calender') }}">
-                        <i class="nav-icon fa fa-calendar"></i>
-                        <span class="title">@lang('menus.backend.sidebar.calendar')</span>
-                    </a>
-                </li>
+                {{-- Calendar link removed here — already shown in common section above (line ~138) --}}
 
                 <li class="nav-item ">
                     <a class="nav-link {{ $request->segment(1) == 'user.subscriptions' ? 'active' : '' }}"

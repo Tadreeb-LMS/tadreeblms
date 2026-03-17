@@ -6,10 +6,19 @@
 
 <div class="container-fluid">
     <div class="row mb-3">
-        <div class="col-12 d-flex justify-content-end">
-            <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus mr-1"></i>Upload New Module
-            </a>
+        <div class="col-12 d-flex align-items-center">
+            <div style="flex: 1;"></div>
+            <div class="alert alert-info mb-0 py-2 px-3" style="font-size: 0.95rem;">
+                You can download the external applications from the Marketplace:
+                <a href="https://tadreeblms.com/marketplaces" target="_blank" rel="noopener noreferrer" class="font-weight-bold">https://tadreeblms.com/marketplaces</a>
+            </div>
+            <div style="flex: 1;" class="d-flex justify-content-end">
+                @if (count($apps) > 0)
+                <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus mr-1"></i>Upload New Module
+                </a>
+                @endif
+            </div>
         </div>
     </div>
     <div class="row">
