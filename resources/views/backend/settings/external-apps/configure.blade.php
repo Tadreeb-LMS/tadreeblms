@@ -151,7 +151,7 @@
                             </div>
                         @endif
 
-                        @if (in_array($app->slug, ['zoom', 'teams', 'google-meet', 'interactive-whiteboard']))
+                        @if (in_array($app->slug, ['zoom', 'teams', 'google-meet-integration', 'interactive-whiteboard']))
                             <hr class="mt-4 mb-4">
                             <h5 class="mb-4 d-flex align-items-center">
                                 <i class="fas fa-plug mr-2 text-primary"></i>
@@ -257,7 +257,7 @@ $(document).ready(function () {
     });
     @endif
 
-    @if ($app->slug === 'google-meet')
+    @if ($app->slug === 'google-meet-integration')
     $('#btnTestConnection').on('click', function() {
         var btn = $(this);
         var btnHtml = btn.html();
@@ -280,7 +280,7 @@ $(document).ready(function () {
         btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
 
         $.ajax({
-            url: '{{ url("external-apps/google-meet/test-connection") }}',
+            url: '{{ url("external-apps/google-meet-integration/test-connection") }}',
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',

@@ -6,7 +6,7 @@ return array(
         'description' => 'إدارة التطبيقات والتكاملات الخارجية',
         'upload_module' => 'تحميل وحدة خارجية',
         'module_name' => 'اسم الوحدة',
-        'module_name_placeholder' => 'مثال: google-meet, microsoft-teams',
+        'module_name_placeholder' => 'مثال: google-meet-integration, microsoft-teams',
         'upload_zip_file' => 'تحميل ملف Zip',
         'choose_zip_file' => 'اختر ملف zip...',
         'max_file_size' => 'الحد الأقصى لحجم الملف: 100 ميجابايت',

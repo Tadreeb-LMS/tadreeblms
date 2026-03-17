@@ -730,10 +730,10 @@
                         </a>
                     </li>
                     @endif
-                    @if (!empty($enabledApps['google-meet']) && $enabledApps['google-meet'])
+                    @if (!empty($enabledApps['google-meet-integration']) && $enabledApps['google-meet-integration'])
                     <li class="nav-item">
-                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/google-meet/configure')) }}"
-                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'google-meet']) }}">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/google-meet-integration/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'google-meet-integration']) }}">
                             <span class="title">Google Meet Configuration</span>
                         </a>
                     </li>

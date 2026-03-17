@@ -590,8 +590,8 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['teams'] = 'Microsoft Teams';
         }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet'] = 'Google Meet';
+        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
         return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -616,7 +616,7 @@ class CoursesController extends Controller
              'expire_at'  => 'required|date|after_or_equal:start_date',
         ]);
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -995,8 +995,8 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['teams'] = 'Microsoft Teams';
         }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet'] = 'Google Meet';
+        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -1043,7 +1043,7 @@ class CoursesController extends Controller
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -1749,8 +1749,8 @@ class CoursesController extends Controller
                     'meeting_host_url' => $meeting['host_url'] ?? null,
                 ];
             }
-        } elseif (in_array($provider, ['google-meet', 'google_meet'])) {
-            $service = new \Modules\GoogleMeet\Services\GoogleMeetService();
+        } elseif (in_array($provider, ['google-meet-integration', 'google_meet'])) {
+            $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
             
             $hostEmail = null;
             $teacherEmails = $course->teachers->pluck('email')->toArray();
@@ -1786,8 +1786,8 @@ class CoursesController extends Controller
         $students = User::whereIn('id', $studentIds)->get();
 
         // Google Meet integration: Add as attendee if course has a meeting
-        if ($course->meeting_provider == 'google-meet' && $course->meeting_id) {
-            $service = new \Modules\GoogleMeet\Services\GoogleMeetService();
+        if ($course->meeting_provider == 'google-meet-integration' && $course->meeting_id) {
+            $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
             $hostEmail = $course->teachers->first()->email ?? null;
             foreach ($students as $student) {
                 $service->addAttendeeToMeeting($course->meeting_id, $student->email, $hostEmail);

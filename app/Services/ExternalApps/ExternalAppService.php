@@ -359,8 +359,8 @@ class ExternalAppService
             // Keyword map: if the zip filename contains a keyword, force that slug
             $keywordSlugMap = [
                 'zoom'             => 'zoom',
-                'google-meet'      => 'google-meet',
-                'meet'             => 'google-meet',
+                'google-meet'      => 'google-meet-integration',
+                'meet'             => 'google-meet-integration',
                 'teams'            => 'teams',
                 'external-storage' => 'external-storage',
                 'storage'          => 'external-storage',
