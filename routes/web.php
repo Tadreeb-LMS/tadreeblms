@@ -15,7 +15,10 @@ use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Backend\SettingsController;
+
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
+
+
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
@@ -132,12 +135,10 @@ Route::post('course-feedback-questions/{id}/update', [CourseFeedbackController::
 Route::post('settings/general/update',
         [SettingsController::class, 'updateGeneral'])
     ->name('settings.general.update');
-Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'admin'], function () {
 
 Route::post('settings/general/update',
         'SettingsController@updateGeneral'
     )->name('settings.general.update');
-
     /*
      * These routes need view-backend permission
      * (good if you want to allow more than one group in the backend,
