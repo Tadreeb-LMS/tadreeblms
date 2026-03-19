@@ -145,6 +145,26 @@ class CoursesController extends Controller
                     ->with(['route' => route('admin.courses.publish', ['id' => $q->id])])->render();
                 return $view;
             })
+            ->addColumn('status', function ($q) {
+
+    // Expired (only if published)
+    if ($q->published == 1 && $q->expire_at && \Carbon\Carbon::parse($q->expire_at)->isPast()) {
+        return "<p class='pill-expired'>Expired</p>";
+    }
+
+    // Published
+    if ($q->published == 1) {
+        return "<p class='pill-publish'>Published</p>";
+    }
+
+    // Unpublished (-1)
+    if ($q->published == -1) {
+        return "<p class='pill-unpublish'>Unpublished</p>";
+    }
+
+    // Draft (0)
+    return "<p class='pill-draft'>Draft</p>";
+})
             ->addColumn('teachers', function ($q) {
                 $teachers = "";
                 foreach ($q->teachers as $singleTeachers) {
@@ -166,17 +186,7 @@ class CoursesController extends Controller
             ->addColumn('qr_code', function ($q) {
                 return QrCode::size(80)->generate(url('register/course/' . $q->id));
             })
-            ->addColumn('status', function ($q) {
-                $text = "";
-                $text = ($q->published == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-dark p-1 mr-1' >" . trans('labels.backend.courses.fields.published') . "</p>" : "<p class='text-white mb-1 font-weight-bold text-center bg-primary p-1 mr-1' >" . trans('labels.backend.courses.fields.unpublished') . "</p>";
-                if (auth()->user()->isAdmin()) {
-                    $text .= ($q->featured == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-warning p-1 mr-1' >" . trans('labels.backend.courses.fields.featured') . "</p>" : "";
-                    $text .= ($q->trending == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-success p-1 mr-1' >" . trans('labels.backend.courses.fields.trending') . "</p>" : "";
-                    $text .= ($q->popular == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-primary p-1 mr-1' >" . trans('labels.backend.courses.fields.popular') . "</p>" : "";
-                }
-
-                return $text;
-            })
+            
             ->editColumn('price', function ($q) {
                 if ($q->free == 1) {
                     return trans('labels.backend.courses.fields.free');
@@ -458,23 +468,36 @@ class CoursesController extends Controller
     return $html;
 })
             ->addColumn('status', function ($q) {
-                $text = "";
-               if ($q->published == 1) {
-                    $text = "<p class='pill-publish'>" . trans('labels.backend.courses.fields.published') . "</p>";
-                } elseif ($q->published == 0) {
-                    $text = "<p class='pill-draft'>" . trans('labels.backend.courses.fields.draft') . "</p>";
-                } else { // -1
-                    $text = "<p class='pill-unpublish'>" . trans('labels.backend.courses.fields.unpublished') . "</p>";
-                }
 
-                if (auth()->user()->isAdmin()) {
-                    $text .= ($q->featured == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-warning p-1 mr-1' >" . trans('labels.backend.courses.fields.featured') . "</p>" : "";
-                    $text .= ($q->trending == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-success p-1 mr-1' >" . trans('labels.backend.courses.fields.trending') . "</p>" : "";
-                    $text .= ($q->popular == 1) ? "<p class='text-white mb-1 font-weight-bold text-center bg-primary p-1 mr-1' >" . trans('labels.backend.courses.fields.popular') . "</p>" : "";
-                }
+    // Expired (if published and expire date passed)
+    if (
+        $q->published == 1 &&
+        $q->expire_at &&
+        \Carbon\Carbon::parse($q->expire_at)->isPast()
+    ) {
+        $text = "<p class='pill-expired'>Expired</p>";
+    }
+    // Published
+    elseif ($q->published == 1) {
+        $text = "<p class='pill-publish'>Published</p>";
+    }
+    // Draft
+    elseif ($q->published == 0) {
+        $text = "<p class='pill-draft'>Draft</p>";
+    }
+    // Unpublished (-1)
+    else {
+        $text = "<p class='pill-unpublish'>Unpublished</p>";
+    }
 
-                return $text;
-            })
+    if (auth()->user()->isAdmin()) {
+        $text .= ($q->featured == 1) ? "<p class='bg-warning text-white p-1'>Featured</p>" : "";
+        $text .= ($q->trending == 1) ? "<p class='bg-success text-white p-1'>Trending</p>" : "";
+        $text .= ($q->popular == 1) ? "<p class='bg-primary text-white p-1'>Popular</p>" : "";
+    }
+
+    return $text;
+})
             ->addColumn('start_date', function ($q) {
     if (empty($q->start_date)) {
         return '-';
@@ -567,8 +590,8 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['teams'] = 'Microsoft Teams';
         }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet'] = 'Google Meet';
+        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
         return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -591,9 +614,14 @@ class CoursesController extends Controller
         $request->validate([
              'start_date' => 'required|date',
              'expire_at'  => 'required|date|after_or_equal:start_date',
+             'title' => 'required|string|max:255',
+             'category_id' => 'required',
+             'course_type' => 'required',
+             'course_payment_type' => 'required',
+             'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -888,7 +916,7 @@ class CoursesController extends Controller
                 );
                 if ($meetingData) {
                     $course->fill($meetingData)->save();
-                    // $this->sendMeetingInviteToStudents($course, $students);
+                    $this->sendMeetingInviteToStudents($course, $students);
                     // $this->sendMeetingInviteToTeachers($course, $teachers); // Replaced by Trainer assigned notification
                 } else {
                     \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
@@ -972,8 +1000,8 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['teams'] = 'Microsoft Teams';
         }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet'] = 'Google Meet';
+        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -1020,7 +1048,7 @@ class CoursesController extends Controller
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -1397,35 +1425,24 @@ class CoursesController extends Controller
      * @param  Request
      */
     public function publish($id)
-    {
-        if (!Gate::allows('course_edit')) {
-            return abort(401);
-        }
-
-        $course = Course::findOrFail($id);
-        if ($course->published == 1) {
-            $course->published = -1;
-        } else {
-            if($course->published == -1) {
-                $course->published = 1;
-            }
-        }
-        $course->save();
-
-        // Course published/unpublished notification
-        try {
-            $notificationSettings = app(NotificationSettingsService::class);
-            if ($notificationSettings->shouldNotify('courses', 'course_published', 'email')) {
-                $isPublished = ($course->published == 1);
-                CourseNotification::sendCoursePublishedEmail(\Auth::user(), $course, $isPublished);
-                CourseNotification::createCoursePublishedBell(\Auth::user(), $course, $isPublished);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Failed to send course published notification: ' . $e->getMessage());
-        }
-
-        return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
+{
+    if (!Gate::allows('course_edit')) {
+        return abort(401);
     }
+
+    $course = Course::findOrFail($id);
+
+    // Toggle logic
+    if ($course->published == 1) {
+        $course->published = -1; // Unpublish
+    } else {
+        $course->published = 1; // Publish (works for draft & unpublished)
+    }
+
+    $course->save();
+
+    return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
+}
 
     public function course_detail($course_id, $employee_id)
     {
@@ -1737,6 +1754,34 @@ class CoursesController extends Controller
                     'meeting_host_url' => $meeting['host_url'] ?? null,
                 ];
             }
+        } elseif (in_array($provider, ['google-meet-integration', 'google_meet'])) {
+            $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
+            
+            $hostEmail = null;
+            $teacherEmails = $course->teachers->pluck('email')->toArray();
+            if (!empty($teacherEmails)) {
+                $hostEmail = $teacherEmails[0];
+            }
+
+            $studentEmails = $course->students->pluck('email')->toArray();
+            $attendees = array_merge($teacherEmails, $studentEmails);
+
+            $meeting = $service->createMeeting(
+                $course->title,
+                $request->meeting_start_at,
+                $request->meeting_duration,
+                $request->meeting_timezone,
+                $hostEmail,
+                $attendees
+            );
+
+            if ($meeting) {
+                return [
+                    'meeting_id'       => $meeting['id'],
+                    'meeting_join_url' => $meeting['join_url'],
+                    'meeting_host_url' => $meeting['host_url'] ?? null,
+                ];
+            }
         }
         return null;
     }
@@ -1744,6 +1789,16 @@ class CoursesController extends Controller
     private function sendMeetingInviteToStudents(Course $course, array $studentIds): void
     {
         $students = User::whereIn('id', $studentIds)->get();
+
+        // Google Meet integration: Add as attendee if course has a meeting
+        if ($course->meeting_provider == 'google-meet-integration' && $course->meeting_id) {
+            $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
+            $hostEmail = $course->teachers->first()->email ?? null;
+            foreach ($students as $student) {
+                $service->addAttendeeToMeeting($course->meeting_id, $student->email, $hostEmail);
+            }
+        }
+
         foreach ($students as $student) {
             \Illuminate\Support\Facades\Mail::to($student->email)
                 ->send(new \App\Mail\CourseMeetingInvite($course));

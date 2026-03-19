@@ -46,7 +46,7 @@
 @csrf
 
 <div class="pb-3 d-flex justify-content-between">
-    <h4>@lang('Create Assignment')</h4>
+    <!-- <h4>@lang('Create Assignment')</h4> -->
 
     <div>
         @if ($user_id != NULL)
@@ -128,7 +128,7 @@
 
                     <div class="col-md-12 custom-select-wrapper">
                         <select class="form-control custom-select-box select2"
-                                name="course_id">
+                                name="course_ids[]" multiple >
                             <option value="" disabled {{ old('course_id') ? '' : 'selected' }}>
                                 Select One Course
                             </option>

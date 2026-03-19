@@ -6,28 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-         Schema::table('courses', function (Blueprint $table) {
+        Schema::table('courses', function (Blueprint $table) {
+
             if (!Schema::hasColumn('courses', 'start_date')) {
-                $table->date('start_date')->nullable()->after('published');
+                $table->date('start_date')->nullable()->after('status');
             }
+
             if (!Schema::hasColumn('courses', 'expiry_date')) {
                 $table->date('expiry_date')->nullable()->after('start_date');
             }
+
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('courses', function (Blueprint $table) {
-        $table->dropColumn(['start_date', 'expiry_date']);
-    });
+
+            if (Schema::hasColumn('courses', 'expiry_date')) {
+                $table->dropColumn('expiry_date');
+            }
+
+            if (Schema::hasColumn('courses', 'start_date')) {
+                $table->dropColumn('start_date');
+            }
+
+        });
     }
 };

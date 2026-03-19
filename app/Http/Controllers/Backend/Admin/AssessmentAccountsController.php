@@ -40,6 +40,7 @@ use App\Models\Test;
 use Illuminate\Support\Facades\DB as FacadesDB;
 use Illuminate\Support\Facades\Validator;
 
+
 class AssessmentAccountsController extends Controller
 {
 
@@ -55,6 +56,52 @@ class AssessmentAccountsController extends Controller
         return view('backend.assessment_accounts.index', compact('assessment_accounts'));
     }
 
+public function courseAssignment(Request $request)
+{
+
+    $request->validate([
+        'course_ids' => 'required|array',
+        'teachers' => 'required|array'
+    ]);
+
+    $courses = $request->course_ids;
+    $users = $request->teachers;
+
+    foreach ($courses as $courseId) {
+
+        $course = DB::table('courses')->where('id', $courseId)->first();
+
+        // create assignment
+        $assignmentId = DB::table('course_assignment')->insertGetId([
+            'title' => $course->title,
+            'course_id' => $courseId, 
+            'category_id' => $course->category_id ?? null,
+    'department_id' => $request->department_id ?? null,   
+             'assign_by' => auth()->id(),        // Assign By
+            'created_at' => now(),
+            'updated_at' => now(),
+            'assign_date' => now(),
+'assign_to' => $request->department_id ? 'department' : 'user',        ]);
+
+        // assign users
+        foreach ($users as $userId) {
+
+            DB::table('course_assignment_users')->insert([
+    'course_assignment_id' => $assignmentId,
+    'course_id' => $courseId,
+    'user_id' => $userId,
+    'log_comment' => 'By Admin',
+    'created_at' => now(),
+    'updated_at' => now()
+]);;
+
+        }
+
+    }
+
+    return redirect()->back()->with('success','Courses assigned successfully');
+
+}
 
     /**
      * Show the form for creating new Category.
@@ -617,7 +664,7 @@ class AssessmentAccountsController extends Controller
             $course_Ass->course_id = $course_id;
 
 
-            $course_Ass->assign_by = 1;
+            $course_Ass->assign_by = auth()->id();
             $course_Ass->assign_date =  date('Y-m-d');
             $course_Ass->assign_to = $assign_to;
             //dd($course_Ass->assign_to);
@@ -793,7 +840,7 @@ class AssessmentAccountsController extends Controller
         $course_Ass = new courseAssignment;
         $course_Ass->title = 'Course Enrollment - ' . date('Y-m-d');
         $course_Ass->course_id = $course_id;
-        $course_Ass->assign_by = 1;
+        $course_Ass->assign_by = auth()->id();
         $course_Ass->assign_date = date('Y-m-d');
         $course_Ass->assign_to = $assign_to;
         $course_Ass->department_id = $request->department_id;
@@ -1005,7 +1052,7 @@ class AssessmentAccountsController extends Controller
 
             
 
-            $course_Ass->assign_by = 1;
+            $course_Ass->assign_by = auth()->id();
             $course_Ass->assign_date = date('Y-m-d');
             $course_Ass->assign_to = $assign_to;
             //dd($course_Ass->assign_to);

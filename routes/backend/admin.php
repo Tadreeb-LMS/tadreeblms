@@ -391,6 +391,7 @@ Route::post('lessons_mass_destroy', ['uses' => 'Admin\LessonsController@massDest
 Route::post('lessons_restore/{id}', ['uses' => 'Admin\LessonsController@restore', 'as' => 'lessons.restore']);
 Route::delete('lessons_perma_del/{id}', ['uses' => 'Admin\LessonsController@perma_del', 'as' => 'lessons.perma_del']);
 
+Route::get('user-feedback-answers/export', 'Admin\UserFeebackAnswersController@export')->name('user-feedback-answers.export');
 Route::resource('user-feedback-answers', 'Admin\UserFeebackAnswersController');
 
 

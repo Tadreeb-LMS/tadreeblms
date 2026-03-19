@@ -20,6 +20,19 @@ jobs:
             hostname
 
             cd /var/www/html/dev/tadreeblms
-            git pull --ff-only
-            php artisan migrate
 
+            # Pull latest code
+            git pull --ff-only
+
+            # Fix permissions
+            sudo chown -R ubuntu:www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache
+            sudo chmod -R 775 storage/framework
+
+            # Clear caches
+            php artisan cache:clear || true
+            php artisan config:clear || true
+            php artisan view:clear || true
+
+            # Run migrations safely
+            php artisan migrate --force

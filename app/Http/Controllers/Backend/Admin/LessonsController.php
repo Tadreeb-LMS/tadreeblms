@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 use App\Notifications\Backend\LessonNotification;
 use App\Services\NotificationSettingsService;
 use Illuminate\Support\Str;
+use App\Models\LessonVideo;
 
 class LessonsController extends Controller
 {
@@ -254,14 +255,28 @@ class LessonsController extends Controller
      * @param  \App\Http\Requests\StoreLessonsRequest $request
      * @return \Illuminate\Http\Response
      */
+
+    public function checkCourse(Request $request)
+{
+    $course = Course::with('category')->find($request->id);
+
+    return response()->json([
+        'success' => true,
+        'category' => $course->category->name ?? null
+    ]);
+}
+
     public function store(StoreLessonsRequest $request)
     {
+        
         //dd("jj");
         if (!Gate::allows('lesson_create')) {
             return abort(401);
         }
         //dd($request->title);
-        $count = count($request->title);
+        // $count = count($request->title);
+        $titles = $request->input('title', []);
+$count = is_array($titles) ? count($titles) : 0;
 
         DB::beginTransaction();
 
@@ -289,6 +304,7 @@ class LessonsController extends Controller
                 //dd($lesson_data);
                 
                 $lesson = Lesson::create($lesson_data);
+               
                 $temp_id = $request->temp_id ?? null;
                 $lesson->temp_id = $temp_id;
                 $lesson->slug = $slug;
@@ -299,7 +315,29 @@ class LessonsController extends Controller
                 $lesson->full_text = $request->full_text[$i] ?? null;
                 $lesson->lesson_start_date = $request->lesson_start_date ? date('Y-m-d H:i', strtotime($request->lesson_start_date)) : null;
                 $lesson->save();
+if($i == 0 && $request->has('videos')){
 
+    foreach($request->videos as $index => $video){
+
+        $filePath = null;
+
+        
+        if(isset($video['file']) && $request->hasFile("videos.$index.file")){
+            $filePath = $request->file("videos.$index.file")
+                ->store('lesson_videos','public');
+        }
+
+        LessonVideo::create([
+            'lesson_id' => $lesson->id,
+            'title' => $video['title'] ?? null,
+            'type' => $video['type'] ?? 'upload',
+            'url' => $video['url'] ?? null,
+            'file_path' => $filePath,
+            'sort_order' => $index,
+            'is_preview' => isset($video['is_preview']) ? 1 : 0
+        ]);
+    }
+}
                 // Lesson added notification
                 try {
                     $notificationSettings = app(NotificationSettingsService::class);
@@ -332,20 +370,17 @@ class LessonsController extends Controller
 
                 //dd($downloadedFiles);
 
-                if (count($downloadedFiles)) {
-                    
+if (!empty($downloadedFiles)) {                    
                     $this->saveAllFilesByLesson($downloadedFiles, 'downloadable_files', Lesson::class, $lesson, $files_pointer, "download_file");
                     
                 }
 
-                if (count($addPdfs)) {
-                    
+if (!empty($addPdfs)) {                    
                     $this->saveAllFilesByLesson($addPdfs, 'add_pdf', Lesson::class, $lesson, $files_pointer, "lesson_pdf");
                     
                 }
 
-                if (count($audioFiles)) {
-                    
+if (!empty($audioFiles)) {                    
                     $this->saveAllFilesByLesson($audioFiles, 'add_audio', Lesson::class, $lesson, $files_pointer, "lesson_audio");
                     
                 }
@@ -353,8 +388,8 @@ class LessonsController extends Controller
                 //dd($video_files);
 
                 //Saving  videos
-                if (count($mediaTypes)) {
-                    foreach($mediaTypes as $media) {
+                    if ($mediaTypes && count($mediaTypes) > 0) {
+                        foreach($mediaTypes as $media) {
                         
 
                         if (($media == 'youtube') || ($media == 'vimeo')) {
@@ -396,15 +431,8 @@ class LessonsController extends Controller
                     }
 
                 }
-                    
-               
-                
 
                 //$request = $this->saveAllFiles($request, 'downloadable_files', Lesson::class, $lesson);
-
-                
-
-                
 
                 $sequence = 1;
                 if (count($lesson->course->courseTimeline) > 0) {
@@ -446,7 +474,7 @@ class LessonsController extends Controller
             // update the progress instantly
             CustomHelper::updateToAllUserAssignedToCourse($request->course_id);
 
-            return response()->json(['status' => 'success', 'temp_id' =>$temp_id, 'media_type' => $request->media_type, 'clientmsg' => 'Added successfully']);
+            return response()->json(['status' => 'success', 'temp_id' =>$request->temp_id, 'media_type' => $request->media_type, 'clientmsg' => 'Added successfully']);
         } catch (Exception $e) {
             DB::rollBack(); 
             Log::error('Lesson save failed: ' . $e->getMessage());

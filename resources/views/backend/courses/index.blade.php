@@ -59,6 +59,7 @@
                         <option value="">All</option>
                         <option value="published">Published</option>
                         <option value="draft">Draft</option>
+                        <option value="expired">Expired</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -119,7 +120,7 @@
                             <th>@lang('labels.backend.courses.fields.title')</th>
                             <!-- <th>@lang('Arabic Title')</th> -->
                             <th>@lang('labels.backend.courses.fields.category')</th>
-
+                            <th>Price</th>
                             
                             @if (Auth::user()->isAdmin())
                                
@@ -246,6 +247,7 @@
                     }
                 },
                 columns: [
+                    @can('course_delete')
                     @if (request('show_deleted') != 1)
                         {
                             "data": function(data) {
@@ -257,6 +259,7 @@
                             "name": "id"
                         },
                     @endif
+                    @endcan
 
                     {
                         data: "course_code",
@@ -278,6 +281,10 @@
                         data: "category",
                         name: 'category'
                     },
+                    {
+    data: "price",
+    name: 'price'
+},
                     // {data: "department", name: 'department'},
                     @if (Auth::user()->isAdmin())
                         // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
@@ -308,8 +315,8 @@
     name: "start_date"
 },
 {
-    data: "expiry_date",
-    name: "expiry_at"
+    data: "expire_at",
+    name: "expire_at"
 },
                     {
                         data: "qr_code",
@@ -335,6 +342,7 @@
                         name: "actions"
                     }
                 ],
+                @can('course_delete')
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
@@ -346,6 +354,7 @@
                         }
                     ],
                 @endif
+                @endcan
  initComplete: function () {
                      let $searchInput = $('#myTable_filter input[type="search"]');
                 $searchInput

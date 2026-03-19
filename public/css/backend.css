@@ -21761,6 +21761,15 @@ a.dt-button.active:not(.disabled):hover:not(.disabled) {
     margin-bottom: 0;
 }
 
+.pill-expired {
+    background-color: #dc3545; /* Bootstrap danger red */
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: inline-block;
+}
+
 .action-pill {
   display: inline-block;
   padding: 0.25rem 0.75rem;
