@@ -53,6 +53,14 @@ Route::get('/ldap-users', function () {
     });
 });
 
+
+Route::post(
+    'assessment_accounts/course-assignment',
+    [AssessmentAccountsController::class, 'courseAssignment']
+)->name('admin.assessment_accounts.course-assignment');
+
+Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
+
 Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
 });

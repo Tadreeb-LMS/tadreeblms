@@ -202,7 +202,7 @@ public function getStatusLabelAttribute()
         $minutes = $lessons->sum('duration');
 
         if ($minutes > 0) {
-            $time = Carbon::createFromTime(0, 0)->addMinutes($minutes);
+            $time = Carbon::createFromTime(0, 0)->addMinutes((int) $minutes);
             return $time->format('G:i');
         } else {
             return 0;

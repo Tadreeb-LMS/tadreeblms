@@ -117,6 +117,14 @@ class TestQuestionController extends Controller
     {
 
         //dd($request->all());
+        
+        if (empty($request->marks) || $request->marks <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide valid marks for the question',
+                'errors' => 'Please provide valid marks for the question',
+            ], 422);
+        }
 
         if($request->question_type ==1) {
             $options = isset($request->options) ? json_decode($request->options) : [];
@@ -288,6 +296,14 @@ class TestQuestionController extends Controller
             'message' => 'Question Updated is not option'
         ));
         
+        if (empty($request->marks) || $request->marks <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide valid marks for the question',
+                'errors' => 'Please provide valid marks for the question',
+            ], 422);
+        }
+
         if($request->question_type ==1) {
             $options = isset($request->options) ? json_decode($request->options) : [];
             if(isset($request->options) && count($options) == 0) {

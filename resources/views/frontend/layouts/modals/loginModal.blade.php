@@ -66,6 +66,12 @@
 //$inputs = ['text','number','date','gender'];
 //dd($fields);
 ?>
+<script>
+    $(document).on('click', '#openLoginModal', function(e) {
+        e.preventDefault();
+        window.location.href = "{{ route('frontend.auth.login') }}";
+    });
+</script>
 @if(!auth()->check())
 
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -147,9 +153,6 @@
 
             <!-- Header -->
             <div class="modal-header1 backgroud-style">
-                <div class="popup-logo">
-                    <img src="{{ asset('storage/logos/' . config('logo_popup')) }}" alt="">
-                </div>
                 <div class="popup-text text-center">
                     <h2>@lang('Register')</h2>
                     <p>@lang('Please register yourself')</p>
@@ -381,8 +384,7 @@
                 });
 
                 $(document).on('click', '#openLoginModal', function (e) {
-                    
-                    
+                    e.preventDefault();
 
                     $.ajax({
                         type: "GET",
@@ -410,7 +412,7 @@
                 });
 
                 $(document).on('click', '#openRegisterModal', function (e) {
-                    //alert("hi")
+                    e.preventDefault();
                     $.ajax({
                         type: "GET",
                         url: "{{route('frontend.auth.register')}}",
