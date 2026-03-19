@@ -122,7 +122,18 @@
             
                 <div class="col-12 col-md-2">
                     <label>Marks</label>
-                    <input type="number" class="form-control" name="marks" id="marks" placeholder="Enter Marks" required value="{{$question->marks}}" />
+                    <input 
+                        type="number" 
+                        class="form-control" 
+                        name="score" 
+                        id="score" 
+                        placeholder="Enter Marks" 
+                        required 
+                        value="{{$question->score}}" 
+                        min="1"       
+                        max="999"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
+                    />
                 </div>
             
                 <div class="col-12 col-md-5 notextarea">
@@ -206,7 +217,7 @@
         var question = CKEDITOR.instances["question"].getData();
         var solution = CKEDITOR.instances["solution"].getData();
         var comment = CKEDITOR.instances["comment"].getData();
-        var marks = $("#marks").val();
+        var score = $("#score").val();
         return {
             test_id,
             question_type,
@@ -214,7 +225,7 @@
             options: JSON.stringify(options),
             solution,
             comment,
-            marks
+            score
         }
     }
 
