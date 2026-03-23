@@ -56,7 +56,8 @@ class LoginController extends Controller
             $captha_string = CustomHelper::getCaptcha();
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
-                'captha' => $captha_string
+                'captha' => $captha_string,
+                'captcha_question' => $captha_string
             ];
         }
 
@@ -71,7 +72,8 @@ class LoginController extends Controller
         $captcha = CustomHelper::getCaptcha();
 
     return response()->json([
-        'captcha' => $captcha
+        'captcha' => $captcha,
+        'captcha_question' => $captcha
     ]);
     }
 

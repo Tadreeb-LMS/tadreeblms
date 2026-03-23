@@ -34,7 +34,7 @@ class Course extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step', 'meeting_provider', 'meeting_id', 'meeting_join_url', 'meeting_host_url', 'meeting_start_at', 'meeting_duration', 'meeting_timezone'];
+    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step', 'meeting_provider', 'meeting_id', 'meeting_join_url', 'meeting_host_url', 'meeting_start_at', 'meeting_duration', 'meeting_timezone','is_paid'];
 
     protected $appends = ['image'];
 
@@ -202,7 +202,7 @@ public function getStatusLabelAttribute()
         $minutes = $lessons->sum('duration');
 
         if ($minutes > 0) {
-            $time = Carbon::createFromTime(0, 0)->addMinutes($minutes);
+            $time = Carbon::createFromTime(0, 0)->addMinutes((int) $minutes);
             return $time->format('G:i');
         } else {
             return 0;

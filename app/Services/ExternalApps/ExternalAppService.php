@@ -47,27 +47,35 @@ class ExternalAppService
             return [];
         }
 
-        $lines  = explode("\n", str_replace("\r\n", "\n", File::get($path)));
-        $result = [];
+        $content = File::get($path);
+        return $this->parseEnvContent($content);
+    }
 
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) {
-                continue;
+    /**
+     * Internal helper to parse .env content with support for multi-line quoted values.
+     */
+    protected function parseEnvContent(string $content): array
+    {
+        $result = [];
+        // Match key=value pairs. Value can be:
+        // 1. Double quoted: "..." (can contain escaped quotes and newlines)
+        // 2. Single quoted: '...' (can contain newlines)
+        // 3. Unquoted: any chars until newline or #
+        // Regex: /^\s*([A-Z0-9_]+)\s*=\s*(?:("((?:[^"\\]|\\.)*)"|'([^']*)'|([^#\n\r]*)))/m
+        $pattern = '/^\s*([A-Z0-9_]+)\s*=\s*(?:("((?:[^"\\\\]|\\\\.)*)"|\'([^\']*)\'|([^#\n\r]*)))/m';
+
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $key = $match[1];
+                if (isset($match[3]) && $match[3] !== '') { // Double quoted
+                    $value = str_replace(['\\"', '\\\\'], ['"', '\\'], $match[3]);
+                } elseif (isset($match[4]) && $match[4] !== '') { // Single quoted
+                    $value = $match[4];
+                } else { // Unquoted
+                    $value = trim($match[5] ?? '');
+                }
+                $result[$key] = $value;
             }
-            if (!str_contains($line, '=')) {
-                continue;
-            }
-            [$key, $value] = explode('=', $line, 2);
-            // Strip surrounding quotes if present
-            $value = trim($value);
-            if (
-                (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
-                (str_starts_with($value, "'") && str_ends_with($value, "'"))
-            ) {
-                $value = substr($value, 1, -1);
-            }
-            $result[trim($key)] = $value;
         }
 
         return $result;
@@ -93,26 +101,18 @@ class ExternalAppService
             return $default;
         }
 
-        $lines = explode("\n", str_replace("\r\n", "\n", file_get_contents($path)));
+        $content = file_get_contents($path);
+        
+        // Simple static parser similar to the above but without dependencies
+        $pattern = '/^\s*' . preg_quote($key, '/') . '\s*=\s*(?:("((?:[^"\\\\]|\\\\.)*)"|\'([^\']*)\'|([^#\n\r]*)))/m';
 
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) {
-                continue;
-            }
-            if (!str_contains($line, '=')) {
-                continue;
-            }
-            [$envKey, $value] = explode('=', $line, 2);
-            if (trim($envKey) === $key) {
-                $value = trim($value);
-                if (
-                    (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
-                    (str_starts_with($value, "'") && str_ends_with($value, "'"))
-                ) {
-                    $value = substr($value, 1, -1);
-                }
-                return $value;
+        if (preg_match($pattern, $content, $match)) {
+            if (isset($match[2]) && $match[2] !== '') { // Double quoted
+                return str_replace(['\\"', '\\\\'], ['"', '\\'], $match[2]);
+            } elseif (isset($match[3]) && $match[3] !== '') { // Single quoted
+                return $match[3];
+            } else { // Unquoted
+                return trim($match[4] ?? '');
             }
         }
 
@@ -146,7 +146,7 @@ class ExternalAppService
                 $valueForEnv = $escaped;
             }
 
-            $pattern = "/^{$key}=.*$/m";
+            $pattern = "/^\s*{$key}\s*=\s*(?:\"(?:[^\"\\\\]|\\\\.)*\"|'[^']*'|[^#\r\n]*)/m";
 
             if (preg_match($pattern, $envContent)) {
                 $envContent = preg_replace($pattern, "{$key}={$valueForEnv}", $envContent);
@@ -210,7 +210,7 @@ class ExternalAppService
             ? '"' . $escaped . '"'
             : $escaped;
 
-        $pattern = "/^{$key}=.*$/m";
+        $pattern = "/^\s*{$key}\s*=\s*(?:\"(?:[^\"\\\\]|\\\\.)*\"|'[^']*'|[^#\r\n]*)/m";
 
         if (preg_match($pattern, $envContent)) {
             $envContent = preg_replace($pattern, "{$key}={$valueForEnv}", $envContent);
@@ -359,6 +359,8 @@ class ExternalAppService
             // Keyword map: if the zip filename contains a keyword, force that slug
             $keywordSlugMap = [
                 'zoom'             => 'zoom',
+                'google-meet'      => 'google-meet-integration',
+                'meet'             => 'google-meet-integration',
                 'teams'            => 'teams',
                 'external-storage' => 'external-storage',
                 'storage'          => 'external-storage',

@@ -166,13 +166,6 @@
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2])))
             <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
-                    href="{{ route('admin.department.index') }}">
-                    <i class="nav-icon fas fa-building"></i>
-                    <span class="title">@lang('menus.backend.sidebar.department')</span>
-                </a>
-            </li>
-            <li class="nav-item ">
                 <a class="nav-link {{ $request->segment(2) == 'position' ? 'active' : '' }}"
                     href="{{ route('admin.position.index') }}">
                     <i class="nav-icon icon-folder-alt"></i>
@@ -592,8 +585,8 @@
             (null !== Session::get('setvaluesession') && Session::get('setvaluesession') == 1))
             @can('access_management_access')
             <li
-                class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('admin/auth*'), 'open') }}">
-                <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/auth*')) }}"
+                class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['admin/auth*', 'user/department*']), 'open') }}">
+                <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern(['admin/auth*', 'user/department*'])) }}"
                     href="#">
                     <div>
 
@@ -643,6 +636,18 @@
                         <a class="nav-link {{ $request->segment(2) == 'employee' ? 'active' : '' }}"
                             href="{{ route('admin.employee.index') }}">
                             <span class="title">@lang('menus.backend.sidebar.trainees')</span>
+                        </a>
+                    </li>
+                    @endif
+                    @endcan
+                    @can('category_access')
+                    @if (null == Session::get('setvaluesession') ||
+                    (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2]))
+                    )
+                    <li class="nav-item ">
+                        <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
+                            href="{{ route('admin.department.index') }}">
+                            <span class="title">@lang('menus.backend.sidebar.department')</span>
                         </a>
                     </li>
                     @endif
@@ -727,6 +732,14 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/zoom/configure')) }}"
                             href="{{ route('admin.external-apps.edit-config', ['slug' => 'zoom']) }}">
                             <span class="title">Zoom Configuration</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if (!empty($enabledApps['google-meet-integration']) && $enabledApps['google-meet-integration'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/google-meet-integration/configure')) }}"
+                            href="{{ route('admin.external-apps.edit-config', ['slug' => 'google-meet-integration']) }}">
+                            <span class="title">Google Meet Configuration</span>
                         </a>
                     </li>
                     @endif

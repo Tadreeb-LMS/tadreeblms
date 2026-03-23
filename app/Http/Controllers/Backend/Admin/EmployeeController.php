@@ -733,8 +733,9 @@ class EmployeeController extends Controller
             ->pluck('name', 'id');
 
         $departments = Department::all();
+        $course = Course::find($course_id);
 
-        return view('backend.employee.enrolled_employee', compact('course_id', 'teachers', 'departments'));
+        return view('backend.employee.enrolled_employee', compact('course', 'course_id', 'teachers', 'departments'));
     }
 
 

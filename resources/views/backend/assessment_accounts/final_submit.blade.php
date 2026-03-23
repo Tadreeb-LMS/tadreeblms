@@ -155,6 +155,21 @@
             document.getElementById('weightError').classList.remove('d-none');
         }
     }
+    document.querySelector('form').addEventListener('submit', function(e) {
+
+    let total = 0;
+
+    document.querySelectorAll('.module-weight').forEach(input => {
+        total += Number(input.value) || 0;
+    });
+
+    if (total !== 100) {
+        e.preventDefault();
+        alert('Total weightage must be exactly 100%');
+    }
+
+});
+calculateTotal();
 </script>
 
 
