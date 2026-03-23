@@ -118,7 +118,11 @@ class LoginController extends Controller
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $credentials = $request->only($this->username(), 'password');
+$credentials = [
+    'email' => $request->email,
+    'password' => $request->password,
+    'is_deleted' => 0
+];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
             $user = auth()->user();
@@ -178,13 +182,17 @@ class LoginController extends Controller
                 }
 
                 //Create or sync user in LMS database
-                $user = User::updateOrCreate(
-                    ['email' => $request->email],
-                    [
-                        'first_name' => $ldapUser->getFirstAttribute('cn'),
-                        'password' => bcrypt(Str::random(16)), // dummy local password
-                    ]
-                );
+                $user = User::where('email', $request->email)
+            ->where('is_deleted', 0)
+            ->first();
+
+if (!$user) {
+    $user = User::create([
+        'email' => $request->email,
+        'first_name' => $ldapUser->getFirstAttribute('cn'),
+        'password' => bcrypt(Str::random(16)),
+    ]);
+}
 
                 $user->assignRole('student');
 

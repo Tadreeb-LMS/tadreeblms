@@ -60,27 +60,51 @@ public function createWithCourse(Request $request)
     $published_courses = Course::where('status', 'published')->get();
     $internal_users = User::where('role', 'employee')->get();
 
-    // Get newly created course ID from query string or session
-    $selectedCourse = $request->query('course_id') ?? session('course_id') ?? null;
-
-    return view('backend.assessment.assign_course', compact(
-        'published_courses',
-        'internal_users',
-        'selectedCourse'
-    ));
-}
-    public function assignments_with_course($id)
+public function courseAssignment(Request $request)
 {
-    $courses = Course::all();
-    $teachers = Teacher::pluck('name','id');
-    $departments = Department::all();
 
-    return view('backend.assignments.create', [
-        'courses' => $courses,
-        'teachers' => $teachers,
-        'departments' => $departments,
-        'selected_course' => $id
+    $request->validate([
+        'course_ids' => 'required|array',
+        'teachers' => 'required|array'
     ]);
+
+    $courses = $request->course_ids;
+    $users = $request->teachers;
+
+    foreach ($courses as $courseId) {
+
+        $course = DB::table('courses')->where('id', $courseId)->first();
+
+        // create assignment
+        $assignmentId = DB::table('course_assignment')->insertGetId([
+            'title' => $course->title,
+            'course_id' => $courseId, 
+            'category_id' => $course->category_id ?? null,
+    'department_id' => $request->department_id ?? null,   
+             'assign_by' => auth()->id(),        // Assign By
+            'created_at' => now(),
+            'updated_at' => now(),
+            'assign_date' => now(),
+'assign_to' => $request->department_id ? 'department' : 'user',        ]);
+
+        // assign users
+        foreach ($users as $userId) {
+
+            DB::table('course_assignment_users')->insert([
+    'course_assignment_id' => $assignmentId,
+    'course_id' => $courseId,
+    'user_id' => $userId,
+    'log_comment' => 'By Admin',
+    'created_at' => now(),
+    'updated_at' => now()
+]);;
+
+        }
+
+    }
+
+    return redirect()->back()->with('success','Courses assigned successfully');
+
 }
 
     /**

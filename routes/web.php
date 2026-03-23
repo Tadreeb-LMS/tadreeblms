@@ -17,6 +17,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Backend\SettingsController;
 
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
+use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
 
 
 //Route::get('/install', [InstallerController::class, 'index']);
