@@ -151,7 +151,7 @@
                             </div>
                         @endif
 
-                        @if (in_array($app->slug, ['zoom', 'teams', 'interactive-whiteboard']))
+                        @if (in_array($app->slug, ['zoom', 'teams', 'google-meet-integration', 'interactive-whiteboard']))
                             <hr class="mt-4 mb-4">
                             <h5 class="mb-4 d-flex align-items-center">
                                 <i class="fas fa-plug mr-2 text-primary"></i>
@@ -247,6 +247,54 @@ $(document).ready(function () {
             },
             error: function(xhr) {
                 var msg = 'Failed to connect to Zoom API.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                alertContainer.html('<div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>' + msg + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+                btn.prop('disabled', false).html(btnHtml);
+            }
+        });
+    });
+    @endif
+
+    @if ($app->slug === 'google-meet-integration')
+    $('#btnTestConnection').on('click', function() {
+        var btn = $(this);
+        var btnHtml = btn.html();
+        var alertContainer = $('#testConnectionAlertContainer');
+
+        // Clear previous alerts
+        alertContainer.empty();
+
+        // Get values from the form
+        var projectId = $('#field_GOOGLE_PROJECT_ID').val();
+        var clientId = $('#field_GOOGLE_CLIENT_ID').val();
+        var clientSecret = $('#field_GOOGLE_CLIENT_SECRET').val();
+        var serviceAccount = $('#field_GOOGLE_SERVICE_ACCOUNT_JSON').val();
+
+        if (!clientId || (!clientSecret && !serviceAccount)) {
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in Client ID along with either the Client Secret or Service Account JSON before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            return;
+        }
+
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+
+        $.ajax({
+            url: '{{ url("external-apps/google-meet-integration/test-connection") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                GOOGLE_PROJECT_ID: projectId,
+                GOOGLE_CLIENT_ID: clientId,
+                GOOGLE_CLIENT_SECRET: clientSecret,
+                GOOGLE_SERVICE_ACCOUNT_JSON: serviceAccount
+            },
+            success: function(response) {
+                alertContainer.html('<div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle mr-2"></i>' + response.message + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+                btn.prop('disabled', false).html(btnHtml);
+            },
+            error: function(xhr) {
+                var msg = 'Failed to connect to Google API.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }

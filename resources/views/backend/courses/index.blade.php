@@ -59,6 +59,7 @@
                         <option value="">All</option>
                         <option value="published">Published</option>
                         <option value="draft">Draft</option>
+                        <option value="expired">Expired</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -119,7 +120,7 @@
                             <th>@lang('labels.backend.courses.fields.title')</th>
                             <!-- <th>@lang('Arabic Title')</th> -->
                             <th>@lang('labels.backend.courses.fields.category')</th>
-
+                            <th>Price</th>
                             
                             @if (Auth::user()->isAdmin())
                                
@@ -152,10 +153,53 @@
             </div>
         </div>
     </div>
+    @if(session('course_created'))
+<div class="modal fade" id="courseCreatedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Course Created</h5>
+            </div>
+
+            <div class="modal-body text-center">
+                <p>
+                    Your Course has been created successfully.
+                    Would you like to assign this course to users?
+                </p>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+
+          <a href="{{ route('admin.asmnt_0_withcourse') }}?course_id={{ session('course_id') }}"
+   class="btn btn-success">
+   Yes, Assign Now
+</a>
+
+                <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal">
+                    I'll Assign Later
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+@endif
 @stop
 
 @push('after-scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+@if(session('course_created'))
+<script>
+window.addEventListener('load', function () {
+    setTimeout(function(){
+        $('#courseCreatedModal').modal('show');
+    }, 500);
+});
+</script>
+@endif
     <script>
         $(document).ready(function() {
             var route = '{{ route('admin.courses.get_data') }}';
@@ -246,6 +290,7 @@
                     }
                 },
                 columns: [
+                    @can('course_delete')
                     @if (request('show_deleted') != 1)
                         {
                             "data": function(data) {
@@ -257,6 +302,7 @@
                             "name": "id"
                         },
                     @endif
+                    @endcan
 
                     {
                         data: "course_code",
@@ -278,6 +324,10 @@
                         data: "category",
                         name: 'category'
                     },
+                    {
+    data: "price",
+    name: 'price'
+},
                     // {data: "department", name: 'department'},
                     @if (Auth::user()->isAdmin())
                         // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
@@ -308,8 +358,8 @@
     name: "start_date"
 },
 {
-    data: "expiry_date",
-    name: "expiry_at"
+    data: "expire_at",
+    name: "expire_at"
 },
                     {
                         data: "qr_code",
@@ -335,6 +385,7 @@
                         name: "actions"
                     }
                 ],
+                @can('course_delete')
                 @if (request('show_deleted') != 1)
                     columnDefs: [{
                             "width": "5%",
@@ -346,6 +397,7 @@
                         }
                     ],
                 @endif
+                @endcan
  initComplete: function () {
                      let $searchInput = $('#myTable_filter input[type="search"]');
                 $searchInput

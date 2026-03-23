@@ -5,7 +5,56 @@
 @endpush
 @section('content')
     <style>
+.payment-options{
+    display:flex;
+    gap:15px;
+}
 
+.payment-card{
+    border:2px solid #ddd;
+    padding:15px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    width:180px;
+    transition:0.2s;
+    display:flex;
+    flex-direction:column;
+}
+
+.payment-card input{
+    margin-bottom:8px;
+}
+
+.payment-card:hover{
+    border-color:#007bff;
+    background:#f8f9fa;
+}
+
+.free-option{
+    border-color:#28a745;
+}
+
+.paid-option{
+    border-color:#dc3545;
+}
+
+.payment-title{
+    font-weight:600;
+    font-size:16px;
+}
+
+.payment-desc{
+    font-size:12px;
+    color:#666;
+}
+
+.price-box{
+    max-width:250px;
+}
+
+#price_field{
+    margin-top:25px;
+}
         .float-right.gap-20 {
             gap: 20px;
             justify-content: right;
@@ -379,9 +428,54 @@
                         Live-Classroom type course is a course can be happen on a specific classroom location.
                     </span>
                 </span>
+                
             </div>
             
-            
+  
+
+<div class="row mt-3">
+    <div class="col-md-6">
+
+        <label class="font-weight-bold mb-2">Course Payment Type</label>
+
+        <div class="payment-options">
+
+            <label class="payment-card free-option">
+                <input type="radio" name="course_payment_type" value="Free" checked>
+                <span class="payment-title">Free</span>
+                <small class="payment-desc">Students can access this course for free</small>
+            </label>
+
+            <label class="payment-card paid-option">
+                <input type="radio" name="course_payment_type" value="Paid">
+                <span class="payment-title">Paid</span>
+                <small class="payment-desc">Students must pay to enroll</small>
+            </label>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 d-none" id="price_field">
+
+        <label for="price" class="font-weight-bold">Course Price</label>
+
+        <div class="input-group price-box">
+            <div class="input-group-prepend">
+                <span class="input-group-text">$</span>
+            </div>
+
+            <input type="number"
+                   name="price"
+                   id="price"
+                   class="form-control"
+                   placeholder="Enter course price"
+                   min="1"
+                   step="0.01">
+        </div>
+
+    </div>
+</div>
 
             {{-- <div class="row" id="online-course-material">
                 <div class="col-md-12 form-group">
@@ -458,6 +552,22 @@
     <script src="{{ asset('/vendor/laravel-filemanager/js/lfm.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="/js/helpers/form-submit.js"></script>
+    <script>
+$(document).ready(function(){
+
+    $('input[name="course_payment_type"]').on('change', function(){
+
+        if($(this).val() === 'Paid'){
+            $('#price_field').removeClass('d-none');
+        }else{
+            $('#price_field').addClass('d-none');
+            $('#price').val('');
+        }
+
+    });
+
+});
+</script>
     <script>
         
     // Validate total weightage <= 100

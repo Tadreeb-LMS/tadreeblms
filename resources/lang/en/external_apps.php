@@ -6,7 +6,7 @@ return array(
         'description' => 'Manage External Applications & Integrations',
         'upload_module' => 'Upload External Module',
         'module_name' => 'Module Name',
-        'module_name_placeholder' => 'e.g., google-meet, microsoft-teams',
+        'module_name_placeholder' => 'e.g., google-meet-integration, microsoft-teams',
         'upload_zip_file' => 'Upload Zip File',
         'choose_zip_file' => 'Choose zip file...',
         'max_file_size' => 'Maximum file size: 100MB',

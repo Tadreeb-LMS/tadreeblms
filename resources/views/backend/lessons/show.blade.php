@@ -12,6 +12,26 @@
             <div class="row">
                 <div class="col-md-12">
                     <table class="table table-bordered table-striped">
+                        @foreach($lesson->videos as $video)
+
+<h5>{{ $video->title }}</h5>
+
+@if($video->type == 'youtube')
+
+<iframe width="100%" height="400"
+src="https://www.youtube.com/embed/{{ $video->url }}"></iframe>
+
+@endif
+
+@if($video->type == 'upload')
+
+<video controls width="100%">
+<source src="{{ asset('storage/'.$video->file_path) }}">
+</video>
+
+@endif
+
+@endforeach
                         <tr>
                             <th>@lang('labels.backend.lessons.fields.course')</th>
                             <td>{{ $lesson->course->title or '' }}</td>
