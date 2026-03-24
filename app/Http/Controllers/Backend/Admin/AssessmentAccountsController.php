@@ -59,6 +59,8 @@ public function createWithCourse(Request $request)
 {
     $published_courses = Course::where('status', 'published')->get();
     $internal_users = User::where('role', 'employee')->get();
+    return view('backend.assignments.create_with_course', compact('published_courses', 'internal_users'));
+}
 
 public function courseAssignment(Request $request)
 {
