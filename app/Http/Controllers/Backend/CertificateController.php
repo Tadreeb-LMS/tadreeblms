@@ -76,134 +76,40 @@ class CertificateController extends Controller
     }
 
 
-    /**
-     * Generate certificate for completed course
-     */
-    public function generateCertificate_(Request $request)
-    {
-        //dd($request->all());
-        $user_id = \Auth::id();
-        $course_id = $request->course_id;
-        //dd($user_id);
-
-        $course = Course::whereHas('students', function ($query) {
-            $query->where('id', \Auth::id());
-        })
-            ->where('id', '=', $course_id);
-
-        /*
-                $query = str_replace(array('?'), array('\'%s\''), $course->toSql());
-                $query = vsprintf($query, $course->getBindings());
-                dump($query);
-                die;
-                */
-
-        $course = $course->first();
-
-        //dd($course->progress());
-
-
-        if (($course != null) && ($course->progress() == 100)) {
-            $certificate = Certificate::firstOrCreate([
-                'user_id' => auth()->user()->id,
-                'course_id' => $request->course_id
-            ]);
-
-            $data = [
-                'name' => auth()->user()->name,
-                'course_name' => $course->title,
-                'date' => Carbon::now()->format('d M, Y'),
-            ];
-            $certificate_name = 'Certificate-' . $course->id . '-' . auth()->user()->id . '.pdf';
-            $certificate->name = auth()->user()->name;
-            $certificate->url = $certificate_name;
-            $certificate->save();
-
-            $pdf = \PDF::loadView('certificate.index', compact('data'))->setPaper('', 'landscape');
-
-            $pdf->save(public_path('storage/certificates/' . $certificate_name));
-
-            return back()->withFlashSuccess(trans('alerts.frontend.course.completed'));
-        }
-        return abort(404);
-    }
-
     public function generateCertificate(Request $request)
     {
-        //dd("uu");
-        $user_id = \Auth::id();
+        $user_id = $request->user_id ?? auth()->id();
         $course_id = $request->course_id;
 
-        $course = Course::whereHas('students', function ($query) {
-            $query->where('id', \Auth::id());
-        })
-            ->where('id', '=', $course_id);
-
-        $course = $course->first();
-        $user_id = $request->user_id ?? auth()->id();
-
+        $certificate = Certificate::with('course')->where(['user_id' => $user_id, 'course_id' => $course_id])->firstOrFail();
         
-
-        $subscribed_course = SubscribeCourse::where(['course_id' => $course_id, 'user_id' => $user_id, 'is_completed' => 1])->firstOrFail();
-
-        //dd($subscribed_course);
-
-        $course = $subscribed_course->course;
-
-        $user = User::find($user_id);
-
-        //dd($course->grantCertificate($user_id));
-
-        if ($course->grantCertificate($user_id)) {
-            $certificate = Certificate::firstOrCreate([
-                'user_id' => $user->id,
-                'course_id' => $request->course_id
-            ]);
-
-           // $date = $certificate->created_at->format('Y-m-d');
-            $date = $subscribed_course->completed_at->format('Y-m-d');
-
-            $qrCode = QrCode::size(100)->generate(url("/certificate-verification?name=$user->name&date=$date"));
-            $base64QrCode = base64_encode($qrCode);
-
-            $data = [
-                'name' => $user->name,
-                'course_name' => $course->title,
-                'date' => Carbon::parse($date)->format('d M, Y'),
-                'stamp' => base64_encode(file_get_contents('certificate/assets/stamp.jpg')),
-                'background' => base64_encode(file_get_contents('certificate/assets/delta-lines-bg.png')),
-                'qr' => $base64QrCode,
-            ];
-
-            $certificate_name = 'Certificate-' . $course->id . '-' . $user->id . '.pdf';
-            $certificate->name = $user->name;
-            $certificate->url = $certificate_name;
+        // Bug Fix: Ensure validation_hash exists (retro-fix for legacy or first-time generation)
+        if (!$certificate->validation_hash) {
+            $certificate->validation_hash = hash('sha256', $user_id . $course_id . now() . config('app.key'));
             $certificate->save();
-
-            $pdf = PDF::loadView('certificate.index', compact('data'));
-            $pdf->setPaper('A4', 'landscape');
-
-            return $pdf->download($certificate_name);
         }
-        return abort(404);
-    }
 
+        // Bug Fix: Ensure human-readable ID exists
+        if (!$certificate->certificate_id) {
+            $certificate->certificate_id = 'TLMS-' . Carbon::now()->format('Y') . '-' . str_pad($certificate->id, 6, '0', STR_PAD_LEFT);
+            $certificate->save();
+        }
 
+        // Use frozen metadata snapshots for immutability
+        $metadata = $certificate->metadata;
+        
+        $data = [
+            'name' => $metadata['student_name'] ?? $certificate->name,
+            'course_name' => $metadata['course_title'] ?? optional($certificate->course)->title ?? 'Course Title',
+            'date' => Carbon::parse($metadata['completion_date'] ?? $certificate->created_at)->format('d M, Y'),
+            'certificate_id' => $certificate->certificate_id,
+            'qr' => base64_encode(QrCode::size(150)->format('svg')->margin(1)->generate(url("/certificate-verification?validation_hash=" . trim($certificate->validation_hash)))),
+        ];
 
-    public function applyCertificate(Request $request)
-    {
-        //dd($request->all());
-        UserCourseDetail::firstOrCreate(
-            [
-                'user_id' => auth()->user()->id,
-                'course_id' => $request->course_id,
-                'status' => 'completed',
-                'issue_certificate' => 'no',
-                'completed_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]
-        );
-        $this->generateCertificate_($request);
-        return redirect()->route('feedback.create_feedback_form', [$request->course_id, auth()->user()->id])->withFlashSuccess(trans('alerts.frontend.course.completed'));
+        $pdf = PDF::loadView('certificate.index', compact('data'));
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->stream("Certificate-{$certificate->certificate_id}.pdf");
     }
 
     /**
@@ -211,13 +117,39 @@ class CertificateController extends Controller
      */
     public function download(Request $request)
     {
+        $certificateId = $request->certificate_id;
         
-        $certificate = Certificate::findOrFail($request->certificate_id);
-        if ($certificate != null) {
-            $file = public_path() . "/storage/certificates/" . $certificate->url;
-            return Response::download($file);
+        // Search by primary ID or the human-readable certificate_id
+        $certificate = Certificate::with('course')->where('id', $certificateId)
+            ->orWhere('certificate_id', $certificateId)
+            ->firstOrFail();
+        
+        // Bug Fix: Ensure validation_hash exists
+        if (!$certificate->validation_hash) {
+            $certificate->validation_hash = hash('sha256', $certificate->user_id . $certificate->course_id . now() . config('app.key'));
+            $certificate->save();
         }
-        return back()->withFlashDanger('No Certificate found');
+
+        // Bug Fix: Ensure human-readable ID exists
+        if (!$certificate->certificate_id) {
+            $certificate->certificate_id = 'TLMS-' . Carbon::now()->format('Y') . '-' . str_pad($certificate->id, 6, '0', STR_PAD_LEFT);
+            $certificate->save();
+        }
+
+        $metadata = $certificate->metadata;
+        
+        $data = [
+            'name' => $metadata['student_name'] ?? $certificate->name,
+            'course_name' => $metadata['course_title'] ?? optional($certificate->course)->title ?? 'Course Title',
+            'date' => Carbon::parse($metadata['completion_date'] ?? $certificate->created_at)->format('d M, Y'),
+            'certificate_id' => $certificate->certificate_id,
+            'qr' => base64_encode(QrCode::size(150)->format('svg')->margin(1)->generate(url("/certificate-verification?validation_hash=" . trim($certificate->validation_hash)))),
+        ];
+
+        $pdf = PDF::loadView('certificate.index', compact('data'));
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->download("Certificate-{$certificate->certificate_id}.pdf");
     }
 
 
@@ -227,7 +159,12 @@ class CertificateController extends Controller
     public function getVerificationForm(Request $request)
     {
         session()->forget('data');
-        if ($request->name && $request->date) {
+        if ($request->certificate_id) {
+            $certificates = Certificate::where('id', '=', $request->certificate_id)->get();
+            $data['certificates'] = $certificates;
+            $data['certificate_id'] = $request->certificate_id;
+            session(["data" => $data]);
+        } elseif ($request->name && $request->date) {
             $certificates = Certificate::where('name', '=', $request->name)
                 ->whereDate("created_at", $request->date)
                 ->get();
@@ -242,22 +179,26 @@ class CertificateController extends Controller
     }
 
 
-    /**
-     * Verify Certificate
-     */
     public function verifyCertificate(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'date' => 'required'
-        ]);
+        if ($request->certificate_id) {
+            $certificates = Certificate::where('id', '=', $request->certificate_id)->get();
+            $data['certificates'] = $certificates;
+            $data['certificate_id'] = $request->certificate_id;
+        } else {
+            $this->validate($request, [
+                'name' => 'required',
+                'date' => 'required'
+            ]);
 
-        $certificates = Certificate::where('name', '=', $request->name)
-            ->whereDate("created_at", $request->date)
-            ->get();
-        $data['certificates'] = $certificates;
-        $data['name'] = $request->name;
-        $data['date'] = $request->date;
+            $certificates = Certificate::where('name', '=', $request->name)
+                ->whereDate("created_at", $request->date)
+                ->get();
+            $data['certificates'] = $certificates;
+            $data['name'] = $request->name;
+            $data['date'] = $request->date;
+        }
+
         session()->forget('certificates');
         return back()->with(['data' => $data]);
     }

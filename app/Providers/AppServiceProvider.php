@@ -115,6 +115,8 @@ class AppServiceProvider extends ServiceProvider
         if (Schema::hasTable('sliders')) {
             $slides = Slider::where('status', 1)->orderBy('sequence', 'asc')->get();
             View::share('slides', $slides);
+        } else {
+            View::share('slides', collect());
         }
 
         $disabled_landing_page = CustomHelper::redirect_based_on_setting();

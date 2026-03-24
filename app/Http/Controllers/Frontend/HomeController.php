@@ -58,25 +58,37 @@ class HomeController extends Controller
 
     
 
-    public function index()
+    public function index($page = null)
     {
-        $disabled_landing_page = CustomHelper::redirect_based_on_setting();
-        //dd( $disabled_landing_page);
-        if ($disabled_landing_page == '1' && !auth()->check() && !Route::is('frontend.auth.login')) {
+        $disabled_landing_page = (int) CustomHelper::redirect_based_on_setting();
+
+        if ($disabled_landing_page === 1 && !auth()->check() && !Route::is('frontend.auth.login')) {
             return redirect()->route('frontend.auth.login');
         }
 
-        if (request('page')) {
-            $page = \DB::table('pages')->where('slug', '=', request('page'))
-                ->where('published', '=', 1)->first();
-            if ($page != "") {
-                return view($this->path . '.pages.index', compact('page'));
+        // Use the route parameter only; query string "?page=" is reserved for pagination.
+        if (!empty($page)) {
+            $page_data = \DB::table('pages')
+                ->where('slug', '=', $page)
+                ->where('published', '=', 1)
+                ->first();
+
+            if ($page_data) {
+                return view($this->path . '.pages.index', ['page' => $page_data]);
             }
+
             abort(404);
         }
-        $type = config('theme_layout');
-        //dd($type);
+
+        $type = (string) (config('theme_layout') ?: '1');
+        if (!in_array($type, ['1', '2', '3', '4'], true)) {
+            $type = '1';
+        }
+
         $sections = Config::where('key', '=', 'layout_' . $type)->first();
+        if (!$sections && $type !== '1') {
+            $sections = Config::where('key', '=', 'layout_1')->first();
+        }
         $sections = $sections ? json_decode($sections->value): [];
 
         $our_vision = Config::where('key', '=', 'our_vision')->where('lang', config('app.locale'))->first();
@@ -174,8 +186,16 @@ class HomeController extends Controller
 
         
         $categories = Category::get();
-        return view('frontend.index-' . config('theme_layout'), compact('popular_courses', 'featured_courses', 'sponsors', 'total_students', 'total_courses', 'total_teachers', 'testimonials', 'news', 'trending_courses', 'teachers', 'faqs', 'course_categories', 'reasons', 'sections', 'categories', 'about_us', 'events', 'libraries', 'announcements', 'our_mission', 'our_vision'));
-        // return view($this->path . '.index-' . config('theme_layout'), compact('popular_courses', 'featured_courses', 'sponsors', 'total_students', 'total_courses', 'total_teachers', 'testimonials', 'news', 'trending_courses', 'teachers', 'faqs', 'course_categories', 'reasons', 'sections', 'categories','about_us','events','libraries','announcements','our_mission','our_vision'));
+
+        $landing_view = $this->path . '.index-' . $type;
+        if (!view()->exists($landing_view)) {
+            $landing_view = 'frontend.index-' . $type;
+        }
+        if (!view()->exists($landing_view)) {
+            $landing_view = 'frontend.index-1';
+        }
+
+        return view($landing_view, compact('popular_courses', 'featured_courses', 'sponsors', 'total_students', 'total_courses', 'total_teachers', 'testimonials', 'news', 'trending_courses', 'teachers', 'faqs', 'course_categories', 'reasons', 'sections', 'categories', 'about_us', 'events', 'libraries', 'announcements', 'our_mission', 'our_vision'));
     }
 
     public function getFaqs()

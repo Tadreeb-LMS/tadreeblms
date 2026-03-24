@@ -21,7 +21,6 @@
     <h4 class="page-title d-inline">Add Course Assessment</h4>
     <div class="">
         @if ($user_id != NULL)
-        <a href="{{ route('admin.assessment_accounts.account_assignments', $user_id) }}" class="btn add-btn">@lang('View Course Assessment')</a>
         @else
         <a href="{{ route('admin.assessment_accounts.assignments') }}" class="btn add-btn">@lang('View Course Assessment')</a>
         @endif

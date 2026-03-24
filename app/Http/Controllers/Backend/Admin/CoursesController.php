@@ -204,6 +204,14 @@ class CoursesController extends Controller
             ->addColumn('category', function ($q) {
                 return $q->category->name;
             })
+              ->addColumn('price', function ($course) {
+    if ($course->is_paid) {
+        return '<span class="badge badge-danger">$' . $course->price . '</span>';
+    } else {
+        return '<span class="badge badge-success">Free</span>';
+    }
+})
+->rawColumns(['price'])
             ->rawColumns(['teachers', 'department', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status'])
             ->make();
     }
@@ -276,47 +284,7 @@ class CoursesController extends Controller
 
         return DataTables::of($courses)
             ->addIndexColumn()
-            // ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-            //     $view = "";
-            //     $edit = "";
-            //     $delete = "";
-            //     if ($request->show_deleted == 1) {
-            //         return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.courses', 'label' => 'id', 'value' => $q->id]);
-            //     }
-            //     if ($has_view) {
-            //         $view = view('backend.datatable.action-view')
-            //             ->with(['route' => route('admin.courses.show', ['course' => $q->id])])->render();
-            //     }
-            //     if ($has_edit) {
-            //         $edit = view('backend.datatable.action-edit')
-            //             ->with(['route' => route('admin.courses.edit', ['course' => $q->id])])
-            //             ->render();
-            //         $view .= $edit;
-            //     }
-
-            //     if ($has_delete) {
-            //         $delete = view('backend.datatable.action-delete')
-            //             ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
-            //             ->render();
-            //         $view .= $delete;
-            //     }
-            //     if ($q->published == 1) {
-            //         $type = 'action-unpublish';
-            //     } else {
-            //         $type = 'action-publish';
-            //     }
-
-            //     $view .= view('backend.datatable.' . $type)
-            //         ->with(['route' => route('admin.courses.publish', ['id' => $q->id])])->render();
-
-            //     if (!$q->is_online_course) {
-            //         $copy_offline_link = view('backend.datatable.copy-offline-link')
-            //             ->with(['route' => route('coursePreview', ['slug' => $q->slug])])
-            //             ->render();
-            //         $view .= $copy_offline_link;
-            //     }
-            //     return $view;
-            // })
+           
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
         $actions = '<div class="actionbtns"> 
         <div class="dropdown">
@@ -861,6 +829,8 @@ class CoursesController extends Controller
 
             $course_module_weight = $request->course_module_weight ?? [];
             $last_module_array = $request->course_module_inc ?? ['QuestionModule'];
+            $course->is_paid = $request->course_payment_type === 'Paid' ? 1 : 0;
+$course->price = $request->course_payment_type === 'Paid' ? $request->price : null;
 
             //dd($last_module_array);
 
@@ -1180,27 +1150,6 @@ class CoursesController extends Controller
             $course->price = null;
             $course->save();
         }
-
-        // $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
-        // $course->teachers()->sync($teachers);
-
-        // $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
-        // $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
-        //dd($internalStudents);
-
-        // $students = array_merge($internalStudents, $externalStudents);
-        // // Auto subscribe into courses
-        // foreach ($students as $id) {
-        //     $data = [
-        //         'user_id' => $id,
-        //         'course_id' =>  $course->id,
-        //         'status' => 1
-        //     ];
-        //     SubscribeCourse::updateOrCreate($data);
-        // }
-
-        //dd("g");
-        //dd($request->all());
         $next_btn = $request->submit_btn;
         //dd($next_btn);
 

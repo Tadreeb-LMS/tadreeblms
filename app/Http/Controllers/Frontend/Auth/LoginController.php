@@ -116,7 +116,11 @@ class LoginController extends Controller
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $credentials = $request->only($this->username(), 'password');
+$credentials = [
+    'email' => $request->email,
+    'password' => $request->password,
+    'is_deleted' => 0
+];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
             $user = auth()->user();
@@ -166,18 +170,22 @@ class LoginController extends Controller
                     ->auth()
                     ->attempt($dn, $request->password);
 
-                if (!$auth) {
+                                if (!$auth) {
                     return response([
                         'success' => false,
                         'message' => 'Invalid LDAP password',
                     ], Response::HTTP_FORBIDDEN);
                 }
 
+                // Create or sync user in LMS database
                 $user = User::updateOrCreate(
-                    ['email' => $request->email],
+                    [
+                        'email' => $request->email,
+                    ],
                     [
                         'first_name' => $ldapUser->getFirstAttribute('cn'),
                         'password' => bcrypt(Str::random(16)),
+                        'is_deleted' => 0,
                     ]
                 );
 

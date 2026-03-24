@@ -55,6 +55,12 @@ class AssessmentAccountsController extends Controller
         $assessment_accounts = AssessmentAccount::where('deleted_at', NULL)->orderBy('created_at', 'desc')->get();
         return view('backend.assessment_accounts.index', compact('assessment_accounts'));
     }
+public function createWithCourse(Request $request)
+{
+    $published_courses = Course::where('status', 'published')->get();
+    $internal_users = User::where('role', 'employee')->get();
+    return view('backend.assignments.create_with_course', compact('published_courses', 'internal_users'));
+}
 
 public function courseAssignment(Request $request)
 {
@@ -592,9 +598,9 @@ public function courseAssignment(Request $request)
             'published' => 1,
         ]);
 
-        return redirect()
-            ->route('admin.courses.index')
-            ->withFlashSuccess('You completed all the flow for Courses...');
+     return redirect()->route('admin.courses.index')
+    ->with('course_created', true)
+    ->with('course_id', $course_id);
     }
 
 
@@ -810,6 +816,10 @@ public function courseAssignment(Request $request)
 
         if (!$course) {
             return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        if ($course->expire_at && \Carbon\Carbon::parse($course->expire_at)->isPast()) {
+            return response()->json(['error' => 'This course has expired and enrollment is no longer allowed.'], 422);
         }
 
         $course_link = url("/course/$course->slug");

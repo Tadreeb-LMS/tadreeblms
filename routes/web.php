@@ -17,6 +17,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Backend\SettingsController;
 
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
+use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
 
 
 //Route::get('/install', [InstallerController::class, 'index']);
@@ -26,6 +27,9 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
+Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
+->name('admin.course.assign');
+Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);
 Route::get('/lesson/check-course', [App\Http\Controllers\Backend\Admin\LessonsController::class, 'checkCourse'])
     ->name('lessons.course.check');
 Route::get('/ldap-test', function () {
@@ -106,6 +110,8 @@ Route::get('reset-demo', function () {
 
 require_once "delta_academy_custom_routes.php";
 
+
+Route::get('/certificate-verification', [\App\Http\Controllers\CertificateVerificationController::class, 'verify'])->name('frontend.certificates.getVerificationForm');
 
 /*
  * Frontend Routes
@@ -312,9 +318,8 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => con
     Route::post('change-location', 'MenuController@updateLocation')->name('update-location');
 });
 
-Route::get('certificate-verification', 'Backend\CertificateController@getVerificationForm')->name('frontend.certificates.getVerificationForm');
-Route::post('certificate-verification', 'Backend\CertificateController@verifyCertificate')->name('frontend.certificates.verify');
-Route::get('certificates/download', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
+
+Route::get('user/certificates/download/{certificate_id?}', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
 Route::get('user/certificates/generate/{course_id}/{user_id}', 'Backend\CertificateController@generateCertificate')->name('admin.certificates.generate');
 
 
