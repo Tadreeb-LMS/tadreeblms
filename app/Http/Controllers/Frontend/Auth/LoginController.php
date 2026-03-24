@@ -56,7 +56,8 @@ class LoginController extends Controller
             $captha_string = CustomHelper::getCaptcha();
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
-                'captha' => $captha_string
+                'captha' => $captha_string,
+                'captcha_question' => $captha_string
             ];
         }
 
@@ -71,7 +72,8 @@ class LoginController extends Controller
         $captcha = CustomHelper::getCaptcha();
 
     return response()->json([
-        'captcha' => $captcha
+        'captcha' => $captcha,
+        'captcha_question' => $captcha
     ]);
     }
 
@@ -116,7 +118,11 @@ class LoginController extends Controller
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $credentials = $request->only($this->username(), 'password');
+$credentials = [
+    'email' => $request->email,
+    'password' => $request->password,
+    'is_deleted' => 0
+];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
             $user = auth()->user();
@@ -176,13 +182,17 @@ class LoginController extends Controller
                 }
 
                 //Create or sync user in LMS database
-                $user = User::updateOrCreate(
-                    ['email' => $request->email],
-                    [
-                        'first_name' => $ldapUser->getFirstAttribute('cn'),
-                        'password' => bcrypt(Str::random(16)), // dummy local password
-                    ]
-                );
+                $user = User::where('email', $request->email)
+            ->where('is_deleted', 0)
+            ->first();
+
+if (!$user) {
+    $user = User::create([
+        'email' => $request->email,
+        'first_name' => $ldapUser->getFirstAttribute('cn'),
+        'password' => bcrypt(Str::random(16)),
+    ]);
+}
 
                 $user->assignRole('student');
 

@@ -2,6 +2,15 @@
 ob_start();
 
 // ------------------------------------------
+// Block access if application is already installed
+// ------------------------------------------
+$_basePath = realpath(__DIR__ . '/..');
+if ($_basePath && file_exists($_basePath . '/installed')) {
+    http_response_code(403);
+    exit('Forbidden: Application is already installed.');
+}
+
+// ------------------------------------------
 // RESET INSTALLER ONLY ON STEP = start
 // ------------------------------------------
 $step = $_GET['step'] ?? 'start';

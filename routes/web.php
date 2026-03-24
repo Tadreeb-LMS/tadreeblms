@@ -15,7 +15,11 @@ use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Backend\SettingsController;
+
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
+use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
+
+
 //Route::get('/install', [InstallerController::class, 'index']);
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
@@ -24,7 +28,11 @@ use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
-
+Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
+->name('admin.course.assign');
+Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);
+Route::get('/lesson/check-course', [App\Http\Controllers\Backend\Admin\LessonsController::class, 'checkCourse'])
+    ->name('lessons.course.check');
 Route::get('/ldap-test', function () {
     try {
         Container::getConnection()->connect();
@@ -46,6 +54,14 @@ Route::get('/ldap-users', function () {
         ];
     });
 });
+
+
+Route::post(
+    'assessment_accounts/course-assignment',
+    [AssessmentAccountsController::class, 'courseAssignment']
+)->name('admin.assessment_accounts.course-assignment');
+
+Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
 
 Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
@@ -96,6 +112,8 @@ Route::get('reset-demo', function () {
 require_once "delta_academy_custom_routes.php";
 
 
+Route::get('/certificate-verification', [\App\Http\Controllers\CertificateVerificationController::class, 'verify'])->name('frontend.certificates.getVerificationForm');
+
 /*
  * Frontend Routes
  * Namespaces indicate folder structure
@@ -121,6 +139,7 @@ Route::middleware(['auth'])->group(function () {
  * Backend Routes
  * Namespaces indicate folder structure
  */
+
 Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
 Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
     ->name('course-feedback-questions.edit');
@@ -131,6 +150,10 @@ Route::post('course-feedback-questions/{id}/update', [CourseFeedbackController::
 Route::post('settings/general/update',
         [SettingsController::class, 'updateGeneral'])
     ->name('settings.general.update');
+
+Route::post('settings/general/update',
+        'SettingsController@updateGeneral'
+    )->name('settings.general.update');
     /*
      * These routes need view-backend permission
      * (good if you want to allow more than one group in the backend,
@@ -304,9 +327,8 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => con
     Route::post('change-location', 'MenuController@updateLocation')->name('update-location');
 });
 
-Route::get('certificate-verification', 'Backend\CertificateController@getVerificationForm')->name('frontend.certificates.getVerificationForm');
-Route::post('certificate-verification', 'Backend\CertificateController@verifyCertificate')->name('frontend.certificates.verify');
-Route::get('certificates/download', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
+
+Route::get('user/certificates/download/{certificate_id?}', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
 Route::get('user/certificates/generate/{course_id}/{user_id}', 'Backend\CertificateController@generateCertificate')->name('admin.certificates.generate');
 
 

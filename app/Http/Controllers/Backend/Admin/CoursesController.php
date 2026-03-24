@@ -204,6 +204,14 @@ class CoursesController extends Controller
             ->addColumn('category', function ($q) {
                 return $q->category->name;
             })
+              ->addColumn('price', function ($course) {
+    if ($course->is_paid) {
+        return '<span class="badge badge-danger">$' . $course->price . '</span>';
+    } else {
+        return '<span class="badge badge-success">Free</span>';
+    }
+})
+->rawColumns(['price'])
             ->rawColumns(['teachers', 'department', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status'])
             ->make();
     }
@@ -276,47 +284,7 @@ class CoursesController extends Controller
 
         return DataTables::of($courses)
             ->addIndexColumn()
-            // ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-            //     $view = "";
-            //     $edit = "";
-            //     $delete = "";
-            //     if ($request->show_deleted == 1) {
-            //         return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.courses', 'label' => 'id', 'value' => $q->id]);
-            //     }
-            //     if ($has_view) {
-            //         $view = view('backend.datatable.action-view')
-            //             ->with(['route' => route('admin.courses.show', ['course' => $q->id])])->render();
-            //     }
-            //     if ($has_edit) {
-            //         $edit = view('backend.datatable.action-edit')
-            //             ->with(['route' => route('admin.courses.edit', ['course' => $q->id])])
-            //             ->render();
-            //         $view .= $edit;
-            //     }
-
-            //     if ($has_delete) {
-            //         $delete = view('backend.datatable.action-delete')
-            //             ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
-            //             ->render();
-            //         $view .= $delete;
-            //     }
-            //     if ($q->published == 1) {
-            //         $type = 'action-unpublish';
-            //     } else {
-            //         $type = 'action-publish';
-            //     }
-
-            //     $view .= view('backend.datatable.' . $type)
-            //         ->with(['route' => route('admin.courses.publish', ['id' => $q->id])])->render();
-
-            //     if (!$q->is_online_course) {
-            //         $copy_offline_link = view('backend.datatable.copy-offline-link')
-            //             ->with(['route' => route('coursePreview', ['slug' => $q->slug])])
-            //             ->render();
-            //         $view .= $copy_offline_link;
-            //     }
-            //     return $view;
-            // })
+           
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
         $actions = '<div class="actionbtns"> 
         <div class="dropdown">
@@ -590,8 +558,8 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['teams'] = 'Microsoft Teams';
         }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet'] = 'Google Meet';
+        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
         return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -614,9 +582,14 @@ class CoursesController extends Controller
         $request->validate([
              'start_date' => 'required|date',
              'expire_at'  => 'required|date|after_or_equal:start_date',
+             'title' => 'required|string|max:255',
+             'category_id' => 'required',
+             'course_type' => 'required',
+             'course_payment_type' => 'required',
+             'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -856,6 +829,8 @@ class CoursesController extends Controller
 
             $course_module_weight = $request->course_module_weight ?? [];
             $last_module_array = $request->course_module_inc ?? ['QuestionModule'];
+            $course->is_paid = $request->course_payment_type === 'Paid' ? 1 : 0;
+$course->price = $request->course_payment_type === 'Paid' ? $request->price : null;
 
             //dd($last_module_array);
 
@@ -911,7 +886,7 @@ class CoursesController extends Controller
                 );
                 if ($meetingData) {
                     $course->fill($meetingData)->save();
-                    // $this->sendMeetingInviteToStudents($course, $students);
+                    $this->sendMeetingInviteToStudents($course, $students);
                     // $this->sendMeetingInviteToTeachers($course, $teachers); // Replaced by Trainer assigned notification
                 } else {
                     \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
@@ -995,8 +970,8 @@ class CoursesController extends Controller
         if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
             $enabledMeetingProviders['teams'] = 'Microsoft Teams';
         }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet'] = 'Google Meet';
+        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
+            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
@@ -1043,7 +1018,7 @@ class CoursesController extends Controller
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google_meet'])) {
+        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
             $request->validate([
                 'meeting_start_at' => 'required|date|after:now',
                 'meeting_duration' => 'required|integer|min:1',
@@ -1175,27 +1150,6 @@ class CoursesController extends Controller
             $course->price = null;
             $course->save();
         }
-
-        // $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
-        // $course->teachers()->sync($teachers);
-
-        // $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
-        // $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
-        //dd($internalStudents);
-
-        // $students = array_merge($internalStudents, $externalStudents);
-        // // Auto subscribe into courses
-        // foreach ($students as $id) {
-        //     $data = [
-        //         'user_id' => $id,
-        //         'course_id' =>  $course->id,
-        //         'status' => 1
-        //     ];
-        //     SubscribeCourse::updateOrCreate($data);
-        // }
-
-        //dd("g");
-        //dd($request->all());
         $next_btn = $request->submit_btn;
         //dd($next_btn);
 
@@ -1749,6 +1703,34 @@ class CoursesController extends Controller
                     'meeting_host_url' => $meeting['host_url'] ?? null,
                 ];
             }
+        } elseif (in_array($provider, ['google-meet-integration', 'google_meet'])) {
+            $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
+            
+            $hostEmail = null;
+            $teacherEmails = $course->teachers->pluck('email')->toArray();
+            if (!empty($teacherEmails)) {
+                $hostEmail = $teacherEmails[0];
+            }
+
+            $studentEmails = $course->students->pluck('email')->toArray();
+            $attendees = array_merge($teacherEmails, $studentEmails);
+
+            $meeting = $service->createMeeting(
+                $course->title,
+                $request->meeting_start_at,
+                $request->meeting_duration,
+                $request->meeting_timezone,
+                $hostEmail,
+                $attendees
+            );
+
+            if ($meeting) {
+                return [
+                    'meeting_id'       => $meeting['id'],
+                    'meeting_join_url' => $meeting['join_url'],
+                    'meeting_host_url' => $meeting['host_url'] ?? null,
+                ];
+            }
         }
         return null;
     }
@@ -1756,6 +1738,16 @@ class CoursesController extends Controller
     private function sendMeetingInviteToStudents(Course $course, array $studentIds): void
     {
         $students = User::whereIn('id', $studentIds)->get();
+
+        // Google Meet integration: Add as attendee if course has a meeting
+        if ($course->meeting_provider == 'google-meet-integration' && $course->meeting_id) {
+            $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
+            $hostEmail = $course->teachers->first()->email ?? null;
+            foreach ($students as $student) {
+                $service->addAttendeeToMeeting($course->meeting_id, $student->email, $hostEmail);
+            }
+        }
+
         foreach ($students as $student) {
             \Illuminate\Support\Facades\Mail::to($student->email)
                 ->send(new \App\Mail\CourseMeetingInvite($course));

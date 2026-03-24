@@ -573,6 +573,27 @@ class AssessmentController extends Controller
         ]);
 
         if($course_id) {
+            // Record Immutable Certificate Issuance
+            $certificate = \App\Models\Certificate::firstOrNew([
+                'user_id' => $user_id,
+                'course_id' => $course_id,
+            ]);
+
+            $validationHash = hash('sha256', $user_id . $course_id . now() . config('app.key'));
+            $certificate->validation_hash = $validationHash;
+            $certificate->name = auth()->user()->name;
+            $certificate->metadata = [
+                'student_name' => auth()->user()->name,
+                'course_title' => $course->title,
+                'completion_date' => Carbon::now()->toDateTimeString(),
+            ];
+            $certificate->status = 1; // Issued
+            $certificate->save();
+
+            // Format human-readable ID
+            $certificate->certificate_id = 'TLMS-' . Carbon::now()->format('Y') . '-' . str_pad($certificate->id, 6, '0', STR_PAD_LEFT);
+            $certificate->save();
+            
             $progressdata = CustomHelper::updateUserProgress($user_id, $course_id);
         }
 

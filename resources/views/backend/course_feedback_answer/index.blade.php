@@ -70,6 +70,39 @@
         border-color: #9C701E;
         color: #fff;
     }
+
+    .btn-export-feedback {
+        background: #1f7a45;
+        border: 1px solid #1f7a45;
+        color: #fff;
+        border-radius: 999px;
+        font-weight: 600;
+        padding: 0.42rem 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .btn-export-feedback:hover,
+    .btn-export-feedback:focus {
+        background: #186338;
+        border-color: #155a33;
+        color: #fff;
+    }
+
+    .btn-export-feedback-icon {
+        width: 18px;
+        height: 18px;
+        display: block;
+        flex-shrink: 0;
+    }
+
+    .feedback-filter-actions {
+        gap: 10px;
+    }
 </style>
 @endpush
 
@@ -121,7 +154,14 @@
                           </div>
 
                           <div class="row mb-0">
-                              <div class="col-12 d-flex justify-content-end">
+                              <div class="col-12 d-flex justify-content-end feedback-filter-actions">
+                                  <a href="{{ route('admin.user-feedback-answers.export') }}" id="export-feedback-answers" class="btn btn-export-feedback">
+                                      <svg class="btn-export-feedback-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none">
+                                          <path d="M7.25 2.25h5.1L16 5.9v10.6a1.25 1.25 0 0 1-1.25 1.25h-7.5A1.25 1.25 0 0 1 6 16.5V3.5a1.25 1.25 0 0 1 1.25-1.25Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                          <path d="M12.25 2.5V5.75H15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                      </svg>
+                                      <span>Download as Excel</span>
+                                  </a>
                                   <button type="button" id="reset-filters" class="btn btn-reset-filters">Reset Filters</button>
                               </div>
                           </div>
@@ -171,6 +211,41 @@
     <script>
         $(document).ready(function() {
             let isResettingFilters = false;
+            const exportBaseUrl = '{{ route("admin.user-feedback-answers.export") }}';
+
+            const appendArrayParams = function (params, key, values) {
+                if (!Array.isArray(values)) {
+                    return;
+                }
+
+                values.filter(Boolean).forEach(function (value) {
+                    params.append(key + '[]', value);
+                });
+            };
+
+            const updateExportUrl = function () {
+                const params = new URLSearchParams();
+                const searchValue = $('#myTable_filter input[type="search"]').val();
+
+                appendArrayParams(params, 'course_ids', $('#filter_course_ids').val() || []);
+                appendArrayParams(params, 'user_ids', $('#filter_user_ids').val() || []);
+
+                if ($('#filter_date_from').val()) {
+                    params.set('date_from', $('#filter_date_from').val());
+                }
+
+                if ($('#filter_date_to').val()) {
+                    params.set('date_to', $('#filter_date_to').val());
+                }
+
+                if (searchValue) {
+                    params.set('search', searchValue);
+                }
+
+                const queryString = params.toString();
+
+                $('#export-feedback-answers').attr('href', queryString ? exportBaseUrl + '?' + queryString : exportBaseUrl);
+            };
 
             const dtTable = $('#myTable').DataTable({
                 processing: true,
@@ -250,7 +325,12 @@
                     .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
                     .after('<i class="fa fa-search search-icon"></i>');
 
+                $searchInput.on('input', function () {
+                    updateExportUrl();
+                });
+
                 $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
+                updateExportUrl();
                 },
                  drawCallback: function () {
     $('.dataTables_paginate .paginate_button.previous, .dataTables_paginate .paginate_button.next').css({
@@ -299,6 +379,7 @@
                     return;
                 }
 
+                updateExportUrl();
                 dtTable.draw();
             });
 
@@ -311,6 +392,7 @@
                 $('#filter_date_to').val('');
 
                 isResettingFilters = false;
+                updateExportUrl();
                 dtTable.draw();
             });
 

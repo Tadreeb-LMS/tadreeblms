@@ -40,6 +40,7 @@ use App\Models\Test;
 use Illuminate\Support\Facades\DB as FacadesDB;
 use Illuminate\Support\Facades\Validator;
 
+
 class AssessmentAccountsController extends Controller
 {
 
@@ -54,7 +55,59 @@ class AssessmentAccountsController extends Controller
         $assessment_accounts = AssessmentAccount::where('deleted_at', NULL)->orderBy('created_at', 'desc')->get();
         return view('backend.assessment_accounts.index', compact('assessment_accounts'));
     }
+public function createWithCourse(Request $request)
+{
+    $published_courses = Course::where('status', 'published')->get();
+    $internal_users = User::where('role', 'employee')->get();
+    return view('backend.assignments.create_with_course', compact('published_courses', 'internal_users'));
+}
 
+public function courseAssignment(Request $request)
+{
+
+    $request->validate([
+        'course_ids' => 'required|array',
+        'teachers' => 'required|array'
+    ]);
+
+    $courses = $request->course_ids;
+    $users = $request->teachers;
+
+    foreach ($courses as $courseId) {
+
+        $course = DB::table('courses')->where('id', $courseId)->first();
+
+        // create assignment
+        $assignmentId = DB::table('course_assignment')->insertGetId([
+            'title' => $course->title,
+            'course_id' => $courseId, 
+            'category_id' => $course->category_id ?? null,
+    'department_id' => $request->department_id ?? null,   
+             'assign_by' => auth()->id(),        // Assign By
+            'created_at' => now(),
+            'updated_at' => now(),
+            'assign_date' => now(),
+'assign_to' => $request->department_id ? 'department' : 'user',        ]);
+
+        // assign users
+        foreach ($users as $userId) {
+
+            DB::table('course_assignment_users')->insert([
+    'course_assignment_id' => $assignmentId,
+    'course_id' => $courseId,
+    'user_id' => $userId,
+    'log_comment' => 'By Admin',
+    'created_at' => now(),
+    'updated_at' => now()
+]);;
+
+        }
+
+    }
+
+    return redirect()->back()->with('success','Courses assigned successfully');
+
+}
 
     /**
      * Show the form for creating new Category.
@@ -545,9 +598,9 @@ class AssessmentAccountsController extends Controller
             'published' => 1,
         ]);
 
-        return redirect()
-            ->route('admin.courses.index')
-            ->withFlashSuccess('You completed all the flow for Courses...');
+     return redirect()->route('admin.courses.index')
+    ->with('course_created', true)
+    ->with('course_id', $course_id);
     }
 
 
@@ -763,6 +816,10 @@ class AssessmentAccountsController extends Controller
 
         if (!$course) {
             return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        if ($course->expire_at && \Carbon\Carbon::parse($course->expire_at)->isPast()) {
+            return response()->json(['error' => 'This course has expired and enrollment is no longer allowed.'], 422);
         }
 
         $course_link = url("/course/$course->slug");

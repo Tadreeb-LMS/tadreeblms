@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend\Admin;
 
+use App\Exports\UserFeedbackAnswersExport;
 use App\Models\Course;
 use App\Models\Auth\User;
 use App\Models\CourseTimeline;
@@ -18,6 +19,7 @@ use App\Models\FeedbackQuestion;
 use App\Models\UserFeedback;
 use Carbon\Carbon;
 use DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,18 +46,7 @@ class UserFeebackAnswersController extends Controller
                     return '<a class="badge badge-info feedback-detail" data-id="' . $single->id . '" href="#"> Detail </a>'; //$single->question_answers;
                 })
                 ->filter(function ($query) use ($request) {
-                    $search = $request->input('search.value');
-
-                    if (!empty($search)) {
-                        $query->where(function ($q) use ($search) {
-                            $q->whereHas('user', function ($q2) use ($search) {
-                                $q2->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
-                            })
-                            ->orWhereHas('course', function ($q2) use ($search) {
-                                $q2->where('title', 'like', "%{$search}%");
-                            });
-                        });
-                    }
+                    $this->applySearchFilter($query, $request->input('search.value'));
                 })
                 ->rawColumns(['question_answers'])
                 ->make(true);
@@ -98,6 +89,18 @@ class UserFeebackAnswersController extends Controller
             });
 
         return view('backend.course_feedback_answer.index', compact('courses', 'users'));
+    }
+
+    public function export(Request $request)
+    {
+        $userFeedbackAnswers = $this->buildFeedbackAnswersQuery($request);
+
+        $this->applySearchFilter($userFeedbackAnswers, $request->input('search'));
+
+        return Excel::download(
+            new UserFeedbackAnswersExport($userFeedbackAnswers->get()),
+            'user-feedback-answers-' . now()->format('Y-m-d-His') . '.xlsx'
+        );
     }
 
     private function buildFeedbackAnswersQuery(Request $request): Builder
@@ -162,6 +165,22 @@ class UserFeebackAnswersController extends Controller
         }
 
         return $query;
+    }
+
+    private function applySearchFilter(Builder $query, ?string $search): void
+    {
+        if (empty($search)) {
+            return;
+        }
+
+        $query->where(function ($q) use ($search) {
+            $q->whereHas('user', function ($q2) use ($search) {
+                $q2->where(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+            })
+            ->orWhereHas('course', function ($q2) use ($search) {
+                $q2->where('title', 'like', "%{$search}%");
+            });
+        });
     }
 
     private function parseFilterDate(?string $date): ?Carbon
