@@ -112,10 +112,12 @@ class LoginController extends Controller
 
         // ✅ CAPTCHA CHECK
         if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
-            return response([
-                'success' => false,
-                'message' => 'Invalid captcha answer',
-            ], Response::HTTP_FORBIDDEN);
+        return response([
+            'success' => false,
+            'errors' => [
+                'captcha' => ['Invalid captcha answer']
+            ]
+        ], 422);
         }
 
 $credentials = [

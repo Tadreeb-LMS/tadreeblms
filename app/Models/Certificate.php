@@ -7,7 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Certificate extends Model
 {
-    protected $guarded =[];
+    protected $fillable = [
+        'name',
+        'user_id',
+        'course_id',
+        'certificate_id',
+        'validation_hash',
+        'url',
+        'file_path',
+        'status',
+        'revoked_at',
+        'metadata'
+    ];
+
+    protected $casts = [
+        'metadata' => 'json',
+        'revoked_at' => 'datetime',
+    ];
+
     protected $appends = ['certificate_link'];
 
     public function user(){
@@ -23,5 +40,15 @@ class Certificate extends Model
             return url('storage/certificates/'.$this->url);
         }
         return NULL;
+    }
+
+    /**
+     * Check if the certificate has been revoked.
+     *
+     * @return bool
+     */
+    public function isRevoked()
+    {
+        return !is_null($this->revoked_at);
     }
 }

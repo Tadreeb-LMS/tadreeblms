@@ -28,21 +28,16 @@ jobs:
             git config --global --add safe.directory /var/www/html/dev/tadreeblms
 
             echo "📥 Pulling latest code..."
-            git fetch origin
-            git reset --hard origin/main
-            git clean -fd
+            git stash
+            git pull
 
             echo "🧹 Clearing old cache..."
             
             php artisan config:clear || true
             php artisan view:clear || true
-
-            echo "⚙️ Optimizing Laravel..."
-            
-            
             php artisan view:cache
 
             echo "🗄 Running migrations..."
-            php artisan migrate --force
+            php artisan migrate 
 
             echo "✅ Deployment completed successfully"

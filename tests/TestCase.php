@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 /**
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
+    use RefreshDatabase;
 
     /**
      * Create the admin role or return it if it already exists.

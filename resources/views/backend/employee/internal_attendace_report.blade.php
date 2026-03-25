@@ -254,6 +254,8 @@ top: 7px !important;
                                 <th style="width:120px">@lang('Progress Status')</th>
                                 <th style="width:140px">@lang('Assessment Score')</th>
                                 <th style="width:140px">@lang('Assessment status')</th>
+                                <th style="width:130px">@lang('Lesson Quiz')</th>
+                                <th style="width:140px">@lang('Lesson Quiz Status')</th>
                                 <th style="width:120px">@lang('Trainer Name')</th>
                                 <th style="display:none;width:140px">@lang('Assignment Date')</th>
                                 <th style="width:120px;width:140px">@lang('Assignment Date')</th>
@@ -527,6 +529,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     { data: 'progress_status', orderable: false },
                     { data: 'assignment_score', orderable: false },
                     { data: 'assignment_status', orderable: false },
+                    { data: 'lesson_quiz', orderable: false },
+                    { data: 'lesson_quiz_status', orderable: false },
                     { data: 'trainer_name', orderable: false },
                     { data: 'assign_date', orderable: false },
                     { data: 'due_date', orderable: false }
@@ -668,6 +672,8 @@ document.addEventListener('DOMContentLoaded', () => {
                          { data: 'progress_status', name: 'progress_status', orderable: false },
                          { data: 'assignment_score', name: 'assignment_score', orderable: false },
                          { data: 'assignment_status', name: 'assignment_status', orderable: false },
+                         { data: 'lesson_quiz', name: 'lesson_quiz', orderable: false },
+                         { data: 'lesson_quiz_status', name: 'lesson_quiz_status', orderable: false },
                          { data: 'trainer_name', name: 'trainer_name', orderable: false },
                          { data: 'assign_date', name: 'assign_date', orderable: false },
                          { data: 'due_date', name: 'due_date', orderable: false }

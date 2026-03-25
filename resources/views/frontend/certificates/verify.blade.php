@@ -70,6 +70,13 @@
         box-shadow: 0 5px 15px rgba(197, 160, 89, 0.4);
         transform: translateY(-2px);
     }
+    .badge-premium {
+        background: #1a237e;
+        color: #fff;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
 </style>
 @endpush
 

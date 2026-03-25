@@ -22,6 +22,7 @@ use App\Models\courseAssignment;
 use Yajra\DataTables\DataTables;
 use DB;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 
 class LessonsController extends Controller
@@ -176,10 +177,15 @@ class LessonsController extends Controller
             return '';
         }
 
-        // Build the assessment URL
-        if ($assignment->assessment) {
+        $assessment = $assignment->assessment;
+        if (!$assessment) {
+            $assessment = $this->resolveOrCreateCourseAssessment((int) $course_id, (int) $logged_in_user_id);
+        }
 
-            $test_taken = CustomHelper::assignmentAttempts($assignment->assessment->id, $logged_in_user_id);
+        // Build the assessment URL
+        if ($assessment) {
+
+            $test_taken = CustomHelper::assignmentAttempts($assessment->id, $logged_in_user_id);
 
             //dd($test_taken);
 
@@ -188,16 +194,106 @@ class LessonsController extends Controller
 
             if ($test_taken < $allowedAssignmentRetake) {
                 return route('online_assessment', [
-                    'assignment'     => $assignment->assessment->url_code,
-                    'verify_code'    => $assignment->assessment->verify_code,
+                    'assignment'     => $assessment->url_code,
+                    'verify_code'    => $assessment->verify_code,
                     'id'             => $assignment->id,
-                    'assessment_id'  => $assignment->assessment->id,
+                    'assessment_id'  => $assessment->id,
                     'course_id'      => $course_id
                 ]);
             }
         }
 
         return '';
+    }
+
+    private function resolveCourseFinalAssessmentTest(int $course_id): ?Test
+    {
+        $finalTests = Test::where('course_id', $course_id)
+            ->whereNull('lesson_id')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        foreach ($finalTests as $test) {
+            $questionsCount = DB::table('test_questions')
+                ->where('test_id', $test->id)
+                ->where('is_deleted', 0)
+                ->whereNull('deleted_at')
+                ->count();
+
+            if ($questionsCount > 0) {
+                return $test;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveOrCreateCourseAssessment(int $course_id, int $logged_in_user_id): ?Assignment
+    {
+        $finalTest = $this->resolveCourseFinalAssessmentTest($course_id);
+        if (!$finalTest) {
+            return null;
+        }
+
+        $questionCount = DB::table('test_questions')
+            ->where('test_id', $finalTest->id)
+            ->where('is_deleted', 0)
+            ->whereNull('deleted_at')
+            ->count();
+
+        if ($questionCount <= 0) {
+            return null;
+        }
+
+        $assessment = Assignment::where('course_id', (string) $course_id)
+            ->where('test_id', $finalTest->id)
+            ->whereNull('deleted_at')
+            ->latest('id')
+            ->first();
+
+        if ($assessment) {
+            $dirty = false;
+            if (empty($assessment->url_code)) {
+                $assessment->url_code = Str::lower(Str::random(20));
+                $dirty = true;
+            }
+            if (empty($assessment->verify_code)) {
+                $assessment->verify_code = strtoupper(Str::random(6));
+                $dirty = true;
+            }
+            if (empty($assessment->total_question) || (int) $assessment->total_question < 1) {
+                $assessment->total_question = $questionCount;
+                $dirty = true;
+            }
+            if ($dirty) {
+                $assessment->save();
+            }
+
+            return $assessment;
+        }
+
+        $urlCode = Str::lower(Str::random(20));
+        while (Assignment::where('url_code', $urlCode)->exists()) {
+            $urlCode = Str::lower(Str::random(20));
+        }
+
+        $verifyCode = strtoupper(Str::random(6));
+
+        $assessmentId = DB::table('assignments')->insertGetId([
+            'test_id' => $finalTest->id,
+            'user_id' => (string) $logged_in_user_id,
+            'course_id' => (string) $course_id,
+            'title' => $finalTest->title ?: 'Final Assessment',
+            'duration' => 60,
+            'verify_code' => $verifyCode,
+            'url_code' => $urlCode,
+            'total_question' => $questionCount,
+            'due_date' => now()->addYears(5),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return Assignment::find($assessmentId);
     }
 
 
@@ -256,6 +352,171 @@ class LessonsController extends Controller
         return isset($dd->original['data'][0]['assesment_url']) ? $dd->original['data'][0]['assesment_url'] : '';
     }
 
+    /**
+     * Resolve a published lesson for a course by tolerant slug matching.
+     */
+    private function resolvePublishedLessonBySlug(int $course_id, ?string $normalized_slug): ?Lesson
+    {
+        if (empty($normalized_slug)) {
+            return null;
+        }
+
+        $baseQuery = Lesson::with(['downloadableMedia', 'mediaVideo', 'mediaPDF'])
+            ->where('course_id', $course_id)
+            ->where('published', 1);
+
+        $lesson = (clone $baseQuery)->where('slug', $normalized_slug)->first();
+        if ($lesson) {
+            return $lesson;
+        }
+
+        // Old lesson links may include a random unique prefix before the slug.
+        $slug_without_prefix = preg_replace('/^[0-9a-f]{8,}(?=[a-z])/i', '', $normalized_slug);
+        if (!empty($slug_without_prefix) && $slug_without_prefix !== $normalized_slug) {
+            $lesson = (clone $baseQuery)->where('slug', $slug_without_prefix)->first();
+            if ($lesson) {
+                return $lesson;
+            }
+        }
+
+        $lesson = (clone $baseQuery)->where('slug', 'like', $normalized_slug . '%')->first();
+        if ($lesson) {
+            return $lesson;
+        }
+
+        $lesson = (clone $baseQuery)
+            ->whereRaw('? LIKE CONCAT("%", slug)', [$normalized_slug])
+            ->first();
+        if ($lesson) {
+            return $lesson;
+        }
+
+        return (clone $baseQuery)
+            ->where('slug', 'like', '%' . $normalized_slug . '%')
+            ->first();
+    }
+
+    /**
+     * Whether the given lesson has an active lesson-level quiz.
+     */
+    private function lessonHasQuiz(Lesson $lesson): bool
+    {
+        $lesson_test = $lesson->test;
+        if (!$lesson_test) {
+            return false;
+        }
+
+        return $lesson_test->test_questions()->exists();
+    }
+
+    /**
+     * Whether the current user has passed the lesson-level quiz.
+     */
+    private function hasUserPassedLessonQuiz(Lesson $lesson, int $user_id): bool
+    {
+        $lesson_test = $lesson->test;
+        if (!$lesson_test) {
+            return true;
+        }
+
+        $question_count = $lesson_test->test_questions()->count();
+        if ($question_count === 0) {
+            return true;
+        }
+
+        $latest_result = TestsResult::where('test_id', $lesson_test->id)
+            ->where('user_id', $user_id)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if (!$latest_result) {
+            return false;
+        }
+
+        $percentage = ($latest_result->test_result / $question_count) * 100;
+
+    // Lesson progression requires all answers to be correct.
+    return $percentage >= 100;
+    }
+
+    /**
+     * Enforce sequential lesson progression when previous lessons have quizzes.
+     */
+    private function canUserOpenLesson(Course $course, Lesson $target_lesson, int $user_id): array
+    {
+        $ordered_lessons = Lesson::where('course_id', $course->id)
+            ->where('published', 1)
+            ->orderBy('position', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $target_index = $ordered_lessons->search(function ($lesson) use ($target_lesson) {
+            return (int) $lesson->id === (int) $target_lesson->id;
+        });
+
+        if ($target_index === false || $target_index === 0) {
+            return ['allowed' => true, 'blocked_lesson' => null];
+        }
+
+        foreach ($ordered_lessons->slice(0, $target_index) as $previous_lesson) {
+            if ($this->lessonHasQuiz($previous_lesson) && !$this->hasUserPassedLessonQuiz($previous_lesson, $user_id)) {
+                return ['allowed' => false, 'blocked_lesson' => $previous_lesson];
+            }
+        }
+
+        return ['allowed' => true, 'blocked_lesson' => null];
+    }
+
+    /**
+     * Build quiz state for a lesson-level quiz page/section.
+     */
+    private function getLessonQuizData(Lesson $lesson): array
+    {
+        $lesson_quiz = null;
+        $lesson_quiz_questions = collect();
+        $lesson_quiz_result = null;
+        $lesson_quiz_pass = null;
+        $lesson_quiz_percentage = 0;
+
+        if ($lesson->test) {
+            $lesson_test = $lesson->test;
+            $lesson_quiz_questions = $lesson_test->test_active_questions();
+
+            if ($lesson_quiz_questions->isNotEmpty()) {
+                $lesson_quiz = $lesson_test;
+
+                foreach ($lesson_quiz_questions as $question) {
+                    if (empty($question->options)) {
+                        $question->options = DB::table('test_question_options')
+                            ->where('question_id', $question->id)
+                            ->get();
+                    }
+                }
+
+                $lesson_quiz_result = TestsResult::where('test_id', $lesson_test->id)
+                    ->where('user_id', auth()->id())
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                if ($lesson_quiz_result) {
+                    $question_count = $lesson_quiz_questions->count();
+                    $lesson_quiz_percentage = $question_count > 0
+                        ? ($lesson_quiz_result->test_result / $question_count) * 100
+                        : 0;
+                    $lesson_quiz_pass = ($lesson_quiz_percentage >= 100) ? 'Pass' : 'Failed';
+                }
+            }
+        }
+
+        return [
+            'lesson_quiz' => $lesson_quiz,
+            'lesson_quiz_questions' => $lesson_quiz_questions,
+            'lesson_quiz_result' => $lesson_quiz_result,
+            'lesson_quiz_pass' => $lesson_quiz_pass,
+            'lesson_quiz_percentage' => $lesson_quiz_percentage,
+        ];
+    }
+
     public function show($course_id, $lesson_slug = null)
     {
         //dd("hi");
@@ -273,12 +534,24 @@ class LessonsController extends Controller
             ->where('user_id', $logged_in_user_id)
             ->first();
 
-        $isAssignmentTaken = $sc->assesment_taken ?? $this->isAssignmentTaken($logged_in_user_id, $course_id);
-        $hasAssessmentLink = $sc->has_assesment ?? $this->hasAssessmentLink($course_id, $logged_in_user_id);
+        $isAssignmentTaken = $sc
+            ? ($sc->assesment_taken ?? false)
+            : $this->isAssignmentTaken($logged_in_user_id, $course_id);
+
+        $assessment_link = $this->assessmentLink($logged_in_user_id, $course_id);
+        $hasAssessmentLinkByUrl = !empty($assessment_link);
+        $hasAssessmentLink = $sc
+            ? ((bool) ($sc->has_assesment ?? 0) || $hasAssessmentLinkByUrl)
+            : ($hasAssessmentLinkByUrl || (bool) $this->hasAssessmentLink($course_id, $logged_in_user_id));
+
+        if ($sc && $hasAssessmentLinkByUrl && !(bool) ($sc->has_assesment ?? 0)) {
+            $sc->has_assesment = 1;
+            $sc->save();
+        }
 
         //dd($hasAssessmentLink);
 
-        $completed_at = $sc->is_completed ? $sc->completed_at : null;
+        $completed_at = ($sc && $sc->is_completed) ? $sc->completed_at : null;
 
         $is_certificate_download = false;
         $is_assesment_taken = false;
@@ -286,15 +559,11 @@ class LessonsController extends Controller
         $has_feedback = false;
         $has_assesment = false;
 
-        $is_attended = $sc->is_attended ?? 0;
+        $is_attended = $sc ? ($sc->is_attended ?? 0) : 0;
 
         //dd($logged_in_user_id, $isAssignmentTaken, $hasAssessmentLink);
 
         $courseFeedbackLink = '';
-        if ($hasAssessmentLink) {
-            $assessment_link = $this->assessmentLink($logged_in_user_id, $course_id);
-            //dd($assessment_link);
-        }
         //dd($this->assessmentLink($logged_in_user_id, $course_id), $hasAssessmentLink,  "hhh");
 
         //dd($isAssignmentTaken, $hasAssessmentLink, $assessment_link);
@@ -304,7 +573,9 @@ class LessonsController extends Controller
         }
 
 
-        $assignment_status = @$sc->course->assignmentStatus($logged_in_user_id);
+        $assignment_status = ($sc && $sc->course)
+            ? $sc->course->assignmentStatus($logged_in_user_id)
+            : null;
 
         //dd($sc);
 
@@ -316,14 +587,31 @@ class LessonsController extends Controller
             $has_assesment = $sc->has_assesment ?? false;;
         }
 
+        $normalized_slug = is_string($lesson_slug)
+            ? trim(rawurldecode($lesson_slug))
+            : $lesson_slug;
 
-
-
-        $lesson = Lesson::with(['downloadableMedia', 'mediaVideo', 'mediaPDF'])->where('slug', $lesson_slug)->where('course_id', $course_id)->where('published', '=', 1)->first();
-        //dd($lesson, $lesson_slug, $course_id); 
+        $lesson = $this->resolvePublishedLessonBySlug($course_id, $normalized_slug);
 
         if ($lesson == "") {
-            $lesson = Test::where('slug', $lesson_slug)->where('course_id', $course_id)->where('published', '=', 1)->firstOrFail();
+            $lesson = Test::where('slug', $normalized_slug)
+                ->where('course_id', $course_id)
+                ->where('published', '=', 1)
+                ->first();
+
+            if (!$lesson) {
+                $fallback_lesson = Lesson::where('course_id', $course_id)
+                    ->where('published', 1)
+                    ->orderBy('id', 'asc')
+                    ->first();
+
+                if ($fallback_lesson) {
+                    return redirect()->route('lessons.show', [$course_id, $fallback_lesson->slug]);
+                }
+
+                abort(404);
+            }
+
             $lesson->full_text = $lesson->description;
             $test_result = TestsResult::where('test_id', $lesson->id)
                 ->where('user_id', \Auth::id())
@@ -339,12 +627,21 @@ class LessonsController extends Controller
             }
         }
 
+        if ($lesson instanceof Lesson) {
+            $lesson_access = $this->canUserOpenLesson($lesson->course, $lesson, $logged_in_user_id);
+            if (!$lesson_access['allowed'] && !empty($lesson_access['blocked_lesson'])) {
+                return redirect()
+                    ->route('lessons.show', [$course_id, $lesson_access['blocked_lesson']->slug])
+                    ->with('flash_warning', 'To continue, you must complete and pass the quiz for lesson: ' . $lesson_access['blocked_lesson']->title . '.');
+            }
+        }
+
 
         //dd($lesson, $lesson->mediaVideo()->exists());
-        if (!$lesson->mediaVideo()->exists()) {
+        if ($lesson instanceof Lesson && !$lesson->mediaVideo()->exists()) {
 
             $custom_helper = new CustomHelper();
-            $custom_helper->updateUserProgress($logged_in_user_id, $sc->course->id);
+            $custom_helper->updateUserProgress($logged_in_user_id, $course_id);
         }
 
 
@@ -477,14 +774,46 @@ class LessonsController extends Controller
 
         //dd($has_assesment, $is_assesment_taken, $has_feedback, $is_feedback_taken,  $is_offline_course, $is_certificate_download, $is_course_completed);
 
-        $is_certificate_download = $sc->grant_certificate ?? 0;
+        $is_certificate_download = $sc ? ($sc->grant_certificate ?? 0) : 0;
 
         //dd($lessonCount, );
         $lessonCompletedCount = count($completed_lessons);
         //dd($lessonCompletedCount, $course_lessons);
 
-        $nextTasks = CustomHelper::getNextTask($sc, $course_id);
+        $nextTasks = $sc
+            ? CustomHelper::getNextTask($sc, $course_id)
+            : [
+                'failed_in_assesment_all_attempts' => false,
+                'reattempt_assesment' => false,
+                'completed_assesment' => false,
+                'download_certificate' => false,
+                'open_assesment' => false,
+                'open_feedback' => false,
+            ];
         //dd($nextTasks, $assessment_link);
+
+        // ── Lesson-level quiz detection ───────────────────────────────────────
+        $lesson_quiz = null;
+        $lesson_quiz_pass = null;
+        $lesson_quiz_url = null;
+        $requires_lesson_quiz_pass_for_next = false;
+        $can_access_next_lesson = true;
+
+        if ($lesson instanceof Lesson) {
+            $quiz_data = $this->getLessonQuizData($lesson);
+            $lesson_quiz = $quiz_data['lesson_quiz'];
+            $lesson_quiz_pass = $quiz_data['lesson_quiz_pass'];
+
+            if ($lesson_quiz) {
+                $lesson_quiz_url = route('lessons.lesson_quiz.show', [$course_id, $lesson->slug]);
+            }
+        }
+
+        if ($next_lesson && get_class($lesson) === 'App\Models\Lesson' && $lesson_quiz) {
+            $requires_lesson_quiz_pass_for_next = true;
+            $can_access_next_lesson = ($lesson_quiz_pass === 'Pass');
+        }
+        // ─────────────────────────────────────────────────────────────────────
 
         return view($this->path . '.courses.lesson', compact(
             'is_certificate_download',
@@ -516,8 +845,130 @@ class LessonsController extends Controller
             'isAssignmentTaken',
             'courseFeedbackLink',
             'assignment_status',
-            'course_lessons_arr'
+            'course_lessons_arr',
+            'lesson_quiz',
+            'lesson_quiz_pass',
+            'lesson_quiz_url',
+            'requires_lesson_quiz_pass_for_next',
+            'can_access_next_lesson'
         ));
+    }
+
+    /**
+     * Display the dedicated quiz section for a lesson.
+     */
+    public function showLessonQuiz($course_id, $lesson_slug)
+    {
+        $logged_in_user_id = auth()->id();
+        $normalized_slug = is_string($lesson_slug)
+            ? trim(rawurldecode($lesson_slug))
+            : $lesson_slug;
+
+        $lesson = $this->resolvePublishedLessonBySlug($course_id, $normalized_slug);
+        if (!$lesson) {
+            abort(404);
+        }
+
+        if (!$lesson->isCompleted()) {
+            return redirect()
+                ->route('lessons.show', [$course_id, $lesson->slug])
+                ->with('flash_warning', 'Complete this lesson first to unlock its quiz section.');
+        }
+
+        $lesson_access = $this->canUserOpenLesson($lesson->course, $lesson, $logged_in_user_id);
+        if (!$lesson_access['allowed'] && !empty($lesson_access['blocked_lesson'])) {
+            return redirect()
+                ->route('lessons.show', [$course_id, $lesson_access['blocked_lesson']->slug])
+                ->with('flash_warning', 'To continue, you must complete and pass the quiz for lesson: ' . $lesson_access['blocked_lesson']->title . '.');
+        }
+
+        $quiz_data = $this->getLessonQuizData($lesson);
+        if (!$quiz_data['lesson_quiz']) {
+            return redirect()
+                ->route('lessons.show', [$course_id, $lesson->slug])
+                ->with('flash_warning', 'No quiz is configured for this lesson.');
+        }
+
+        $course_lessons = $lesson->course->lessons->pluck('id')->toArray();
+        $timeline = $lesson->courseTimeline()->customScope($course_id)->first();
+        $sequence = $timeline->sequence ?? 0;
+        $next_lesson = $lesson->course->courseTimeline()
+            ->whereIn('model_id', $course_lessons)
+            ->where('sequence', '>', $sequence)
+            ->orderBy('sequence', 'asc')
+            ->first();
+
+        $can_access_next_lesson = ($quiz_data['lesson_quiz_pass'] === 'Pass');
+
+        return view($this->path . '.courses.lesson-quiz', [
+            'course_id' => $course_id,
+            'lesson' => $lesson,
+            'next_lesson' => $next_lesson,
+            'can_access_next_lesson' => $can_access_next_lesson,
+            'lesson_quiz' => $quiz_data['lesson_quiz'],
+            'lesson_quiz_questions' => $quiz_data['lesson_quiz_questions'],
+            'lesson_quiz_result' => $quiz_data['lesson_quiz_result'],
+            'lesson_quiz_pass' => $quiz_data['lesson_quiz_pass'],
+            'lesson_quiz_percentage' => $quiz_data['lesson_quiz_percentage'],
+        ]);
+    }
+
+    /**
+     * Handle submission of a lesson-level quiz (TestQuestion-based).
+     */
+    public function submitLessonQuiz(Request $request, $lesson_id)
+    {
+        $lesson = Lesson::findOrFail($lesson_id);
+        $lessonTest = $lesson->test;
+
+        if (!$lesson->isCompleted()) {
+            return redirect()
+                ->route('lessons.show', [$lesson->course_id, $lesson->slug])
+                ->with('flash_warning', 'Complete this lesson first to unlock its quiz section.');
+        }
+
+        if (!$lessonTest) {
+            return back()->with('flash_warning', 'No quiz found for this lesson.');
+        }
+
+        if ($request->boolean('retest')) {
+            TestsResult::where('test_id', $lessonTest->id)
+                ->where('user_id', auth()->id())
+                ->delete();
+
+            return back();
+        }
+
+        $submitted = $request->input('lesson_quiz_questions', []);
+
+        if (empty($submitted)) {
+            return back()->with('flash_warning', 'Please select an answer for each question before submitting.');
+        }
+
+        $correct = 0;
+        foreach ($submitted as $question_id => $selected_option_id) {
+            $isRight = DB::table('test_question_options')
+                ->where('id', (int) $selected_option_id)
+                ->where('question_id', (int) $question_id)
+                ->where('is_right', 1)
+                ->exists();
+            if ($isRight) {
+                $correct++;
+            }
+        }
+
+        // Replace any previous attempt so the student always sees their latest score.
+        TestsResult::where('test_id', $lessonTest->id)
+            ->where('user_id', auth()->id())
+            ->delete();
+
+        TestsResult::create([
+            'test_id'     => $lessonTest->id,
+            'user_id'     => auth()->id(),
+            'test_result' => $correct,
+        ]);
+
+        return back();
     }
 
     public function test($lesson_slug, Request $request)

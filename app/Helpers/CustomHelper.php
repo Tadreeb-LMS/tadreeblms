@@ -9,7 +9,7 @@ use App\Models\Course;
 use App\Models\Category;
 use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
-use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, UserCourseDetail};
+use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
 use Auth;
 use DB;
@@ -50,6 +50,96 @@ class CustomHelper
             ->count();
     }
 
+    /**
+     * Lesson quizzes are optional; when present they must be passed to complete the course.
+     */
+    public static function getLessonQuizSummary($course_id, $user_id, $completed_at = null)
+    {
+        static $cache = [];
+
+        $cache_key = implode('|', [
+            (string) $course_id,
+            (string) $user_id,
+            (string) ($completed_at ?? ''),
+        ]);
+
+        if (isset($cache[$cache_key])) {
+            return $cache[$cache_key];
+        }
+
+        $summary = [
+            'total' => 0,
+            'passed' => 0,
+            'pending' => 0,
+            'status' => 'Not Applied',
+        ];
+
+        if (empty($course_id) || empty($user_id)) {
+            $cache[$cache_key] = $summary;
+            return $summary;
+        }
+
+        $lesson_tests = Test::query()
+            ->where('course_id', $course_id)
+            ->whereNotNull('lesson_id')
+            ->whereHas('test_questions', function ($q) {
+                $q->where('is_deleted', 0);
+            })
+            ->get();
+
+        foreach ($lesson_tests as $lesson_test) {
+            $question_count = $lesson_test->test_questions()->count();
+            if ($question_count === 0) {
+                continue;
+            }
+
+            $summary['total']++;
+
+            $latest_result_query = TestsResult::query()
+                ->where('test_id', $lesson_test->id)
+                ->where('user_id', $user_id)
+                ->orderBy('id', 'desc');
+
+            if (!empty($completed_at)) {
+                $latest_result_query->where('created_at', '<=', $completed_at);
+            }
+
+            $latest_result = $latest_result_query->first();
+            if (!$latest_result) {
+                continue;
+            }
+
+            $percentage = ($latest_result->test_result / $question_count) * 100;
+            if ($percentage >= 100) {
+                $summary['passed']++;
+            }
+        }
+
+        $summary['pending'] = max($summary['total'] - $summary['passed'], 0);
+
+        if ($summary['total'] === 0) {
+            $summary['status'] = 'Not Applied';
+        } elseif ($summary['pending'] === 0) {
+            $summary['status'] = 'Passed';
+        } elseif ($summary['passed'] > 0) {
+            $summary['status'] = 'In Progress';
+        } else {
+            $summary['status'] = 'Not Started';
+        }
+
+        $cache[$cache_key] = $summary;
+
+        return $summary;
+    }
+
+    public static function areLessonQuizzesPassed($course_id, $user_id, $completed_at = null)
+    {
+        $summary = self::getLessonQuizSummary($course_id, $user_id, $completed_at);
+
+        // Lesson quizzes are optional; when present every quiz must be passed.
+        return $summary['total'] === 0 || $summary['pending'] === 0;
+    }
+
     public static function updateGrantCertificate($course_id, $user_id)
     {
         $helper = new self();
@@ -67,6 +157,9 @@ class CustomHelper
                 $assesmentStatus = @$row->course->assignmentStatus(@$row->user_id, $progress);
             }
 
+            $completed_at = isset($row->completed_at) ? $row->completed_at->format('Y-m-d H:i:s') : null;
+            $lesson_quizzes_ok = self::areLessonQuizzesPassed($course_id, $user_id, $completed_at);
+
             //dd($progress, $row->course->id, $assesmentStatus);
 
 
@@ -75,7 +168,7 @@ class CustomHelper
                 $feedback_ok   = !$row->has_feedback || $row->feedback_given;
 
                 // If course has no assessment and no feedback, or both conditions are satisfied
-                if ($assessment_ok && $feedback_ok) {
+                if ($assessment_ok && $feedback_ok && $lesson_quizzes_ok) {
                     $row->grant_certificate = 1;
                     $row->is_completed = 1;
                 } else {
@@ -192,11 +285,17 @@ class CustomHelper
         $has_feedback = $sub_data->has_feedback;
         $feedback_given = $sub_data->feedback_given > 0;
 
+        $completed_at = isset($sub_data->completed_at) ? $sub_data->completed_at->format('Y-m-d H:i:s') : null;
+        $lesson_quizzes_ok = self::areLessonQuizzesPassed($course->id, $user_id, $completed_at);
+
         $has_assessment = $sub_data->has_assessment ?? $sub_data->has_assesment;
 
         $score = @$user_id ? @$sub_data->assignmentRawScore($user_id) : 0;
 
         $course_weightage = CourseModuleWeightage::where('course_id',$course->id)->first();
+        $weightage = is_array(optional($course_weightage)->weightage)
+            ? $course_weightage->weightage
+            : [];
 
         $min_passing_marks = $course_weightage->minimun_qualify_marks ?? 70;
 
@@ -216,17 +315,17 @@ class CustomHelper
 
         // 3️⃣ Lesson weight rules
         if ($has_assessment && $has_feedback) {
-            $lesson_weight = $course_weightage->weightage['LessonModule'] ?? 75;
+            $lesson_weight = $weightage['LessonModule'] ?? 75;
         } elseif ($has_assessment && !$has_feedback) {
-            $lesson_weight = $course_weightage->weightage['LessonModule'] ?? 85;
+            $lesson_weight = $weightage['LessonModule'] ?? 85;
         } elseif (!$has_assessment && $has_feedback) {
-            $lesson_weight = $course_weightage->weightage['LessonModule'] ?? 90;
+            $lesson_weight = $weightage['LessonModule'] ?? 90;
         } else {
             $lesson_weight = 100;  // no assessment + no feedback
         }
 
-        $assessment_weight = $has_assessment ? $course_weightage->weightage['QuestionModule'] : 0;
-        $feedback_weight   = $has_feedback ? $course_weightage->weightage['FeedbackModule'] : 0;
+        $assessment_weight = $has_assessment ? ($weightage['QuestionModule'] ?? 0) : 0;
+        $feedback_weight   = $has_feedback ? ($weightage['FeedbackModule'] ?? 0) : 0;
 
         // 4️⃣ Fetch lessons
         $lessons = Lesson::where('course_id', $course->id)
@@ -271,6 +370,10 @@ class CustomHelper
             if ($has_feedback && !$feedback_given) {
                 $progress = min($progress, $lesson_weight + $assessment_weight);
             }
+        }
+
+        if (!$lesson_quizzes_ok && $progress >= 100) {
+            $progress = 99;
         }
 
         // 8️⃣ Cap at 100
@@ -561,6 +664,10 @@ class CustomHelper
         $courseFeedbackLink = $courseController->courseFeedbackLink($course_id);
         if (!$hasAssessmentLink && !$courseFeedbackLink && $total_lessons_count == 0) {
             $total_plus = 100;
+        }
+
+        if ($total_plus == 100 && !self::areLessonQuizzesPassed($course_id, $user_id)) {
+            $total_plus = 99;
         }
 
         if ($total_plus == 100) {
@@ -1547,12 +1654,12 @@ class CustomHelper
 
             //dd( $assignment);        
 
-            if ($assignment) {
+            if ($assignment && $assignment->assessment && $assignment->assessment->id) {
                 $test_taken = CustomHelper::assignmentAttempts($assignment->assessment->id, $sc->user_id);
                 return $test_taken;
-            } else {
-                return 0;
             }
+
+            return 0;
         } else {
             return 0;
         }
@@ -1577,7 +1684,14 @@ class CustomHelper
             return 0;
         }
         if ($lessonCount == $completed_lessons) {
-            return 1;
+            $user_id = $sc->user_id ?? auth()->id();
+            if (empty($user_id)) {
+                return 0;
+            }
+
+            return self::areLessonQuizzesPassed($course_id, $user_id) ? 1 : 0;
         }
+
+        return 0;
     }
 }
