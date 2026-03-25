@@ -40,7 +40,7 @@ class LessonsController extends Controller
         if (!Gate::allows('lesson_access')) {
             return abort(401);
         }
-        $courses = $courses = Course::has('category')->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::pluck('title', 'id')->prepend('Please select', '');
 
         return view('backend.lessons.index', compact('courses'));
     }
@@ -55,21 +55,26 @@ class LessonsController extends Controller
         $has_view = false;
         $has_delete = false;
         $has_edit = false;
-        $lessons = "";
-        $lessons = Lesson::query()->with('attendance_list')->where('live_lesson', '=', 0)->whereIn('course_id', Course::pluck('id'));
-
-
-
-        if ($request->course_id != "") {
-            $lessons = $lessons->where('course_id', (int)$request->course_id)->orderBy('id', 'asc');
-        }
+        $lessons = Lesson::query()
+            ->with('attendance_list')
+            ->with('course')
+            ->where(function ($query) {
+                $query->where('live_lesson', '=', 0)
+                    ->orWhereNull('live_lesson');
+            });
 
         if ($request->show_deleted == 1) {
             if (!Gate::allows('lesson_delete')) {
                 return abort(401);
             }
-            $lessons = Lesson::query()->with('attendance_list')->where('live_lesson', '=', 0)->with('course')->orderBy('id', 'asc')->onlyTrashed();
+            $lessons = $lessons->onlyTrashed();
         }
+
+        if ($request->course_id != "") {
+            $lessons = $lessons->where('course_id', (int)$request->course_id);
+        }
+
+        $lessons = $lessons->orderBy('id', 'asc');
 
 
 
@@ -151,20 +156,34 @@ class LessonsController extends Controller
         //     </form>';
     }
 
-    if (auth()->user()->can('test_view') && $q->test != "") {
-        $actions .= '<a class="dropdown-item" href="' . route('admin.tests.index', ['lesson_id' => $q->id]) . '">
-            <i class="fa fa-check-square-o mr-1"></i> ' . trans('labels.backend.tests.title') . '</a>';
-    }
-
     $actions .= '</div>';
     return $actions;
 })
             ->editColumn('course', function ($q) {
-                return ($q->course) ? $q->course->title : 'N/A';
+                static $courseTitles = [];
+
+                $courseId = (int) ($q->course_id ?? 0);
+                if ($courseId <= 0) {
+                    return 'N/A';
+                }
+
+                if (!array_key_exists($courseId, $courseTitles)) {
+                    $courseTitles[$courseId] = Course::withoutGlobalScopes()
+                        ->where('id', $courseId)
+                        ->value('title') ?? 'N/A';
+                }
+
+                return $courseTitles[$courseId];
             })
             ->addColumn('attendance', function ($q) {
+                $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
+
+                if ($courseId <= 0) {
+                    return 0;
+                }
+
                 if (isset($q->attendance_list) && count($q->attendance_list)) {
-                    return $q->attendance_list ? '<a href="' . route('attendance.attendance.list', [$q->course->id, $q->id]) . '">View All (' . count($q->attendance_list) . ')</a>' : 0;
+                    return $q->attendance_list ? '<a href="' . route('attendance.attendance.list', [$courseId, $q->id]) . '">View All (' . count($q->attendance_list) . ')</a>' : 0;
                 } else {
                     return 0;
                 }
@@ -172,11 +191,16 @@ class LessonsController extends Controller
             // ->addColumn('qr_code', function ($q) {
             //     return QrCode::size(80)->generate(route('attendance.attendance.lesson', [$q->course->id, $q->id]));
             // })
-            ->addColumn('qr_code', function ($q) {
+                ->addColumn('qr_code', function ($q) {
+            $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
+            if ($courseId <= 0) {
+            return 'N/A';
+            }
+
     $modalId = 'qrModal_' . $q->id;
 
     // Use original logic to generate the QR code
-    $qrCodeHtml = \QrCode::size(200)->generate(route('attendance.attendance.lesson', [$q->course->id, $q->id]));
+            $qrCodeHtml = \QrCode::size(200)->generate(route('attendance.attendance.lesson', [$courseId, $q->id]));
 
     $html = '
         <a href="javascript:void(0);" data-toggle="modal" data-target="#' . $modalId . '">
@@ -393,9 +417,7 @@ if (!empty($audioFiles)) {
                         
 
                         if (($media == 'youtube') || ($media == 'vimeo')) {
-                            //$video_url = array_last(explode('/', $request->video));
-                            parse_str(parse_url($request->video, PHP_URL_QUERY), $queryParams);
-                            $video_url = $queryParams['v'] ?? null;
+                            $video_url = trim((string) $request->video);
                             $name = $lesson->title . ' - video';
                             Media::create([
                                 'model_type' => Lesson::class,
@@ -409,7 +431,7 @@ if (!empty($audioFiles)) {
                         }
                         
                         if ($media == 'embed') {
-                            $video_url = array_last(explode('/', $request->video));
+                            $video_url = trim((string) $request->video);
                             $name = $lesson->title . ' - video';
                             Media::create([
                                 'model_type' => Lesson::class,

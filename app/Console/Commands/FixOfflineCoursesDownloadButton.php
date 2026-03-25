@@ -137,69 +137,20 @@ class FixOfflineCoursesDownloadButton extends Command
                                     $row->assignment_progress = 0;
                                 }
                             }
-
-                            if($row->assignment_progress == 100) {
-                                $row->is_attended = 1;
-                                $row->grant_certificate = 1;
-                                $row->is_completed = 1;
-                                $row->completed_at = date('Y-m-d H:i:s');
-                            }
-
-                            if($row->assignment_progress < 100 && $row->grant_certificate == 1 && $row->is_completed == 1) {
-                                $row->grant_certificate = 0;
-                                $row->is_completed = 0;
-                                $row->completed_at = null;
-                            }
-
                             $row->save();
-                        }
 
-                        //if($row->course->is_online == 'Online') {
-                        if(0) {
-                            $helper = app(CustomHelper::class);
-                            $progress = $helper->getCourseProgress($row->course,  $row, $row->user_id);
-                            //dd($progress);
-                            $row->assignment_progress = $progress;
-
-                            $score = @$row->user_id ? @$row->assignmentRawScore($row->user_id) : 0;
-
-                            if($score >= 70) {
-                                $assignment_status = 'Passed';
-                                $row->assignment_status = $assignment_status;
-
-                                
-                                
-
+                            if ($row->is_attended == 1) {
+                                CustomHelper::updateGrantCertificate($row->course_id, $row->user_id);
                             } else {
-                                $assignment_status = 'Failed';
-                                $row->assignment_status = $assignment_status;
-
-                                $row->grant_certificate = 0;
-                                $row->is_completed = 0;
-                                if($row->feedback_given) {
-                                    $row->feedback_given = 0;
+                                // Offline/Live-Classroom courses must not remain completed if attendance is missing.
+                                if ($row->grant_certificate == 1 || $row->is_completed == 1 || !empty($row->completed_at)) {
+                                    $row->grant_certificate = 0;
+                                    $row->is_completed = 0;
+                                    $row->completed_at = null;
                                     $row->save();
-
-                                    $helper = app(CustomHelper::class);
-                                    $progress = $helper->getCourseProgress($row->course,  $row, $row->user_id);
-                                    $row->assignment_progress = $progress;
                                 }
                             }
-
-
-                            if($progress == 100) {
-                                $row->grant_certificate = 1;
-                                $row->is_completed = 1;
-                            } else {
-                                $row->grant_certificate = 0;
-                                $row->is_completed = 0;
-                                
-                            }
-
-                            $row->save();
-
                         }
-
 
                     } catch (\Exception $e) {
                         Log::error("Fix failed for user {$row->user_id}, course {$row->course->id}: " . $e->getMessage());

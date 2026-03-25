@@ -318,15 +318,9 @@ class CoursesController extends Controller
     ->where('course_id', $course_id)
     ->first();
 
-// E-Learning must not require dates or assessment
+// E-Learning courses do not depend on assignment due dates.
 if (!$this->isLiveCourse($course) && $subscribe_data) {
     $subscribe_data->due_date = null;
-    $subscribe_data->has_assesment  = 0;
-    $subscribe_data->has_feedback = 0;
-}
-// E-Learning → certificates should be lesson-based
-if (!$this->isLiveCourse($course) && $subscribe_data) {
-    $subscribe_data->grant_certificate = 1;
 }
 
 
@@ -339,12 +333,12 @@ $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
             $courseFeedbackLink = '';
             $lessonController = new LessonsController;
 
-            $isGrantCertificate = $subscribe_data->grant_certificate ?? false;
+            $isGrantCertificate = $subscribe_data ? ($subscribe_data->grant_certificate ?? false) : false;
 
             $courseFeedbackLink = $lessonController->courseFeedbackLink($course_id);
             $feedbackLink = $courseFeedbackLink;
             //dd($feedbackLink);
-            $feedback_given = $hasFeedBack == 1 ? $subscribe_data->feedback_given : false;
+            $feedback_given = ($hasFeedBack == 1 && $subscribe_data) ? ($subscribe_data->feedback_given ?? false) : false;
         
         // checking if course is offline
         if ($course->is_online == 'Offline' || $course->is_online == 'Live-Classroom') { 
@@ -383,13 +377,13 @@ $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
 
             //dd($logged_in_user_id, $course_id);
 
-            $is_attended = $subscribe_data->is_attended ?? false;
+            $is_attended = $subscribe_data ? ($subscribe_data->is_attended ?? false) : false;
 
             //dd($is_attended);
 
 $now = Carbon::now();
 
-if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
+if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date) {
     $due_date_time = Carbon::parse($subscribe_data->due_date);
 } else {
     $due_date_time = null;
@@ -709,7 +703,7 @@ if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
                 }
 
                 $isGrantCertificate = $subscribe_data->grant_certificate;
-                $is_attended = $subscribe_data->is_attended ?? false;
+                $is_attended = $subscribe_data ? ($subscribe_data->is_attended ?? false) : false;
             }
 
             
@@ -717,7 +711,7 @@ if ($this->isLiveCourse($course) && $subscribe_data->due_date) {
 
             
 
-            if ($this->isLiveCourse($course) && !empty($subscribe_data->due_date)) {
+            if ($this->isLiveCourse($course) && $subscribe_data && !empty($subscribe_data->due_date)) {
     $due_date_time = Carbon::parse($subscribe_data->due_date);
 } else {
     $due_date_time = null;   // E-Learning

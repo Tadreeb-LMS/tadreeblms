@@ -180,17 +180,13 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                                             @empty
                                                             @endforelse
                                                         @endif --}}
-                                                        @if(auth()->check())
-
-                                                            @if(in_array($lesson->model->id,$completed_lessons))
-                                                                <div >
-                                                                    <a class="btn btn-warning mt-3"
-                                                                       href="{{route('lessons.show',['course_id' => $lesson->course->id,'slug'=>$lesson->model->slug])}}">
-                                                                        <span class=" text-white font-weight-bold ">@lang('labels.frontend.course.go')
-                                                                            ></span>
-                                                                    </a>
-                                                                </div>
-                                                            @endif
+                                                        @if(auth()->check() && $subscribe_status == 1 && $lesson->model_type == 'App\Models\Lesson' && !empty($lesson->model->slug))
+                                                            <div>
+                                                                <a class="btn btn-warning mt-3"
+                                                                   href="{{ route('lessons.show', ['course_id' => $lesson->course->id, 'slug' => $lesson->model->slug]) }}">
+                                                                    <span class="text-white font-weight-bold">@lang('labels.frontend.course.go') ></span>
+                                                                </a>
+                                                            </div>
                                                         @endif
                                                     </div>
 
@@ -507,14 +503,18 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                 @endif
                                 @include('frontend.layouts.partials.wishlist',['course' => $course->id, 'price' => $course->price])
                             @else
-                                <?php 
+                                <?php
                                     $first_lesson_slug = null;
-                                    if(isset($course->publishedLessons[0])) {
+                                    if (isset($course->publishedLessons[0])) {
                                         $first_lesson_slug = $course->publishedLessons[0]->slug;
+                                    }
+                                    $continue_lesson_slug = $first_lesson_slug;
+                                    if (isset($continue_course) && isset($continue_course->model) && !empty($continue_course->model->slug)) {
+                                        $continue_lesson_slug = $continue_course->model->slug;
                                     }
                                 ?>
                                 @if(($continue_course || $subscribe_status == 1) && $course && count($lessons))
-                                    <a href="{{route('lessons.show',['course_id' => $course->id,'slug'=>$first_lesson_slug])}}"
+                                    <a href="{{ route('lessons.show', ['course_id' => $course->id, 'slug' => $continue_lesson_slug]) }}"
                                        class="genius-btn btn-block text-white  gradient-bg text-center text-uppercase  bold-font">
 
                                         @lang('labels.frontend.course.continue_course')
