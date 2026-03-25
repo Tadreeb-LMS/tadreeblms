@@ -4,12 +4,145 @@
 
 @section('content')
 
+@php
+    $installedSlugs = collect($apps ?? [])
+        ->pluck('slug')
+        ->map(function ($slug) {
+            return str_replace('_', '-', strtolower(trim($slug)));
+        })
+        ->toArray();
+@endphp
+
 <div class="container-fluid">
+    <div id="externalAppsAlerts"></div>
     <div class="row mb-3">
         <div class="col-12 d-flex justify-content-end">
             <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus mr-1"></i>Upload New Module
             </a>
+        </div>
+    </div>
+    <!-- <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
+        <span>
+            <i class="fas fa-info-circle mr-2"></i>
+            Explore additional external applications from the Marketplace.
+        </span>
+        <a href="https://tadreeblms.com/marketplaces"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-sm btn-outline-primary">
+            View Marketplace
+        </a>
+    </div> -->
+    <div class="card mt-4">
+        <div class="alert alert-info d-flex justify-content-between align-items-center"
+            data-toggle="collapse"
+            data-target="#marketplaceCollapse"
+            aria-expanded="false"
+            aria-controls="marketplaceCollapse"
+            id="marketplaceHeader"
+            style="cursor:pointer;">
+            <div class="d-flex align-items-center">
+                <!-- <strong>Marketplace</strong> -->
+                <i class="fas fa-info-circle text-info mr-2"></i>
+                <div class="text-inherit large">
+                    Explore external applications available in the marketplace.
+                </div>
+            </div>
+
+            <!-- <button class="btn btn-sm btn-outline-primary"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#marketplaceCollapse"
+                    aria-expanded="false"
+                    aria-controls="marketplaceCollapse"
+                    id="marketplaceToggleBtn">
+                Show Marketplace ▼
+            </button> -->
+            <i class="fas fa-chevron-down" id="marketplaceArrow"></i>
+        </div>
+
+        <!-- <div class="collapse" id="marketplaceCollapse">
+            <div class="card-body p-0">
+                <iframe
+                    src="https://tadreeblms.com/marketplaces/"
+                    width="100%"
+                    height="700"
+                    style="border: 1px solid #bee5eb;"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div> -->
+        <div class="collapse" id="marketplaceCollapse">
+            <div class="card-body">
+                <div class="row">
+                    @forelse($marketplaceApps ?? [] as $marketplaceApp)
+                    @php
+                        $marketplaceSlug = basename($marketplaceApp['slug'] ?? '');
+                        $marketplaceSlug = str_replace('_', '-', strtolower(trim($marketplaceSlug)));
+                        $isInstalled = in_array($marketplaceSlug, $installedSlugs);
+                    @endphp
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body d-flex flex-column text-center">
+                                    @if(!empty($marketplaceApp['icon']))
+                                        <img
+                                            src="{{ 'http://localhost:3000' . $marketplaceApp['icon'] }}"
+                                            alt="{{ $marketplaceApp['name'] }}"
+                                            style="height:80px; width:auto; object-fit:contain; margin: 0 auto 15px;"
+                                        >
+                                    @endif
+
+                                    <h5 class="mb-2">{{ $marketplaceApp['name'] }}</h5>
+
+                                    @if(!empty($marketplaceApp['summary']))
+                                        <p class="text-muted flex-grow-1">
+                                            {{ $marketplaceApp['summary'] }}
+                                        </p>
+                                    @endif
+
+                                    @if(!empty($marketplaceApp['version']))
+                                        <p class="small text-muted mb-2">
+                                            Version: {{ $marketplaceApp['version'] }}
+                                        </p>
+                                    @endif
+
+                                    <div class="d-flex justify-content-center mt-auto mb-3">
+                                        @if(!empty($marketplaceApp['details_url']))
+                                            <a href="{{ 'http://localhost:3000' . $marketplaceApp['details_url'] }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="btn btn-sm btn-primary mr-2">
+                                                View Details
+                                            </a>
+                                        @endif
+
+                                        <!-- Installed State -->
+                                        @if($isInstalled)
+                                            <span class="badge badge-success align-self-center px-3 py-2">
+                                                Installed
+                                            </span>
+                                        @else
+                                            <button type="button"
+                                                    class="btn btn-sm btn-primary install-marketplace-app"
+                                                    data-name="{{ $marketplaceApp['name'] }}"
+                                                    data-download-url="{{ $marketplaceApp['download_url'] }}">
+                                                Install
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12">
+                            <div class="alert alert-light mb-0">
+                                No marketplace applications are available right now.
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -258,6 +391,54 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('#marketplaceCollapse').on('show.bs.collapse', function () {
+    $('#marketplaceArrow')
+        .removeClass('fa-chevron-down')
+        .addClass('fa-chevron-up');
+    });
+
+    $('#marketplaceCollapse').on('hide.bs.collapse', function () {
+        $('#marketplaceArrow')
+            .removeClass('fa-chevron-up')
+            .addClass('fa-chevron-down');
+    });
+
+    $('.install-marketplace-app').on('click', function() {
+        const $btn = $(this);
+        const downloadUrl = $btn.data('download-url');
+        const name = $btn.data('name');
+
+        $btn.prop('disabled', true).text('Installing...');
+
+        $.ajax({
+            url: '/user/external-apps/install-from-marketplace',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                download_url: downloadUrl,
+                name: name
+            },
+            success: function(response) {
+                if (response.success) {
+                    showAlert(response.message || 'Module installed successfully.', 'success');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert(response.message || 'Installation failed.', 'error');
+                    $btn.prop('disabled', false).text('Install');
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON || {};
+                showAlert(response.message || 'An error occurred during installation.', 'error');
+                $btn.prop('disabled', false).text('Install');
+            }
+        });
+    });
 });
 
 function showAlert(message, type) {
@@ -273,7 +454,8 @@ function showAlert(message, type) {
         </div>
     `;
 
-    $('.card-body').prepend(alertHtml);
+    // $('.card-body').prepend(alertHtml);
+    $('#externalAppsAlerts').prepend(alertHtml);
 
     setTimeout(() => {
         $('.card-body .alert').fadeOut(function() {

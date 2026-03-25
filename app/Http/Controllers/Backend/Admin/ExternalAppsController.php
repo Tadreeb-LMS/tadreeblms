@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\EnvManagerTrait;
 use App\Models\ExternalApp;
 use App\Services\ExternalApps\ExternalAppService;
+use App\Services\MarketplaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class ExternalAppsController extends Controller
 {
@@ -24,15 +26,16 @@ class ExternalAppsController extends Controller
     /**
      * Display a listing of external apps
      */
-    public function index()
+    public function index(MarketplaceService $marketplaceService)
     {
         if (!auth()->user()->isAdmin()) {
             return abort(403);
         }
 
         $apps = $this->externalAppService->getInstalledApps();
+        $marketplaceApps = $marketplaceService->getApps();
 
-        return view('backend.settings.external-apps.index', compact('apps'));
+        return view('backend.settings.external-apps.index', compact('apps', 'marketplaceApps'));
     }
 
     /**
@@ -214,6 +217,68 @@ class ExternalAppsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error uninstalling module: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function installFromMarketplace(Request $request)
+    {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'download_url' => 'required|url',
+            'name' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $downloadUrl = $request->input('download_url');
+            $moduleName = $request->input('name', 'module');
+
+            $response = Http::timeout(120)->get($downloadUrl);
+
+            if (! $response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to download module package.',
+                ], 422);
+            }
+
+            $tempDir = storage_path('app/temp-marketplace');
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+
+            $safeName = preg_replace('/[^A-Za-z0-9\-_]/', '-', $moduleName);
+            $tempPath = $tempDir . '/' . $safeName . '-' . time() . '.zip';
+
+            file_put_contents($tempPath, $response->body());
+
+            $uploadedFile = new \Illuminate\Http\UploadedFile(
+                $tempPath,
+                basename($tempPath),
+                'application/zip',
+                null,
+                true
+            );
+
+            $result = $this->externalAppService->uploadAndInstall($uploadedFile, basename($tempPath));
+
+            if (file_exists($tempPath)) {
+                @unlink($tempPath);
+            }
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            Log::error('Marketplace install failed', [
+                'error' => $e->getMessage(),
+                'download_url' => $request->input('download_url'),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error installing module: ' . $e->getMessage(),
             ], 500);
         }
     }

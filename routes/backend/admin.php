@@ -206,6 +206,9 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::get('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@editConfig', 'as' => 'external-apps.edit-config']);
     Route::post('external-apps/{slug}/configure', ['uses' => 'Admin\ExternalAppsController@updateConfig', 'as' => 'external-apps.update-config']);
     Route::delete('external-apps/{slug}', ['uses' => 'Admin\ExternalAppsController@destroy', 'as' => 'external-apps.destroy']);
+    
+    //===== Install From Marketplace Routes =====//
+    Route::post('external-apps/install-from-marketplace', [ 'uses' => 'Admin\ExternalAppsController@installFromMarketplace', 'as'   => 'external-apps.install-from-marketplace']);
 
     //===== S3 Storage Settings =====//
     Route::get('s3-storage-settings', ['uses' => 'Admin\S3StorageSettingsController@index', 'as' => 's3-storage-settings']);
