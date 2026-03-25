@@ -32,16 +32,18 @@ if ($step === 'start') {
     // Recreate empty db_config.json
     file_put_contents(__DIR__ . '/db_config.json', '{}');
 
-    // Recreate fresh .env from .env.example
+    // Recreate fresh .env from .env.example using an atomic rename so the file
+    // is never absent — preventing filemtime() crashes in `php artisan serve`.
     $envFile = $basePath . '/.env';
+    $tmpEnvFile = $envFile . '.tmp';
     $example = $basePath . '/.env.example';
-    if (file_exists($envFile)) unlink($envFile);
 
-    if (file_exists($example)) {
-        copy($example, $envFile);
-    } else {
-        // emergency fallback
-        file_put_contents($envFile, '');
+    $envContent = file_exists($example) ? file_get_contents($example) : '';
+    if (file_put_contents($tmpEnvFile, $envContent, LOCK_EX) !== false) {
+        rename($tmpEnvFile, $envFile);
+    } elseif (!file_exists($envFile)) {
+        // Fallback: create an empty .env only if none exists yet
+        file_put_contents($envFile, '', LOCK_EX);
     }
 
     // Log reset

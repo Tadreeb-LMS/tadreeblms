@@ -138,7 +138,6 @@ try {
         | CHECK SYSTEM
         */
         case 'check':
-            @unlink($envFile);
             @unlink($dbConfigFile);
             @unlink($migrationDoneFile);
             @unlink($seedDoneFile);
@@ -245,42 +244,112 @@ try {
         | ENV SETUP
         */
         case 'env':
-            if (!file_exists($dbConfigFile)) fail("DB config missing");
+            // Ensure DB config file exists
+            if (!file_exists($dbConfigFile)) {
+                fail("DB config missing");
+            }
+
+            // Load DB configuration
             $config = json_decode(file_get_contents($dbConfigFile), true);
+            if (!is_array($config)) {
+                fail("Invalid DB config");
+            }
 
-            if (!file_exists($basePath . '/.env.example')) fail(".env.example not found");
-            if (!file_exists($envFile)) copy($basePath . '/.env.example', $envFile);
-            if (!is_writable($envFile)) fail(".env not writable. Run: sudo chown \$USER:www-data $envFile && sudo chmod 664 $envFile");
+            // Ensure .env.example exists
+            $envExample = $basePath . '/.env.example';
+            if (!file_exists($envExample)) {
+                fail(".env.example not found");
+            }
 
+            // Create .env only if it does not exist (DO NOT delete existing .env)
+            if (!file_exists($envFile)) {
+                if (!copy($envExample, $envFile)) {
+                    fail("Failed to create .env from .env.example");
+                }
+            }
+
+            // Validate file readability and writability
+            if (!is_readable($envFile)) {
+                fail(".env not readable");
+            }
+
+            if (!is_writable($envFile)) {
+                fail(".env not writable. Run: sudo chown \$USER:www-data $envFile && sudo chmod 664 $envFile");
+            }
+
+            // Read current .env content
             $env = file_get_contents($envFile);
-            $env = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $config['host'], $env);
-            $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=' . $config['database'], $env);
-            $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME=' . $config['username'], $env);
-            $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="' . $config['password'] . '"', $env);
-            
-            // Add KEYGEN credentials
-            //$env .= "\nKEYGEN_ACCOUNT_ID=\"20586e9c-e2e3-4347-afec-9d58b919fd0b\"";
-            //env .= "\nKEYGEN_PRODUCT_ID=\"073428fb-f67c-4f39-8081-6f5c8890051e\"";
-            //env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"\n";
+            if ($env === false) {
+                fail("Failed to read .env");
+            }
+
+            // Prepare DB values
+            $replacements = [
+                'DB_HOST'     => $config['host'] ?? '',
+                'DB_DATABASE' => $config['database'] ?? '',
+                'DB_USERNAME' => $config['username'] ?? '',
+                'DB_PASSWORD' => $config['password'] ?? '',
+            ];
+
+            // Update or append DB variables safely
+            foreach ($replacements as $key => $value) {
+
+                // Escape password properly
+                $escapedValue = ($key === 'DB_PASSWORD')
+                    ? '"' . addcslashes($value, "\\\"") . '"'
+                    : $value;
+
+                // If key exists, replace it; otherwise append it
+                if (preg_match('/^' . preg_quote($key, '/') . '=.*$/m', $env)) {
+                    $env = preg_replace(
+                        '/^' . preg_quote($key, '/') . '=.*$/m',
+                        $key . '=' . $escapedValue,
+                        $env
+                    );
+                } else {
+                    $env .= "\n" . $key . '=' . $escapedValue;
+                }
+            }
+
+            // Append KEYGEN variables only if not already present
             if (strpos($env, 'KEYGEN_ACCOUNT_ID=') === false) {
                 $env .= "\nKEYGEN_ACCOUNT_ID=\"20586e9c-e2e3-4347-afec-9d58b919fd0b\"";
             }
+
             if (strpos($env, 'KEYGEN_PRODUCT_ID=') === false) {
                 $env .= "\nKEYGEN_PRODUCT_ID=\"073428fb-f67c-4f39-8081-6f5c8890051e\"";
             }
+
             if (strpos($env, 'KEYGEN_API_TOKEN=') === false) {
                 $env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"";
             }
 
-            // External module integration flags (false by default; set to true when module is installed & configured)
+            // Add integration flags if missing
             if (strpos($env, 'ZOOM_INTEGRATION=') === false) {
                 $env .= "\nZOOM_INTEGRATION=false";
             }
 
+            // Ensure file ends with newline
             $env .= "\n";
-            file_put_contents($envFile, $env);
 
-            echo json_encode(['message' => '.env created ✔', 'next' => 'key']);
+            // Write .env atomically to avoid race conditions (important for artisan serve)
+            $tmpEnvFile = $envFile . '.tmp';
+
+            if (file_put_contents($tmpEnvFile, $env, LOCK_EX) === false) {
+                fail("Failed to write temporary .env");
+            }
+
+            // Replace original .env with the new one
+            if (!rename($tmpEnvFile, $envFile)) {
+                @unlink($tmpEnvFile);
+                fail("Failed to replace .env");
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => '.env created ✔',
+                'next' => 'key'
+            ]);
             exit;
 
             /*
