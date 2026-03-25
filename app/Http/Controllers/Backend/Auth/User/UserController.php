@@ -50,13 +50,39 @@ class UserController extends Controller
             return abort(401);
         }
         $roles = Role::select('id','name')->get();
+        $departments = Department::where('published', 1)->orderBy('title')->get();
 
-        //dd($this->userRepository->getActivePaginated(25, 'id', 'asc'));
-
-        return view('backend.auth.user.index',compact('roles'))
-            ->withUsers($this->userRepository->getActivePaginated(25, 'id', 'asc'));
+        return view('backend.auth.user.index', compact('roles', 'departments'));
     }
 
+public function bulkUpdate(Request $request)
+{
+    $users = User::whereIn('id', $request->user_ids)->get();
+
+    foreach ($users as $user) {
+
+        // ✅ Update confirmed
+        if ($request->confirmed !== null && $request->confirmed !== '') {
+            $user->confirmed = $request->confirmed;
+            $user->save();
+        }
+
+        // ✅ Update department (CORRECT WAY)
+        if ($request->department_id) {
+            EmployeeProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                ['department' => $request->department_id]
+            );
+        }
+
+        // ✅ Update role
+        if (!empty($request->role)) {
+            $user->syncRoles([$request->role]);
+        }
+    }
+
+    return response()->json(['success' => true]);
+}
     /**
      * Display a listing of Courses via ajax DataTable.
      *

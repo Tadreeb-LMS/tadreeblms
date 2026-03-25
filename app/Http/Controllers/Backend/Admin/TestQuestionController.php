@@ -175,7 +175,7 @@ class TestQuestionController extends Controller
             'question_type' => $request->question_type,
             'question_text' => $request->question,
             'solution' => $request->solution,
-            'score' => $request->score,
+            'marks' => $request->score,
             'comment' => $request->comment,
             'option_json' => $request->question_type != 3 ? $request->options : NULL,
             'created_at' => date('Y-m-d H:i:s'),
@@ -355,7 +355,7 @@ class TestQuestionController extends Controller
             'question_type' => $request->question_type,
             'question_text' => $request->question,
             'solution' => $request->solution,
-            'score' => $request->score,
+            'marks' => $request->score,
             'comment' => $request->comment,
             'option_json' => $request->question_type != 3 ? $request->options : NULL
         ]);
