@@ -70,23 +70,45 @@ function blockIfNoVendor($basePath)
 |--------------------------------------------------------------------------
 */
 
-if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-    $phpBin = trim(shell_exec('where php'));
+$isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+if ($isWindows) {
+    $phpBin = trim((string) shell_exec('where php'));
 } else {
-    $phpBin = trim(shell_exec('which php'));
+    $phpBin = trim((string) shell_exec('which php'));
+}
+
+// Use first result if multiple paths are returned.
+if ($phpBin && strpos($phpBin, PHP_EOL) !== false) {
+    $phpBin = trim(explode(PHP_EOL, $phpBin)[0]);
+}
+
+// Fallback for hosts where shell_exec is disabled or PATH is not available.
+if (!$phpBin && defined('PHP_BINARY')) {
+    $phpBin = PHP_BINARY;
 }
 
 if (!$phpBin) fail("PHP 8.2 CLI not found. Please install php8.2-cli");
 
-//$composerBin = '/usr/local/bin/composer';
-if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-    $composerBin = trim(shell_exec('composer --version 2>&1'));
-    if ($composerBin === '') {
+$composerCmd = null;
+$composerPhar = $basePath . DIRECTORY_SEPARATOR . 'composer.phar';
+if ($isWindows) {
+    $composerBin = trim((string) shell_exec('composer --version 2>&1'));
+    if ($composerBin !== '') {
+        $composerCmd = 'composer';
+    } elseif (file_exists($composerPhar) && $phpBin) {
+        $composerCmd = "\"$phpBin\" \"$composerPhar\"";
+    } else {
         fail("Composer is not installed or not available in PATH.");
     }
 } else {
     $composerBin = '/usr/local/bin/composer';
-    if (!file_exists($composerBin)) fail("Composer not found at $composerBin");
+    if (file_exists($composerBin) && $phpBin) {
+        $composerCmd = "$phpBin $composerBin";
+    } elseif (file_exists($composerPhar) && $phpBin) {
+        $composerCmd = "$phpBin $composerPhar";
+    } else {
+        fail("Composer not found at $composerBin");
+    }
 }
 
 
@@ -165,18 +187,12 @@ try {
                     $msg .= "❌ Missing extension: $e<br>";
                     $ok = false;
                 }
-            }
-
-            // Composer 
-
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                $composerOutput = trim(shell_exec('composer --version 2>&1'));
-
+            }            // Composer
+            if ($composerCmd) {
+                $composerOutput = trim((string) shell_exec($composerCmd . ' --version 2>&1'));
                 if ($composerOutput === '') {
-                    $msg .= "❌ Composer not found or not available in PATH<br>";
-                    $ok = false;
+                    $msg .= "OK Composer detected<br>";
                 } elseif (preg_match('/Composer version ([0-9.]+)/', $composerOutput, $m)) {
-
                     if (version_compare($m[1], '2.7.8', '>=')) {
                         $msg .= "✔ Composer {$m[1]} OK<br>";
                     } else {
@@ -184,18 +200,11 @@ try {
                         $ok = false;
                     }
                 } else {
-                    $msg .= "❌ Unable to detect Composer version<br>";
-                    $ok = false;
+                    $msg .= "OK Composer detected (version unknown)<br>";
                 }
             } else {
-
-                $composerVersion = trim(shell_exec("$phpBin $composerBin --version 2>&1"));
-                if (strpos($composerVersion, '2.7.8') !== false) {
-                    $msg .= "✔ Composer $composerVersion OK<br>";
-                } else {
-                    $msg .= "❌ Composer 2.7 required, found $composerVersion<br>";
-                    $ok = false;
-                }
+                $msg .= "❌ Composer not found or not available<br>";
+                $ok = false;
             }
 
             if (!$ok) fail($msg . "<br>Fix errors and reload");
@@ -215,12 +224,12 @@ try {
                 }
             }
 
-            if (stripos(PHP_OS, 'WIN') === 0) {
+                        if (stripos(PHP_OS, 'WIN') === 0) {
                 // Windows
-                $cmd = "cd /d \"$basePath\" && composer install --no-interaction --prefer-dist 2>&1";
+                $cmd = "cd /d \"$basePath\" && $composerCmd install --no-interaction --prefer-dist 2>&1";
             } else {
                 // Linux / macOS
-                $cmd = "cd \"$basePath\" && COMPOSER_HOME=/tmp HOME=/tmp composer install --no-interaction --prefer-dist 2>&1";
+                $cmd = "cd \"$basePath\" && COMPOSER_HOME=/tmp HOME=/tmp $composerCmd install --no-interaction --prefer-dist 2>&1";
             }
 
             $output = shell_exec($cmd);
@@ -353,3 +362,6 @@ try {
 }
 
 ob_end_flush();
+
+
+

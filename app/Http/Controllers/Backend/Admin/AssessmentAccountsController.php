@@ -55,57 +55,71 @@ class AssessmentAccountsController extends Controller
         $assessment_accounts = AssessmentAccount::where('deleted_at', NULL)->orderBy('created_at', 'desc')->get();
         return view('backend.assessment_accounts.index', compact('assessment_accounts'));
     }
-public function createWithCourse(Request $request)
-{
-    $published_courses = Course::where('status', 'published')->get();
-    $internal_users = User::where('role', 'employee')->get();
+    public function createWithCourse(Request $request)
+    {
+        $user_id = null;
+        $course_lang = $request->course_lang ?? 'english';
 
-public function courseAssignment(Request $request)
-{
+        $tests = DB::table('tests')->where('deleted_at', '=', NULL)->get();
+        $courses = Course::where('deleted_at', '=', NULL)
+            ->where('course_lang', $course_lang)
+            ->get();
+        $category = Category::where('deleted_at', '=', NULL)->get();
 
-    $request->validate([
-        'course_ids' => 'required|array',
-        'teachers' => 'required|array'
-    ]);
+        $teachers = User::query()->role('student')
+            ->groupBy('email')
+            ->orderBy('created_at', 'desc')
+            ->active()
+            ->get()
+            ->pluck('name', 'id');
 
-    $courses = $request->course_ids;
-    $users = $request->teachers;
+        $departments = Department::all();
 
-    foreach ($courses as $courseId) {
-
-        $course = DB::table('courses')->where('id', $courseId)->first();
-
-        // create assignment
-        $assignmentId = DB::table('course_assignment')->insertGetId([
-            'title' => $course->title,
-            'course_id' => $courseId, 
-            'category_id' => $course->category_id ?? null,
-    'department_id' => $request->department_id ?? null,   
-             'assign_by' => auth()->id(),        // Assign By
-            'created_at' => now(),
-            'updated_at' => now(),
-            'assign_date' => now(),
-'assign_to' => $request->department_id ? 'department' : 'user',        ]);
-
-        // assign users
-        foreach ($users as $userId) {
-
-            DB::table('course_assignment_users')->insert([
-    'course_assignment_id' => $assignmentId,
-    'course_id' => $courseId,
-    'user_id' => $userId,
-    'log_comment' => 'By Admin',
-    'created_at' => now(),
-    'updated_at' => now()
-]);;
-
-        }
-
+        return view('backend.assessment_accounts.create_assignment_course', compact('user_id', 'tests', 'teachers', 'courses', 'category', 'departments'));
     }
 
-    return redirect()->back()->with('success','Courses assigned successfully');
+    public function courseAssignment(Request $request)
+    {
+        $request->validate([
+            'course_ids' => 'required|array',
+            'teachers' => 'required|array',
+        ]);
 
-}
+        $courses = $request->course_ids;
+        $users = $request->teachers;
+
+        foreach ($courses as $courseId) {
+            $course = DB::table('courses')->where('id', $courseId)->first();
+            if (!$course) {
+                continue;
+            }
+
+            $assignmentId = DB::table('course_assignment')->insertGetId([
+                'title' => $course->title,
+                'course_id' => $courseId,
+                'category_id' => $course->category_id ?? null,
+                'department_id' => $request->department_id ?? null,
+                'assign_by' => auth()->id(),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'assign_date' => now(),
+                'assign_to' => $request->department_id ? 'department' : 'user',
+            ]);
+
+            foreach ($users as $userId) {
+                DB::table('course_assignment_users')->insert([
+                    'course_assignment_id' => $assignmentId,
+                    'course_id' => $courseId,
+                    'user_id' => $userId,
+                    'log_comment' => 'By Admin',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Courses assigned successfully');
+    }
 
     /**
      * Show the form for creating new Category.
