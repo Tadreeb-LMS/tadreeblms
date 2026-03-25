@@ -26,7 +26,21 @@ class UserRegistrationTest extends TestCase
      */
     protected function registerUser($userData = [])
     {
-        factory(Role::class)->create(['name' => 'user']);
+        Role::query()->firstOrCreate([
+            'name' => 'student',
+            'guard_name' => config('auth.defaults.guard', 'web'),
+        ]);
+
+        Role::query()->firstOrCreate([
+            'name' => 'user',
+            'guard_name' => config('auth.defaults.guard', 'web'),
+        ]);
+
+        // Ensure the administrator role exists for registration notification
+        Role::query()->firstOrCreate([
+            'name' => 'administrator',
+            'guard_name' => config('auth.defaults.guard', 'web'),
+        ]);
 
         return $this->post('/register', array_merge([
             'first_name' => 'John',
@@ -34,6 +48,7 @@ class UserRegistrationTest extends TestCase
             'email' => 'john@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'fav_lang' => 'english',
         ], $userData));
     }
 
@@ -139,6 +154,7 @@ class UserRegistrationTest extends TestCase
             'email' => 'john@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'fav_lang' => 'english',
         ]);
 
         $response->assertSessionHasErrors('first_name');
@@ -152,6 +168,7 @@ class UserRegistrationTest extends TestCase
             'email' => 'john@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'fav_lang' => 'english',
         ]);
 
         $response->assertSessionHasErrors('last_name');
@@ -165,6 +182,7 @@ class UserRegistrationTest extends TestCase
             'last_name' => 'Doe',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'fav_lang' => 'english',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -181,6 +199,7 @@ class UserRegistrationTest extends TestCase
             'email' => 'john@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'fav_lang' => 'english',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -194,6 +213,7 @@ class UserRegistrationTest extends TestCase
             'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password',
+            'fav_lang' => 'english',
         ]);
 
         $response->assertSessionHasErrors('password');
@@ -208,6 +228,7 @@ class UserRegistrationTest extends TestCase
             'email' => 'john@example.com',
             'password' => 'password',
             'password_confirmation' => 'not_the_same',
+            'fav_lang' => 'english',
         ]);
 
         $response->assertSessionHasErrors('password');

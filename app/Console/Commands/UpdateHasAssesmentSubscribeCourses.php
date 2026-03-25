@@ -248,9 +248,12 @@ class UpdateHasAssesmentSubscribeCourses extends Command
                                 'has_assesment' => $has_assesment,
                                 'assesment_taken' => $has_assesment == true ? $assignment_taken : 0,
                                 'course_progress_status' => $course_progress_status,
-                                'is_completed' => $is_completed > 0 ? 1 : 0,
                             ]
                         );
+
+                        if ($row->course && $row->course->is_online == 'Online') {
+                            CustomHelper::updateGrantCertificate($course_id, $logged_in_user_id);
+                        }
                     }
                 });
         } catch (\Exception $e) {

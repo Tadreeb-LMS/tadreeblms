@@ -245,11 +245,11 @@
                      </select>
 
 
-                    <input class="form-control mt-3 d-none" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video" name="video" type="text" value="{{ ($lesson->mediavideo) ? $lesson->mediavideo->url : null }}">
+                    <input class="form-control mt-3 {{ ($lesson->mediavideo && $lesson->mediavideo->type != 'upload') ? '' : 'd-none' }}" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video" name="video" type="text" value="{{ ($lesson->mediavideo) ? $lesson->mediavideo->url : null }}">
 
 
 
-                    <input class="form-control mt-3 d-none" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video_file" accept="video/mp4" style="padding: 3px;" name="video_file" type="file">
+                    <input class="form-control mt-3 {{ ($lesson->mediavideo && $lesson->mediavideo->type == 'upload') ? '' : 'd-none' }}" placeholder="{{ trans('labels.backend.lessons.enter_video_url') }}" id="video_file" accept="video/mp4" style="padding: 3px;" name="video_file" type="file">
 
                     <input type="hidden" name="old_video_file"
                            value="{{($lesson->mediavideo && $lesson->mediavideo->type == 'upload') ? $lesson->mediavideo->url  : ""}}">
@@ -266,7 +266,7 @@
                     @endif
 
                     @if($lesson->mediavideo && ($lesson->mediavideo->type == 'upload'))
-                        <video width="300" class="mt-2 d-none video-player" controls>
+                        <video width="300" class="mt-2 {{ ($lesson->mediavideo && $lesson->mediavideo->type == 'upload') ? '' : 'd-none' }} video-player" controls>
                             <source src="{{($lesson->mediavideo && $lesson->mediavideo->type == 'upload') ? $lesson->mediavideo->url  : ""}}"
                                     type="video/mp4">
                             Your browser does not support HTML5 video.

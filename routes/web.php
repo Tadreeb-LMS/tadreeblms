@@ -24,6 +24,7 @@ use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
 //Route::post('/install/run', [InstallerController::class, 'run']);
 
 use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
@@ -226,15 +227,23 @@ Route::get('bundles/review/{id}/delete', ['uses' => 'BundlesController@deleteRev
 
 
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('lesson/{course_id}/{slug}/quiz', ['uses' => 'LessonsController@showLessonQuiz', 'as' => 'lessons.lesson_quiz.show']);
     Route::get('lesson/{course_id}/{slug?}/', ['uses' => 'LessonsController@show', 'as' => 'lessons.show']);
     Route::post('lesson/{slug}/test', ['uses' => 'LessonsController@test', 'as' => 'lessons.test']);
     Route::post('lesson/{slug}/retest', ['uses' => 'LessonsController@retest', 'as' => 'lessons.retest']);
+    Route::post('lesson/{lesson_id}/lesson-quiz', ['uses' => 'LessonsController@submitLessonQuiz', 'as' => 'lessons.lesson_quiz']);
     Route::post('video/progress', 'LessonsController@videoProgress')->name('update.videos.progress');
     Route::post('lesson/progress', 'LessonsController@courseProgress')->name('update.course.progress');
     Route::post('video/progress/update', 'LessonsController@videoProgressUpdates')->name('video.progress.update');
     Route::post('lesson/book-slot', 'LessonsController@bookSlot')->name('lessons.course.book-slot');
     Route::get('lesson/check-course', 'Backend\Admin\LessonsController@create')->name('lessons.course.check');
     Route::get('/record-attendance/{slug}', 'Backend\Admin\CoursesController@recordAttendance')->name('recordAttendance');
+});
+
+// Compatibility route for existing admin URLs used in bookmarks/manual links.
+Route::middleware(['auth', 'role:administrator|teacher'])->group(function () {
+    Route::get('admin/test_questions/create/{course_id?}/{temp_id?}/{onlytest?}', [TestQuestionController::class, 'create'])
+        ->name('admin.test_questions.create_compat');
 });
 
 Route::get('/search', [HomeController::class, 'searchCourse'])->name('search');
