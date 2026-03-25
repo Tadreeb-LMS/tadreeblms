@@ -454,6 +454,13 @@ Route::group(['middleware' => 'role:teacher'], function () {
     Route::get('get-reviews-data', ['uses' => 'ReviewController@getData', 'as' => 'reviews.get_data']);
 });
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('certificates/manage', 'CertificateController@adminIndex')->name('certificates.manage.index');
+    Route::get('certificates/manage-data', 'CertificateController@adminData')->name('certificates.manage.data');
+    Route::get('certificates/manage/{id}', 'CertificateController@show')->name('certificates.manage.show');
+    Route::post('certificates/manage/{id}/reissue', 'CertificateController@reissue')->name('certificates.manage.reissue');
+});
+
 
 
 Route::group(['middleware' => 'role:student'], function () {

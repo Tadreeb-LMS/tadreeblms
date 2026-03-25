@@ -319,8 +319,10 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => con
 });
 
 
-Route::get('user/certificates/download/{certificate_id?}', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
-Route::get('user/certificates/generate/{course_id}/{user_id}', 'Backend\CertificateController@generateCertificate')->name('admin.certificates.generate');
+Route::group(['middleware' => ['web', 'auth']], function () {
+    Route::get('user/certificates/download/{certificate_id?}', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
+    Route::get('user/certificates/generate/{course_id}/{user_id}', 'Backend\CertificateController@generateCertificate')->name('admin.certificates.generate');
+});
 
 
 if (config('show_offers') == 1) {

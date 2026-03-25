@@ -529,12 +529,22 @@
                 </li> --}}
 
 
-            <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
-                    href="{{ route('admin.certificates.index') }}">
-                    <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
-                </a>
-            </li>
+            @endif
+            @if ($logged_in_user->hasRole(config('access.users.admin_role')) || $logged_in_user->can('certificate_access'))
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
+                        href="{{ route('admin.certificates.manage.index') }}">
+                        <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
+                    </a>
+                </li>
+            @endif
+            @if ($logged_in_user->hasRole('student'))
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
+                        href="{{ route('admin.certificates.index') }}">
+                        <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
+                    </a>
+                </li>
             @endif
             @if (true)
             {{-- <li class="nav-item ">

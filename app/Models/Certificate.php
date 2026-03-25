@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Certificate extends Model
 {
+    const STATUS_ISSUED = 1;
+    const STATUS_REVOKED = 2;
+    const STATUS_REISSUED = 3;
+
     protected $fillable = [
         'name',
         'user_id',
@@ -35,6 +39,10 @@ class Certificate extends Model
         return $this->belongsTo(Course::class);
     }
 
+    public function histories(){
+        return $this->hasMany(CertificateHistory::class)->orderByDesc('created_at');
+    }
+
     public function getCertificateLinkAttribute(){
         if ($this->url != null) {
             return url('storage/certificates/'.$this->url);
@@ -50,5 +58,14 @@ class Certificate extends Model
     public function isRevoked()
     {
         return !is_null($this->revoked_at);
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        if ($this->isRevoked()) {
+            return 'Revoked';
+        }
+
+        return ((int) $this->status === self::STATUS_REISSUED) ? 'Reissued' : 'Issued';
     }
 }
