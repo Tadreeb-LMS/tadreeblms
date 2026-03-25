@@ -388,7 +388,7 @@
                         @endif
 
 
-                        @if ($lesson->mediaVideo && $lesson->mediavideo->count() > 0)
+                        @if ($lesson->mediaVideo)
                             <div class="course-single-text">
                                 @if ($lesson->mediavideo != '')
                                     <div class="course-details-content mt-3">
@@ -396,10 +396,10 @@
                                             @if ($lesson->mediavideo->type == 'youtube')
                                                 <div id="player" onclick="videoPer(this);" class="js-player"
                                                     data-plyr-provider="youtube"
-                                                    data-plyr-embed-id="{{ $lesson->mediavideo->file_name }}"></div>
+                                                    data-plyr-embed-id="{{ $lesson->mediavideo->url }}"></div>
                                             @elseif($lesson->mediavideo->type == 'vimeo')
                                                 <div id="player" class="js-player" data-plyr-provider="vimeo"
-                                                    data-plyr-embed-id="{{ $lesson->mediavideo->file_name }}"></div>
+                                                    data-plyr-embed-id="{{ $lesson->mediavideo->url }}"></div>
                                             @elseif($lesson->mediavideo->type == 'upload')
                                                 <video poster="" id="player" class="js-player" playsinline
                                                     controls>
@@ -456,6 +456,29 @@
                                 @endforeach
                             </div>
                         @endif
+
+                        @if(!$test_exists && isset($lesson_quiz) && $lesson_quiz)
+                            @if($lesson->isCompleted())
+                                <div class="alert alert-info mt-4 mb-0">
+                                    This lesson has a quiz in the next section.
+                                    @if($lesson_quiz_pass === 'Pass')
+                                        <span class="ml-2 text-success font-weight-bold">Quiz passed</span>
+                                    @elseif($lesson_quiz_pass === 'Failed')
+                                        <span class="ml-2 text-danger font-weight-bold">Quiz not passed yet</span>
+                                    @endif
+                                    @if(!empty($lesson_quiz_url))
+                                        <a class="btn btn-sm btn-info text-white ml-2" href="{{ $lesson_quiz_url }}">
+                                            Open Lesson Quiz
+                                        </a>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="alert alert-warning mt-4 mb-0">
+                                    Complete this lesson first to unlock its quiz section.
+                                </div>
+                            @endif
+                        @endif
+
                     </div>
                     <!-- /course-details -->
 
@@ -468,31 +491,84 @@
                     <div id="sidebar">
                         <div class="course-details-category ul-li">
 
-                           @if($is_course_completed == 0)     
-                            @if ($previous_lesson)
-                                <p><a class="btn btn-block gradient-bg font-weight-bold text-white"
-                                      href="{{ route('lessons.show', [$previous_lesson->course_id, $previous_lesson->model->slug]) }}">
-                                        @lang('labels.frontend.course.prev')
-                                        <i class="fa fa-angle-double-left"></i>
-                                    </a></p>
-                            @endif
+                            @php
+                                $currentPosition = isset($lesson->position) ? (int) $lesson->position : null;
+
+                                $previousLessonByPosition = null;
+                                if (!is_null($currentPosition)) {
+                                    $previousLessonByPosition = collect($course_lessons_arr ?? [])
+                                        ->filter(function ($item) use ($currentPosition) {
+                                            return (int) ($item->published ?? 0) === 1
+                                                && !is_null($item->position)
+                                                && (int) $item->position < $currentPosition;
+                                        })
+                                        ->sortByDesc('position')
+                                        ->first();
+                                }
+
+                                $effectivePreviousLesson = null;
+                                if (!empty($previous_lesson)) {
+                                    $timelinePreviousPosition = isset($previous_lesson->model->position)
+                                        ? (int) $previous_lesson->model->position
+                                        : null;
+
+                                    // Guard against reversed timeline records (e.g. lesson 1 incorrectly getting lesson 2 as previous).
+                                    if (!is_null($currentPosition) && !is_null($timelinePreviousPosition)) {
+                                        if ($timelinePreviousPosition < $currentPosition) {
+                                            $effectivePreviousLesson = $previous_lesson->model;
+                                        } elseif (!empty($previousLessonByPosition)) {
+                                            $effectivePreviousLesson = $previousLessonByPosition;
+                                        }
+                                    } else {
+                                        $effectivePreviousLesson = $previous_lesson->model;
+                                    }
+                                } elseif (!empty($previousLessonByPosition)) {
+                                    $effectivePreviousLesson = $previousLessonByPosition;
+                                }
+                            @endphp
+                            <p><a class="btn btn-block gradient-bg font-weight-bold text-white"
+                                  href="{{ $effectivePreviousLesson ? route('lessons.show', [$lesson->course->id, $effectivePreviousLesson->slug]) : route('courses.show', [$lesson->course->slug]) }}">
+                                    @lang('labels.frontend.course.prev')
+                                    <i class="fa fa-angle-double-left"></i>
+                                </a></p>
 
                             <p id="nextButton">
-                                @if($next_lesson)
-                                    @if((int)config('lesson_timer') == 1 && $lesson->isCompleted() )
-                                        <a class="btn btn-block gradient-bg font-weight-bold text-white"
-                                           href="{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}">
-                                            <i class='fa fa-angle-double-right'></i>@lang('labels.frontend.course.next') </a>
+                                @if($next_lesson && empty($nextTasks['open_assesment']) && empty($nextTasks['reattempt_assesment']))
+                                    @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
+                                        <a class="btn btn-block bg-danger font-weight-bold text-white"
+                                           href="javascript:void(0)">
+                                            Complete and pass the lesson quiz to unlock the next lesson
+                                        </a>
+                                        @if($lesson->isCompleted() && !empty($lesson_quiz_url))
+                                            <a class="btn btn-block btn-info font-weight-bold text-white mt-2"
+                                               href="{{ $lesson_quiz_url }}">
+                                                Open Lesson Quiz
+                                            </a>
+                                        @elseif(!$lesson->isCompleted())
+                                            <a class="btn btn-block btn-warning font-weight-bold text-white mt-2" href="javascript:void(0)">
+                                                Complete this lesson first to unlock its quiz section
+                                            </a>
+                                        @endif
                                     @else
-                                        <a class="btn btn-block gradient-bg font-weight-bold text-white"
-                                           href="{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}">
-                                            <i class='fa fa-angle-double-right'></i>@lang('labels.frontend.course.next') </a>
+                                        @if((int)config('lesson_timer') == 1 && $lesson->isCompleted() )
+                                            <a class="btn btn-block gradient-bg font-weight-bold text-white"
+                                               href="{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}">
+                                                <i class='fa fa-angle-double-right'></i>@lang('labels.frontend.course.next') </a>
+                                        @else
+                                            <a class="btn btn-block gradient-bg font-weight-bold text-white"
+                                               href="{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}">
+                                                <i class='fa fa-angle-double-right'></i>@lang('labels.frontend.course.next') </a>
 
+                                        @endif
                                     @endif
+                                @elseif($lesson->isCompleted() && !empty($lesson_quiz_url))
+                                    <a class="btn btn-block btn-info font-weight-bold text-white"
+                                       href="{{ $lesson_quiz_url }}">
+                                        Open Lesson Quiz
+                                    </a>
                                 @endif
 
                             </p>
-                           @endif
                                     
                             @if ($nextTasks['open_assesment'])
                                 <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
@@ -516,7 +592,7 @@
                                     href="javascript:void(0)">@lang('labels.frontend.course.assesment_completed')</a>
                             @endif
 
-                            @if($nextTasks['open_feedback'])
+                            @if($nextTasks['open_feedback'] && (empty($lesson_quiz) || $lesson_quiz_pass === 'Pass'))
                                 <a class="btn btn-info btn-block text-white mb-3"
                                 href="{{ route('course-feedback',$lesson->course->id) }}">@lang('labels.frontend.course.give_feedback')</a>
                             @endif
@@ -657,7 +733,11 @@
 
             const player2 = new Plyr('#audioPlayer');
 
-            const player = new Plyr('#player');
+            const player = new Plyr('#player', {
+                youtube: {
+                    noCookie: true
+                }
+            });
 
             duration = 10;
             var progress = 0;
@@ -790,11 +870,18 @@
                                 "<a class='btn btn-block bg-danger font-weight-bold text-white' href='#'>@lang('labels.frontend.course.complete_test')</a>"
                             )
                         @else
-                            @if ($next_lesson)
-                                $('#nextButton').html(
-                                    "<a class='btn btn-block gradient-bg font-weight-bold text-white'" +
-                                    " href='{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}'>@lang('labels.frontend.course.next')<i class='fa fa-angle-double-right'></i> </a>"
-                                );
+                            @if ($next_lesson && empty($nextTasks['open_assesment']) && empty($nextTasks['reattempt_assesment']))
+                                @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
+                                    $('#nextButton').html(
+                                        "<a class='btn btn-block bg-danger font-weight-bold text-white' href='javascript:void(0)'>Complete and pass the lesson quiz to unlock the next lesson</a>" +
+                                        "@if(!empty($lesson_quiz_url))<a class='btn btn-block btn-info font-weight-bold text-white mt-2' href='{{ $lesson_quiz_url }}'>Open Lesson Quiz</a>@endif"
+                                    );
+                                @else
+                                    $('#nextButton').html(
+                                        "<a class='btn btn-block gradient-bg font-weight-bold text-white'" +
+                                        " href='{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}'>@lang('labels.frontend.course.next')<i class='fa fa-angle-double-right'></i> </a>"
+                                    );
+                                @endif
                             @else
                                 $('#nextButton').html(
                                     "<form method='post' action='{{ route('admin.certificates.generate') }}'>" +

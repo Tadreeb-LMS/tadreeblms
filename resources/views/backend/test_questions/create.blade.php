@@ -60,42 +60,198 @@
 
     /* Options Builder Styling */
     .option-item {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
         border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 12px;
+        padding: 16px;
+        margin-bottom: 14px;
         display: flex;
-        align-items: center;
-        gap: 15px;
-        transition: all 0.2s;
+        align-items: flex-start;
+        gap: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .option-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: transparent;
+        transition: background 0.2s;
     }
 
     .option-item:hover {
         border-color: #cbd5e0;
-        background: #f1f5f9;
-        transform: translateY(-2px);
+        background: #f8fafc;
+        transform: translateX(4px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
     }
 
-    .option-item .drag-handle {
-        cursor: grab;
-        color: #cbd5e0;
+    .option-item .option-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+        background: #e2e8f0;
+        border-radius: 50%;
+        font-weight: 700;
+        color: #4a5568;
+        font-size: 0.9rem;
     }
 
     .option-item .option-content {
         flex-grow: 1;
         font-size: 0.95rem;
+        color: #2d3748;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .option-item .option-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
     }
 
     .option-item .option-actions {
         display: flex;
-        gap: 8px;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .option-item .option-actions .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .option-item .option-actions .btn:hover {
+        transform: scale(1.05);
+    }
+
+    .option-item .correct-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        padding: 0 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+    }
+
+    .option-item .correct-indicator input {
+        margin: 0;
+        cursor: pointer;
     }
 
     .option-item.correct {
-        border-left: 4px solid #1cc88a;
+        border-color: #1cc88a;
         background: #f0fff4;
+        border-left: 4px solid #1cc88a;
+    }
+
+    .option-item.correct::before {
+        background: #1cc88a;
+    }
+
+    .option-item.correct .option-number {
+        background: #1cc88a;
+        color: white;
+    }
+
+    .option-item.correct .correct-indicator {
+        background: #d1f5e8;
+        color: #1cc88a;
+        font-weight: 700;
+    }
+
+    .option-area-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding: 12px 0;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .option-area-header .title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 1rem;
+    }
+
+    .option-area-header .option-count {
+        background: #4e73df;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .option-item.empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 20px;
+        border: 2px dashed #cbd5e0;
+        background: #f8fafc;
+        margin-bottom: 0;
+        color: #718096;
+    }
+
+    .option-item.empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+        opacity: 0.6;
+    }
+
+    .option-item.empty-state p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .addoptbtn {
+        margin-top: 16px;
+    }
+
+    .addoptbtn .btn-lg {
+        font-size: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(78, 115, 223, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .addoptbtn .btn-lg:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+    }
+
+    .addoptbtn .btn-lg:active {
+        transform: translateY(0);
+    }
+
+    .addoptiontable {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
     }
 
     /* Floating Preview Styling */
@@ -169,6 +325,7 @@
     /* Helper spacing */
     .gap-10 { gap: 10px; }
     .mt-auto { margin-top: auto; }
+
 </style>
 @endpush
 
@@ -198,23 +355,83 @@
         <input type="hidden" id="temp_id" name="temp_id" value="{{ $temp_id }}">
         <input type="hidden" id="action_btn" name="action_btn" value="">
         <input type="hidden" id="course_id" name="course_id" value="{{ $course_id }}">
-        <div class="row mt-3">
-            <div class="col-12 col-md-6">
-                <label>Test</label>
-                <div class="custom-select-wrapper">
+        <input type="hidden" id="test_id" name="test_id" value="{{ $legacy_test_id ?? '' }}">
+        <input type="hidden" name="lesson_id" id="lesson_id" value="{{ $lesson_id_preselect ?? '' }}">
+        <input type="hidden" id="last_lesson_id" value="{{ $last_lesson_id ?? '' }}">
 
-                    <select @if($auto_test_id) disabled @endif class="form-control custom-select-box" name="test_id" id="test_id" required>
-                        <option value="">Select Test</option>
-                        @foreach($tests as $key=> $value)
-                        <option @if((request()->get('test_id') == $value->id) || ($auto_test_id == $value->id)) selected @endif value="{{$value->id}}">{{$value->title}}</option>
-                        @endforeach
-                    </select>
-                     <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
+        @if($course_id)
+            @if(isset($lessons) && $lessons->count() > 0)
+                <!-- If lesson is pre-selected, show it as display (read-only) -->
+                @if(($lock_lesson_selection ?? false) && $lesson_id_preselect)
+                    @if($selected_lesson_preselect)
+                    <div class="alert mt-3" style="background-color: #233e74; border-color: #233e74; color: #ffffff;">
+                        <strong style="color: #ffffff;">Selected Lesson:</strong> {{ $selected_lesson_preselect->title }}
+                        <br>
+                        <small class="d-block mt-2">Quiz questions will be added to this lesson.</small>
+                    </div>
+
+                    @if($is_last_lesson_preselect)
+                    <div class="row mt-3" id="assessment-type-row-last-lesson">
+                        <div class="col-12 col-md-6">
+                            <label>Assessment Type <span class="text-danger">*</span></label>
+                            <div class="custom-select-wrapper">
+                                <select class="form-control custom-select-box" id="assessment_type_select" required>
+                                    <option value="final">Final Assessment</option>
+                                    <option value="lesson" selected>Lesson Quiz</option>
+                                </select>
+                                <span class="custom-select-icon"><i class="fa fa-chevron-down"></i></span>
+                            </div>
+                            <small class="form-text text-muted mt-1">
+                                This is the last lesson of the course. You can add the final assessment quiz now, or switch back to lesson quiz.
+                            </small>
+                        </div>
+                    </div>
+                    @endif
+                    @endif
+
+                <!-- If lesson is NOT pre-selected, show dropdown to select -->
+                @else
+                    <!-- QUESTIONS SECTION MODE: lesson is optional -->
+                    <div class="alert alert-info mt-3">
+                        <strong><i class="fa fa-info-circle mr-2"></i>Question Mapping</strong><br>
+                        Select a lesson to map this question to a lesson quiz, or leave it empty to map it to the final assessment.
+                    </div>
+
+                    <div class="row mt-3" id="lesson-select-row">
+                        <div class="col-12 col-md-6">
+                            <label>Select Lesson (optional)</label>
+                            <div class="custom-select-wrapper">
+                                <select class="form-control custom-select-box" id="lesson_id_select">
+                                    <option value="">-- Final Assessment (No Lesson) --</option>
+                                    @foreach($lessons as $lsn)
+                                        <option value="{{ $lsn->id }}" @if((int)($lesson_id_preselect ?? 0) === (int)$lsn->id) selected @endif>
+                                            {{ $lsn->title }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <span class="custom-select-icon"><i class="fa fa-chevron-down"></i></span>
+                            </div>
+                            <small class="form-text text-muted mt-1">
+                                If a lesson is selected, students will answer this question in that lesson quiz. If empty, the question goes to final assessment.
+                            </small>
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="alert alert-info mt-3">
+                    <strong><i class="fa fa-info-circle mr-2"></i>No Published Lessons Found</strong><br>
+                    Questions added from this form will be mapped to the course final assessment.
                 </div>
+            @endif
+
+        @else
+            <div class="alert alert-warning mt-3">
+                <strong><i class="fa fa-exclamation-triangle mr-2"></i>Select Course First</strong><br>
+                Open this form from the Questions section after selecting a course to get the optional lesson dropdown.
             </div>
-         
+        @endif
+
+        <div class="row mt-3" id="question-type-row">
             <div class="col-12 col-md-6">
                 <label>Question Type</label>
                 <div class="custom-select-wrapper">
@@ -230,23 +447,25 @@
                 </div>
             </div>
         </div>
-
+        {{-- /question-type-row --}}
 
 
         <div class="row">
           <div class="col-12 col-md-6 mt-3 notextarea"> 
                 <label>Question</label>
-                <textarea class="form-control editor" rows="3" name="question" id="question" required="required"></textarea>
+                <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1"></textarea>
             </div>
          
                 <div class="col-12 col-md-6"> 
                      <div class="mt-3 notextarea">
-                    <label>Option</label>
-                    <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
-                    <div class="addoptbtn">
-                    <button type="button" id="add_option" class="btn btn-primary mt-2">Add Option</button>
-                </div>
-              <div class="addoptiontable ">
+                    <label><i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>Opzioni</label>
+                    <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="Scrivi l'opzione di risposta qui..."></textarea>
+                    <div class="addoptbtn mt-3">
+                        <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
+                            <i class="fa fa-plus-circle mr-2"></i>Aggiungi Opzione
+                        </button>
+                    </div>
+              <div class="addoptiontable mt-4">
                     <div id="option-area" class=""></div>
                 </div>
                </div>
@@ -257,7 +476,7 @@
             <div class="row">
                  <div class="col-12 col-md-5 notextarea">
                     <label>Solution</label>
-                    <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution"></textarea>
+                    <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" data-collapsible-toolbar="1"></textarea>
                 </div>
              
              <div class="col-12 col-md-2">
@@ -275,7 +494,7 @@
              
                 <div class="col-12 col-md-5 notextarea">
                     <label>Comment</label>
-                    <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment"></textarea>
+                    <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment" data-collapsible-toolbar="1"></textarea>
 
          
 
@@ -315,22 +534,8 @@
 
 
 </form>
-<script src="{{asset('ckeditor/ckeditor.js')}}" type="text/javascript"></script>
 <script type="text/javascript">
 
-    $('.frm_submit').on('click', function (){
-        //alert($(this).val())
-        $('#action_btn').val($(this).val());
-    });
-
-    CKEDITOR.replace('question');
-    
-    CKEDITOR.replace('option');
-    
-    CKEDITOR.replace('solution');
-    
-    CKEDITOR.replace('comment')
-    
 </script>
 @stop
 @push('after-scripts')
@@ -368,61 +573,81 @@
     }
 
     function showOptions(show_remove_options = true) {
-        if (show_remove_options == true) {
-            var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th>';
-            var drag_drop_question_type = $('#question_type').val();
-            option_text += '<th>Is Right</th></tr>';
-            for (var i = 0; i < options.length; ++i) {
-                option = options[i];
-                option_text += '<tr>';
-                option_text += '<td>' + option[0] + '</td>';
-                if (parseInt($('#question_type').val()) == 1) {
-                    option_text += '<td><input type="radio" ';
-                } else {
-                    option_text += '<td><input type="checkbox" class="cb_checkbox_mark" ';
-                }
-                if (option[1] === 1) {
-                    option_text += 'checked="checked"';
-                }
-                option_text += ' onclick="markAsCorrectOption(' + i + ')"></td>';
-                option_text += '<td><a href="javascript:void(0);"  onclick="removeOptions(' + i + ')" class="btn btn-danger remove"><i class="la la-trash"></i>Remove</a>';
-                option_text += '</tr>'
-            }
-            option_text += '</tbody></table>';
-            $('#option-area').html(option_text);
-        } else {
-            var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th><th>Is Right</th></tr>';
-            for (var i = 0; i < options.length; ++i) {
-                option = options[i];
-                option_text += '<tr>';
-                option_text += '<td>' + option[0] + '</td>';
-                option_text += '<td><input type="radio" ';
-                if (option[1] === 1) {
-                    option_text += 'checked="checked"';
-                }
-                option_text += ' onclick="markAsCorrectOption(' + i + ',false)"></td>';
-                option_text += '</tr>'
-            }
-            option_text += '</tbody></table>';
-            document.getElementById('option-area').innerHTML = option_text;
+        const container = document.getElementById('option-area');
+        
+        if (options.length === 0) {
+            container.innerHTML = `
+                <div class="option-item empty-state">
+                    <i class="fa fa-inbox"></i>
+                    <p><strong>Nessuna opzione aggiunta</strong></p>
+                    <small>Compila il campo "Option" e fai clic su "Add Option" per iniziare</small>
+                </div>
+            `;
+            return;
         }
+
+        let html = `
+            <div class="option-area-header">
+                <div class="title">
+                    <i class="fa fa-list-ol" style="color: #4e73df;"></i>
+                    Opzioni della domanda
+                </div>
+                <div class="option-count">${options.length} Opzioni</div>
+            </div>
+        `;
+
+        options.forEach((option, i) => {
+            const isCorrect = option[1] === 1;
+            const inputType = parseInt($('#question_type').val()) === 1 ? 'radio' : 'checkbox';
+            const correctClass = isCorrect ? 'correct' : '';
+            const correctIcon = isCorrect ? '<i class="fa fa-check-circle" style="color: #1cc88a;"></i>' : '<i class="fa fa-circle-o" style="color: #cbd5e0;"></i>';
+            
+            html += `
+                <div class="option-item ${correctClass}">
+                    <div class="option-number">${i + 1}</div>
+                    <div class="option-content">
+                        ${option[0]}
+                    </div>
+                    <div class="correct-indicator" onclick="markAsCorrectOption(${i}${show_remove_options ? '' : ', false'})">
+                        <input type="${inputType}" ${isCorrect ? 'checked="checked"' : ''} class="option-checkbox" style="cursor: pointer;">
+                        <label style="margin-left: 6px; margin-bottom: 0; cursor: pointer; font-size: 0.75rem; color: #4a5568; font-weight: 600;">Corretta</label>
+                    </div>
+                    ${show_remove_options ? `
+                    <div class="option-actions">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="Rimuovi questa opzione">
+                            <i class="fa fa-trash"></i> Rimuovi
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
         addImgClass();
     }
 
     function addOptions() {
-        var option = CKEDITOR.instances["option"].getData();
+        var option = getEditorContent("option");
         options_length = (options != null && options != undefined) ? options.length : 0;
         options.push([option.trim(), 0]);
-        CKEDITOR.instances["option"].setData('');
+        // Visual feedback
+        const btn = document.getElementById('add_option');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-check mr-2"></i>Opzione Aggiunta!';
+        btn.style.background = '#1cc88a';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+        }, 1500);
+        setEditorContent("option", '');
     }
 
     $(document).on('click', "#add_option", function() {
-        if (CKEDITOR.instances["option"].getData() != "") {
-            // if ((options.length + 1) <= 4) {
-                addOptions();
-            // } else {
-            //     alert('You can use only 4 Options.');
-            // }
+        if (getEditorContent("option") != "") {
+            addOptions();
+        } else {
+            alert('Per favore, compila il campo opzione prima di aggiungerla.');
         }
         showOptions();
     });
@@ -433,27 +658,52 @@
         });
     }
 
+    function getEditorContent(editorId) {
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
+            return CKEDITOR.instances[editorId].getData();
+        }
+
+        const textarea = document.getElementById(editorId);
+        return textarea ? textarea.value : '';
+    }
+
+    function setEditorContent(editorId, value) {
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances && CKEDITOR.instances[editorId]) {
+            CKEDITOR.instances[editorId].setData(value);
+            return;
+        }
+
+        const textarea = document.getElementById(editorId);
+        if (textarea) {
+            textarea.value = value;
+        }
+    }
+
     function dataCollection() {
         var temp_id = $("#temp_id").val();
         var test_id = $("#test_id").val();
+        var lesson_id = $("#lesson_id").val();
         var question_type = $("#question_type").val();
-        var question = CKEDITOR.instances["question"].getData();
-        var solution = CKEDITOR.instances["solution"].getData();
-        var comment = CKEDITOR.instances["comment"].getData();
+        var question = getEditorContent("question");
+        var solution = getEditorContent("solution");
+        var comment = getEditorContent("comment");
         var score = $("#score").val();
+
         return {
             temp_id,
             test_id,
+            lesson_id,
             question_type,
             question,
             options: JSON.stringify(options),
             solution,
             comment,
             score
-        }
+        };
     }
 
     $(document).on('click', ".frm_submit", function() {
+        $('#action_btn').val($(this).val());
         flag = 0;
         sendData();
        
@@ -463,6 +713,42 @@
 
     function sendData(data) {
         var data = dataCollection();
+
+        if (!data.question || data.question.trim() === '') {
+            alert('Question field is required.');
+            return;
+        }
+
+        if (!data.score || data.score === '') {
+            alert('Marks field is required.');
+            return;
+        }
+
+        // Get form context
+        const assessmentType = document.getElementById('assessment_type_select');
+        const courseId = document.getElementById('course_id').value;
+        const lessonId = document.getElementById('lesson_id').value;
+        const lessonSelect = document.getElementById('lesson_id_select');
+        const testId = document.getElementById('test_id').value;
+
+        if (!courseId && !testId) {
+            alert('Please select a course from the Questions section before creating questions.');
+            return;
+        }
+
+        if (assessmentType) {
+            // STANDALONE MODE: Assessment type is required
+            if (!assessmentType.value) {
+                alert('Please select assessment type (Lesson Quiz or Final Assessment).');
+                return;
+            }
+            // If lesson quiz in standalone, lesson must be selected
+            if (assessmentType.value === 'lesson' && !lessonId) {
+                alert('Please select a lesson for this quiz question.');
+                return;
+            }
+        }
+
         data['_token'] = "{{ csrf_token() }}";
         data['action_btn'] = $('#action_btn').val();
         data['course_id'] = $('#course_id').val();
@@ -472,16 +758,25 @@
             type: 'post',
             data: data,
             success: function(response) {
-                response = JSON.parse(response);
-                if (response.code == 200) {
+                let payload = response;
+                if (typeof response === 'string') {
+                    try {
+                        payload = JSON.parse(response);
+                    } catch (e) {
+                        alert('Unexpected server response. Please reload and try again.');
+                        return;
+                    }
+                }
+
+                if (payload.code == 200) {
                     // if (data['action_btn'] == 'save_and_add_more') {
                     //     window.location.replace(response.redirect_url);
                     // }else{
                     //     window.location.replace(redirect);
                     // }
-                    window.location.replace(response.redirect_url);
+                    window.location.replace(payload.redirect_url);
                 } else {
-                    alert(response.message);
+                    alert(payload.message || 'Unable to save the question.');
                 }
             },
             error: function (xhr) {
@@ -494,6 +789,8 @@
                         alert(res.message);
                     }
                     console.log('Validation errors:', res.errors);
+                } else {
+                    alert('Request failed. Please reload and try again.');
                 }
             }
         });
@@ -519,6 +816,88 @@
             },
         });
     });
-</script>
 
+    @if($course_id && isset($lessons) && $lessons->count() > 0)
+    <!-- Course Creation Flow: Lesson selection handling -->
+    (function () {
+        const lessonIdInput = document.getElementById('lesson_id');
+        const lessonSelect = document.getElementById('lesson_id_select');
+        const assessmentTypeSelect = document.getElementById('assessment_type_select');
+        const preselectedLessonId = "{{ (int) ($lesson_id_preselect ?? 0) }}";
+
+        // Only setup listener if selector exists (lesson not pre-selected)
+        if (lessonSelect) {
+            lessonSelect.addEventListener('change', function () {
+                if (lessonIdInput) {
+                    lessonIdInput.value = this.value;
+                }
+            });
+        }
+
+        // If assessment selector is visible (last lesson case), switch between final/lesson modes
+        if (assessmentTypeSelect && lessonIdInput) {
+            const syncAssessmentMode = function () {
+                if (assessmentTypeSelect.value === 'final') {
+                    lessonIdInput.value = '';
+                } else {
+                    lessonIdInput.value = preselectedLessonId || lessonIdInput.value;
+                }
+            };
+
+            assessmentTypeSelect.addEventListener('change', syncAssessmentMode);
+            syncAssessmentMode();
+        }
+
+        // Initialize: if lesson_id_input already has a value, don't show selector
+        if (lessonIdInput && lessonIdInput.value && lessonSelect) {
+            // Lesson is pre-selected, selector should be hidden by blade
+            lessonSelect.value = lessonIdInput.value;
+        }
+    })();
+    @elseif(!$course_id && isset($lessons) && $lessons->count() > 0)
+    <!-- Standalone Admin Mode: keep hidden lesson_id in sync if used -->
+    (function () {
+        const assessmentTypeSelect = document.getElementById('assessment_type_select');
+        const lessonSelectContainer = document.getElementById('lesson-select-container');
+        const lessonIdInput = document.getElementById('lesson_id');
+        const lessonSelect = document.getElementById('lesson_id_select');
+
+        function updateAssessmentUI() {
+            if (assessmentTypeSelect && lessonSelectContainer) {
+                if (assessmentTypeSelect.value === 'lesson') {
+                    lessonSelectContainer.style.display = 'block';
+                } else {
+                    lessonSelectContainer.style.display = 'none';
+                    if (lessonIdInput) {
+                        lessonIdInput.value = '';
+                    }
+                }
+            }
+        }
+
+        if (lessonSelect) {
+            lessonSelect.addEventListener('change', function () {
+                if (lessonIdInput) {
+                    lessonIdInput.value = this.value;
+                }
+            });
+        }
+
+        if (assessmentTypeSelect) {
+            assessmentTypeSelect.addEventListener('change', updateAssessmentUI);
+        }
+
+        if (lessonIdInput && lessonIdInput.value) {
+            if (assessmentTypeSelect) {
+                assessmentTypeSelect.value = 'lesson';
+            }
+            if (lessonSelect) {
+                lessonSelect.value = lessonIdInput.value;
+            }
+        }
+
+        updateAssessmentUI();
+    })();
+    @endif
+</script>
 @endpush

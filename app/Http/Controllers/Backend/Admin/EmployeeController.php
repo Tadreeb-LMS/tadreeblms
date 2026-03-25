@@ -1302,6 +1302,14 @@ class EmployeeController extends Controller
 
                 return CustomHelper::is_course_completed_status($q->id, $course_id);
             })
+            ->addColumn('lesson_quiz', function ($q) use ($course_id) {
+                $summary = CustomHelper::getLessonQuizSummary($course_id, $q->id);
+                return $summary['total'] > 0 ? ($summary['passed'] . '/' . $summary['total']) : '-';
+            })
+            ->addColumn('lesson_quiz_status', function ($q) use ($course_id) {
+                $summary = CustomHelper::getLessonQuizSummary($course_id, $q->id);
+                return $summary['status'];
+            })
             ->addColumn('feedback', function ($q)  use ($course_id, $request) {
 
                 return CustomHelper::is_user_course_has_feedback($q->id, $course_id) ?  '<a class="btn btn-info mb-1" href="' . route('admin.employee.course_detail', [$course_id, $q->id]) . '">Veiw FeedBack</a>'  : '--';
@@ -1688,6 +1696,14 @@ class EmployeeController extends Controller
                 ->addColumn('assignment_status', function ($row) {
                     return  $row->has_assesment > 0 ? @$row->assignment_status : '-';
                 })
+                ->addColumn('lesson_quiz', function ($row) {
+                    $summary = CustomHelper::getLessonQuizSummary($row->course_id, $row->user_id);
+                    return $summary['total'] > 0 ? ($summary['passed'] . '/' . $summary['total']) : '-';
+                })
+                ->addColumn('lesson_quiz_status', function ($row) {
+                    $summary = CustomHelper::getLessonQuizSummary($row->course_id, $row->user_id);
+                    return $summary['status'];
+                })
                 ->addColumn('trainer_name', function ($row) {
                     return  @$row->course_trainer_name;
                 })
@@ -1876,6 +1892,14 @@ class EmployeeController extends Controller
                     }
                      
                 })
+                ->addColumn('lesson_quiz', function ($row) {
+                    $summary = CustomHelper::getLessonQuizSummary($row->course_id, $row->user_id);
+                    return $summary['total'] > 0 ? ($summary['passed'] . '/' . $summary['total']) : '-';
+                })
+                ->addColumn('lesson_quiz_status', function ($row) {
+                    $summary = CustomHelper::getLessonQuizSummary($row->course_id, $row->user_id);
+                    return $summary['status'];
+                })
                 ->addColumn('trainer_name', function ($row) {
                     $courseUser = DB::table('course_user')->where('course_id', $row->course_id)->first();
                     if ($courseUser) {
@@ -1950,7 +1974,11 @@ class EmployeeController extends Controller
     public function view_user_asssessement_answers($user_id, $course_id)
     {
         //dd("dd");
-        $assessements = Test::where('course_id', $course_id)->get();
+        $assessements = Test::where('course_id', $course_id)
+            ->where(function ($q) {
+                $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+            })
+            ->get();
         //dd($assessements);
 
         $sc = SubscribeCourse::query()
@@ -1960,7 +1988,7 @@ class EmployeeController extends Controller
         //$assessements[0]->test_active_questions();
         $completed_at = isset($sc) && isset($sc->completed_at) ? $sc->completed_at->format('Y-m-d H:i:s') : null;
         $is_completed = isset($sc) ? $sc->is_completed : 0;
-        if ($assessements[0]) {
+        if ($assessements->isNotEmpty()) {
             $assessements[0]->test_active_questions($is_completed, $completed_at);
         }
 

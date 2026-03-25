@@ -131,24 +131,9 @@ class FixSubscribeCourseHasAssesmentNONEED extends Command
             if($data) {
                
                 foreach($data as $row) {
-                   
-                    
-                   if($row->feedback_given == 1 && $row->assesment_taken == 1 && $row->assignment_status == 'Passed') {
-                        $row->grant_certificate = 1;
-                        $row->assignment_progress = 100;
-                        $row->is_completed = 1;
-                   }
-
-                   if($row->has_feedback == 1 && $row->assesment_taken == 1 && $row->assignment_status == 'Passed') {
-                        if($row->feedback_given == 0) {
-                            $row->grant_certificate = 0;
-                            $row->assignment_progress = 100;
-                            $row->is_completed = 1;
-                        }
-                        
-                   }
-
-                   $row->save();
+                    if ($row->user_id > 0 && $row->course_id > 0) {
+                        CustomHelper::updateGrantCertificate($row->course_id, $row->user_id);
+                    }
 
                 }
 

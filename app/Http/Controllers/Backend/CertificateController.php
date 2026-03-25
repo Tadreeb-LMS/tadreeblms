@@ -81,29 +81,87 @@ class CertificateController extends Controller
         $user_id = $request->user_id ?? auth()->id();
         $course_id = $request->course_id;
 
-        $certificate = Certificate::with('course')->where(['user_id' => $user_id, 'course_id' => $course_id])->firstOrFail();
-        
-        // Bug Fix: Ensure validation_hash exists (retro-fix for legacy or first-time generation)
-        if (!$certificate->validation_hash) {
-            $certificate->validation_hash = hash('sha256', $user_id . $course_id . now() . config('app.key'));
-            $certificate->save();
+        $subscribed_course = SubscribeCourse::where([
+            'course_id' => $course_id,
+            'user_id' => $user_id,
+            'is_completed' => 1
+        ])->with('course')->firstOrFail();
+
+        $course = $subscribed_course->course;
+        if (!$course) {
+            abort(404);
         }
 
-        // Bug Fix: Ensure human-readable ID exists
+        $user = User::findOrFail($user_id);
+
+        if (!$course->grantCertificate($user_id)) {
+            abort(403, 'Certificate is not available for this course.');
+        }
+
+        $certificate = Certificate::with('course')->firstOrCreate(
+            [
+                'user_id' => $user_id,
+                'course_id' => $course_id,
+            ],
+            [
+                'name' => $user->name,
+                'url' => 'Certificate-' . $course_id . '-' . $user_id . '.pdf',
+            ]
+        );
+
+        // Keep basic certificate fields aligned for legacy records
+        if (empty($certificate->name)) {
+            $certificate->name = $user->name;
+        }
+
+        if (empty($certificate->url)) {
+            $certificate->url = 'Certificate-' . $course_id . '-' . $user_id . '.pdf';
+        }
+
+        // Ensure validation hash exists for verification
+        if (!$certificate->validation_hash) {
+            $certificate->validation_hash = hash(
+                'sha256',
+                $user_id . '|' . $course_id . '|' . now()->timestamp . '|' . config('app.key')
+            );
+        }
+
+        // Ensure human-readable certificate ID exists
         if (!$certificate->certificate_id) {
             $certificate->certificate_id = 'TLMS-' . Carbon::now()->format('Y') . '-' . str_pad($certificate->id, 6, '0', STR_PAD_LEFT);
-            $certificate->save();
         }
 
-        // Use frozen metadata snapshots for immutability
-        $metadata = $certificate->metadata;
-        
+        // Preserve immutable snapshot metadata when missing
+        $completedAt = $subscribed_course->completed_at ?: $subscribed_course->updated_at ?: Carbon::now();
+        $completionDate = Carbon::parse($completedAt);
+
+        $metadata = is_array($certificate->metadata) ? $certificate->metadata : [];
+
+        if (empty($metadata)) {
+            $metadata = [
+                'student_name' => $user->name,
+                'course_title' => $course->title,
+                'completion_date' => $completionDate->toDateString(),
+            ];
+            $certificate->metadata = $metadata;
+        }
+
+        $certificate->save();
+        $certificate->loadMissing('course');
+
+        $metadata = is_array($certificate->metadata) ? $certificate->metadata : [];
+
         $data = [
-            'name' => $metadata['student_name'] ?? $certificate->name,
-            'course_name' => $metadata['course_title'] ?? optional($certificate->course)->title ?? 'Course Title',
+            'name' => $metadata['student_name'] ?? $certificate->name ?? $user->name,
+            'course_name' => $metadata['course_title'] ?? optional($certificate->course)->title ?? $course->title ?? 'Course Title',
             'date' => Carbon::parse($metadata['completion_date'] ?? $certificate->created_at)->format('d M, Y'),
             'certificate_id' => $certificate->certificate_id,
-            'qr' => base64_encode(QrCode::size(150)->format('svg')->margin(1)->generate(url("/certificate-verification?validation_hash=" . trim($certificate->validation_hash)))),
+            'qr' => base64_encode(
+                QrCode::size(150)
+                    ->format('svg')
+                    ->margin(1)
+                    ->generate(url('/certificate-verification?validation_hash=' . trim($certificate->validation_hash)))
+            ),
         ];
 
         $pdf = PDF::loadView('certificate.index', compact('data'));

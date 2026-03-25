@@ -54,13 +54,30 @@
     <link href="{{ asset('assets/css/colors/color-9.css') }}" rel="alternate stylesheet" type="text/css"
         title="color-9">
 
-    <link href="{{ asset('/vendor/unisharp/laravel-ckeditor/plugins/codesnippet/lib/highlight/styles/monokai.css') }}"
-        rel="stylesheet">
+    @php
+        $hlLocalCss = '/vendor/unisharp/laravel-ckeditor/plugins/codesnippet/lib/highlight/styles/monokai.css';
+        $hlLocalJs = '/vendor/unisharp/laravel-ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js';
+        $hasLocalHighlight = file_exists(public_path(ltrim($hlLocalJs, '/')));
+    @endphp
+    @if ($hasLocalHighlight)
+        <link href="{{ asset($hlLocalCss) }}" rel="stylesheet">
+    @else
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.5/styles/monokai.min.css">
+    @endif
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
-    <script src="{{ asset('/vendor/unisharp/laravel-ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js') }}">
-    </script>
+    @if ($hasLocalHighlight)
+        <script src="{{ asset($hlLocalJs) }}"></script>
+    @else
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.5/highlight.min.js"></script>
+    @endif
     <script>
-        hljs.initHighlightingOnLoad();
+        if (window.hljs) {
+            if (typeof hljs.initHighlightingOnLoad === 'function') {
+                hljs.initHighlightingOnLoad();
+            } else if (typeof hljs.highlightAll === 'function') {
+                hljs.highlightAll();
+            }
+        }
     </script>
 
     @yield('css')
