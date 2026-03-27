@@ -135,7 +135,7 @@
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-4">
 
                             <div class="custom-file-upload-wrapper">
-                                <input type="file" name="image" id="customFileInput" class="custom-file-input ">
+                                <input type="file" name="import_users" id="customFileInput" class="custom-file-input ">
                                 <label for="customFileInput" class="custom-file-label">
                                     <i class="fa fa-upload mr-1"></i> Choose a file
                                 </label>
@@ -177,7 +177,12 @@
                         </div>
                     </div>
                     <div class="form-group justify-content-end row">
-                        <button class="add-btn mr-3" type="submit">Send Notification</button>
+                        <button class="add-btn mr-3" type="submit">
+                            <span class="btn-text">Send Notification</span>
+                            <span class="btn-spinner d-none">
+                                <i class="fa fa-spinner fa-spin mr-2"></i>Loading...
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>

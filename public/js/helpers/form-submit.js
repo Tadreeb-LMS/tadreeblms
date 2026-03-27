@@ -24,15 +24,22 @@ $(document).on("submit", "form.ajax", function (event) {
     dataType: "json",
     beforeSend: function () {
       $("#loader").removeClass("d-none");
+      // Show loading spinner on button
+      submitbtn.find('.btn-text').addClass('d-none');
+      submitbtn.find('.btn-spinner').removeClass('d-none');
     },
     complete: function () {
       $("#loader").addClass("d-none");
     },
     success: function (data) {
-      submitbtn.prop("disabled", false);
-
-      
       showSuccessMessage(data);
+      
+      // Keep spinner visible briefly while toast shows (2.5 seconds), then hide
+      setTimeout(() => {
+        submitbtn.find('.btn-text').removeClass('d-none');
+        submitbtn.find('.btn-spinner').addClass('d-none');
+        submitbtn.prop("disabled", false);
+      }, 2500);
       
       
       // handleModals(data);
@@ -47,12 +54,15 @@ $(document).on("submit", "form.ajax", function (event) {
       }
     },
     error: function (data) {
+      // Hide loading spinner on error
+      submitbtn.find('.btn-text').removeClass('d-none');
+      submitbtn.find('.btn-spinner').addClass('d-none');
       submitbtn.prop("disabled", false);
 
       //alert("yes")
       showErrorMessage(obj, data);
 
-      if (data.responseJSON.event) {
+      if (data.responseJSON?.event) {
         obj.trigger(data.responseJSON.event);
       }
     },
@@ -99,7 +109,7 @@ function showErrorMessage(obj, data) {
   $(".text-danger").remove();
   $(".is-invalid").removeClass("is-invalid");
 
-  const errors = data.responseJSON.errors;
+  const errors = data.responseJSON?.errors || {};
 
   for (var field in errors) {
     if (errors.hasOwnProperty(field)) {
@@ -131,7 +141,8 @@ function showErrorMessage(obj, data) {
     toastr["error"](data.responseJSON.message);
   }
   if (data.status == 500) {
-    toastr["error"]("Something went wrong");
+    const serverMessage = data.responseJSON?.message || "Something went wrong";
+    toastr["error"](serverMessage);
   }
 }
 
