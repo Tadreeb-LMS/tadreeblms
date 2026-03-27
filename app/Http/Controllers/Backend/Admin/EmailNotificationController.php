@@ -59,25 +59,27 @@ class EmailNotificationController extends Controller
             ], 400);
         }
 
-        $user_ids = $request->input('users', []);
-
-        if ($request->filled('department_id')) {
-            $dep_users = DB::table('employee_profiles')
-                ->leftJoin('department', 'department.id', 'employee_profiles.department')
-                ->join('users', 'users.id', '=', 'employee_profiles.user_id')
-                ->where('users.active', 1)
-                ->whereNull('users.deleted_at')
-                ->where('department.id', '=', $request->input('department_id'))
-                ->pluck('employee_profiles.user_id')->toArray();
-            $user_ids = $dep_users;
-        }
+        $selected_user_ids = $request->input('users', []);
+        $selected_department_id = $request->input('department_id');
 
         if ($request->boolean('select_all_users')) {
             $user_emails = User::whereHas('roles', function ($query) {
                 $query->where('name', 'student');
             })->active()->latest()->pluck('email')->toArray();
         } else {
-            $user_emails = User::whereIn('id', $user_ids)->pluck('email')->toArray();
+            $user_emails = User::whereIn('id', $selected_user_ids)->pluck('email')->toArray();
+
+            if (!empty($selected_department_id)) {
+                $department_user_emails = DB::table('users')
+                    ->join('employee_profiles', 'employee_profiles.user_id', '=', 'users.id')
+                    ->where('employee_profiles.department', $selected_department_id)
+                    ->where('users.active', 1)
+                    ->whereNull('users.deleted_at')
+                    ->pluck('users.email')
+                    ->toArray();
+
+                $user_emails = array_values(array_unique(array_merge($user_emails, $department_user_emails)));
+            }
         }
 
         $imported_emails = [];
@@ -99,10 +101,21 @@ class EmailNotificationController extends Controller
         $user_emails = array_values(array_unique(array_merge($user_emails, $imported_emails)));
 
         if (empty($user_emails)) {
+            $has_department_selection = !empty($selected_department_id);
+            $has_selected_users = !empty($selected_user_ids);
+            $has_imported_users = !empty($imported_emails);
+            $has_select_all_users = $request->boolean('select_all_users');
+
+            $errors = [];
+
+            if ($has_department_selection && !$has_selected_users && !$has_imported_users && !$has_select_all_users) {
+                $errors['department_id'] = ['No active users were found in the selected department. Please choose a different department or another recipient source.'];
+            } else {
+                $errors['recipient'] = ['Please select at least one recipient source (users, department with assigned users, import file, or send to all users).'];
+            }
+
             return response()->json([
-                'errors' => [
-                    'users' => ['Please select at least one recipient (users, department, import file, or send to all users).'],
-                ],
+                'errors' => $errors,
             ], 422);
         }
 

@@ -110,11 +110,14 @@ function showErrorMessage(obj, data) {
   $(".is-invalid").removeClass("is-invalid");
 
   const errors = data.responseJSON?.errors || {};
+  let hasMappedFieldError = false;
+  let firstUnmappedError = null;
 
   for (var field in errors) {
     if (errors.hasOwnProperty(field)) {
       errors[field].forEach(function (errorMessage) {
         if (obj.find(`[name=${field}]`).length) {
+          hasMappedFieldError = true;
           obj
             .find(`[name=${field}]`)
             .addClass("is-invalid")
@@ -125,17 +128,26 @@ function showErrorMessage(obj, data) {
           !obj.find(`[name=${field}]`).length &&
           obj.find(`[name="${field}[]"]`).length
         ) {
+          hasMappedFieldError = true;
           obj
             .find(`[name="${field}[]"]`)
             .addClass("is-invalid")
             .parent()
             .append(`<span class="text-danger w-100">${errorMessage}</span>`);
         }
+
+        if (!firstUnmappedError && !obj.find(`[name=${field}]`).length && !obj.find(`[name="${field}[]"]`).length) {
+          firstUnmappedError = errorMessage;
+        }
       });
     }
   }
 
   scrollToClass("text-danger");
+
+  if (!hasMappedFieldError && firstUnmappedError) {
+    toastr["error"](firstUnmappedError);
+  }
 
   if (data.status == 400) {
     toastr["error"](data.responseJSON.message);
