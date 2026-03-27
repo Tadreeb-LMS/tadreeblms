@@ -174,9 +174,10 @@
                             Teachers
                         </div>
                         <div class="custom-select-wrapper mt-2">
-    <select name="teachers[]" class="form-control custom-select-box select2 js-example-placeholder-multiple" multiple>
+
+    <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single">
         @foreach($teachers as $id => $teacher)
-            <option value="{{ $id }}" @if(in_array($id, old('teachers', []))) selected @endif>
+            <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
                 {{ $teacher }}
             </option>
         @endforeach
@@ -625,8 +626,9 @@ $('#expire_at').datepicker({
         placeholder: "{{ trans('labels.backend.courses.select_category') }}",
     });
 
-    $(".js-example-placeholder-multiple").select2({
-        placeholder: "{{ trans('labels.backend.courses.select_teachers') }}",
+    $(".js-example-placeholder-single").select2({
+        placeholder: "Select Teacher",
+        allowClear: false
     });
 
     $(".js-example-internal-student-placeholder-multiple").select2({

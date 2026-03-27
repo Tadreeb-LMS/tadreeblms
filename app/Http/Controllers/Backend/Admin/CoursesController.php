@@ -586,6 +586,7 @@ class CoursesController extends Controller
              'category_id' => 'required',
              'course_type' => 'required',
              'course_payment_type' => 'required',
+             'teacher_id' => 'required|exists:users,id',
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
@@ -597,7 +598,11 @@ class CoursesController extends Controller
                 'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
             ]);
 
-            $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
+            $teacherId = \Auth::user()->isAdmin()
+                ? $request->input('teacher_id')
+                : \Auth::user()->id;
+            $teachers = [$teacherId]; // force single teacher
+
             $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
             // Cast meeting_duration to int to avoid TypeError in Carbon::addUnit
             $meetingDuration = (int)$request->meeting_duration;
@@ -850,7 +855,11 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
 
             //dd("jj");
 
-            $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
+$teacherId = \Auth::user()->isAdmin()
+    ? $request->input('teacher_id')
+    : \Auth::user()->id;
+
+$teachers = [$teacherId];
 
             $course->teachers()->sync($teachers);
 
@@ -1027,11 +1036,17 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
             ]);
 
             // For update, the request might contain teachers -> fallback to auth user if admin
-            $teachers = \Auth::user()->isAdmin() ? array_filter((array)$request->input('teachers')) : [\Auth::user()->id];
+            $teacherId = \Auth::user()->isAdmin()
+    ? $request->input('teacher_id')
+    : \Auth::user()->id;
+
+$teachers = [$teacherId];
+
             // If empty (teachers not passed in request), try to grab existing teachers
-            if(empty($teachers)){
-               $teachers = $course->teachers->pluck('id')->toArray();
+            if(empty($teacherId)){
+                $teacherId = optional($course->teachers->first())->id;
             }
+            $teachers = [$teacherId];
 
             $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
             // Cast meeting_duration to int to avoid TypeError in Carbon::addUnit
@@ -1140,6 +1155,8 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
         
         $course->update($request->all());
 
+        $course->teachers()->sync($teachers);
+        
         $course->is_online = $request->course_type ?? 'Online';
 
         if (($request->slug == "") || $request->slug == null) {
@@ -1591,10 +1608,6 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
             ]);
 
         } 
-
-
-        
-
 
         SubscribeCourse::updateOrCreate([
             'user_id' => $user_id,
