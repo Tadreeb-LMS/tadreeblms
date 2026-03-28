@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\Storage;
 class LocaleMiddleware
 {
     /**
+     * Translation manager instance.
+     *
+     * @var \Barryvdh\TranslationManager\Manager
+     */
+    protected $manager;
+
+    /**
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
@@ -38,12 +45,12 @@ class LocaleMiddleware
         if (config('locale.status')) {
             $locales = Locale::get();
 
-            $locales_list = null;
+            $locales_list = [];
             if (Schema::hasTable('locales')) {
-                $locales_list = $this->manager->getLocales();
+                $locales_list = (array) $this->manager->getLocales();
 
             }
-            if (session()->has('locale') && in_array(session()->get('locale'),$locales_list)) {
+            if (session()->has('locale') && !empty($locales_list) && in_array(session()->get('locale'),$locales_list)) {
 
                 /*
                  * Set the Laravel locale
@@ -66,7 +73,7 @@ class LocaleMiddleware
                  * For use in the blade directive in BladeServiceProvider
                  */
                 $locale_data = $locales->where('short_name','=',session()->get('locale'))->first();
-                if ($locale_data->display_type == 'rtl') {
+                if ($locale_data && $locale_data->display_type == 'rtl') {
                     session(['display_type' => 'rtl']);
                 } else {
                     session(['display_type' => 'ltr']);

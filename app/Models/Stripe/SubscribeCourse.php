@@ -144,7 +144,12 @@ class SubscribeCourse extends Model
             $course_test_ids = [];
 
             if($this->course_id) {
-                $course_test_ids = Test::where('course_id', $this->course_id)->pluck('id')->toArray();
+                $course_test_ids = Test::where('course_id', $this->course_id)
+                    ->where(function ($q) {
+                        $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+                    })
+                    ->pluck('id')
+                    ->toArray();
             }
             
             
@@ -178,7 +183,12 @@ class SubscribeCourse extends Model
         $is_completed = $this->is_completed ?? 0;
         $course_test_ids = [];
         $secured_marks = 0;
-        $course_test_ids = Test::where('course_id', $this->course_id)->pluck('id')->toArray();
+        $course_test_ids = Test::where('course_id', $this->course_id)
+            ->where(function ($q) {
+                $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+            })
+            ->pluck('id')
+            ->toArray();
         
         $test_questions = TestQuestion::whereIn('test_id', $course_test_ids)
                             ->when($is_completed && $completed_at, function ($q) use($completed_at) {
@@ -249,7 +259,12 @@ class SubscribeCourse extends Model
         $is_completed = $this->is_completed ?? 0;
         $course_test_ids = [];
         $secured_marks = 0;
-        $course_test_ids = Test::where('course_id', $this->course_id)->pluck('id')->toArray();
+        $course_test_ids = Test::where('course_id', $this->course_id)
+            ->where(function ($q) {
+                $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+            })
+            ->pluck('id')
+            ->toArray();
         
         $test_questions = TestQuestion::whereIn('test_id', $course_test_ids)
                             ->when($is_completed && $completed_at, function ($q) use($completed_at) {
@@ -318,7 +333,12 @@ class SubscribeCourse extends Model
         $completed_at = isset($this->completed_at) ? $this->completed_at->format('Y-m-d H:i:s') : null;
         $is_completed = $this->is_completed ?? 0;
         $secured_marks = 0;
-        $course_test_ids = Test::where('course_id', $this->course_id)->pluck('id')->toArray();
+        $course_test_ids = Test::where('course_id', $this->course_id)
+            ->where(function ($q) {
+                $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+            })
+            ->pluck('id')
+            ->toArray();
         $test_questions = TestQuestion::whereIn('test_id', $course_test_ids)
                             ->when($is_completed && $completed_at, function ($q) use($completed_at) {
                                 $q->where('created_at', '<', $completed_at);

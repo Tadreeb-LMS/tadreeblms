@@ -71,7 +71,8 @@ class PermissionRoleTableSeeder extends Seeder
             'slider',
             'position',
             'department',
-            'subscription'
+            'subscription',
+            'certificate'
         ];
 
         $actions = ['access', 'create', 'edit', 'view', 'delete'];
@@ -92,6 +93,11 @@ class PermissionRoleTableSeeder extends Seeder
                 ]);
             }
         }
+
+        Permission::firstOrCreate([
+            'name' => 'certificate_reissue',
+            'guard_name' => 'web',
+        ]);
 
         /*
         |--------------------------------------------------------------------------

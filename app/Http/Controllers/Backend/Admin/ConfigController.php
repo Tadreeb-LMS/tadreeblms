@@ -439,6 +439,71 @@ class ConfigController extends Controller
         return back();
     }
 
+    public function getCertificateTemplateSettings()
+    {
+        $settings = Config::where('key', 'certificate_template_settings')->first();
+        if ($settings) {
+            $settings = json_decode($settings->value, true);
+        } else {
+            $settings = [
+                'template' => 'classic-dark',
+                'primary_color' => '#d4af37',
+                'secondary_color' => '#f5d670',
+                'bg_color' => '#1a1a2e',
+                'text_color' => '#ffffff',
+                'cert_label' => 'Certificate of Completion',
+                'cert_title' => 'Achievement Award',
+                'show_badge' => 1,
+                'show_seal' => 1,
+                'show_signature' => 1,
+                'logo_image' => null,
+                'seal_image' => null,
+                'signature_image' => null,
+            ];
+        }
+        return view('backend.settings.certificate-template', compact('settings'));
+    }
+
+    public function saveCertificateTemplateSettings(Request $request)
+    {
+        $oldSettings = Config::where('key', 'certificate_template_settings')->first();
+        $oldSettings = $oldSettings ? json_decode($oldSettings->value, true) : [];
+
+        $request = $this->saveFilesOptimize($request);
+        
+        $settings = $request->only([
+            'template', 'bg_texture', 'primary_color', 'secondary_color', 'bg_color', 'text_color', 
+            'cert_label', 'cert_title', 'show_badge', 'show_seal', 'show_signature'
+        ]);
+
+        // Handle image uploads
+        $settings['logo_image'] = is_string($request->get('logo_image')) ? $request->get('logo_image') : ($oldSettings['logo_image'] ?? null);
+        $settings['seal_image'] = is_string($request->get('seal_image')) ? $request->get('seal_image') : ($oldSettings['seal_image'] ?? null);
+        $settings['signature_image'] = is_string($request->get('signature_image')) ? $request->get('signature_image') : ($oldSettings['signature_image'] ?? null);
+
+        if ($request->has('remove_logo_image')) {
+            $settings['logo_image'] = null;
+        }
+        if ($request->has('remove_seal_image')) {
+            $settings['seal_image'] = null;
+        }
+        if ($request->has('remove_signature_image')) {
+            $settings['signature_image'] = null;
+        }
+
+        // Ensure toggles are 0 if not present in request
+        $settings['show_badge'] = $request->has('show_badge') ? 1 : 0;
+        $settings['show_seal'] = $request->has('show_seal') ? 1 : 0;
+        $settings['show_signature'] = $request->has('show_signature') ? 1 : 0;
+        
+        Config::updateOrCreate(
+            ['key' => 'certificate_template_settings'],
+            ['value' => json_encode($settings)]
+        );
+
+        return back()->withFlashSuccess(__('alerts.backend.general.updated'));
+    }
+
     public function getZoomSettings()
     {
         if (!auth()->user()->isAdmin()) {

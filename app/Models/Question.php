@@ -19,7 +19,7 @@ class Question extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['question', 'question_image', 'score'];
+    protected $fillable = ['question', 'question_image', 'score', 'course_id', 'lesson_id', 'user_id'];
 
     /**
      * Perform any actions required after the model boots.
@@ -76,6 +76,16 @@ class Question extends Model
     public function tests()
     {
         return $this->belongsToMany(Test::class, 'question_test');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function lesson()
+    {
+        return $this->belongsTo(Lesson::class);
     }
 
 

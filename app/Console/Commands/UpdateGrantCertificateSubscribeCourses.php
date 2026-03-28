@@ -56,44 +56,10 @@ class UpdateGrantCertificateSubscribeCourses extends Command
             ->orderBy('id', 'Desc')
             ->chunk(100, function ($chunk) {
                 foreach ($chunk as $row) {
-                    
-                    $updates = [];
-
-                    if($row->user_id > 0 && $row->course_id >0) {
-                       
-                        /*
-                        $progress = CustomHelper::progress($row->course_id, $row->user_id);
-                        //dd($progress);
-                        if(isset($row->student)) {
-                            $srore = (string)$row->assignmentScore(@$row->student->id);
-                        }
-                        $status = @$row->course->assignmentStatus(@$row->user_id);
-
-                        $row->assignment_progress = $progress;
-                        $row->assignment_status = $status;
-                        $row->assignment_score = $srore; 
-                        */
-                        
-                       $grant_certificate = $row->course->grantCertificate($row->user_id) ?? 0;
-                       if($row->assignment_progress == 100)
-                       {
-                        $grant_certificate = 1;
-                       }
-
-                        $updates[] = [
-                            'id' => $row->id,
-                            'grant_certificate' => $grant_certificate,
-                        ];
+                    if ($row->user_id > 0 && $row->course_id > 0) {
+                        // Keep certificate/completion decisions in one place.
+                        CustomHelper::updateGrantCertificate($row->course_id, $row->user_id);
                     }
-                    
-                }
-
-                foreach ($updates as $update) {
-                    DB::table('subscribe_courses')
-                        ->where('id', $update['id'])
-                        ->update([
-                            'grant_certificate' => $update['grant_certificate'],
-                        ]);
                 }
             });
 

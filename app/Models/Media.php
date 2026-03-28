@@ -23,39 +23,32 @@ class Media extends Model
 
     public function getUrlAttribute($value)
     {
-        // If null or empty, return null
-        $awsPath = $this->aws_url ?? $value;
         $type = $this->type;
-        $url = $value;
-        // If null or empty, return null
+
+        // URL-based types store their link directly in the url column — return it as-is.
+        if (in_array($type, ['youtube', 'vimeo', 'embed'])) {
+            return $value;
+        }
+
+        // For uploaded / downloadable files, resolve from cloud storage.
+        $awsPath = $this->aws_url ?? $value;
+
         if (!$awsPath) {
             return null;
         }
 
-       
-        if (!$awsPath || !Auth::check()) return null;
+        if (!Auth::check()) return null;
 
         $storage = config('filesystems.default');
 
-        if( $storage == 'local') {
+        if ($storage == 'local') {
             return $this->aws_url;
         } else {
-            
-            if($type == 'upload') {
-                return Storage::disk('s3')->temporaryUrl(
-                        $awsPath,
-                        now()->addMinutes(60)
-                );
-                //return $awsPath;
-            } else {
-                return Storage::disk('s3')->temporaryUrl(
-                        $awsPath,
-                        now()->addMinutes(60)
-                );
-            }
+            return Storage::disk('s3')->temporaryUrl(
+                $awsPath,
+                now()->addMinutes(60)
+            );
         }
-
-        
     }
 
     public function getOldUrlAttribute()
@@ -66,8 +59,8 @@ class Media extends Model
 
     public function getEmbedUrlAttribute()
     {
-        // Prefer video_code if present
-        $rawValue = $this->file_name ?? $this->url;
+        // Prefer the stored url; fall back to file_name (which may contain a partial ID)
+        $rawValue = $this->attributes['url'] ?? $this->file_name;
 
         if (!$rawValue) {
             return null;
@@ -88,6 +81,12 @@ class Media extends Model
 
             preg_match('/[?&]t=(\d+)/', $rawValue, $timeMatches);
             $startTime = $timeMatches[1] ?? 0;
+        }
+
+        // Fallback: bare 11-character YouTube ID (stored by old create flow)
+        if (!($videoId ?? null) && preg_match('/^[a-zA-Z0-9_-]{11}$/', $rawValue)) {
+            $videoId = $rawValue;
+            $startTime = $startTime ?? 0;
         }
 
         if ($videoId) {

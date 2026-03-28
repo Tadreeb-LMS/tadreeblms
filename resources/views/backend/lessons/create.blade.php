@@ -11,7 +11,6 @@
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 25px;
-            /* space between lessons */
             background: #fff;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
             position: relative;
@@ -25,16 +24,12 @@
             border-radius: 50%;
             color: red;
             font-size: 10px;
-            /* ⬅ Bigger ❌ icon */
             padding: 2px;
             font-weight: bold;
-            /* ⬅ Thicker */
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             z-index: 10;
             line-height: 1;
         }
-
-
 
         span.loading {
             font-style: italic;
@@ -105,51 +100,38 @@
 @endpush
 
 @section('content')
-
     <form method="POST" id="addLesson" enctype="multipart/form-data" autocomplete="off">
         @csrf()
-
 
         @if ($courses_all)
             <input type="hidden" name="category_id" value="{{ $courses_all }}" id="category_id">
         @endif
+
         <div class="pb-3 d-flex justify-content-between align-items-center addcourseheader">
-            <h4>
-                @lang('labels.backend.lessons.create')
-            </h4>
-            <div class="">
+            <h4>@lang('labels.backend.lessons.create')</h4>
+            <div>
                 <a href="{{ route('admin.courses.index') }}" class="btn add-btn">@lang('labels.backend.lessons.view')</a>
             </div>
-
         </div>
 
         <div class="card">
-            <!-- <div class="card-header">
-            <h3 class="page-title float-left mb-0">@lang('labels.backend.lessons.create')</h3>
-            <div class="float-right">
-                <a href="{{ route('admin.lessons.index') }}" class="btn btn-success">@lang('labels.backend.lessons.view')</a>
-            </div>
-        </div> -->
-
             <div class="card-body">
-                <div class = "lesson-template ">
+                <div class="lesson-template">
                     <div class="position-relative lesson-box">
-
-                        <i class="fa fa-times remove_less_slug" onclick="removeLesslug(this)"
+                        <i class="fa fa-times remove_less_slug"
+                            onclick="removeLesslug(this)"
                             style="position:absolute; top:-10px; right:-10px; color:red; font-size:18px; cursor:pointer; display:none;"
                             title="Remove Lesson"></i>
 
                         <div class="row">
                             <div class="col-md-6">
-
                                 <div class="form-group">
                                     <div for="course_id" class="form-control-label">
-                                        {{ trans('labels.backend.lessons.fields.course') }}</div>
+                                        {{ trans('labels.backend.lessons.fields.course') }}
+                                    </div>
                                     <div class="mt-2 custom-select-wrapper">
-
                                         <select id="course_id" name="course_id"
                                             class="form-control custom-select-box course_id select2">
-
                                             @foreach ($courses as $key => $course)
                                                 <option value="{{ $key }}"
                                                     {{ old('course_id') == $key || request('course_id') == $key ? 'selected' : '' }}>
@@ -161,9 +143,8 @@
                                             <i class="fa fa-chevron-down"></i>
                                         </span>
                                     </div>
-
-
                                 </div>
+
                                 <div class="form-group">
                                     <div for="lesson_image" class="control-label mb-2">
                                         {{ trans('labels.backend.lessons.fields.lesson_image') }}
@@ -175,21 +156,16 @@
                                             <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
-                                    <!-- <input type="file" name="lesson_image[]" class="form-control" accept="image/jpeg,image/gif,image/png" />
-                    <input type="hidden" name="lesson_image_max_size" value="8" />
-                    <input type="hidden" name="lesson_image_max_width" value="4000" />
-                    <input type="hidden" name="lesson_image_max_height" value="4000" /> -->
-
-
                                 </div>
-                                <div class="ltitle">
 
+                                <div class="ltitle">
                                     <label for="title" class="control-label">
                                         {{ trans('labels.backend.lessons.fields.title') }} *
                                     </label>
                                     <input type="text" name="title[]" value="{{ old('title') }}" class="form-control"
                                         placeholder="{{ trans('labels.backend.lessons.fields.title') }}" required />
                                 </div>
+
                                 <div class="shortext">
                                     <label for="short_text" class="control-label">
                                         {{ trans('labels.backend.lessons.fields.short_text') }}
@@ -197,22 +173,17 @@
                                     <textarea name="short_text[]" class="form-control"
                                         placeholder="{{ trans('labels.backend.lessons.short_description_placeholder') }}" style="height: 100px;">{{ old('short_text') }}</textarea>
                                 </div>
-
                             </div>
+
                             <div class="col-md-6">
                                 <div class="form-group notextarea fillh180">
                                     <label for="full_text" class="control-label">
                                         {{ trans('labels.backend.lessons.fields.full_text') }}
                                     </label>
-                                    <textarea name="full_text[]" class="form-control editor" placeholder="">
-                    {{ old('full_text') }}
-                </textarea>
-
-
+                                    <textarea name="full_text[]" class="form-control editor" placeholder="">{{ old('full_text') }}</textarea>
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="row mt-1">
                             <div class="col-md-4">
@@ -223,15 +194,14 @@
                                     </div>
 
                                     <div class="custom-file-upload-wrapper">
-
                                         <input type="file" name="downloadable_files_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
                                             <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
-
                                 </div>
                             </div>
+
                             <div class="col-md-4">
                                 <div class="form-group ">
                                     <div for="add_pdf" class="control-label mb-2">
@@ -243,9 +213,9 @@
                                             <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
-
                                 </div>
                             </div>
+
                             <div class="col-md-4">
                                 <div class="form-group ">
                                     <div for="add_audio" class="control-label mb-2">
@@ -261,37 +231,11 @@
                             </div>
                         </div>
 
-
-                        <div class="row">
-
-
-                            {{-- <div class="col-12 col-lg-6 form-group">
-                
-            <label for="title" class="control-label">
-                {{ trans('Arabic Title') }}*
-            </label>
-            <input type="text" name="arabic_title[]" value="{{ old('arabic_title') }}" class="form-control" placeholder="{{ trans('Arabic Title') }}" required />
-            
-        </div> --}}
-
-                            {{-- <div class="col-12 col-lg-12 form-group">
-                <label for="slug" class="control-label">
-                    {{ trans('labels.backend.lessons.fields.slug') }}
-                </label>
-                <input type="text" name="slug[]" value="{{ old('slug') }}" class="form-control" placeholder="{{ trans('labels.backend.lessons.slug_placeholder') }}" />
-                
-         </div> --}}
-                        </div>
-
-
-
-
                         <div class="row addvideocol">
                             <div class="col-md-4 form-group parent_group mt-2">
                                 <div class="videos-section">
                                     <h5>Lesson Videos</h5>
 
-                                    {{-- Critical: use class instead of id because lesson blocks are cloned --}}
                                     <div class="videos-wrapper"></div>
 
                                     <button type="button" class="btn btn-primary mt-2 addVideo">
@@ -299,7 +243,6 @@
                                     </button>
                                 </div>
 
-                                {{-- Critical: keep template inside each lesson block to avoid cross-target issues --}}
                                 <div class="video-template d-none">
                                     <div class="video-item card p-3 mb-3">
                                         <label>Video Title</label>
@@ -315,12 +258,14 @@
 
                                         <div class="video-url mt-2 d-none">
                                             <label>Video URL</label>
-                                            <input type="text" name="videos[INDEX][url]" class="form-control video-url-input" disabled>
+                                            <input type="text" name="videos[INDEX][url]"
+                                                class="form-control video-url-input" disabled>
                                         </div>
 
                                         <div class="video-file mt-2 d-none">
                                             <label>Upload File</label>
-                                            <input type="file" name="videos[INDEX][file]" class="form-control video-file-input" disabled>
+                                            <input type="file" name="videos[INDEX][file]"
+                                                class="form-control video-file-input" disabled>
                                         </div>
 
                                         <label class="mt-2">
@@ -343,29 +288,20 @@
                         <div class="form-group row">
                             <div class="col-md-4 col-sm-12">
                                 <div for="duration" class="form-control-label mb-2">Duration</div>
-
-
-
-                                <div class="">
-
+                                <div>
                                     <input type="text" name="duration[]" class="form-control"
                                         placeholder="Duration [minutes]">
-
                                 </div>
-
-
                             </div>
-                            <div class="col-md-4 col-sm-12">
+
+                            <div class="col-md-4 col-sm-12 start_date">
                                 <div for="duration" class="form-control-label mb-2">Lesson Start Date</div>
-
-
-
-                                <div class="">
-                                    <input class="form-control" type="date" name="lesson_start_date"
+                                <div>
+                                    <input class="form-control" type="date" name="lesson_start_date[]"
                                         id="lesson_start_date">
                                 </div>
-
                             </div>
+
                             <div class="col-md-4 col-sm-12">
                                 <div class="checkbox" style="margin-top: 37px;">
                                     <input type="hidden" name="published" value="0">
@@ -374,66 +310,44 @@
                                     <label for="published" class="checkbox control-label font-weight-bold">
                                         {{ trans('labels.backend.lessons.fields.published') }}
                                     </label>
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                <div class="row">
-
-                </div>
+                <div class="row"></div>
                 <div class="mo_create"></div>
 
                 <div class="btmbtns">
                     <div class="d-flex justify-content-between">
                         <div>
-
-                            <button type="button" name="addmorebtn" id="addmorebtn" class="btn btn-outline-info ">Add
-                                More Lesson</button>
+                            <button type="button" name="addmorebtn" id="addmorebtn"
+                                class="btn btn-outline-info">Add More Lesson</button>
                         </div>
                         <div>
+                            <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
+                                Save As Draft
+                            </button>
+                            <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
+                                Next
+                            </button>
 
-                            <div>
-
-
-                                <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
-                                    Save As Draft
-                                </button>
-                                <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
-                                    Next
-                                </button>
-
-                                <span class="loading"></span>
-                            </div>
+                            <span class="loading"></span>
                         </div>
                     </div>
-
-
-
-
                 </div>
-
-
             </div>
 
             <input type="hidden" id="add_question_url" value="{{ route('admin.test_questions.create') }}">
-
             <input type="hidden" id="ass_index" value="{{ url('user/assignments/create?assis_new') }} ">
             <input type="hidden" id="lesson_index" value="{{ route('admin.lessons.index') }}">
             <input type="hidden" id="temp_id" name="temp_id" value="{{ $temp_id }}">
-
             <input type="hidden" name="btn_clicked" id="btn_clicked" />
-
         </div>
-
     </form>
-
-
-
 @stop
+
 @push('after-scripts')
 <script src="{{ asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
@@ -447,14 +361,12 @@
         container.find('textarea.editor').each(function () {
             const $textarea = $(this);
 
-            // Critical: cloned editors must never reuse old ids
             let id = $textarea.attr('id');
             if (!id || CKEDITOR.instances[id]) {
                 id = generateEditorId();
                 $textarea.attr('id', id);
             }
 
-            // Critical: avoid double initialization on the same textarea
             if ($textarea.data('ckeditorInitialized')) {
                 return;
             }
@@ -502,19 +414,15 @@
             const $parent = $(this).closest('.parent_group');
             let template = $parent.find('.video-template').first().html();
 
-            // Critical: each video block needs a unique form index
             template = template.replace(/INDEX/g, videoIndex);
 
             const $newVideo = $(template);
-
-            // Enable cloned fields, template must stay disabled
             $newVideo.find('input, select, textarea').prop('disabled', false);
 
             $parent.find('.videos-wrapper').first().append($newVideo);
 
             toggleVideoFields($newVideo);
             videoIndex++;
-
         });
 
         $(document).on('change', '.video-type', function () {
@@ -525,7 +433,6 @@
             $(this).closest('.video-item').remove();
         });
 
-        // Critical: delegated event also works for cloned file inputs
         $(document).on('change', '.custom-file-input', function (e) {
             const label = this.nextElementSibling;
             const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
@@ -535,7 +442,6 @@
             }
         });
 
-        // Critical: real field name is lesson_image[]
         $(document).on('change', 'input[name="lesson_image[]"]', function () {
             const $this = $(this);
 
@@ -645,10 +551,8 @@
         clone.find('input, textarea').val('');
         clone.find('input[type="checkbox"]').prop('checked', false);
 
-        // Critical: remove copied CKEditor UI before new initialization
         clone.find('.cke').remove();
 
-        // Critical: reset editor textareas inside the clone
         clone.find('textarea.editor').each(function () {
             $(this)
                 .removeAttr('data-ckeditor-initialized')
@@ -661,8 +565,8 @@
         clone.find('.videos-wrapper').empty();
         clone.find('.video-url').addClass('d-none');
         clone.find('.video-file').addClass('d-none');
-        clone.find('.video-url-input').val('').prop('required', false);
-        clone.find('.video-file-input').val('').prop('required', false);
+        clone.find('.video-url-input').val('').prop('required', false).prop('disabled', true);
+        clone.find('.video-file-input').val('').prop('required', false).prop('disabled', true);
         clone.find('.video-type').val('upload');
 
         clone.find('.remove_less_slug').show();
@@ -675,7 +579,6 @@
     function removeLesslug(el) {
         let box = $(el).closest('.lesson-box').parent();
 
-        // Critical: destroy editors before removing DOM nodes
         box.find('textarea.editor').each(function () {
             let id = $(this).attr('id');
             if (id && CKEDITOR.instances[id]) {
@@ -687,4 +590,3 @@
     }
 </script>
 @endpush
-
