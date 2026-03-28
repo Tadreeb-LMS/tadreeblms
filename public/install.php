@@ -83,20 +83,47 @@ if (file_exists($installedFlag)) {
         .bar {
             height: 100%;
             width: 0;
-            background: #4caf50;
+            background: linear-gradient(90deg, #2e7d32, #4caf50, #66bb6a);
+            background-size: 200% 100%;
             text-align: center;
             color: #fff;
             line-height: 20px;
-            transition: 0.4s;
+            transition: width 0.9s ease;
+            animation: progressFlow 2.5s linear infinite;
         }
 
         .output {
-            background: #fff;
-            color: #0f0;
+            background: #0f172a;
+            color: #e2e8f0;
             padding: 10px;
-            height: 80px;
+            height: 220px;
             overflow: auto;
             font-family: monospace;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            white-space: pre-wrap;
+        }
+
+        .line-ok {
+            color: #86efac;
+        }
+
+        .line-warn {
+            color: #fde68a;
+        }
+
+        .line-error {
+            color: #fca5a5;
+            font-weight: 700;
+        }
+
+        .line-step {
+            color: #93c5fd;
+        }
+
+        @keyframes progressFlow {
+            0% { background-position: 0% 0; }
+            100% { background-position: 200% 0; }
         }
 
         .button {
@@ -218,6 +245,8 @@ if (file_exists($installedFlag)) {
         <!-- DB Form -->
         <div id="dbform" class="hidden">
             <h3>Database Settings</h3>
+                <label>App URL (no trailing slash)</label>
+                <input type="text" id="app_url" placeholder="http://yourdomain.com" value="http://localhost">
             <input type="text" id="db_host" placeholder="DB Host" value="127.0.0.1">
             <input type="text" id="db_database" placeholder="Database Name">
             <input type="text" id="db_username" placeholder="DB Username">
@@ -230,21 +259,62 @@ if (file_exists($installedFlag)) {
 
     <script>
     const steps = ["check","composer","db_config","env","key","migrate","seed","permissions","finish"];
+    const stepTitles = {
+        check: "Checking requirements",
+        composer: "Installing dependencies",
+        db_config: "Saving database configuration",
+        env: "Writing environment settings",
+        key: "Generating application key",
+        migrate: "Running migrations",
+        seed: "Seeding database",
+        permissions: "Checking permissions",
+        finish: "Finalizing installation"
+    };
+    const MAX_STEP_RETRIES = 5;
     let currentIndex = 0;
 
-    function runStep(step) {
+    function runStep(step, attempt = 0) {
 
         document.getElementById("startBtn").classList.add("hidden");
 
+        appendStepLine("[STEP] " + (stepTitles[step] || step));
+
         fetch("install_ajax.php?step=" + step)
-            .then(res => res.json())
+            .then(res => {
+                return res.text().then(body => {
+                    let parsed = null;
+                    try {
+                        parsed = JSON.parse(body);
+                    } catch (e) {
+                        parsed = null;
+                    }
+
+                    if (!res.ok) {
+                        throw {
+                            type: "http",
+                            status: res.status,
+                            body: body
+                        };
+                    }
+
+                    if (!parsed) {
+                        throw {
+                            type: "invalid_json",
+                            status: res.status,
+                            body: body
+                        };
+                    }
+
+                    return parsed;
+                });
+            })
             .then(res => {
 
                 appendLog(res.message || '');
 
                 // ❌ HARD STOP
                 if (res.success === false) {
-                    appendLog("❌ Installation stopped");
+                    appendError(step, "Installation stopped", res.message || "No additional details provided.");
                     return;
                 }
 
@@ -262,10 +332,36 @@ if (file_exists($installedFlag)) {
 
                 // Continue only if backend says next
                 if (res.next) {
-                    setTimeout(() => runStep(res.next), 500);
+                    // Writing .env can briefly restart local dev server (artisan serve),
+                    // so give the next request a bit more time after env step.
+                    const delay = step === "env" ? 2000 : 500;
+                    setTimeout(() => runStep(res.next, 0), delay);
+                } else if (res.redirect_url) {
+                    appendLog("↪ Redirecting to application in 2 seconds...");
+                    setTimeout(() => {
+                        window.location.href = res.redirect_url;
+                    }, 2000);
                 }
             })
-            .catch(err => appendLog("❌ AJAX error: " + err));
+            .catch(err => {
+                if (attempt < MAX_STEP_RETRIES) {
+                    const retryDelay = Math.min(5000, 1000 * (attempt + 1));
+                    appendWarn("Temporary connection issue on step '" + step + "'. Retrying in " + (retryDelay / 1000) + "s...");
+                    setTimeout(() => runStep(step, attempt + 1), retryDelay);
+                    return;
+                }
+
+                const reason = (err && err.type)
+                    ? (err.type === "http"
+                        ? ("HTTP error " + err.status)
+                        : "Invalid response from server")
+                    : (err && err.message ? err.message : String(err));
+                const details = (err && err.body)
+                    ? String(err.body).slice(0, 1200)
+                    : "The installer endpoint could not be reached or returned unexpected output.";
+
+                appendError(step, reason, details);
+            });
     }
 
     function saveDB() {
@@ -273,7 +369,8 @@ if (file_exists($installedFlag)) {
             db_host: document.getElementById("db_host").value,
             db_database: document.getElementById("db_database").value,
             db_username: document.getElementById("db_username").value,
-            db_password: document.getElementById("db_password").value
+            db_password: document.getElementById("db_password").value,
+            app_url: document.getElementById("app_url").value
         });
 
         fetch("install_ajax.php?step=db_config", {
@@ -286,6 +383,7 @@ if (file_exists($installedFlag)) {
             appendLog(res.message || '');
 
             if (res.success === false) {
+                appendError("db_config", "Invalid database settings", res.message || "Please verify host, database, user and password.");
                 document.getElementById("dbform").classList.remove("hidden");
                 return;
             }
@@ -293,16 +391,48 @@ if (file_exists($installedFlag)) {
             document.getElementById("dbform").classList.add("hidden");
 
             if (res.next) {
-                runStep(res.next);
+                runStep(res.next, 0);
             }
         })
-        .catch(err => appendLog("❌ DB save error: " + err));
+        .catch(err => appendError("db_config", "Database config request failed", err && err.message ? err.message : String(err)));
     }
 
     function appendLog(msg) {
         const log = document.getElementById("log");
-        log.innerHTML += msg + "<br>";
+        log.innerHTML += msg + "\n";
         log.scrollTop = log.scrollHeight;
+    }
+
+    function appendStepLine(msg) {
+        const log = document.getElementById("log");
+        log.innerHTML += '<span class="line-step">' + escapeHtml(msg) + '</span>\n';
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function appendWarn(msg) {
+        const log = document.getElementById("log");
+        log.innerHTML += '<span class="line-warn">⚠ ' + escapeHtml(msg) + '</span>\n';
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function appendError(step, reason, details) {
+        const log = document.getElementById("log");
+        const title = '[ERROR] Step: ' + step + ' | Reason: ' + reason;
+        const body = details ? ('Details: ' + details) : '';
+        log.innerHTML += '<span class="line-error">' + escapeHtml(title) + '</span>\n';
+        if (body) {
+            log.innerHTML += '<span class="line-error">' + escapeHtml(body) + '</span>\n';
+        }
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
     function updateBar(percent) {
