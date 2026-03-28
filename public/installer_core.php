@@ -27,8 +27,34 @@ class InstallerCore
             $this->composerBin = trim((string) shell_exec('composer --version 2>&1'));
         } else {
             $this->phpBin = trim((string) shell_exec('which php'));
-            $this->composerBin = '/usr/local/bin/composer';
+            $this->composerBin = $this->detectComposerBin();
         }
+    }
+
+    private function detectComposerBin()
+    {
+        // Try `which` first — works when composer is anywhere on $PATH
+        $which = trim((string) shell_exec('which composer 2>/dev/null'));
+        if ($which !== '' && is_executable($which)) {
+            return $which;
+        }
+
+        // Fall back through common install locations
+        $candidates = [
+            '/usr/local/bin/composer',
+            '/usr/bin/composer',
+            getenv('HOME') . '/.local/bin/composer',
+            getenv('HOME') . '/.composer/vendor/bin/composer',
+            $this->basePath . '/composer.phar',
+        ];
+
+        foreach ($candidates as $path) {
+            if ($path !== '' && is_executable((string) $path)) {
+                return (string) $path;
+            }
+        }
+
+        return '';
     }
 
     public function handle($step, $requestMethod = 'GET', array $input = [])
@@ -219,8 +245,8 @@ class InstallerCore
                 $ok = false;
             }
         } else {
-            if (!file_exists($this->composerBin)) {
-                $msg .= "❌ Composer not found at {$this->composerBin}<br>";
+            if ($this->composerBin === '' || !is_executable($this->composerBin)) {
+                $msg .= '❌ Composer not found. Install it globally or place composer.phar in the project root.<br>';
                 $ok = false;
             } else {
                 $composerVersion = trim((string) shell_exec("{$this->phpBin} {$this->composerBin} --version 2>&1"));
@@ -258,7 +284,8 @@ class InstallerCore
         if (stripos(PHP_OS, 'WIN') === 0) {
             $cmd = 'cd /d "' . $this->basePath . '" && composer install --no-interaction --prefer-dist 2>&1';
         } else {
-            $cmd = 'cd "' . $this->basePath . '" && COMPOSER_HOME=/tmp HOME=/tmp composer install --no-interaction --prefer-dist 2>&1';
+            $composerCmd = $this->composerBin !== '' ? $this->composerBin : 'composer';
+            $cmd = 'cd "' . $this->basePath . '" && COMPOSER_HOME=/tmp HOME=/tmp ' . $composerCmd . ' install --no-interaction --prefer-dist 2>&1';
         }
 
         $output = (string) shell_exec($cmd);
@@ -322,6 +349,12 @@ class InstallerCore
             $env .= "\nZOOM_INTEGRATION=false";
         }
 
+        // Generate APP_KEY here so we only ever write .env once.
+        // A second atomic rename (in stepKey) would trigger a second artisan serve
+        // restart and kill the in-flight HTTP response, causing a NetworkError.
+        $appKey = 'base64:' . base64_encode(random_bytes(32));
+        $env = $this->setEnvValue($env, 'APP_KEY', $appKey);
+
         $env .= "\n";
 
         $tmpEnvFile = $this->envFile . '.tmp';
@@ -339,27 +372,19 @@ class InstallerCore
 
     private function stepKey()
     {
+        // APP_KEY is written by stepEnv() in the same atomic .env write to avoid
+        // triggering a second artisan-serve restart that would kill this response.
+        // This step just verifies the key is present.
         if (!file_exists($this->envFile)) {
             return $this->fail('.env file not found.');
         }
 
-        $env = (string) file_get_contents($this->envFile);
-        $appKey = 'base64:' . base64_encode(random_bytes(32));
-        $env = $this->setEnvValue($env, 'APP_KEY', $appKey);
-
-        $tmpEnvFile = $this->envFile . '.tmp';
-        if (file_put_contents($tmpEnvFile, $env, LOCK_EX) === false) {
-            return $this->fail('Failed to write APP_KEY into .env');
-        }
-        if (!rename($tmpEnvFile, $this->envFile)) {
-            @unlink($tmpEnvFile);
-            return $this->fail('Failed to finalize .env while setting APP_KEY');
+        $key = $this->readEnvValue('APP_KEY');
+        if (!$key || !str_starts_with($key, 'base64:')) {
+            return $this->fail('APP_KEY missing or invalid in .env — try rerunning the env step.');
         }
 
-        // Best-effort clear; ignore failures because app boot may still depend on DB state.
-        @exec("{$this->phpBin} \"{$this->basePath}/artisan\" config:clear 2>&1");
-
-        return ['success' => true, 'message' => '✔ APP_KEY generated', 'next' => 'migrate'];
+        return ['success' => true, 'message' => '✔ APP_KEY verified', 'next' => 'migrate'];
     }
 
     private function stepMigrate()
