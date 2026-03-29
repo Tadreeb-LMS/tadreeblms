@@ -1,145 +1,150 @@
 @extends('frontend.layouts.app' . config('theme_layout'))
 
 @section('title', 'Certificate Verification | ' . app_name())
-@section('meta_description', '')
-@section('meta_keywords', '')
 
 @push('after-styles')
-    <style>
-        .my-alert {
-            position: absolute;
-            z-index: 10;
-            left: 0;
-            right: 0;
-            top: 25%;
-            width: 50%;
-            margin: auto;
-            display: inline-block;
-        }
-    </style>
+<style>
+    .verification-container {
+        padding: 80px 0;
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+    }
+    .verification-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 1px solid #eee;
+        transition: transform 0.3s ease;
+    }
+    .status-header {
+        padding: 40px 20px;
+        text-align: center;
+        color: #fff;
+    }
+    .status-verified { background: #28a745; }
+    .status-revoked { background: #dc3545; }
+    .status-invalid { background: #6c757d; }
+    
+    .status-icon {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
+    .verification-details {
+        padding: 40px;
+    }
+    .detail-item {
+        margin-bottom: 25px;
+        border-bottom: 1px solid #f8f9fa;
+        padding-bottom: 10px;
+    }
+    .detail-label {
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #888;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    .detail-value {
+        font-size: 18px;
+        color: #1a237e;
+        font-weight: 600;
+    }
+    .download-btn {
+        background: #c5a059;
+        color: #fff;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+    .download-btn:hover {
+        background: #b38f4d;
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(197, 160, 89, 0.4);
+        transform: translateY(-2px);
+    }
+</style>
 @endpush
 
 @section('content')
-    @php
-        $footer_data = json_decode(config('footer_data'));
-    @endphp
-    @if (session()->has('alert'))
-        <div class="alert alert-light alert-dismissible fade my-alert show">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <strong>{{ session('alert') }}</strong>
-        </div>
-    @endif
-
-    <!-- Start of breadcrumb section
-            ============================================= -->
-    <section id="breadcrumb" class="breadcrumb-section relative-position backgroud-style">
-        <div class="blakish-overlay"></div>
-        <div class="container">
-            <div class="page-breadcrumb-content text-center">
-                <div class="page-breadcrumb-title">
-                    <h2 class="breadcrumb-head black bold">{{ env('APP_NAME') }}
-                        <span> @lang('labels.frontend.certificate_verification.title')</span>
-                    </h2>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- End of breadcrumb section
-            ============================================= -->
-
-
-
-    <!-- Start of contact area form
-            ============================================= -->
-    <section id="contact-form" class="contact-form-area_3 contact-page-version">
-        <div class="container">
-            @include('includes.partials.messages')
-
-            <div class="row">
-                <div class="col-md-6 mx-auto col-12">
-                    <div class="contact_third_form" style="padding-bottom: 30px">
-                        <form class="contact_form" action="{{ route('frontend.certificates.verify') }}" method="POST"
-                            enctype="multipart/form-data">
-                            @csrf
+<div class="verification-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <div class="verification-card">
+                    @if($status === 'verified')
+                        <div class="status-header status-verified">
+                            <div class="status-icon"><i class="fas fa-check-circle"></i></div>
+                            <h2 class="text-white mb-0">Authentic Certificate</h2>
+                            <p class="text-white opacity-75 mt-2">Verified by TadreebLMS Registry</p>
+                        </div>
+                        <div class="verification-details text-center">
+                            <div class="detail-item">
+                                <div class="detail-label">Certified Professional</div>
+                                <div class="detail-value">{{ $student_name }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Course Title</div>
+                                <div class="detail-value">{{ $course_title }}</div>
+                            </div>
                             <div class="row">
-                                <div class="col-md-12">
-                                    <div class="contact-info">
-                                        @php
-                                            $name = request()->name ?? session('data')['name'] ?? old('name');
-                                            $date = request()->date ?? session('data')['date'] ?? old('date');
-                                        @endphp
-                                        <input class="name"
-                                            value="{{ $name }}"
-                                            name="name" type="text" placeholder="@lang('labels.frontend.certificate_verification.name_on_certificate')">
-                                        @if ($errors->has('name'))
-                                            <span class="help-block text-danger">{{ $errors->first('name') }}</span>
-                                        @endif
-                                    </div>
-
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="contact-info">
-                                        <input class="date"
-                                            value="{{ $date }}"
-                                            name="date" pattern="\d{4}-\d{2}-\d{2}" type="date"
-                                            placeholder="@lang('labels.frontend.certificate_verification.date_on_certificate')">
-                                        @if ($errors->has('date'))
-                                            <span class="help-block text-danger">{{ $errors->first('date') }}</span>
-                                        @endif
+                                <div class="col-6">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Completion Date</div>
+                                        <div class="detail-value">{{ $completion_date }}</div>
                                     </div>
                                 </div>
-
-                            </div>
-
-                            <div class="nws-button mt-5 text-center  gradient-bg text-uppercase">
-                                <button class="text-uppercase" type="submit" value="Submit">@lang('labels.frontend.certificate_verification.verify_now') <i
-                                        class="fas fa-caret-right"></i></button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                @if (session()->has('data'))
-
-                    <div class="col-md-10 col-12 mx-auto mt-4">
-                        <div class="card">
-                            <div class="card-body">
-                                @if (count(session('data')['certificates']) > 0)
-                                    <div class="table-responsive">
-
-                                        <table class="table">
-                                            <tr class="bg-dark text-white">
-                                                <th>Course Name</th>
-                                                <th>Student Name</th>
-                                                <th>Certified at</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                            @foreach (session('data')['certificates'] as $certificate)
-                                                <tr>
-                                                    <td>{{ $certificate->course->title }}</td>
-                                                    <td>{{ $certificate->user->name }}</td>
-                                                    <td>{{ $certificate->created_at->format('d M, Y') }}</td>
-                                                    <td><a href="{{ asset('user/certificates/generate/' . $certificate->course_id . '/' . $certificate->user_id) }}"
-                                                            class="btn btn-success text-white">
-                                                            @lang('labels.backend.certificates.download') </a>
-
-                                                        {{-- <a class="btn btn-primary text-white"
-                                                            href="{{ route('certificates.download', ['certificate_id' => $certificate->id]) }}">
-                                                            @lang('labels.backend.certificates.download') </a> --}}
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
+                                <div class="col-6">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Certificate ID</div>
+                                        <div class="detail-value">{{ $certificate_id }}</div>
                                     </div>
-                                @else
-                                    <h4 class="text-center">@lang('labels.frontend.certificate_verification.not_found')</h4>
-                                @endif
+                                </div>
+                            </div>
+                            
+                            <a href="{{ route('admin.certificates.generate', ['course_id' => $certificate->course_id, 'user_id' => $certificate->user_id]) }}" class="download-btn">
+                                <i class="fas fa-download mr-2"></i> Download Original PDF
+                            </a>
+                        </div>
+                    @elseif($status === 'revoked')
+                        <div class="status-header status-revoked">
+                            <div class="status-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                            <h2 class="text-white mb-0">Certificate Revoked</h2>
+                            <p class="text-white opacity-75 mt-2">Credential Nullified</p>
+                        </div>
+                        <div class="verification-details text-center">
+                            <h4 class="text-danger mb-4">Caution</h4>
+                            <p class="mb-4">{{ $message }}</p>
+                            <div class="detail-item border-0">
+                                <div class="detail-label">Revocation Date</div>
+                                <div class="detail-value text-danger">{{ $revoked_at }}</div>
                             </div>
                         </div>
-                    </div>
-                @endif
+                    @else
+                        <div class="status-header status-invalid">
+                            <div class="status-icon"><i class="fas fa-times-circle"></i></div>
+                            <h2 class="text-white mb-0">Invalid Credential</h2>
+                        </div>
+                        <div class="verification-details text-center">
+                            <p class="lead mb-4">{{ $message }}</p>
+                            <div class="alert alert-warning">
+                                <strong>Warning:</strong> This hash does not match any record in our system. This may indicate a counterfeit certificate.
+                            </div>
+                            <a href="{{ route('frontend.index') }}" class="btn btn-outline-secondary mt-3">
+                                Return to Homepage
+                            </a>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
-    </section>
-    <!-- End of contact area form
-            ============================================= -->
+    </div>
+</div>
 @endsection

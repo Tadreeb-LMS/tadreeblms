@@ -529,12 +529,22 @@
                 </li> --}}
 
 
-            <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
-                    href="{{ route('admin.certificates.index') }}">
-                    <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
-                </a>
-            </li>
+            @endif
+            @if ($logged_in_user->hasRole(config('access.users.admin_role')) || $logged_in_user->can('certificate_access'))
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
+                        href="{{ route('admin.certificates.manage.index') }}">
+                        <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
+                    </a>
+                </li>
+            @endif
+            @if ($logged_in_user->hasRole('student'))
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
+                        href="{{ route('admin.certificates.index') }}">
+                        <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
+                    </a>
+                </li>
             @endif
             @if (true)
             {{-- <li class="nav-item ">
@@ -712,6 +722,13 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings/notifications*')) }}"
                             href="{{ route('admin.notification-settings') }}">
                             <span class="title">@lang('menus.backend.sidebar.notification-settings')</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings/certificate-template*')) }}"
+                            href="{{ route('admin.certificate-template-settings') }}">
+                            <span class="title"><i class="fas fa-certificate mr-1"></i>Certificate Template</span>
                         </a>
                     </li>
 

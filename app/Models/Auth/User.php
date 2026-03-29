@@ -59,6 +59,7 @@ class User extends Authenticatable
         UserMethod,
         UserRelationship,
         UserScope,
+        SoftDeletes,
         Uuid;
     use HasApiTokens;
     // use Messagable {
