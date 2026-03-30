@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', __('Send Email Notification') . ' | ' . app_name())
+@section('title', __('admin_pages.email_notifications.title') . ' | ' . app_name())
 
 @section('style')
 
@@ -76,11 +76,43 @@
     user-select: none;
     -webkit-user-select: none;
 }
+
+.recipient-mode-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px 16px;
+    background: #fafafa;
+}
+
+.recipient-source-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: center;
+}
+
+.recipient-source-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.recipient-source-disabled {
+    opacity: 0.55;
+}
+
+.recipient-help {
+    margin-top: 8px;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
 </style>
 @endpush
 @section('content')
 <div class="pb-3">
-    <h4 class="">@lang('Send Email Notification')</h4>
+    <h4 class="">{{ __('admin_pages.email_notifications.title') }}</h4>
 </div>
 <div class="card">
     <form action="{{ url('/user/send-email-notification') }}" method="post" class="ajax" enctype="multipart/form-data">
@@ -89,10 +121,36 @@
 
                 <div class="col-12">
 
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-3 col-md-12 col-sm-12 form-control-label required">{{ __('admin_pages.email_notifications.recipient_source') }}</label>
+                        <div class="col-lg-9 col-md-12 col-sm-12 mb-3">
+                            <div class="recipient-mode-card">
+                                <div class="recipient-source-row">
+                                    <label class="recipient-source-option" for="recipient_mode_users">
+                                        <input type="radio" id="recipient_mode_users" name="recipient_mode" value="users" checked>
+                                        <span>{{ __('admin_pages.email_notifications.select_users') }}</span>
+                                    </label>
+                                    <label class="recipient-source-option" for="recipient_mode_department">
+                                        <input type="radio" id="recipient_mode_department" name="recipient_mode" value="department">
+                                        <span>{{ __('admin_pages.email_notifications.select_department') }}</span>
+                                    </label>
+                                    <label class="recipient-source-option" for="recipient_mode_import">
+                                        <input type="radio" id="recipient_mode_import" name="recipient_mode" value="import">
+                                        <span>{{ __('admin_pages.email_notifications.import_users') }}</span>
+                                    </label>
+                                    <label class="recipient-source-option" for="recipient_mode_all">
+                                        <input type="radio" id="recipient_mode_all" name="recipient_mode" value="all">
+                                        <span>{{ __('admin_pages.email_notifications.send_to_all_users') }}</span>
+                                    </label>
+                                </div>
+                                <div class="recipient-help">{{ __('admin_pages.email_notifications.recipient_help') }}</div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class=" row">
+                    <div class="row recipient-source-group" data-recipient-mode="users">
                         <label class="col-lg-3 col-md-12 col-sm-12 form-control-label required"
-                            for="test_id">@lang('Users')</label>
+                            for="test_id">{{ __('admin_pages.email_notifications.users') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 custom-select-wrapper">
                             <select name="users[]" class="form-control custom-select-box select2 js-example-questions-placeholder-multiple"
                                 multiple>
@@ -106,16 +164,12 @@
                         </div>
                     </div>
 
-                    <br>
-                    @lang('OR')
-                    <br>
-
-                    <div class="form-group row mt-2">
+                    <div class="form-group row mt-2 recipient-source-group" data-recipient-mode="department">
                         <label class="col-lg-3 col-md-12 col-sm-12 form-control-label required"
-                            for="first_name">@lang('Select Department')</label>
+                            for="first_name">{{ __('admin_pages.email_notifications.select_department') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 custom-select-wrapper">
                             <select name="department_id" class="form-control custom-select-box select2 js-example-placeholder-single">
-                                <option value="" selected disabled> @lang('Select One') </option>
+                                <option value="" selected disabled> {{ __('admin_pages.email_notifications.select_one') }} </option>
                                 @foreach ($departments as $row)
                                 <option value="{{ $row->id }}"> {{ $row->title }} </option>
                                 @endforeach
@@ -126,58 +180,56 @@
                         </div><!--col-->
                     </div>
 
-                    @lang('OR')
-                    <br>
-
-                    <div class="form-group row mt-2">
+                    <div class="form-group row mt-2 recipient-source-group" data-recipient-mode="import">
                         <label class="col-lg-3 col-md-12 col-sm-12 mb-4 form-control-label"
-                            for="first_name">@lang('Import Users')</label>
+                            for="first_name">{{ __('admin_pages.email_notifications.import_users') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-4">
 
                             <div class="custom-file-upload-wrapper">
-                                <input type="file" name="image" id="customFileInput" class="custom-file-input ">
+                                <input type="file" name="import_users" id="customFileInput" class="custom-file-input ">
                                 <label for="customFileInput" class="custom-file-label">
-                                    <i class="fa fa-upload mr-1"></i> Choose a file
+                                    <i class="fa fa-upload mr-1"></i> {{ __('admin_pages.email_notifications.choose_file') }}
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    @lang('OR')
-                    <br>
-
-                    <div class="form-group row mt-2">
+                    <div class="form-group row mt-2 recipient-source-group" data-recipient-mode="all">
                         <label class="col-lg-3 col-md-12 col-sm-12 form-control-label required"
-                            for="first_name">@lang('Send to all users')</label>
+                            for="first_name">{{ __('admin_pages.email_notifications.send_to_all_users') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
                             <input class="form-check-input" type="checkbox" value="1" id="select_all_users" name="select_all_users">
                         </div><!--col-->
                     </div>
 
                     <div class="form-group row mt-2">
-                        <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">Subject</label>
+                        <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">{{ __('admin_pages.email_notifications.subject') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
-                            <input type="text" name="subject" class="form-control" placeholder="Please write subject here">
+                            <input type="text" name="subject" class="form-control" placeholder="{{ __('admin_pages.email_notifications.subject_placeholder') }}">
                         </div>
                     </div>
 
                     <div class="form-group row mt-2">
-                        <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">Register Button</label>
+                        <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">{{ __('admin_pages.email_notifications.register_button') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
-                            <input type="text" name="register_button" class="form-control" placeholder="Please add register link">
+                            <input type="text" name="register_button" class="form-control" placeholder="{{ __('admin_pages.email_notifications.register_button_placeholder') }}">
                         </div>
                     </div>
 
                     <div class="form-group row mt-2">
-                        <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">Email
-                            Content</label>
+                        <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">{{ __('admin_pages.email_notifications.email_content') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
                             <textarea class="form-control" id="emailContent" name="email_content"
-                                placeholder="Enter the email content here..."></textarea>
+                                placeholder="{{ __('admin_pages.email_notifications.email_content_placeholder') }}"></textarea>
                         </div>
                     </div>
                     <div class="form-group justify-content-end row">
-                        <button class="add-btn mr-3" type="submit">Send Notification</button>
+                        <button class="add-btn mr-3" type="submit">
+                            <span class="btn-text">{{ __('admin_pages.email_notifications.send_notification') }}</span>
+                            <span class="btn-spinner d-none">
+                                <i class="fa fa-spinner fa-spin mr-2"></i>{{ __('admin_pages.email_notifications.loading') }}
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -191,13 +243,47 @@
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
 
 <script>
-    $('[name="users[]"]').change(function(e) {
-        if ($('[name="department_id"]').val() && $('[name="users[]"]').val()) {
-            $('[name="department_id"]').val('').trigger('change');
+    function setRecipientMode(mode) {
+        const usersSelect = $('[name="users[]"]');
+        const departmentSelect = $('[name="department_id"]');
+        const importInput = $('[name="import_users"]');
+        const allUsersCheckbox = $('#select_all_users');
+
+        $('.recipient-source-group').each(function() {
+            const groupMode = $(this).data('recipient-mode');
+            const isActive = groupMode === mode;
+
+            $(this).toggleClass('recipient-source-disabled', !isActive);
+            $(this).find('input, select, textarea').prop('disabled', !isActive);
+        });
+
+        if (mode !== 'users') {
+            usersSelect.val(null).trigger('change');
         }
-    });
+
+        if (mode !== 'department') {
+            departmentSelect.val(null).trigger('change');
+        }
+
+        if (mode !== 'import') {
+            importInput.val('');
+            $('[for="customFileInput"]').html('<i class="fa fa-upload mr-1"></i> {{ __('admin_pages.email_notifications.choose_file') }}');
+        }
+
+        if (mode === 'all') {
+            allUsersCheckbox.prop('disabled', false).prop('checked', true);
+        } else {
+            allUsersCheckbox.prop('checked', false).prop('disabled', true);
+        }
+    }
 
     $(document).ready(function() {
+        setRecipientMode('users');
+
+        $('input[name="recipient_mode"]').on('change', function() {
+            setRecipientMode($(this).val());
+        });
+
         ClassicEditor
             .create($('#emailContent')[0]) // Use jQuery to select the element
             .then(editor => {
@@ -214,7 +300,7 @@
     document.querySelectorAll('.custom-file-input').forEach(function(input) {
         input.addEventListener('change', function(e) {
             const label = input.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
+            const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('admin_pages.email_notifications.choose_file') }}';
             label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
         });
     });

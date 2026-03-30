@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', __('labels.backend.pages.title').' | '.app_name())
+@section('title', __('position_pages.edit.title').' | '.app_name())
 
 @push('after-styles')
     <link rel="stylesheet" type="text/css" href="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.css')}}">
@@ -38,18 +38,18 @@
     @csrf()  
     <div class="card">
         <div class="card-header">
-            <h3 class="page-title float-left mb-0">Edit Position</h3>
+            <h3 class="page-title float-left mb-0">{{ __('position_pages.edit.title') }}</h3>
             <div class="float-right">
                 <a href="{{ route('admin.position.index') }}"
-                   class="btn btn-success">View Position</a>
+                   class="btn btn-success">{{ __('position_pages.edit.view_positions') }}</a>
             </div>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-12 form-group">
                     
-                    <label for="title" class="control-label">Title</label>
-                    <input value="{{ $page->title }}" class="form-control" placeholder="Title" name="title" type="text" id="title">
+                    <label for="title" class="control-label">{{ __('position_pages.fields.title') }}</label>
+                    <input value="{{ $page->title }}" class="form-control" placeholder="{{ __('position_pages.fields.title_placeholder') }}" name="title" type="text" id="title">
                     
                 </div>
             </div>
@@ -60,8 +60,8 @@
 
             <div class="row">
                 <div class="col-12 form-group">
-                    <label for="content" class="control-label">Description</label>
-                    <textarea class="form-control" placeholder="Enter description" name="content" rows="4">{{ $page->content }}</textarea>
+                    <label for="content" class="control-label">{{ __('position_pages.fields.description') }}</label>
+                    <textarea class="form-control" placeholder="{{ __('position_pages.fields.description_placeholder') }}" name="content" rows="4">{{ $page->content }}</textarea>
                 </div>
             </div>
 
@@ -119,7 +119,7 @@
                             if (data.success) {
                                 parent.remove();
                             }else{
-                                alert('Something Went Wrong')
+                                alert(@json(__('position_pages.messages.something_went_wrong')))
                             }
                         });
                 }

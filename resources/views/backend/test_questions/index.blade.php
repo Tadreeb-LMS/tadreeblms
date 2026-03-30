@@ -72,7 +72,7 @@
            data-test-id="{{ $test_id }}"
            class="btn add-btn {{ $add_new_disabled ? 'disabled' : '' }}"
            aria-disabled="{{ $add_new_disabled ? 'true' : 'false' }}"
-           title="{{ $add_new_disabled ? 'Select a course first' : '' }}"
+           title="{{ $add_new_disabled ? __('course_pages.admin_test_questions_index.select_course_first') : '' }}"
        >@lang('strings.backend.general.app_add_new')</a>
    </div>
  
@@ -111,7 +111,7 @@
                 </label>
                 <div class=" custom-select-wrapper">
                     <select name="course_id" id="course_id" class="form-control custom-select-box" required>
-                        <option value="">Select Course</option>
+                        <option value="">{{ __('course_pages.admin_test_questions_index.select_course') }}</option>
                         @foreach($courses as $id => $course)
                         <option value="{{ $id }}"
                             @if(request('course_id')==$id || old('course_id')==$id) selected @endif>
@@ -132,13 +132,13 @@
                             class="table dt-select custom-teacher-table table-striped @can('category_delete') @if (request('show_deleted') != 1) dt-select @endif @endcan">
                             <thead>
                                 <tr>
-                                    <th style="width: 80px;">@lang('Id')</th>
-                                    <th style="width: 80px;">@lang('Test')</th>
-                                    <th style="width: 140px;">@lang('Course')</th>
-                                    <th style="width: 130px;">@lang('Question Type')</th>
-                                    <th style="width: 80px;">@lang('Question Text')</th>
-                                    <th style="width: 80px;">@lang('Marks')</th>
-                                    <th style="width: 80px;text-align:center">@lang('Action')</th>
+                                    <th style="width: 80px;">{{ __('course_pages.admin_test_questions_index.id') }}</th>
+                                    <th style="width: 80px;">{{ __('course_pages.admin_test_questions_index.test') }}</th>
+                                    <th style="width: 140px;">{{ __('course_pages.admin_test_questions_index.course') }}</th>
+                                    <th style="width: 130px;">{{ __('course_pages.admin_test_questions_index.question_type') }}</th>
+                                    <th style="width: 80px;">{{ __('course_pages.admin_test_questions_index.question_text') }}</th>
+                                    <th style="width: 80px;">{{ __('course_pages.admin_test_questions_index.marks') }}</th>
+                                    <th style="width: 80px;text-align:center">{{ __('course_pages.admin_test_questions_index.action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -149,11 +149,11 @@
                                         <td>{{ $value->course_title ?? '-' }}</td>
                                         <td>
                                             @if ($value->question_type == 1)
-                                                Single Choice
+                                                {{ __('course_pages.admin_test_questions_index.single_choice') }}
                                             @elseif ($value->question_type == 2)
-                                                Multiple Choice
+                                                {{ __('course_pages.admin_test_questions_index.multiple_choice') }}
                                             @else
-                                                Short Answer
+                                                {{ __('course_pages.admin_test_questions_index.short_answer') }}
                                             @endif
                                         </td>
                                         <td><?= $value->question_text ?></td>
@@ -172,7 +172,7 @@
         </a>
         <div class="dropdown-menu dropdown-menu-right">
             <a href="{{ route('admin.test_questions.edit', $value->id) }}" class="dropdown-item">
-                 Edit
+                  {{ __('course_pages.admin_test_questions_index.edit') }}
             </a>
 
                                                     <a data-method="delete" 
@@ -218,7 +218,7 @@
                 "paginate": true,
                 "sort": true,
                 "language": {
-                    "emptyTable": "No Data Is Available.",
+                    "emptyTable": "{{ __('course_pages.admin_test_questions_index.no_data_available') }}",
     
                 },
                 "order": [
@@ -235,14 +235,14 @@
         buttons: [
             {
                 extend: 'csv',
-                text: 'CSV',
+                text: '{{ trans("datatable.csv") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             },
             {
                 extend: 'pdf',
-                text: 'PDF',
+                text: '{{ trans("datatable.pdf") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
@@ -268,6 +268,7 @@
                 //     'colvis'
                 // ],
                 language:{
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
                     search:"",
                 },
                 initComplete: function () {
@@ -297,7 +298,7 @@
 
         $(document).on('click', '#add_new_question_btn.disabled', function(e) {
             e.preventDefault();
-            alert('Please select a course before adding a new question.');
+            alert('{{ __('course_pages.admin_test_questions_index.select_course_before_adding') }}');
         });
     </script>
 @endpush

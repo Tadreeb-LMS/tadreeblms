@@ -46,11 +46,11 @@
 
 <div>
     <div class="d-flex justify-content-between pb-3 align-items-center">
-        <h4>Trainers</h4>
+        <h4>{{ __('admin_pages.teachers.title') }}</h4>
 
         @can('trainer_create')
         <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}" class="btn btn-primary">
-            Add More Trainers
+            {{ __('admin_pages.teachers.add_more_trainers') }}
         </a>
         @endcan
     </div>
@@ -84,14 +84,14 @@
                         </th>
                         @endif
                         <th>ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>@lang('Department')</th>
+                        <th>{{ __('labels.backend.teachers.fields.first_name') }}</th>
+                        <th>{{ __('labels.backend.teachers.fields.last_name') }}</th>
+                        <th>{{ __('labels.backend.teachers.fields.email') }}</th>
+                        <th>{{ __('admin_pages.auth_users.department') }}</th>
                         @if(request('show_deleted') != 1)
-                        <th>Status</th>
+                        <th>{{ __('labels.backend.teachers.fields.status') }}</th>
                         @endif
-                        <th>Actions</th>
+                        <th>{{ __('strings.backend.general.actions') }}</th>
                     </tr>
                     </thead>
                 </table>
@@ -202,6 +202,7 @@ $(function () {
                         pdf : '{{trans("datatable.pdf")}}',
                         csv : '{{trans("datatable.csv")}}',
                     },
+                    emptyTable: '{{ __('admin_pages.teachers.no_data_available') }}',
                     search:"",
     //                  paginate: {
     //     previous: '<i class="fa fa-angle-left"></i>',
@@ -211,7 +212,7 @@ $(function () {
 
             });
             @if(auth()->user()->isAdmin())
-            $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>');
+            $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('admin_pages.teachers.delete_selected') }}</a>');
             @endif
 
     // Add checkboxes to column visibility dropdown
@@ -249,8 +250,8 @@ $(function () {
         let isChecked = checkbox.is(':checked');
 
         let message = isChecked
-            ? 'Do you want to activate this user?'
-            : 'Do you want to deactivate this user?';
+            ? '{{ __('admin_pages.teachers.activate_user_confirm') }}'
+            : '{{ __('admin_pages.teachers.deactivate_user_confirm') }}';
 
         if (!confirm(message)) {
             // revert toggle state if cancelled
@@ -269,7 +270,7 @@ $(function () {
                 table.ajax.reload(null, false);
             },
             error: function () {
-                alert('Something went wrong');
+                alert('{{ __('admin_pages.teachers.something_went_wrong') }}');
                 checkbox.prop('checked', !isChecked);
             }
         });

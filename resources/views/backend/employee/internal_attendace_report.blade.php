@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', 'Attendance Report' . ' | ' . app_name())
+@section('title', __('admin_pages.internal_attendance.title') . ' | ' . app_name())
 @push('after-styles')
 
 
@@ -80,14 +80,14 @@ top: 7px !important;
 @endpush
 @section('content')
 <div class="pb-3 align-items-center d-flex justify-content-between">
-    <h5>@lang('Attendance Report')</h5>
+    <h5>{{ __('admin_pages.internal_attendance.title') }}</h5>
     {{-- <a href="{{ asset('/storage/exports/internal_attendance_report.csv') }}">Download CSV Report</a> --}}
     <div id="download_link" style="display: none;">
         {{-- <a id="download_link_anchor" href="" download>Download CSV Report</a> --}}
         <span id="msg"></span>
     </div>
     <div>
-                        <button class="add-btn" id="sync-reports" type="button">Sync Report</button> 
+                        <button class="add-btn" id="sync-reports" type="button">{{ __('admin_pages.internal_attendance.sync_report') }}</button>
                     </div>
 </div>
 <div class="card">
@@ -98,14 +98,14 @@ top: 7px !important;
 
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
                     <div for="">
-                        Select Employee By 
+                        {{ __('admin_pages.internal_attendance.select_employee_by') }}
                     </div>
                     <div class="custom-select-wrapper mt-2">
                     <select class="form-control custom-select-box select2 js-example-placeholder-single" name="user_by" id="user_by" >
-                        <option value="">Select</option>
-                        <option @if('email' == request()->user_by) selected @endif value="email">Email</option>
-                        <option @if('code' == request()->user_by) selected @endif value="code">Code</option>
-                        <option @if('name' == request()->user_by) selected @endif value="name">Name</option>
+                        <option value="">{{ __('admin_pages.internal_attendance.select') }}</option>
+                        <option @if('email' == request()->user_by) selected @endif value="email">{{ __('admin_pages.internal_attendance.email') }}</option>
+                        <option @if('code' == request()->user_by) selected @endif value="code">{{ __('admin_pages.internal_attendance.code') }}</option>
+                        <option @if('name' == request()->user_by) selected @endif value="name">{{ __('admin_pages.internal_attendance.name') }}</option>
                     </select>
                     <span class="custom-select-icon" style="right: 10px;">
                                 <i class="fa fa-chevron-down"></i>
@@ -113,10 +113,10 @@ top: 7px !important;
                 </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3" id="email-block">
-                    Select Employee By Email 
+                    {{ __('admin_pages.internal_attendance.select_employee_by_email') }}
                     <div class="custom-select-wrapper mt-2">
                     <select class="form-control custom-select-box select2 js-example-placeholder-single" name="user" id="user" >
-                        <option value="">Select</option>
+                        <option value="">{{ __('admin_pages.internal_attendance.select') }}</option>
                         @if($internal_users)
                             @foreach($internal_users as $user)
                                 <option @if($user->id == request()->user) selected @endif value="{{ $user->id }}">{{ $user->email }}</option>
@@ -129,10 +129,10 @@ top: 7px !important;
                 </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3" style="display:none;" id="name-block">
-                    Select Employee By Name 
+                    {{ __('admin_pages.internal_attendance.select_employee_by_name') }}
                     <div class="custom-select-wrapper mt-2">
                     <select class="select2" name="emp_name" id="emp_name" >
-                        <option value="">Select</option>
+                        <option value="">{{ __('admin_pages.internal_attendance.select') }}</option>
                         @if($internal_users)
                             @foreach($internal_users as $user)
                                 <option @if($user->id == request()->user) selected @endif value="{{ $user->id }}">{{ $user->first_name . ' ' . $user->last_name }}</option>
@@ -143,9 +143,9 @@ top: 7px !important;
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3" style="display:none;" id="code-block">
                     <div class="custom-select-wrapper mt-2">
-                    Select Employee By Code 
+                    {{ __('admin_pages.internal_attendance.select_employee_by_code') }}
                     <select class="select2" name="emp_code" id="emp_code" >
-                        <option value="">Select</option>
+                        <option value="">{{ __('admin_pages.internal_attendance.select') }}</option>
                         @if($internal_users)
                             @foreach($internal_users as $user)
                                 <option @if($user->id == request()->user) selected @endif value="{{ $user->id }}">{{ $user->emp_id }}</option>
@@ -156,10 +156,10 @@ top: 7px !important;
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
 
-                    Select Course
+                    {{ __('admin_pages.internal_attendance.select_course') }}
                     <div class="custom-select-wrapper mt-2">
                         <select name="course_id" id="course_id" class="select2 form-control custom-select-box">
-                            <option value="">Select</option>
+                            <option value="">{{ __('admin_pages.internal_attendance.select') }}</option>
                             @if($published_courses)
                             @foreach($published_courses as $row)
                             <option @if($row->id == request()->course_id) selected @endif value="{{ $row->id }}">{{ $row->title }}</option>
@@ -173,10 +173,10 @@ top: 7px !important;
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
 
-                    Select Dept
+                    {{ __('admin_pages.internal_attendance.select_department') }}
                     <div class="custom-select-wrapper mt-2">
                         <select name="dept_id" id="dept_id" class="select2 form-control custom-select-box">
-                            <option value="">Select</option>
+                            <option value="">{{ __('admin_pages.internal_attendance.select') }}</option>
                             @if($published_department)
                             @foreach($published_department as $row)
                             <option @if($row->id == request()->dept_id) selected @endif value="{{ $row->id }}">{{ $row->title }}</option>
@@ -192,14 +192,14 @@ top: 7px !important;
 
                     <div class="">
                         <div class="mb-2">
-                            Assign From date
+                            {{ __('admin_pages.internal_attendance.assign_from_date') }}
                         </div>
                         <input type="date" name="from" value="{{ request()->from }}" id="assign_from_date" class="w-100" style="border: 1px solid #c8ced3;border-radius:4px;padding-left:8px;padding-right:8px;padding-top:4px;padding-bottom:5px">
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
                     <div class="mb-2">
-                        Assign To date
+                        {{ __('admin_pages.internal_attendance.assign_to_date') }}
                     </div>
                     <div class="">
                         <input type="date" name="to" value="{{ request()->to }}" id="assign_to_date" class="w-100" style="border: 1px solid #c8ced3;border-radius:4px;padding-left:8px;padding-right:8px;padding-top:4px;padding-bottom:5px">
@@ -208,7 +208,7 @@ top: 7px !important;
 
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
                     <div class="mb-2">
-                       Due date
+                              {{ __('admin_pages.internal_attendance.due_date') }}
                     </div>
                     <div class="">
                         <input type="date" name="due_date" value="{{ request()->due_date }}" id="due_date" class="w-100" style="border: 1px solid #c8ced3;border-radius:4px;padding-left:8px;padding-right:8px;padding-top:4px;padding-bottom:5px">
@@ -219,10 +219,10 @@ top: 7px !important;
 
                 <div class="d-flex justify-content-between mt-3">
                     <div>
-                        <button class="btn btn-primary" id="advance-search-btn" type="submit">Advance Search</button>
+                        <button class="btn btn-primary" id="advance-search-btn" type="submit">{{ __('admin_pages.internal_attendance.advance_search') }}</button>
                     </div>
                     <div>
-                        <button class="btn btn-danger ml-3" id="reset" type="button">Reset</button>
+                        <button class="btn btn-danger ml-3" id="reset" type="button">{{ __('admin_pages.internal_attendance.reset') }}</button>
 
                     </div>
                     
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     $("#loader").removeClass("d-none");
                                 },
                                 complete: function () {
-                                    alert("Once the report is ready, it will be emailed.");
+                                    alert(@json(__('admin_pages.internal_attendance.report_ready_email_notice')));
                                     $("#loader").addClass("d-none");
                                 },
                                 success: function (data, status, xhr) {
@@ -548,11 +548,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 language: {
                     url: `//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name }}.json`,
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
                     buttons: {
                         colvis: '{{ trans("datatable.colvis") }}',
                         csv: '{{ trans("datatable.csv") }}'
                     },
-                    emptyTable: "No records found"
+                    emptyTable: '{{ __('admin_pages.internal_attendance.no_records_found') }}'
                 }
             });
 
@@ -624,14 +625,14 @@ document.addEventListener('DOMContentLoaded', () => {
         buttons: [
             {
                 extend: 'csv',
-                text: 'CSV',
+                text: '{{ trans("datatable.csv") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             },
            {
                         extend: 'pdfHtml5',
-                        text:"PDf",
+                        text: '{{ trans("datatable.pdf") }}',
                         // customize: function(doc) {
                         //     doc.defaultStyle.fontSize = 5;
                         // }
@@ -705,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 language: {
                     url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name }}.json",
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
                     buttons: {
                         colvis: '{{ trans('datatable.colvis') }}',
                         pdf: '{{ trans('datatable.pdf') }}',
@@ -717,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             @if (auth()->user()->isAdmin())
                 $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' +
-                    '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>'
+                    '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('admin_pages.internal_attendance.delete_selected') }}</a>'
                 );
             @endif
 

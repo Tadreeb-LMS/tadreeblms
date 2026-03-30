@@ -78,19 +78,19 @@
                 <div class="col-sm-12">
                     <ul class="nav main-nav-tabs nav-tabs">
                         <li class="nav-item"><a data-toggle="tab" class="nav-link active " href="#general">
-                                {{ __('Landing Page Setting') }}
+                                {{ __('admin_pages.landing_page_settings.tabs.landing_page_setting') }}
                             </a>
                         </li>
                         <li class="nav-item"><a data-toggle="tab" class="nav-link " href="#footer-section">
-                                {{ __('Footer Setting') }}
+                                {{ __('admin_pages.landing_page_settings.tabs.footer_setting') }}
                             </a>
                         </li>
                         <li class="nav-item"><a data-toggle="tab" class="nav-link " href="#menu-section">
-                                {{ __('Menu Setting') }}
+                                {{ __('admin_pages.landing_page_settings.tabs.menu_setting') }}
                             </a>
                         </li>
                         <li class="nav-item"><a data-toggle="tab" class="nav-link " href="#slider-section">
-                                {{ __('Slider Setting') }}
+                                {{ __('admin_pages.landing_page_settings.tabs.slider_setting') }}
                             </a>
                         </li>
                        
@@ -484,12 +484,12 @@
 
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         <a href="{{ route('admin.sliders.edit', $item->id) }}" class="dropdown-item">
-                                                            Edit
+                                                            {{ __('admin_pages.landing_page_settings.edit') }}
                                                         </a>
 
                                                         <a class="dropdown-item" style="cursor:pointer;"
                                                             onclick="$(this).find('form').submit();">
-                                                            Delete
+                                                            {{ __('admin_pages.landing_page_settings.delete') }}
                                                             <form action="{{ route('admin.sliders.destroy', $item->id) }}"
                                                                 method="POST" style="display:none">
                                                                 @csrf
@@ -599,7 +599,7 @@
                 placement: 'bottom', // Only in button tag
                 rows: 5,
                 search: true,
-                searchText: 'Search',
+                searchText: '{{ __('admin_pages.landing_page_settings.search') }}',
                 selectedClass: 'btn-success',
                 unselectedClass: ''
             });

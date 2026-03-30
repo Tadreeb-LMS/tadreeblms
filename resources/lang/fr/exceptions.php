@@ -1,12 +1,9 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'roles' => 
-      array (
+return array(
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
         'already_exists' => 'Ce rôle existe déjà. Veuillez choisir un autre nom.',
         'cant_delete_admin' => 'Vous ne pouvez pas supprimer le rôle d\'administrateur.',
         'create_error' => 'Un problème est survenu lors de la création de ce rôle. Veuillez réessayer.',
@@ -16,8 +13,7 @@ return array (
         'not_found' => 'Ce rôle n\'existe pas.',
         'update_error' => 'Un problème est survenu lors de la mise à jour de ce rôle. Veuillez réessayer.',
       ),
-      'users' => 
-      array (
+      'users' => array(
         'already_confirmed' => 'Cet utilisateur est déjà confirmé.',
         'cant_confirm' => 'Un problème est survenu lors de la confirmation du compte d\'utilisateur.',
         'cant_deactivate_self' => 'Vous ne pouvez pas faire ça pour vous.',
@@ -44,12 +40,9 @@ return array (
       ),
     ),
   ),
-  'frontend' => 
-  array (
-    'auth' => 
-    array (
-      'confirmation' => 
-      array (
+  'frontend' => array(
+    'auth' => array(
+      'confirmation' => array(
         'already_confirmed' => 'Votre compte est déjà confirmé.',
         'confirm' => 'Confirmez votre compte!',
         'created_confirm' => 'Votre compte a été créé avec succès. Nous vous avons envoyé un e-mail pour confirmer votre compte.',
@@ -63,8 +56,7 @@ return array (
       ),
       'deactivated' => 'Votre compte a été désactivé.',
       'email_taken' => 'Cette adresse e-mail est déjà prise.',
-      'password' => 
-      array (
+      'password' => array(
         'change_mismatch' => 'Ce n\'est pas votre ancien mot de passe.',
         'reset_problem' => 'Un problème est survenu lors de la réinitialisation de votre mot de passe. Veuillez renvoyer l\'e-mail de réinitialisation du mot de passe.',
       ),

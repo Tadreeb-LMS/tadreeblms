@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EventsSeeder::class);
         $this->call(NewsSeeder::class);
         //Artisan::call('translations:import');
-        //Artisan::call('storage:link');
+        Artisan::call('storage:link');
         Model::reguard();
     }
 }

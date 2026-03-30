@@ -1,8 +1,7 @@
 <?php
 
-return array (
-  'nav-menu' => 
-  array (
+return array(
+  'nav-menu' => array(
     'about-us' => 'Sobre nosotros',
     'blog' => 'Blog',
     'bundles' => 'manojos',

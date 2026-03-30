@@ -33,6 +33,7 @@ return [
         'en'    => ['en', 'en_US', false],
         'es'    => ['es', 'es_ES', false],
         'fr'    => ['fr', 'fr_FR', false],
+        'it'    => ['it', 'it_IT', false],
 
     ],
 ];

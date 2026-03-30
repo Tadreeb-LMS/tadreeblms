@@ -1,18 +1,16 @@
 <?php
 
-return array (
+return array(
   'title' => 'مدير التكوين',
   'info_choose' => 'اختر ملفًا لبدء التحرير',
   'file' => 'ملف',
   'path' => 'مسار',
-  'header' => 
-  array (
+  'header' => array(
     'key' => 'مفتاح',
     'value' => 'القيمة',
     'actions' => 'أفعال',
   ),
-  'actions' => 
-  array (
+  'actions' => array(
     'edit' => 'تصحيح',
     'confirm' => 'حفظ مفتاح جديد',
     'save' => 'حفظ!',

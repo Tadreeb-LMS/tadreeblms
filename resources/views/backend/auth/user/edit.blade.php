@@ -221,11 +221,11 @@
             {{-- Department --}}
             <div class="form-group row">
                 <label for="department" class="col-md-2 form-control-label">
-                    @lang('Department')
+                    {{ __('admin_pages.auth_users.department') }}
                 </label>
                 <div class="col-md-10">
                     <select name="department" id="department" class="form-control @error('department') is-invalid @enderror">
-                        <option value="">@lang('Select Department')</option>
+                        <option value="">{{ __('admin_pages.auth_users.select_department') }}</option>
                         @if(isset($departments))
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id }}" {{ (string) old('department', optional(optional($user->employee)->department_details)->id) === (string) $dept->id ? 'selected' : '' }}>

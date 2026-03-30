@@ -1,16 +1,14 @@
 <?php
 
-return array (
-  'processing' => 'Processing',
-  'backend' => 
-  array (
-    'general' => 
-    array (
+return array(
+  'processing' => 'المعالجة',
+  'backend' => array(
+    'general' => array(
       'mark_attendance' => 'تم وضع علامة على حضورك بنجاح.',
-      'couse_not_subscribed' => 'Your are not subscribed to this course.',
-      'already_mark_present' => 'You have already mark present',
-      'you_are_late_for_this_lesson' => 'You are late for this lesson',
-      'not_yet_started_lesson' => 'Not yet started the lesson.',
+      'couse_not_subscribed' => 'أنت غير مشترك في هذه الدورة.',
+      'already_mark_present' => 'لقد قمت بالفعل بوضع علامة على الحاضر',
+      'you_are_late_for_this_lesson' => 'لقد تأخرت عن هذا الدرس',
+      'not_yet_started_lesson' => 'لم يبدأ الدرس بعد.',
       'backup_warning' => 'يرجى ملء التفاصيل اللازمة للنسخ الاحتياطي',
       'cancelled' => 'تم الغاء التحديث',
       'created' => 'تم الإنشاء بنجاح.',
@@ -24,14 +22,12 @@ return array (
       'slug_exist' => 'سجل بنفس سبيكة موجودة ، يرجى تحديث سبيكة.',
       'teacher_delete_warning' => 'لا يمكنك حذف المعلم. تمت إضافة الدورات بالفعل. قم بتغيير الحالة بدلاً من ذلك',
     ),
-    'roles' => 
-    array (
+    'roles' => array(
       'created' => 'تم إنشاء الدور بنجاح.',
       'deleted' => 'تم حذف الدور بنجاح.',
       'updated' => 'تم تحديث الدور بنجاح.',
     ),
-    'users' => 
-    array (
+    'users' => array(
       'cant_resend_confirmation' => 'تم تعيين التطبيق حاليًا للموافقة يدويًا على المستخدمين.',
       'confirmation_email' => 'تم إرسال رسالة تأكيد إلكترونية جديدة إلى العنوان في الملف.',
       'confirmed' => 'تم تأكيد المستخدم بنجاح.',
@@ -45,19 +41,32 @@ return array (
       'updated' => 'تم تحديث المستخدم بنجاح.',
       'updated_password' => 'تم تحديث كلمة مرور المستخدم بنجاح.',
     ),
+    'stripe_plan' => array(
+      'stripe_credentials' => 'بيانات اعتماد الشريط غير متوفرة',
+    ),
   ),
-  'frontend' => 
-  array (
-    'contact' => 
-    array (
+  'frontend' => array(
+    'contact' => array(
       'sent' => 'تم إرسال المعلومات الخاصة بك بنجاح. سوف نرد مرة أخرى على البريد الإلكتروني المقدم بأسرع ما يمكن.',
     ),
-    'course' => 
-    array (
+    'course' => array(
       'completed' => 'تهانينا! لقد أكملت بالطبع بنجاح. تحقق من شهادتك في لوحة القيادة',
-      'certificate_issued' => 'Certificate has been generated successfully.',
+      'certificate_issued' => 'تم إنشاء الشهادة بنجاح.',
+      'slot_booking' => 'تم حجز فتحة الدرس المباشر بنجاح',
+      'subscription_plan_expired' => 'انتهت صلاحية خطة الاشتراك الخاصة بك',
+      'subscription_plan_cancelled' => 'تم إلغاء خطة الاشتراك الخاصة بك',
+      'sub_course_limit_over' => 'تجاوز الحد الأقصى لدورة خطة الاشتراك الخاصة بك',
+      'sub_bundle_limit_over' => 'تجاوز الحد الأقصى لحزمة خطة الاشتراك الخاصة بك',
+      'sub_course_success' => 'تم الاشتراك في الدورة بنجاح',
+      'sub_bundle_success' => 'تم الاشتراك في الحزمة بنجاح',
+      'sub_course_not_access' => 'خطة الاشتراك الخاصة بك ليست أي وصول للدورة التدريبية',
+      'sub_bundle_not_access' => 'خطة الاشتراك الخاصة بك ليست أي وصول إلى الحزمة',
     ),
     'duplicate_course' => 'تم شراء الدورة بالفعل.',
     'duplicate_bundle' => 'تم شراء الحزمة بالفعل.',
+    'wishlist' => array(
+      'exist' => 'هذه الدورة موجودة بالفعل في قائمة الرغبات',
+      'added' => 'تمت إضافة الدورة بنجاح إلى قائمة الرغبات',
+    ),
   ),
 );

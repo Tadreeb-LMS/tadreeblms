@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Locale;
-use Illuminate\Support\Facades\App;
+use App\Services\LocaleService;
+use Illuminate\Http\Request;
 
 /**
  * Class LanguageController.
@@ -15,18 +15,15 @@ class LanguageController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function swap($locale)
+    public function swap($locale, Request $request, LocaleService $localeService)
     {
+        $normalizedLocale = $localeService->normalizeLocale($locale);
 
-        $locales = Locale::get();
-        $locales_list = $locales->pluck('short_name')->toArray();
-
-        if (in_array($locale, $locales_list)) {
-            $locale_data =      $locales->where('short_name','=',$locale)->first();
-            request()->session()->put('locale', $locale);
-            request()->session()->put('display_type', $locale_data->display_type);
-
+        if ($localeService->isSupported($normalizedLocale)) {
+            $localeService->apply($normalizedLocale);
+            $localeService->persistSelection($request, $normalizedLocale);
         }
+
         return redirect()->back();
     }
 }
