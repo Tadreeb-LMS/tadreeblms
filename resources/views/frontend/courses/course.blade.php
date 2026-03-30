@@ -230,6 +230,85 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                     </div>
                     <!-- /market guide -->
 
+                    <!-- Upcoming Live Sessions -->
+                    @if(auth()->check() && $subscribe_status == 1)
+                        @php
+                            $hasCourseMeeting = $course->meeting_start_at && \Carbon\Carbon::parse($course->meeting_start_at)->isFuture();
+                            $hasLiveSessions = isset($liveSessions) && $liveSessions->count() > 0;
+                        @endphp
+
+                        @if($hasCourseMeeting || $hasLiveSessions)
+                            <div class="upcoming-live-sessions mb65">
+                                <div class="course-details-category ul-li">
+                                    <span class="float-none"><i class="fas fa-video"></i> Upcoming Live Sessions</span>
+                                </div>
+
+                                {{-- Course-level single meeting --}}
+                                @if($hasCourseMeeting)
+                                    @php
+                                        $meetStart = \Carbon\Carbon::parse($course->meeting_start_at);
+                                        $meetUrl = (isset($isHostRole) && $isHostRole)
+                                            ? ($course->meeting_host_url ?: $course->meeting_join_url)
+                                            : $course->meeting_join_url;
+                                    @endphp
+                                    <div class="panel mb-3">
+                                        <div class="panel-body d-flex justify-content-between align-items-center flex-wrap" style="padding: 15px;">
+                                            <div>
+                                                <span class="badge badge-primary">{{ ucfirst($course->meeting_provider ?? 'Live') }}</span>
+                                                <strong class="ml-2">{{ $course->title }}</strong>
+                                                <div class="text-muted mt-1">
+                                                    <i class="fas fa-calendar-alt"></i> {{ $meetStart->format('D, d M Y') }}
+                                                    &nbsp;&nbsp;<i class="fas fa-clock"></i> {{ $meetStart->format('h:i A') }}
+                                                    @if($course->meeting_duration)
+                                                        &nbsp;&nbsp;<i class="fas fa-hourglass-half"></i> {{ $course->meeting_duration }} min
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            @if($meetUrl)
+                                                <a href="{{ $meetUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                    <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- Scheduled recurring sessions --}}
+                                @if($hasLiveSessions)
+                                    @foreach($liveSessions as $session)
+                                        @php
+                                            $sessionStart = \Carbon\Carbon::parse($session->session_date->format('Y-m-d') . ' ' . $session->session_time);
+                                            $sessionUrl = (isset($isHostRole) && $isHostRole)
+                                                ? ($session->host_url ?: $session->meeting_link)
+                                                : $session->meeting_link;
+                                        @endphp
+                                        <div class="panel mb-2">
+                                            <div class="panel-body d-flex justify-content-between align-items-center flex-wrap" style="padding: 15px;">
+                                                <div>
+                                                    <span class="badge badge-info">{{ ucfirst($session->provider ?? 'Live') }}</span>
+                                                    <strong class="ml-2">{{ $course->title }}</strong>
+                                                    <div class="text-muted mt-1">
+                                                        <i class="fas fa-calendar-alt"></i> {{ $sessionStart->format('D, d M Y') }}
+                                                        &nbsp;&nbsp;<i class="fas fa-clock"></i> {{ $sessionStart->format('h:i A') }}
+                                                        @if($session->duration)
+                                                            &nbsp;&nbsp;<i class="fas fa-hourglass-half"></i> {{ $session->duration }} min
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @if($sessionUrl)
+                                                    <a href="{{ $sessionUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                        <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        @endif
+                    @endif
+                    <!-- /Upcoming Live Sessions -->
+
                     <div class="course-review" style="display: none;">
                         <div class="section-title-2 mb20 headline text-left">
                             <h2>@lang('labels.frontend.course.course_reviews')</h2>

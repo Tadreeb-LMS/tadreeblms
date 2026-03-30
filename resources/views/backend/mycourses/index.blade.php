@@ -359,17 +359,16 @@ $local_lang = App::getLocale() ?? 'en';
                                             </div>
                                         </div>
 
+                                        @php
+                                            $liveProgress = \App\Helpers\CustomHelper::progress($item->course_id);
+                                        @endphp
                                         <div class="progress">
                                             <div class="progress-bar"
-                                                style="width:{{ 
-                                                                            $item->assignment_progress ?? 0
-                                                                        }}%">
-                                                                        <span> {{
-                                                                            $item->assignment_progress
-                                                                        }}% </span> 
+                                                style="width:{{ $liveProgress ?? 0 }}%">
+                                                                        <span> {{ $liveProgress }}% </span>
                                                                         <span>
                                                 @lang('labels.backend.dashboard.completed')</span>
-                                            
+
                                             </div>
                                         </div>
                                         <div class="duedate">

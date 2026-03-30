@@ -74,6 +74,7 @@
             <span class="legend-item"><span class="legend-dot" style="background:#6c757d;"></span> {{ __('calendar_page.legend_lessons') }}</span>
             <span class="legend-item"><span class="legend-dot" style="background:#4285F4;"></span> {{ __('calendar_page.legend_live_sessions') }}</span>
             <span class="legend-item"><span class="legend-dot" style="background:#34A853;"></span> {{ __('calendar_page.legend_live_lesson_slots') }}</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#E91E63;"></span> {{ __('calendar_page.legend_scheduled_sessions') }}</span>
         </div>
 
         <div id="calendar"></div>
@@ -184,112 +185,78 @@
 
 @endsection
 
-
 @push('after-scripts')
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/locales-all.min.js"></script>
 
 <script>
-
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth',
-                    locale: @json($calendarLocale),
-                    direction: @json($calendarDirection),
-          eventDisplay: 'block',
-          dayMaxEventRows: 3,
-          eventContent: function(arg) {
-              var timeText = arg.timeText || '';
-              var title = arg.event.title || '';
-              var html = '';
-              if (timeText) {
-                  html += '<div class="fc-event-time-top">' + timeText + '</div>';
-              }
-              html += '<div class="fc-event-title-bottom">' + title + '</div>';
-              return { html: html };
-          },
-          /*
-          events: [
-                {
-                'title'  : 'event1',
-                'start'  : '2022-04-01'
-                },
-
-            ]
-            */
-
-            //events: {!! $lessons !!},
+            initialView: 'dayGridMonth',
+            locale: @json($calendarLocale),
+            direction: @json($calendarDirection),
+            eventDisplay: 'block',
+            dayMaxEventRows: 3,
+            eventContent: function(arg) {
+                var timeText = arg.timeText || '';
+                var title = arg.event.title || '';
+                var html = '';
+                if (timeText) {
+                    html += '<div class="fc-event-time-top">' + timeText + '</div>';
+                }
+                html += '<div class="fc-event-title-bottom">' + title + '</div>';
+                return { html: html };
+            },
 
             eventClick: function(info) {
-                info.jsEvent.preventDefault(); // don't let the browser navigate
+                info.jsEvent.preventDefault();
 
                 if (info.event.url) {
                     var newWindow = window.open(info.event.url, '_blank');
-                    // If popup was blocked, fallback to same tab
                     if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                         window.location.href = info.event.url;
                     }
                 }
             },
 
-            // dateClick: function(info) {
-            //     $('#event-add').modal('toggle');
-
-            //     $("#event_date").val(info.dateStr);
-            //     // alert('Clicked on: ' + info.dateStr);
-            //     // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
-            //     // alert('Current view: ' + info.view.type);
-            //     // change the day's background color just for fun
-            //     info.dayEl.style.backgroundColor = 'red';
-            // },
             dateClick: function(info) {
+                let today = new Date().toISOString().split('T')[0];
 
-    let today = new Date().toISOString().split('T')[0];
+                if (info.dateStr < today) {
+                    alert(@json(__('calendar_page.cannot_create_past_events')));
+                    return;
+                }
 
-    if (info.dateStr < today) {
-        alert(@json(__('calendar_page.cannot_create_past_events')));
-        return;
-    }
-
-    $('#event-add').modal('toggle');
-    $("#event_date").val(info.dateStr);
-},
-
-            /*
-            eventClick: function(event) {
-                event.jsEvent.preventDefault();
-                var modal = $("#schedule-edit");
-                modal.modal();
+                $('#event-add').modal('toggle');
+                $("#event_date").val(info.dateStr);
             },
-            */
-           eventSources: [
-               {
-                   events: {!! $lessons !!},
-                   color: '#6c757d',
-                   textColor: '#fff',
-               },
-               {
-                   events: {!! $liveSessions !!},
-                   color: '#4285F4',
-                   textColor: '#fff',
-               },
-               {
-                   events: {!! $liveLessonSlots !!},
-                   color: '#34A853',
-                   textColor: '#fff',
-               }
+
+            eventSources: [
+                {
+                    events: {!! $lessons !!},
+                    color: '#6c757d',
+                    textColor: '#fff',
+                },
+                {
+                    events: {!! $liveSessions !!},
+                    color: '#4285F4',
+                    textColor: '#fff',
+                },
+                {
+                    events: {!! $liveLessonSlots !!},
+                    color: '#34A853',
+                    textColor: '#fff',
+                },
+                {
+                    events: {!! $scheduledSessions !!},
+                    color: '#E91E63',
+                    textColor: '#fff',
+                }
             ]
         });
 
-
-
         calendar.render();
-
-
     });
-
-
-
-    </script>
+</script>
 @endpush

@@ -62,7 +62,7 @@ class ExternalAppService
         // 2. Single quoted: '...' (can contain newlines)
         // 3. Unquoted: any chars until newline or #
         // Regex: /^\s*([A-Z0-9_]+)\s*=\s*(?:("((?:[^"\\]|\\.)*)"|'([^']*)'|([^#\n\r]*)))/m
-        $pattern = '/^\s*([A-Z0-9_]+)\s*=\s*(?:("((?:[^"\\\\]|\\\\.)*)"|\'([^\']*)\'|([^#\n\r]*)))/m';
+        $pattern = '/^\s*([A-Z0-9_]+)\s*=[ \t]*(?:("((?:[^"\\\\]|\\\\.)*)"|\'([^\']*)\'|([^#\n\r]*)))/m';
 
         if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -104,7 +104,7 @@ class ExternalAppService
         $content = file_get_contents($path);
         
         // Simple static parser similar to the above but without dependencies
-        $pattern = '/^\s*' . preg_quote($key, '/') . '\s*=\s*(?:("((?:[^"\\\\]|\\\\.)*)"|\'([^\']*)\'|([^#\n\r]*)))/m';
+        $pattern = '/^\s*' . preg_quote($key, '/') . '\s*=[ \t]*(?:("((?:[^"\\\\]|\\\\.)*)"|\'([^\']*)\'|([^#\n\r]*)))/m';
 
         if (preg_match($pattern, $content, $match)) {
             if (isset($match[2]) && $match[2] !== '') { // Double quoted
@@ -146,7 +146,7 @@ class ExternalAppService
                 $valueForEnv = $escaped;
             }
 
-            $pattern = "/^\s*{$key}\s*=\s*(?:\"(?:[^\"\\\\]|\\\\.)*\"|'[^']*'|[^#\r\n]*)/m";
+            $pattern = "/^\s*{$key}\s*=[ \t]*(?:\"(?:[^\"\\\\]|\\\\.)*\"|'[^']*'|[^#\r\n]*)/m";
 
             if (preg_match($pattern, $envContent)) {
                 $envContent = preg_replace($pattern, "{$key}={$valueForEnv}", $envContent);
