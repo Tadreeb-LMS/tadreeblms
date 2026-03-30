@@ -41,13 +41,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         // Cache enabled external apps for sidebar
-        if ($this->hasTableSafely('external_apps')) {
+        if (\Schema::hasTable('external_apps')) {
             $enabledApps = \App\Models\ExternalApp::where('is_enabled', 1)->pluck('is_enabled', 'slug')->toArray();
             \Cache::put('enabled_external_apps', $enabledApps, 3600); // cache for 1 hour
         }
 
         if (app()->runningInConsole() 
-            || !$this->hasTableSafely('locales')) {
+            || !Schema::hasTable('locales')) {
             return;
         }
         /*
@@ -87,7 +87,7 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Pagination\AbstractPaginator::defaultSimpleView('pagination::simple-bootstrap-4');
 
 
-        if ($this->hasTableSafely('configs')) {
+        if (Schema::hasTable('configs')) {
             foreach (Config::all() as $setting) {
                 \Illuminate\Support\Facades\Config::set($setting->key, $setting->value);
             }
@@ -103,7 +103,7 @@ class AppServiceProvider extends ServiceProvider
         App::setLocale(config('app.locale'));
         config()->set('invoices.currency', config('app.currency'));
 
-        if ($this->hasTableSafely('configs')) {
+        if (Schema::hasTable('configs')) {
             $logo_data = Config::where('key', '=', 'site_logo')->first();
             //dd($logo_data);
             View::share('site_logo', $logo_data);
@@ -112,7 +112,7 @@ class AppServiceProvider extends ServiceProvider
             View::share('site_logo', null);
         }
 
-        if ($this->hasTableSafely('sliders')) {
+        if (Schema::hasTable('sliders')) {
             $slides = Slider::where('status', 1)->orderBy('sequence', 'asc')->get();
             View::share('slides', $slides);
         } else {
@@ -124,7 +124,7 @@ class AppServiceProvider extends ServiceProvider
 
         
 if (
-    $this->hasTableSafely('admin_menu_items') &&
+    Schema::hasTable('admin_menu_items') &&
     $disabled_landing_page == 0 &&
     class_exists('Harimayco\Menu\Models\MenuItems', false) &&
     class_exists('Harimayco\Menu\Models\Menus', false)
@@ -153,7 +153,7 @@ if (
 
         //        view()->composer(['frontend.layouts.partials.right-sidebar', 'frontend-rtl.layouts.partials.right-sidebar'], function ($view) {
 
-        if ($this->hasTableSafely('blogs')) {
+        if (Schema::hasTable('blogs')) {
 
             $recent_news = Blog::orderBy('created_at', 'desc')->whereHas('category')->take(2)->get();
             View::share('recent_news', $recent_news);
@@ -165,7 +165,7 @@ if (
 
         //        view()->composer(['frontend.*', 'frontend-rtl.*'], function ($view) {
 
-        if ($this->hasTableSafely('courses')) {
+        if (Schema::hasTable('courses')) {
 
             $global_featured_course = Course::withoutGlobalScope('filter')->canDisableCourse()
                 ->whereHas('category')
@@ -182,12 +182,12 @@ if (
             View::share('featured_courses', $featured_courses);
         }
         //        view()->composer(['frontend.*', 'backend.*', 'frontend-rtl.*', 'vendor.invoices.*'], function ($view) {
-        if ($this->hasTableSafely('locales')) {
+        if (Schema::hasTable('locales')) {
 
             $locales = [];
             $appCurrency = getCurrency(config('app.currency'));
 
-            if ($this->hasTableSafely('locales')) {
+            if (Schema::hasTable('locales')) {
                 $locales = Locale::whereIn('short_name', ['en', 'ar'])->pluck('short_name as locale')->toArray();
             }
             //            $view->with(compact('locales', 'appCurrency'));
@@ -217,15 +217,6 @@ if (
 
             //            $view->with(compact('locale_full_name'));
             //        });
-        }
-    }
-
-    private function hasTableSafely(string $table): bool
-    {
-        try {
-            return Schema::hasTable($table);
-        } catch (\Throwable $e) {
-            return false;
         }
     }
 
