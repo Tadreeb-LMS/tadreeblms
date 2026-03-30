@@ -300,7 +300,14 @@ class LessonsController extends Controller
         //dd($request->title);
         // $count = count($request->title);
         $titles = $request->input('title', []);
-$count = is_array($titles) ? count($titles) : 0;
+        $count = is_array($titles) ? count($titles) : 0;
+
+        if ($count < 1) {
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'No lesson title received. Please fill at least one lesson title and try again.'
+            ], 422);
+        }
 
         DB::beginTransaction();
 
