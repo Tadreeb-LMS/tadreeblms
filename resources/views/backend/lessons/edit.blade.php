@@ -276,12 +276,45 @@
             </div>
 
             @if($video->type == 'youtube' && $video->url)
-                <div class="mt-3">
-                    <iframe width="420" height="250"
-                        src="{{ preg_replace('/watch\?v=([^\&]+)/', 'embed/$1', $video->url) }}"
-                        frameborder="0" allowfullscreen>
-                    </iframe>
-                </div>
+                @php
+                    $youtubeUrl = trim((string) $video->url);
+                    $youtubeEmbedUrl = null;
+                    $videoId = '';
+
+                    $parts = parse_url($youtubeUrl);
+                    $host = strtolower($parts['host'] ?? '');
+                    $path = $parts['path'] ?? '';
+                    $query = $parts['query'] ?? '';
+
+                    if (strpos($host, 'youtu.be') !== false) {
+                        $videoId = trim($path, '/');
+                    } elseif (strpos($host, 'youtube.com') !== false || strpos($host, 'youtube-nocookie.com') !== false) {
+                        if (preg_match('#^/shorts/([^/?]+)#', $path, $m)) {
+                            $videoId = $m[1];
+                        } elseif (preg_match('#^/embed/([^/?]+)#', $path, $m)) {
+                            $videoId = $m[1];
+                        } else {
+                            parse_str($query, $queryParams);
+                            $videoId = $queryParams['v'] ?? '';
+                        }
+                    }
+
+                    if ($videoId !== '') {
+                        $youtubeEmbedUrl = 'https://www.youtube.com/embed/' . $videoId;
+                    }
+                @endphp
+
+                @if($youtubeEmbedUrl)
+                    <div class="mt-3">
+                        <iframe width="420" height="250"
+                            src="{{ $youtubeEmbedUrl }}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                @endif
             @endif
 
             @if($video->type == 'embed' && $video->url)

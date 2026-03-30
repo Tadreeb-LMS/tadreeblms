@@ -322,7 +322,7 @@ $count = is_array($titles) ? count($titles) : 0;
                 }
 
 
-                $lesson_data = $request->except('downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title', 'short_text', 'full_text')
+                $lesson_data = $request->except('downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title', 'short_text', 'full_text', 'duration', 'lesson_start_date', 'videos')
                 + ['position' => Lesson::where('course_id', $request->course_id)->max('position') + 1];
 
                 //dd($lesson_data);
@@ -337,16 +337,39 @@ $count = is_array($titles) ? count($titles) : 0;
                 $lesson->duration = $request->duration[$i] ?? null;
                 $lesson->short_text = $request->short_text[$i] ?? null;
                 $lesson->full_text = $request->full_text[$i] ?? null;
-                $lesson->lesson_start_date = $request->lesson_start_date ? date('Y-m-d H:i', strtotime($request->lesson_start_date)) : null;
+                $rawLessonStartDate = $request->lesson_start_date[$i] ?? null;
+                $lesson->lesson_start_date = !empty($rawLessonStartDate) ? date('Y-m-d H:i', strtotime($rawLessonStartDate)) : null;
                 $lesson->save();
 
                 // Save videos for this specific lesson
-                $lessonVideos = $request->input("videos.$i", []);
+                $lessonVideosRaw = $request->input("videos.$i", []);
+                if (empty($lessonVideosRaw)) {
+                    $lessonVideosRaw = $request->input('videos.' . ($i + 1), []);
+                }
+
+                $lessonVideos = [];
+                if (is_array($lessonVideosRaw) && !empty($lessonVideosRaw)) {
+                    $singleVideoKeys = ['title', 'type', 'url', 'is_preview', 'file'];
+                    $looksLikeSingleVideo = count(array_intersect($singleVideoKeys, array_keys($lessonVideosRaw))) > 0;
+
+                    if ($looksLikeSingleVideo) {
+                        $lessonVideos = [$lessonVideosRaw];
+                    } else {
+                        $lessonVideos = $lessonVideosRaw;
+                    }
+                }
+
                 if (count($lessonVideos) > 0) {
+                    $sortOrder = 0;
                     foreach ($lessonVideos as $index => $video) {
+                        if (!is_array($video)) {
+                            continue;
+                        }
+
                         $filePath = null;
-                        if ($request->hasFile("videos.$i.$index.file")) {
-                            $filePath = $request->file("videos.$i.$index.file")
+                        $fileInputPath = "videos.$i.$index.file";
+                        if ($request->hasFile($fileInputPath)) {
+                            $filePath = $request->file($fileInputPath)
                                 ->store('lesson_videos', 'public');
                         }
 
@@ -356,9 +379,11 @@ $count = is_array($titles) ? count($titles) : 0;
                             'type' => $video['type'] ?? 'upload',
                             'url' => $video['url'] ?? null,
                             'file_path' => $filePath,
-                            'sort_order' => $index,
+                            'sort_order' => $sortOrder,
                             'is_preview' => isset($video['is_preview']) ? 1 : 0
                         ]);
+
+                        $sortOrder++;
                     }
                 }
                 // Lesson added notification
@@ -520,7 +545,7 @@ if (!empty($audioFiles)) {
         $videos = '';
         $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
 
-        $lesson = Lesson::with(['media','mediaVideo'])->findOrFail($id);
+        $lesson = Lesson::with(['media', 'mediaVideo', 'videos'])->findOrFail($id);
 
         //dd( $lesson );
 

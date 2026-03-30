@@ -64,6 +64,44 @@ function blockIfNoVendor($basePath)
     }
 }
 
+function testDatabaseConnection(array $config)
+{
+    $host = trim((string)($config['host'] ?? ''));
+    $database = trim((string)($config['database'] ?? ''));
+    $username = trim((string)($config['username'] ?? ''));
+    $password = (string)($config['password'] ?? '');
+
+    if ($host === '' || $database === '' || $username === '') {
+        return 'Database host, name, and username are required.';
+    }
+
+    $port = 3306;
+    if (strpos($host, ':') !== false) {
+        [$hostPart, $portPart] = explode(':', $host, 2);
+        if ($hostPart !== '') {
+            $host = $hostPart;
+        }
+        if (is_numeric($portPart)) {
+            $port = (int)$portPart;
+        }
+    }
+
+    try {
+        new PDO(
+            "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4",
+            $username,
+            $password,
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 5,
+            ]
+        );
+        return true;
+    } catch (Throwable $e) {
+        return $e->getMessage();
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | PHP & Composer Binaries
@@ -85,8 +123,23 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         fail("Composer is not installed or not available in PATH.");
     }
 } else {
-    $composerBin = '/usr/local/bin/composer';
-    if (!file_exists($composerBin)) fail("Composer not found at $composerBin");
+    $composerBin = null;
+    // Check known paths, including herd-lite, before falling back to PATH
+    $candidates = [
+        '/home/' . get_current_user() . '/.config/herd-lite/bin/composer',
+        '/usr/local/bin/composer',
+        '/usr/bin/composer',
+    ];
+    foreach ($candidates as $candidate) {
+        if (file_exists($candidate) && is_executable($candidate)) {
+            $composerBin = $candidate;
+            break;
+        }
+    }
+    if (!$composerBin) {
+        $composerBin = trim(shell_exec('which composer 2>/dev/null'));
+    }
+    if (!$composerBin || !file_exists($composerBin)) fail("Composer not found. Please ensure composer is installed and available in PATH.");
 }
 
 
@@ -111,6 +164,22 @@ if ($step === 'db_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($db_host === '' || $db_database === '' || $db_username === '') {
         echo json_encode(['success' => false, 'message' => '❌ All database fields are required', 'show_db_form' => true]);
+        exit;
+    }
+
+    $dbConnectionResult = testDatabaseConnection([
+        'host' => $db_host,
+        'database' => $db_database,
+        'username' => $db_username,
+        'password' => $db_password,
+    ]);
+
+    if ($dbConnectionResult !== true) {
+        echo json_encode([
+            'success' => false,
+            'message' => '❌ Database connection failed: ' . htmlspecialchars($dbConnectionResult, ENT_QUOTES, 'UTF-8'),
+            'show_db_form' => true,
+        ]);
         exit;
     }
 
@@ -188,11 +257,16 @@ try {
                 }
             } else {
 
-                $composerVersion = trim(shell_exec("$phpBin $composerBin --version 2>&1"));
-                if (strpos($composerVersion, '2.7.8') !== false) {
-                    $msg .= "✔ Composer $composerVersion OK<br>";
+                $composerVersion = trim(shell_exec("$composerBin --version 2>&1"));
+                if (preg_match('/Composer version ([0-9.]+)/', $composerVersion, $m)) {
+                    if (version_compare($m[1], '2.7.0', '>=')) {
+                        $msg .= "✔ Composer {$m[1]} OK<br>";
+                    } else {
+                        $msg .= "❌ Composer 2.7+ required, found {$m[1]}<br>";
+                        $ok = false;
+                    }
                 } else {
-                    $msg .= "❌ Composer 2.7 required, found $composerVersion<br>";
+                    $msg .= "❌ Unable to detect Composer version<br>";
                     $ok = false;
                 }
             }
@@ -219,7 +293,8 @@ try {
                 $cmd = "cd /d \"$basePath\" && composer install --no-interaction --prefer-dist 2>&1";
             } else {
                 // Linux / macOS
-                $cmd = "cd \"$basePath\" && COMPOSER_HOME=/tmp HOME=/tmp composer install --no-interaction --prefer-dist 2>&1";
+                $composerCmd = escapeshellarg($composerBin);
+                $cmd = "cd \"$basePath\" && COMPOSER_HOME=/tmp HOME=/tmp $composerCmd install --no-interaction --prefer-dist 2>&1";
             }
 
             $output = shell_exec($cmd);
@@ -343,6 +418,20 @@ try {
             if (!rename($tmpEnvFile, $envFile)) {
                 @unlink($tmpEnvFile);
                 fail("Failed to replace .env");
+            }
+
+            // Clear cached bootstrap files so artisan uses the latest .env values.
+            $cacheFiles = [
+                $basePath . '/bootstrap/cache/config.php',
+                $basePath . '/bootstrap/cache/packages.php',
+                $basePath . '/bootstrap/cache/services.php',
+                $basePath . '/bootstrap/cache/routes-v7.php',
+                $basePath . '/bootstrap/cache/events.php',
+            ];
+            foreach ($cacheFiles as $cacheFile) {
+                if (file_exists($cacheFile)) {
+                    @unlink($cacheFile);
+                }
             }
 
             echo json_encode([
