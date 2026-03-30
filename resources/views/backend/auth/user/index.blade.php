@@ -39,9 +39,15 @@
                 <div class="col">
 
                     <div class="table-responsive">
+                        <button id="bulk-edit-btn" class="btn btn-primary mb-2" style="display:none;">
+                            Bulk Edit
+                        </button>
                         <table id="myTable" class="table dt-select custom-teacher-table table-striped" style="width: 2500px;">
                             <thead>
                             <tr>
+                                <th>
+                                    <input type="checkbox" id="select-all">
+                                </th>
                                 <th style="width: 100px;">@lang('labels.general.sr_no')</th>
                                 {{-- <th style="width: 100px;">@lang('labels.general.id')</th> --}}
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.first_name')</th>
@@ -66,12 +72,133 @@
 
         </div><!--card-body-->
     </div><!--card-->
+    <div class="modal fade" id="bulkEditModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="bulk-edit-form">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Bulk Edit Users</h5>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" name="user_ids" id="user_ids">
+
+                    <!-- Department -->
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select name="department_id" class="form-control">
+                            <option value="">Unchanged</option>
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Confirmed -->
+                    <div class="form-group">
+                        <label>Confirmed</label>
+                        <select name="confirmed" class="form-control">
+                            <option value="">Unchanged</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select name="role" class="form-control">
+                            <option value="">Unchanged</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->name }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 
 @push('after-scripts')
-    <script>
+<script>
+let selectedUsers = [];
 
+// Handle checkbox click (WORKS WITH DATATABLE)
+$(document).on('change', '.user-checkbox', function () {
+    let id = $(this).val();
+
+    if ($(this).is(':checked')) {
+        selectedUsers.push(id);
+    } else {
+        selectedUsers = selectedUsers.filter(i => i != id);
+    }
+
+    toggleButton();
+});
+
+// Select all
+$(document).on('change', '#select-all', function () {
+    let isChecked = $(this).is(':checked');
+
+    $('.user-checkbox').each(function () {
+        $(this).prop('checked', isChecked);
+
+        let id = $(this).val();
+
+        if (isChecked && !selectedUsers.includes(id)) {
+            selectedUsers.push(id);
+        }
+
+        if (!isChecked) {
+            selectedUsers = [];
+        }
+    });
+
+    toggleButton();
+});
+
+// Show/hide button
+function toggleButton() {
+    $('#bulk-edit-btn').toggle(selectedUsers.length > 0);
+}
+
+// Open modal
+$('#bulk-edit-btn').on('click', function () {
+    $('#user_ids').val(selectedUsers.join(','));
+    $('#bulkEditModal').modal('show');
+});
+
+// Submit
+$('#bulk-edit-form').on('submit', function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: "{{ route('admin.auth.users.bulk.update') }}",
+        method: "POST",
+        data: {
+            _token: $('input[name=_token]').val(),
+            user_ids: selectedUsers,
+            department_id: $('select[name=department_id]').val(),
+            confirmed: $('select[name=confirmed]').val(),
+            role: $('select[name=role]').val()
+        },
+        success: function () {
+            location.reload();
+        }
+    });
+});
+</script>
+    <script>
         $(document).ready(function () {
             var route = '{{route('admin.auth.user.getData')}}';
 
@@ -84,21 +211,7 @@
                 dom: "<'table-controls'lfB>" +
                      "<'table-responsive't>" +
                      "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
-                // buttons: [
-                //     {
-                //         extend: 'csv',
-                //         exportOptions: {
-                //             columns: [1, 2, 3, 4, 5, 6, 7, 8]
-                //         }
-                //     },
-                //     {
-                //         extend: 'pdf',
-                //         exportOptions: {
-                //             columns: [1, 2, 3, 4, 5, 6, 7, 8]
-                //         }
-                //     },
-                //     'colvis'
-                // ],
+                
                 buttons: [
     {
         extend: 'collection',
@@ -132,6 +245,15 @@
                     }
                 },
                 columns: [
+                    {
+                        data: 'id',
+                        name: 'id',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data) {
+                            return `<input type="checkbox" class="user-checkbox" value="${data}">`;
+                        }
+                    },
                     {data: "DT_RowIndex", name: 'DT_RowIndex', "orderable": false, "searchable": false},
                     // {data: "id", name: 'id', "orderable": false},
                     {data: "first_name", name: 'first_name'},

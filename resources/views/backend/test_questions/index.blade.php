@@ -157,7 +157,7 @@
                                             @endif
                                         </td>
                                         <td><?= $value->question_text ?></td>
-                                        <td>{{ $value->score }}</td>
+                                        <td>{{ $value->marks }}</td>
                                         <!-- <td class="d-flex"><a href="{{ route('admin.test_questions.edit', $value->id) }}"
                                                 class="btn btn-xs btn-info mb-1 mr-2"><i class="icon-pencil"></i></a>
                                             <a onclick="return confirm('Are you sure you want to delete?')"

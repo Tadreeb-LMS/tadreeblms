@@ -141,7 +141,6 @@
                         <div class="text-danger small mt-1">{{ $message }}</div>
                     @enderror
                 </div>
-               
             </div>
 
             <!-- Roles -->
@@ -232,7 +231,6 @@
 </style>
 @endpush
 
-
 @push('after-scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -257,4 +255,3 @@
     }
 </script>
 @endpush
-
