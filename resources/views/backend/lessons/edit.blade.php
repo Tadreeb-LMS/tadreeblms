@@ -323,6 +323,26 @@
                 </div>
             @endif
 
+            @if($video->type == 'vimeo' && $video->url)
+                @php
+                    $vimeoUrl = trim((string) $video->url);
+                    $vimeoEmbedUrl = null;
+                    if (preg_match('#(?:vimeo\.com/(?:video/|channels/[^/]+/|groups/[^/]+/videos/|album/[^/]+/video/)?|player\.vimeo\.com/video/)(\d+)#i', $vimeoUrl, $vm)) {
+                        $vimeoEmbedUrl = 'https://player.vimeo.com/video/' . $vm[1];
+                    }
+                @endphp
+                @if($vimeoEmbedUrl)
+                    <div class="mt-3">
+                        <iframe width="420" height="250"
+                            src="{{ $vimeoEmbedUrl }}"
+                            frameborder="0"
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                @endif
+            @endif
+
             <label class="mt-2">
                 <input type="checkbox" name="videos[{{ $index }}][is_preview]" value="1" {{ $video->is_preview ? 'checked' : '' }}>
                 Preview Video

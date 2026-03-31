@@ -348,35 +348,45 @@ class LessonsController extends Controller
                 $lesson->lesson_start_date = !empty($rawLessonStartDate) ? date('Y-m-d H:i', strtotime($rawLessonStartDate)) : null;
                 $lesson->save();
 
-                // Save videos for this specific lesson
-                $lessonVideosRaw = $request->input("videos.$i", []);
-                if (empty($lessonVideosRaw)) {
-                    $lessonVideosRaw = $request->input('videos.' . ($i + 1), []);
-                }
-
+                // Save videos for this specific lesson.
+                // The create form uses a global videoIndex (0, 1, 2...) across all videos.
+                // For a single lesson all submitted videos belong to this lesson, so collect
+                // every valid entry from videos[]. For bulk lesson creation keep the existing
+                // lesson-index based mapping.
+                $singleVideoKeys = ['title', 'type', 'url', 'is_preview', 'file'];
                 $lessonVideos = [];
-                if (is_array($lessonVideosRaw) && !empty($lessonVideosRaw)) {
-                    $singleVideoKeys = ['title', 'type', 'url', 'is_preview', 'file'];
-                    $looksLikeSingleVideo = count(array_intersect($singleVideoKeys, array_keys($lessonVideosRaw))) > 0;
 
-                    if ($looksLikeSingleVideo) {
-                        $lessonVideos = [$lessonVideosRaw];
-                    } else {
-                        $lessonVideos = $lessonVideosRaw;
+                if ($count == 1) {
+                    foreach ($request->input('videos', []) as $vIdx => $vData) {
+                        if (is_array($vData) && count(array_intersect($singleVideoKeys, array_keys($vData))) > 0) {
+                            $lessonVideos[$vIdx] = $vData;
+                        }
+                    }
+                } else {
+                    $lessonVideosRaw = $request->input("videos.$i", []);
+                    if (empty($lessonVideosRaw)) {
+                        $lessonVideosRaw = $request->input('videos.' . ($i + 1), []);
+                    }
+                    if (is_array($lessonVideosRaw) && !empty($lessonVideosRaw)) {
+                        $looksLikeSingleVideo = count(array_intersect($singleVideoKeys, array_keys($lessonVideosRaw))) > 0;
+                        if ($looksLikeSingleVideo) {
+                            $lessonVideos[$i] = $lessonVideosRaw;
+                        } else {
+                            $lessonVideos = $lessonVideosRaw;
+                        }
                     }
                 }
 
                 if (count($lessonVideos) > 0) {
                     $sortOrder = 0;
-                    foreach ($lessonVideos as $index => $video) {
+                    foreach ($lessonVideos as $vIdx => $video) {
                         if (!is_array($video)) {
                             continue;
                         }
 
                         $filePath = null;
-                        $fileInputPath = "videos.$i.$index.file";
-                        if ($request->hasFile($fileInputPath)) {
-                            $filePath = $request->file($fileInputPath)
+                        if ($request->hasFile("videos.$vIdx.file")) {
+                            $filePath = $request->file("videos.$vIdx.file")
                                 ->store('lesson_videos', 'public');
                         }
 
