@@ -21,6 +21,10 @@ Route::group([
     /*
      * User Management
      */
+
+    Route::post('users/bulk-update', [\App\Http\Controllers\Backend\Auth\User\UserController::class, 'bulkUpdate'])
+    ->name('users.bulk.update');
+
     Route::group(['namespace' => 'User'], function () {
 
         /*
