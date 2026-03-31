@@ -485,49 +485,125 @@
     });
 
     $(document).on('submit', '#addLesson', function (e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
-        $('#nextBtn,#doneBtn').prop('disabled', true);
+    function parseIniSizeToBytes(sizeText) {
+        if (!sizeText) return 0;
+        const value = String(sizeText).trim();
+        const unit = value.slice(-1).toUpperCase();
+        const num = parseFloat(value);
 
-        var form = $('#addLesson')[0];
-        var data = new FormData(form);
+        if (isNaN(num)) return 0;
+        if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
+        if (unit === 'M') return Math.round(num * 1024 * 1024);
+        if (unit === 'K') return Math.round(num * 1024);
+        return Math.round(num);
+    }
 
-        let url = '{{ route('admin.lessons.store') }}';
-        let redirect_url_course = $("#lesson_index").val();
-        let redirect_question_url = $("#add_question_url").val();
-        let course_id = $(".course_id").first().val();
+    const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
+    const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
 
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: data,
-            processData: false,
-            contentType: false,
+    let totalBytes = 0;
+    let singleTooLarge = false;
 
-            success: function (res) {
-                $('.loading').text('');
+    $('#addLesson input[type="file"]').each(function () {
+        if (!this.files || !this.files.length) {
+            return;
+        }
 
-                let clicked = $('#btn_clicked').val();
+        for (let idx = 0; idx < this.files.length; idx++) {
+            const f = this.files[idx];
+            totalBytes += f.size;
 
-                if (clicked === 'nextBtn') {
-                    window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
-                }
+            if (phpUploadMax > 0 && f.size > phpUploadMax) {
+                singleTooLarge = true;
+            }
+        }
+    });
 
-                if (clicked === 'doneBtn') {
-                    window.location.href = redirect_url_course;
-                }
-            },
+    if (singleTooLarge) {
+        const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
+        alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
+        return;
+    }
 
-            error: function (xhr) {
-                $('.loading').text('');
+    if (phpPostMax > 0 && totalBytes > phpPostMax) {
+        const maxMb = Math.floor(phpPostMax / (1024 * 1024));
+        alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
+        return;
+    }
+
+    $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
+    $('#nextBtn,#doneBtn').prop('disabled', true);
+
+    var form = $('#addLesson')[0];
+    var data = new FormData(form);
+
+    let url = '{{ route('admin.lessons.store') }}';
+    let redirect_url_course = $("#lesson_index").val();
+    let redirect_question_url = $("#add_question_url").val();
+    let course_id = $(".course_id").first().val();
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: data,
+        processData: false,
+        contentType: false,
+
+        success: function (res) {
+            $('.loading').text('');
+
+            if (!res || res.status !== 'success') {
                 $('#nextBtn,#doneBtn').prop('disabled', false);
 
-                console.log(xhr.responseText);
-                alert('{{ __('course_pages.admin_lessons_create.something_went_wrong') }}');
+                const fallbackMessage = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
+                let msg = (res && (res.clientmsg || res.message))
+                    ? (res.clientmsg || res.message)
+                    : fallbackMessage;
+
+                if (typeof res === 'string' && res.indexOf('POST Content-Length') !== -1) {
+                    msg = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
+                }
+
+                alert(msg);
+                return;
             }
-        });
+
+            let clicked = $('#btn_clicked').val();
+
+            if (clicked === 'nextBtn') {
+                window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
+            }
+
+            if (clicked === 'doneBtn') {
+                window.location.href = redirect_url_course;
+            }
+        },
+
+        error: function (xhr) {
+            $('.loading').text('');
+            $('#nextBtn,#doneBtn').prop('disabled', false);
+
+            console.log(xhr.responseText);
+
+            let message = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
+
+            if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
+                message = xhr.responseJSON.clientmsg;
+            } else if (xhr.status === 413) {
+                message = 'Upload is too large for server limits. Please reduce the video size and try again.';
+            } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
+                    message = xhr.responseJSON.errors[firstKey][0];
+                }
+            }
+
+            alert(message);
+        }
     });
+});
 
     var i = 1;
 
