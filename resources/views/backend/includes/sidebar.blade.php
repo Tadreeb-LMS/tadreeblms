@@ -796,6 +796,15 @@
                     </li>
                     @endif
 
+                    @if (!empty($enabledApps['hrms-integration-module']) && $enabledApps['hrms-integration-module'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/hrms*')) }}"
+                            href="{{ route('admin.hrms.settings') }}">
+                            <span class="title"><i class="fas fa-network-wired mr-1"></i>HRMS Integrations</span>
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/ldap-setting')) }}"
                             href="{{ route('admin.ldap-setting') }}">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Backend\Auth\User;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -31,8 +32,15 @@ class UpdateUserRequest extends FormRequest
             'first_name'  => ['required', 'max:191'],
             'last_name'  => ['required', 'max:191'],
             'roles' => ['required', 'array'],
-            'change_password' => ['nullable'],
-            'password'   => ['nullable', 'min:6'],
+            'roles.*' => ['required', Rule::exists('roles', 'name')],
+            'change_password' => ['nullable', 'boolean'],
+            'password'   => ['nullable', 'required_if:change_password,1', 'min:6', 'confirmed'],
+            'department' => [
+                'nullable',
+                Rule::exists('department', 'id')->where(function ($query) {
+                    $query->where('published', 1);
+                }),
+            ],
         ];
     }
 }
