@@ -487,6 +487,50 @@
     $(document).on('submit', '#addLesson', function (e) {
         e.preventDefault();
 
+        function parseIniSizeToBytes(sizeText) {
+            if (!sizeText) return 0;
+            const value = String(sizeText).trim();
+            const unit = value.slice(-1).toUpperCase();
+            const num = parseFloat(value);
+            if (isNaN(num)) return 0;
+            if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
+            if (unit === 'M') return Math.round(num * 1024 * 1024);
+            if (unit === 'K') return Math.round(num * 1024);
+            return Math.round(num);
+        }
+
+        const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
+        const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
+
+        let totalBytes = 0;
+        let singleTooLarge = false;
+
+        $('#addLesson input[type="file"]').each(function () {
+            if (!this.files || !this.files.length) {
+                return;
+            }
+
+            for (let idx = 0; idx < this.files.length; idx++) {
+                const f = this.files[idx];
+                totalBytes += f.size;
+                if (phpUploadMax > 0 && f.size > phpUploadMax) {
+                    singleTooLarge = true;
+                }
+            }
+        });
+
+        if (singleTooLarge) {
+            const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
+            alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
+            return;
+        }
+
+        if (phpPostMax > 0 && totalBytes > phpPostMax) {
+            const maxMb = Math.floor(phpPostMax / (1024 * 1024));
+            alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
+            return;
+        }
+
         $('.loading').text('processing please wait...');
         $('#nextBtn,#doneBtn').prop('disabled', true);
 
@@ -508,6 +552,17 @@
             success: function (res) {
                 $('.loading').text('');
 
+                if (!res || res.status !== 'success') {
+                    $('#nextBtn,#doneBtn').prop('disabled', false);
+                    const fallbackMessage = 'Something went wrong';
+                    let msg = (res && (res.clientmsg || res.message)) ? (res.clientmsg || res.message) : fallbackMessage;
+                    if (typeof res === 'string' && res.indexOf('POST Content-Length') !== -1) {
+                        msg = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
+                    }
+                    alert(msg);
+                    return;
+                }
+
                 let clicked = $('#btn_clicked').val();
 
                 if (clicked === 'nextBtn') {
@@ -524,7 +579,18 @@
                 $('#nextBtn,#doneBtn').prop('disabled', false);
 
                 console.log(xhr.responseText);
-                alert('Something went wrong');
+                let message = 'Something went wrong';
+                if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
+                    message = xhr.responseJSON.clientmsg;
+                } else if (xhr.status === 413) {
+                    message = 'Upload is too large for server limits. Please reduce the video size and try again.';
+                } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                    if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
+                        message = xhr.responseJSON.errors[firstKey][0];
+                    }
+                }
+                alert(message);
             }
         });
     });

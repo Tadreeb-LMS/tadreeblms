@@ -33,6 +33,16 @@ class StoreUserRequest extends FormRequest
             'email'    => ['required', 'email', 'max:191', Rule::unique('users')],
             'password' => ['required', 'min:6', 'confirmed'],
             'roles' => ['required', 'array'],
+            'roles.*' => ['required', Rule::exists('roles', 'name')],
+            'department' => [
+                'nullable',
+                Rule::exists('department', 'id')->where(function ($query) {
+                    $query->where('published', 1);
+                }),
+            ],
+            'active' => ['nullable', 'boolean'],
+            'confirmed' => ['nullable', 'boolean'],
+            'return_to' => ['nullable', 'string', 'max:2048'],
         ];
     }
 }

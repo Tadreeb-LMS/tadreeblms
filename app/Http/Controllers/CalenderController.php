@@ -7,6 +7,7 @@ use App\Models\Bundle;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Events;
+use App\Models\LiveSession;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -126,7 +127,48 @@ class CalenderController extends Controller
             $live_session_data[] = $event;
         }
 
-        // ─── 3. Live Lesson Slots ───
+        // ─── 3. Scheduled Live Sessions (from live_sessions table) ───
+        $scheduled_session_data = [];
+        $scheduledQuery = DB::table('live_sessions')
+            ->select(
+                'live_sessions.session_date', 'live_sessions.session_time',
+                'live_sessions.duration', 'live_sessions.meeting_link',
+                'live_sessions.host_url', 'live_sessions.provider',
+                'courses.title as course_title', 'courses.slug as course_slug'
+            )
+            ->join('courses', 'courses.id', '=', 'live_sessions.course_id')
+            ->whereNull('courses.deleted_at');
+
+        if ($isAdmin) {
+            // no additional filter
+        } elseif ($isTeacher) {
+            $scheduledQuery->join('course_user', 'course_user.course_id', '=', 'courses.id')
+                ->where('course_user.user_id', $employee_id);
+        } else {
+            $scheduledQuery->join('subscribe_courses', 'subscribe_courses.course_id', '=', 'courses.id')
+                ->where('subscribe_courses.user_id', $employee_id);
+        }
+
+        $scheduled_data = $scheduledQuery->get();
+
+        foreach ($scheduled_data as $data) {
+            $providerLabel = ucfirst($data->provider ?? 'Live');
+            $start = Carbon::parse($data->session_date . ' ' . $data->session_time);
+            $sessionUrl = ($isAdmin || $isTeacher)
+                ? ($data->host_url ?: $data->meeting_link)
+                : $data->meeting_link;
+            $event = [
+                'title' => "[$providerLabel] " . $data->course_title,
+                'start' => $start->toIso8601String(),
+                'url'   => $sessionUrl ?: route('courses.show', $data->course_slug),
+            ];
+            if ($data->duration) {
+                $event['end'] = $start->copy()->addMinutes((int)$data->duration)->toIso8601String();
+            }
+            $scheduled_session_data[] = $event;
+        }
+
+        // ─── 4. Live Lesson Slots ───
         $live_slot_data = [];
         $slotQuery = DB::table('live_lesson_slots')
             ->select(
@@ -171,9 +213,10 @@ class CalenderController extends Controller
         }
 
         return view($this->path . '.calender.index', [
-            'lessons'          => json_encode($lesson_data),
-            'liveSessions'     => json_encode($live_session_data),
-            'liveLessonSlots'  => json_encode($live_slot_data),
+            'lessons'            => json_encode($lesson_data),
+            'liveSessions'       => json_encode($live_session_data),
+            'liveLessonSlots'    => json_encode($live_slot_data),
+            'scheduledSessions'  => json_encode($scheduled_session_data),
         ]);
     }
 
@@ -251,7 +294,17 @@ class CalenderController extends Controller
            $checkSubcribePlan = '';
         }
         $courseInPlan = courseOrBundlePlanExits($course->id,'');
-        return view($this->path . '.courses.course', compact('course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan','courseInPlan'));
+
+        // Upcoming live sessions for this course
+        $liveSessions = LiveSession::where('course_id', $course->id)
+            ->where('session_date', '>=', Carbon::today())
+            ->orderBy('session_date')
+            ->orderBy('session_time')
+            ->get();
+
+        $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
+
+        return view($this->path . '.courses.course', compact('course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan','courseInPlan', 'liveSessions', 'isHostRole'));
     }
 
 

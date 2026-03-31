@@ -386,7 +386,8 @@
                     <span id="live-online" style="display: none;">
                         Live-Online type course is a course can be done on goole meet/Zoom link.
                         @if(count($enabledMeetingProviders ?? []))
-                            <div class="card mt-3" id="meeting-config-section">
+                            {{-- Meeting Provider & Timezone (always visible for Live-Online) --}}
+                            <div class="card mt-3" id="meeting-provider-section">
                                 <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
                                 </div>
@@ -405,7 +406,8 @@
                                             <input type="text" name="meeting_timezone" id="meeting_timezone" class="form-control" value="Asia/Riyadh">
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    {{-- Single meeting fields hidden — only for backward compat if needed --}}
+                                    <div class="row" id="single-meeting-fields" style="display:none;">
                                         <div class="col-md-4 form-group">
                                             <label for="meeting_start_date">Start Date *</label>
                                             <input type="date" name="meeting_start_date" id="meeting_start_date" class="form-control" min="{{ date('Y-m-d') }}">
@@ -420,15 +422,110 @@
                                             <input type="hidden" name="meeting_start_at" id="meeting_start_at">
                                         </div>
                                     </div>
+                                    <small class="text-muted" id="single-meeting-hint" style="display:none;">For a single meeting. Or choose a schedule type below for recurring sessions.</small>
                                 </div>
                             </div>
                         @endif
+
+                        {{-- Live Session Scheduling Section --}}
+                        <div class="card mt-3" id="schedule-section">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fa fa-calendar mr-2"></i> Live Session Scheduling</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Schedule Type *</label>
+                                    <div class="d-flex gap-3 mt-2">
+                                        <label class="mr-4"><input type="radio" name="schedule_type" value="daily" class="mr-1 schedule-type-radio"> Daily</label>
+                                        <label class="mr-4"><input type="radio" name="schedule_type" value="weekly" class="mr-1 schedule-type-radio"> Weekly</label>
+                                        <label class="mr-4"><input type="radio" name="schedule_type" value="custom" class="mr-1 schedule-type-radio"> Custom</label>
+                                    </div>
+                                </div>
+
+                                {{-- Daily Options --}}
+                                <div id="schedule-daily" class="schedule-panel" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-4 form-group">
+                                            <label>Session Time *</label>
+                                            <input type="time" name="daily_time" id="daily_time" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label>Duration (mins) *</label>
+                                            <input type="number" name="daily_duration" id="daily_duration" class="form-control" value="60" min="1">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label>Repeat *</label>
+                                            <select name="daily_repeat" id="daily_repeat" class="form-control">
+                                                <option value="every_day">Every Day</option>
+                                                <option value="weekdays">Weekdays Only (Mon-Fri)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Sessions will be auto-generated between course Start Date and End Date.</small>
+                                </div>
+
+                                {{-- Weekly Options --}}
+                                <div id="schedule-weekly" class="schedule-panel" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <label>Select Days *</label>
+                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="1" class="mr-1"> Monday</label>
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="2" class="mr-1"> Tuesday</label>
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="3" class="mr-1"> Wednesday</label>
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="4" class="mr-1"> Thursday</label>
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="5" class="mr-1"> Friday</label>
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="6" class="mr-1"> Saturday</label>
+                                                <label class="mr-3"><input type="checkbox" name="weekly_days[]" value="0" class="mr-1"> Sunday</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 form-group">
+                                            <label>Session Time *</label>
+                                            <input type="time" name="weekly_time" id="weekly_time" class="form-control">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label>Duration (mins) *</label>
+                                            <input type="number" name="weekly_duration" id="weekly_duration" class="form-control" value="60" min="1">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Sessions will repeat on selected days between course Start Date and End Date.</small>
+                                </div>
+
+                                {{-- Custom Options --}}
+                                <div id="schedule-custom" class="schedule-panel" style="display:none;">
+                                    <div id="custom-sessions-container">
+                                        <div class="row custom-session-row mb-2">
+                                            <div class="col-md-4 form-group">
+                                                <label>Date *</label>
+                                                <input type="date" name="custom_dates[]" class="form-control custom-session-date">
+                                            </div>
+                                            <div class="col-md-3 form-group">
+                                                <label>Time *</label>
+                                                <input type="time" name="custom_times[]" class="form-control">
+                                            </div>
+                                            <div class="col-md-3 form-group">
+                                                <label>Duration (mins) *</label>
+                                                <input type="number" name="custom_durations[]" class="form-control" value="60" min="1">
+                                            </div>
+                                            <div class="col-md-2 form-group d-flex align-items-end">
+                                                <button type="button" class="btn btn-danger btn-sm remove-session-btn" style="display:none;">&times; Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="add-session-btn">
+                                        <i class="fa fa-plus mr-1"></i> Add Session
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </span>
                     <span id="live-classroom" style="display: none;">
                         Live-Classroom type course is a course can be happen on a specific classroom location.
                     </span>
                 </span>
-                
+
             </div>
             
   
@@ -711,13 +808,11 @@ $('#expire_at').datepicker({
         // Start Date REQUIRED
         $('#startDateWrapper').show();
         $('#start_date').prop('required', true);
-        
-        // Meeting Config REQUIRED if enabled
-        @if(count($enabledMeetingProviders ?? []))
-            $('#meeting_start_date').prop('required', true);
-            $('#meeting_start_time').prop('required', true);
-            $('#meeting_duration').prop('required', true);
-        @endif
+
+        // Single meeting fields NOT required (scheduling section handles this)
+        $('#meeting_start_date').prop('required', false);
+        $('#meeting_start_time').prop('required', false);
+        $('#meeting_duration').prop('required', false);
 
     } else {
         // E-Learning
@@ -931,5 +1026,63 @@ if (startDateVal < today) {
             label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
         });
     });
+</script>
+
+{{-- Live Session Scheduling JS --}}
+<script>
+$(document).ready(function() {
+    // Toggle schedule panels and hide single-meeting fields
+    $(document).on('change', '.schedule-type-radio', function() {
+        $('.schedule-panel').hide();
+        var type = $(this).val();
+        if (type === 'daily') $('#schedule-daily').show();
+        else if (type === 'weekly') $('#schedule-weekly').show();
+        else if (type === 'custom') $('#schedule-custom').show();
+
+        // Hide single-meeting date/time/duration when schedule type is selected
+        $('#single-meeting-fields').hide();
+        $('#single-meeting-hint').hide();
+        // Remove required from single-meeting fields
+        $('#meeting_start_date, #meeting_start_time, #meeting_duration').prop('required', false);
+    });
+
+    // Add custom session row
+    $(document).on('click', '#add-session-btn', function() {
+        var row = `<div class="row custom-session-row mb-2">
+            <div class="col-md-4 form-group">
+                <label>Date *</label>
+                <input type="date" name="custom_dates[]" class="form-control custom-session-date">
+            </div>
+            <div class="col-md-3 form-group">
+                <label>Time *</label>
+                <input type="time" name="custom_times[]" class="form-control">
+            </div>
+            <div class="col-md-3 form-group">
+                <label>Duration (mins) *</label>
+                <input type="number" name="custom_durations[]" class="form-control" value="60" min="1">
+            </div>
+            <div class="col-md-2 form-group d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm remove-session-btn">&times; Remove</button>
+            </div>
+        </div>`;
+        $('#custom-sessions-container').append(row);
+        updateRemoveButtons();
+    });
+
+    // Remove custom session row
+    $(document).on('click', '.remove-session-btn', function() {
+        $(this).closest('.custom-session-row').remove();
+        updateRemoveButtons();
+    });
+
+    function updateRemoveButtons() {
+        var rows = $('.custom-session-row');
+        if (rows.length > 1) {
+            rows.find('.remove-session-btn').show();
+        } else {
+            rows.find('.remove-session-btn').hide();
+        }
+    }
+});
 </script>
 @endpush

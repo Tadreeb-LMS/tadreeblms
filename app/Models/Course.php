@@ -34,9 +34,14 @@ class Course extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step', 'meeting_provider', 'meeting_id', 'meeting_join_url', 'meeting_host_url', 'meeting_start_at', 'meeting_duration', 'meeting_timezone','is_paid'];
+    protected $fillable = ['temp_id','category_id', 'title', 'slug', 'qr_code', 'description', 'department_id', 'price', 'course_image', 'course_video', 'start_date', 'published', 'free', 'featured', 'trending', 'popular', 'meta_title', 'meta_description', 'meta_keywords', 'expire_at', 'strike', 'marks_required', 'course_code', 'arabic_title','course_lang','is_online','current_step', 'meeting_provider', 'meeting_id', 'meeting_join_url', 'meeting_host_url', 'meeting_start_at', 'meeting_duration', 'meeting_timezone','is_paid', 'schedule_type', 'schedule_days', 'last_session_date'];
 
     protected $appends = ['image'];
+
+    protected $casts = [
+        'schedule_days' => 'array',
+        'last_session_date' => 'date',
+    ];
 
     //    protected $dates = ['expire_at'];
 
@@ -268,6 +273,11 @@ public function getStatusLabelAttribute()
     public function students()
     {
         return $this->belongsToMany(User::class, 'course_student')->withTimestamps()->withPivot(['rating']);
+    }
+
+    public function liveSessions()
+    {
+        return $this->hasMany(LiveSession::class)->orderBy('session_date')->orderBy('session_time');
     }
 
     public function publishedCourseLessons()

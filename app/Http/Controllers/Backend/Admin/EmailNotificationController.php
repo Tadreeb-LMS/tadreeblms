@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\EmailCampain;
 use App\Models\EmailCampainUser;
 use CustomHelper;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -47,74 +48,75 @@ class EmailNotificationController extends Controller
             'select_all_users.required_without' => 'Please choose either a user or a department or all users',
         ]);
 
-        $user_ids = @$validated['users'] ?? [];
+        try {
+            $user_ids = @$validated['users'] ?? [];
 
-
-        if (@$validated['department_id']) {
-            $dep_users = DB::table('employee_profiles')
-                ->leftJoin('department', 'department.id', 'employee_profiles.department')
-                ->join('users', 'users.id', '=', 'employee_profiles.user_id')
-                ->where('users.active', 1)
-                ->whereNull('users.deleted_at')
-                ->where('department.id', '=', $validated['department_id'])
-                ->pluck('employee_profiles.user_id')->toArray();
-            $user_ids = $dep_users;
-        }
-
-        if (@$validated['select_all_users']) {
-            $user_emails =  User::student()->latest()->pluck('email')->toArray();
-        } else {
-            $user_emails = User::whereIn('id', $user_ids)->pluck('email')->toArray();
-        }
-
-        $emailCapmain = EmailCampain::create(
-            [
-                'campain_subject' => $validated['subject'],
-                'content' => $validated['email_content'],
-                'link' => $validated['register_button'],
-            ]
-        );
-
-        $campain_id = $emailCapmain->id ?? null;
-
-        $user_emails_data = [];
-        if ($request->hasFile('import_users')) {
-            $file = $request->file('import_users');
-            $collection = Excel::toCollection(null, $file);
-
-            foreach ($collection[0] as $row) {
-                foreach ($row as $cell) {
-                    $email = trim($cell);
-
-                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $user_emails[] = $email;
-                        $user_emails_data[] = [
-                            'campain_id' => $campain_id,
-                            'email' => $email,
-                            'status' => 'in-queue',
-                            'sent_at' => now(),
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ];
-                    }
-                }
+            if (@$validated['department_id']) {
+                $dep_users = DB::table('employee_profiles')
+                    ->leftJoin('department', 'department.id', 'employee_profiles.department')
+                    ->join('users', 'users.id', '=', 'employee_profiles.user_id')
+                    ->where('users.active', 1)
+                    ->whereNull('users.deleted_at')
+                    ->where('department.id', '=', $validated['department_id'])
+                    ->pluck('employee_profiles.user_id')->toArray();
+                $user_ids = $dep_users;
             }
 
-            
-            unset($validated['import_users']);
+            if (@$validated['select_all_users']) {
+                $user_emails = User::student()->latest()->pluck('email')->toArray();
+            } else {
+                $user_emails = User::whereIn('id', $user_ids)->pluck('email')->toArray();
+            }
+
+            $emailCapmain = EmailCampain::create(
+                [
+                    'campain_subject' => $validated['subject'],
+                    'content' => $validated['email_content'],
+                    'link' => $validated['register_button'],
+                ]
+            );
+
+            $campain_id = $emailCapmain->id ?? null;
+
+            $user_emails_data = [];
+            if ($request->hasFile('import_users')) {
+                $file = $request->file('import_users');
+                $collection = Excel::toCollection(null, $file);
+
+                foreach ($collection[0] as $row) {
+                    foreach ($row as $cell) {
+                        $email = trim($cell);
+
+                        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                            $user_emails[] = $email;
+                            $user_emails_data[] = [
+                                'campain_id' => $campain_id,
+                                'email' => $email,
+                                'status' => 'in-queue',
+                                'sent_at' => now(),
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ];
+                        }
+                    }
+                }
+
+                unset($validated['import_users']);
+            }
+
+            if (!empty($user_emails_data)) {
+                EmailCampainUser::insert($user_emails_data);
+            }
+
+            $user_emails = array_unique($user_emails);
+
+            dispatch(new BulkEmailDispatchJob($campain_id, $user_emails, $validated));
+
+            return response()->json(['message' => 'Notification sent successfully', 'redirect_route' => '/user/send-email-notification']);
+        } catch (Exception $e) {
+            \Log::error('EmailNotificationController: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Failed to send email notification. Please try again or contact support.'], 400);
         }
-
-
-        
-
-        EmailCampainUser::insert($user_emails_data);
-
-        $user_emails = array_unique($user_emails);
-
-
-
-        dispatch(new BulkEmailDispatchJob($campain_id, $user_emails, $validated));
-
-        return response()->json(['message' => 'Notification sent successfully', 'redirect_route' => '/user/send-email-notification']);
     }
 }
