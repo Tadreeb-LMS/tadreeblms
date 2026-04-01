@@ -524,17 +524,36 @@
         $(document).ready(function () {
             $(document).on('click', '.delete', function (e) {
                 e.preventDefault();
-                var parent = $(this).parent('.form-group');
+                var row = $(this).closest('.media-file-row');
+                if (!row.length) {
+                    row = $(this).closest('.form-group');
+                }
                 var confirmation = confirm('{{trans('strings.backend.general.are_you_sure')}}')
                 if (confirmation) {
+                    var trigger = $(this);
                     var media_id = $(this).data('media-id');
-                    $.post('{{route('admin.media.destroy')}}', {media_id: media_id, _token: '{{csrf_token()}}'},
-                        function (data, status) {
-                            if (data.success) {
-                                parent.remove();
+                    // Instant UI feedback.
+                    row.stop(true, true).fadeOut(150);
+                    trigger.prop('disabled', true);
+
+                    $.post('{{route('admin.media.destroy')}}', {media_id: media_id, _token: '{{csrf_token()}}'})
+                        .done(function (data) {
+                            if (data && data.success) {
+                                row.remove();
                             } else {
-                                alert('Something Went Wrong')
+                                row.show();
+                                trigger.prop('disabled', false);
+                                alert((data && data.message) ? data.message : 'Something went wrong');
                             }
+                        })
+                        .fail(function (xhr) {
+                            row.show();
+                            trigger.prop('disabled', false);
+                            var message = 'Something went wrong';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                message = xhr.responseJSON.message;
+                            }
+                            alert(message);
                         });
                 }
             })
