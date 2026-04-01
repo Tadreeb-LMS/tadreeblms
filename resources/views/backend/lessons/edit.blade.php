@@ -44,21 +44,54 @@
         }
 
         .media-file-row .file-name {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             max-width: 90%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
+        .media-file-row .file-type-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            background: #eef2f7;
+            color: #344054;
+        }
+
+        .media-file-row .file-type-badge.pdf {
+            background: #fee2e2;
+            color: #b42318;
+        }
+
+        .media-file-row .file-type-badge.audio {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .media-file-row .file-type-badge.file {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
         .media-file-row .remove-file {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
+            min-width: 40px;
             height: 28px;
-            border-radius: 50%;
-            padding: 0;
+            border-radius: 14px;
+            padding: 0 10px;
+            gap: 4px;
+            font-size: 12px;
         }
 
     </style>
@@ -188,10 +221,11 @@
                                         @if($media->type == 'download_file' || str_contains((string)$media->type, '/'))
                                             <div class="media-file-row">
                                                 <a class="file-name" download href="{{ $media->url }}" target="_blank" title="{{ $media->file_name }}">
-                                                    <i class="fa fa-file"></i> {{ $media->file_name }}
+                                                    <span class="file-type-badge file">FILE</span>
+                                                    <span>{{ $media->file_name }}</span>
                                                 </a>
                                                 <a href="#" data-media-id="{{$media->id}}" class="btn btn-xs btn-danger delete remove-file" title="@lang('labels.backend.lessons.remove')">
-                                                    <i class="fa fa-trash"></i>
+                                                    <span aria-hidden="true">🗑</span><span>@lang('labels.backend.lessons.remove')</span>
                                                 </a>
                                             </div>
                                         @endif
@@ -217,10 +251,11 @@
                                     @if($media->type == 'lesson_pdf')
                                         <div class="media-file-row">
                                             <a class="file-name" href="{{ $media->url }}" target="_blank" title="{{ $media->file_name }}">
-                                                <i class="fa fa-file-pdf-o"></i> {{ $media->file_name }}
+                                                <span class="file-type-badge pdf">PDF</span>
+                                                <span>{{ $media->file_name }}</span>
                                             </a>
                                             <a href="#" data-media-id="{{$media->id}}" class="btn btn-xs btn-danger delete remove-file" title="@lang('labels.backend.lessons.remove')">
-                                                <i class="fa fa-trash"></i>
+                                                <span aria-hidden="true">🗑</span><span>@lang('labels.backend.lessons.remove')</span>
                                             </a>
                                         </div>
                                     @endif
@@ -247,10 +282,11 @@
                                         @if($media->type == 'lesson_audio')
                                             <div class="media-file-row">
                                                 <a class="file-name" href="{{ $media->url }}" target="_blank" title="{{ $media->file_name }}">
-                                                    <i class="fa fa-file-audio-o"></i> {{ $media->file_name }}
+                                                    <span class="file-type-badge audio">AUDIO</span>
+                                                    <span>{{ $media->file_name }}</span>
                                                 </a>
                                                 <a href="#" data-media-id="{{$media->id}}" class="btn btn-xs btn-danger delete remove-file" title="@lang('labels.backend.lessons.remove')">
-                                                    <i class="fa fa-trash"></i>
+                                                    <span aria-hidden="true">🗑</span><span>@lang('labels.backend.lessons.remove')</span>
                                                 </a>
                                             </div>
                                     @endif
