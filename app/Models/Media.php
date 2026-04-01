@@ -42,7 +42,8 @@ class Media extends Model
         $storage = config('filesystems.default');
 
         if ($storage == 'local') {
-            return $this->aws_url;
+            // Backward compatibility: older rows may store only `url` without `aws_url`.
+            return $this->aws_url ?: ($this->attributes['url'] ?? $value);
         } else {
             return Storage::disk('s3')->temporaryUrl(
                 $awsPath,

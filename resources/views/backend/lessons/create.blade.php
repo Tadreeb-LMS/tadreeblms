@@ -148,7 +148,7 @@
                                 <div class="form-group">
                                     <div for="lesson_image" class="control-label mb-2">
                                         {{ trans('labels.backend.lessons.fields.lesson_image') }}
-                                        {{ trans('labels.backend.lessons.max_file_size') }}
+                                        {{ trans('labels.backend.lessons.max_file_size') }} (JPEG, PNG, GIF)
                                     </div>
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="lesson_image[]" class="custom-file-input">
@@ -405,10 +405,22 @@
         }
     }
 
+    function renumberLessonFileInputs() {
+        $('.lesson-box').each(function (index) {
+            const pointer = index + 1;
+            $(this).find('input[name^="downloadable_files_"]').attr('name', 'downloadable_files_' + pointer + '[]');
+            $(this).find('input[name^="add_pdf_"]').attr('name', 'add_pdf_' + pointer + '[]');
+            $(this).find('input[name^="add_audio_"]').attr('name', 'add_audio_' + pointer + '[]');
+            $(this).find('input[name^="video_file_"]').attr('name', 'video_file_' + pointer + '[]');
+            $(this).find('input[name^="media_type_"]').attr('name', 'media_type_' + pointer + '[]');
+        });
+    }
+
     window.videoIndex = window.videoIndex || 0;
 
     $(document).ready(function () {
         initEditors($(document));
+        renumberLessonFileInputs();
 
         $(document).on('click', '.addVideo', function () {
             const $parent = $(this).closest('.parent_group');
@@ -650,6 +662,7 @@
         $(".mo_create").append(clone);
 
         initEditors(clone);
+        renumberLessonFileInputs();
     });
 
     function removeLesslug(el) {
@@ -663,6 +676,7 @@
         });
 
         box.remove();
+        renumberLessonFileInputs();
     }
 </script>
 @endpush
