@@ -452,8 +452,8 @@
 
         <div class="row">
           <div class="col-12 col-md-6 mt-3 notextarea"> 
-                <label>Question</label>
-                <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1"></textarea>
+                <label>Question <span style="color:red">*</span></label>
+                <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1" oninvalid="this.setCustomValidity('Question is required')" oninput="this.setCustomValidity('')"></textarea>
             </div>
          
                 <div class="col-12 col-md-6"> 

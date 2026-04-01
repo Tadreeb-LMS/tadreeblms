@@ -45,6 +45,26 @@ class LessonsController extends Controller
         $this->path = $path;
     }
 
+    public function store(Request $request)
+{
+    // Make sure duration is a string/number, not an array
+    $duration = is_array($request->duration) ? json_encode($request->duration) : $request->duration;
+
+    // Make sure lesson_start_date is a string, not an array
+    $lesson_start_date = is_array($request->lesson_start_date) ? $request->lesson_start_date['date'] ?? null : $request->lesson_start_date;
+
+    Lesson::create([
+        'course_id' => $request->course_id,
+        'duration' => $duration,
+        'lesson_start_date' => $lesson_start_date,
+        'published' => 1,
+        'temp_id' => $request->uuid,
+        'position' => 1,
+    ]);
+
+    return response()->json(['status' => 'success']);
+}
+    
     public function isAssignmentTaken($logged_in_user_id, $course_id)
     {
 

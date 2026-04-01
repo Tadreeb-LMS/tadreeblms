@@ -725,6 +725,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings/certificate-template*')) }}"
+                            href="{{ route('admin.certificate-template-settings') }}">
+                            <span class="title"><i class="fas fa-certificate mr-1"></i>Certificate Template</span>
+                        </a>
+                    </li>
+
 
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/smtp*')) }}"
@@ -785,6 +792,15 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/payment-gateways*')) }}"
                             href="{{ url('external-apps/payment-gateways/settings') }}">
                             <span class="title"><i class="fas fa-credit-card mr-1"></i>Payment Gateways</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if (!empty($enabledApps['hrms-integration-module']) && $enabledApps['hrms-integration-module'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/hrms*')) }}"
+                            href="{{ route('admin.hrms.settings') }}">
+                            <span class="title"><i class="fas fa-network-wired mr-1"></i>HRMS Integrations</span>
                         </a>
                     </li>
                     @endif
