@@ -120,6 +120,7 @@
 
                             {{-- <th>@lang('labels.general.id')</th> --}}
                         <th>@lang('labels.backend.lessons.fields.title')</th>
+                        <th>@lang('labels.backend.lessons.fields.course')</th>
                         <th>{{ __('course_pages.admin_lessons_index.lesson_start_date') }}</th>
                         <th>{{ __('course_pages.admin_lessons_index.duration_minutes') }}</th>
                         <th>{{ __('course_pages.admin_lessons_index.attendance_count') }}</th>
@@ -221,6 +222,7 @@
                     //{data: "id", name: 'id'},
 
                     {data: "title", name: 'title'},
+                    {data: "course", name: 'course.title', defaultContent: 'N/A'},
                     {data: "lesson_start_date", name: 'lesson_start_date'},
                     {data: "duration", name: 'duration'},
                     {data: "attendance", name: 'attendance'},

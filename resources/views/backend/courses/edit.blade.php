@@ -170,9 +170,11 @@
                             Teachers
                         </div>
                         <div class="custom-select-wrapper mt-2">
-                            <select name="teachers[]" class="form-control custom-select-box select2 js-example-placeholder-multiple" multiple required>
+                            <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single" required>
                                 @foreach($teachers as $id => $name)
-                                    <option value="{{ $id }}" {{ in_array($id, old('teachers', $course->teachers->pluck('id')->toArray())) ? 'selected' : '' }}>{{ $name }}</option>
+                                   <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
+                                        {{ $name }}
+                                    </option>
                                 @endforeach
                             </select>
                             <span class="custom-select-icon">
@@ -279,14 +281,8 @@
         </div> --}}
             @endif
 
-          
-
             <div class="row">
 
-                
-                
-                
-                
                 {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                     {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
                     {!! Form::text('arabic_title', old('arabic_title'), [
@@ -357,20 +353,6 @@
     @endif
 </div>
                     </div>
-
-            <!-- <div class="row">
-                        <label class="col-md-2 form-control-label" for="first_name">Select Department</label>
-
-                        <div class="col-md-10">
-                            <select name="department_id" class="form-control">
-                                <option value=""> Select One </option>
-                                @foreach ($departments as $row)
-    <option value="{{ $row->id }}"> {{ $row->title }} </option>
-    @endforeach
-                            </select>
-                        </div> -->
-            <!--col-->
-            <!-- </div> -->
 
             <div class="row">
                 <div class="col-md-12 form-group">
@@ -861,9 +843,10 @@ $('#expire_at').datepicker({
                 placeholder: "{{ trans('labels.backend.courses.select_category') }}",
             });
 
-            $(".js-example-placeholder-multiple").select2({
-                placeholder: "{{ trans('labels.backend.courses.select_teachers') }}",
-            });
+            $(".js-example-placeholder-single").select2({
+        placeholder: "Select Teacher",
+        allowClear: false
+    });
 
             $(".js-example-internal-student-placeholder-multiple").select2({
                 placeholder: "{{ trans('labels.backend.courses.select_internal_students') }}",

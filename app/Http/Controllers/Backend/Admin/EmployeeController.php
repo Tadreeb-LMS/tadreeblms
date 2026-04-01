@@ -118,8 +118,6 @@ class EmployeeController extends Controller
             'employee_import_sample.xlsx'
         );
     }
-
-
     /**
      * Display a listing of Courses via ajax DataTable.
      *
@@ -191,17 +189,6 @@ class EmployeeController extends Controller
                 $deaprt = $q->getPosition();
                 return $deaprt;
             })
-            // ->addColumn('status', function ($q) {
-            //     $checked = $q->active == 1 ? 'checked' : '';
-            //     $html = '<label class="switch switch-lg switch-3d switch-primary">
-            //                 <input type="checkbox" id="' . $q->id . '" class="switch-input" data-id="' . $q->id . '" value="1" checked="' . $checked . '">
-            //                 <span class="switch-label"></span>
-            //                 <span class="switch-handle"></span>
-            //             </label>
-            //             ';
-            //     return $html;
-            //     // return ($q->active == 1) ? "Enabled" : "Disabled";
-            // })
                      ->addColumn('status', function ($q) {
         $checked = $q->active == 1 ? 'checked' : '';
         $html = '<div class="custom-control custom-switch">
@@ -247,9 +234,7 @@ class EmployeeController extends Controller
                     $q->where('active', '1');
             })
             ->groupBy('email')->orderBy('created_at', 'desc');
-        }
-
-        
+        }      
 
         if (auth()->user()->isAdmin()) {
             $has_view = true;
@@ -258,7 +243,6 @@ class EmployeeController extends Controller
             $has_reset = true;
         }
         
-
         $has_view   = Gate::allows('trainee_view');
         $has_edit   = Gate::allows('trainee_edit');
         $has_delete = Gate::allows('trainee_delete');
@@ -296,9 +280,6 @@ class EmployeeController extends Controller
                         ->with(['route' => route('admin.employee.reset-pass', ['id' => $q->id]), 'email' => $q->email])
                         ->render();
                 }
-
-                //$view .= '<a class="btn btn-warning mb-1" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">' . trans('labels.backend.courses.title') . '</a>';
-
                   return '<div class="actions-cell">' . $actions . '</div>';
             })
             ->addColumn('department', function ($q) {
@@ -365,20 +346,12 @@ class EmployeeController extends Controller
         return DataTables::of($teachers)->make(true);
     }
 
-
-
-
     /**
      * Show the form for creating new Category.
      *
      * @return \Illuminate\Http\Response
      */
-    // public function create()
-    // {
-    //     $departments = Department::all();
-    //     $positions = Position::all();
-    //     return view('backend.employee.create', ['departments' => $departments, 'positions' => $positions]);
-    // }
+    
     public function create(ManageUserRequest $request,RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
         // $countries = DB::table('master_countries')->get();
@@ -484,10 +457,7 @@ class EmployeeController extends Controller
         }
 
         return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully']);
-        // return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.created'));
-        // return redirect()->route('admin.assessment_accounts.assignments')->withFlashSuccess(trans('Attach assessment here'));
     }
-
 
     /**
      * Show the form for editing Category.
@@ -598,7 +568,6 @@ class EmployeeController extends Controller
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
 
-
     /**
      * Display Category.
      *
@@ -612,7 +581,6 @@ class EmployeeController extends Controller
 
         return view('backend.employee.show', compact('teacher'));
     }
-
 
     /**
      * Remove Category from storage.
@@ -665,7 +633,6 @@ class EmployeeController extends Controller
         }
     }
 
-
     /**
      * Restore Category from storage.
      *
@@ -694,7 +661,6 @@ class EmployeeController extends Controller
 
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
-
 
     /**
      * Update teacher status
@@ -741,20 +707,12 @@ class EmployeeController extends Controller
 
     public function all_enrolled_student($course_id)
     {
-        //dd($course_id);
-        // $subscribe_courses = auth()->user()->subscribeCourses();
         return view('backend.employee.report', ['course_id' => $course_id]);
     }
 
     public function internal_reports($course_id = null)
     {
 
-        // $reports = DB::table('reports')->join('users','users.id','reports.user_id')
-        //                 ->join('department','department.id','reports.departments')
-        //                 ->select('reports.*','users.first_name as username','department.title as department')
-        //                 ->orderBy('reports.id','DESC')
-        //                 ->get();
-        // dd($reports1);
         return view('backend.employee.internal_report', ['course_id' => $course_id]);
     }
 
@@ -781,9 +739,6 @@ class EmployeeController extends Controller
 
         $teachers->where('course_id', $course_id)->groupBy('user_id')
             ->orderBy('created_at', 'desc');
-
-
-
 
         $teachers = $teachers->get();
         //dd($teachers);
@@ -940,144 +895,6 @@ class EmployeeController extends Controller
         }
     }
 
-
-//     public function import(Request $request)
-//     {
-
-//         $IsSaved = false;
-
-//         if (request()->hasFile('file')) {
-
-//             $maximum_execution_time = Config::get('constants.maximum_execution_time');
-//             set_time_limit($maximum_execution_time);
-
-//             $ExcelData = Excel::toArray(new UsersImport, request()->file('file'));
-//             if (!empty($ExcelData)) {
-//                 $ExtractedDataFromExcel = $ExcelData[0];
-
-//                 if (!empty($ExtractedDataFromExcel)) {
-//                     $count = 0;
-
-//                     $TotalData = count($ExtractedDataFromExcel) - 0;
-//                     // echo '<pre>';    print_r($ExtractedDataFromExcel);die;
-//                     foreach ($ExtractedDataFromExcel as $ExcelKey => $ExcelValue) {
-
-//                         if ($count == 0) {
-//                             $count++;
-//                             continue;
-//                         }
-//                         $count++;
-//                         $IsDataSuccessfullyInserted = false;
-//                         $exist_email = User::where('email', trim($ExcelValue[2]))->first();
-//                         if (empty($exist_email)) {
-//                             if ($ExcelValue[2] != null) {
-//                                 $RetailerPlanId = 0;
-//                                 $RetailerPlan = new User();
-//                                 $RetailerPlan->emp_id = trim($ExcelValue[0]);
-//                                 $RetailerPlan->first_name = trim($ExcelValue[1]);
-//                                 $RetailerPlan->last_name = trim($ExcelValue[2]);
-//                                 $RetailerPlan->email = trim($ExcelValue[3]);
-//                                 $RetailerPlan->work_id = trim($ExcelValue[6]);
-//                                 $RetailerPlan->password = Hash::make($ExcelValue[4]);
-//                                 //echo '<pre>';    print_r($ExcelValue);die;
-//                                 $RetailerPlan->gender = trim($ExcelValue[7]);
-//                                 $RetailerPlan->confirmed = 1;
-//                                 $RetailerPlan->employee_type = 'internal';
-//                                 $RetailerPlan->assignRole('student');
-//                                 if ($RetailerPlan->save()) {
-//                                     $RetailerPlanId = $RetailerPlan->id;
-
-
-//                                     $mail = new PHPMailer(true);     // Passing `true` enables exceptions
-//                                     try {
-//                                         $mail->SMTPDebug = 0;
-//                                         $mail->isSMTP();
-//                                         $mail->Host = env('MAIL_HOST');             //  smtp host
-//                                         $mail->SMTPAuth = true;
-//                                         $mail->Username = env('MAIL_USERNAME');  //  sender username
-//                                         $mail->Password = env('MAIL_PASSWORD');       // sender password
-//                                         $mail->SMTPSecure = 'tls';                  // encryption - ssl/tls
-//                                         $mail->Port = 587;                          // port - 587/465
-//                                         $mail->setFrom(env('MAIL_USERNAME'), env('APP_NAME'));
-//                                         $mail->addAddress($ExcelValue[3]);
-//                                         $mail->isHTML(true);                // Set email content format to HTML
-//                                         $mail->Subject = "New User Registered " . env('APP_NAME');
-//                                         $mail->Body    = "# Hello $ExcelValue[1]<br>
-
-// In our system new user registered, User details are below<br>
-
-// Name * $ExcelValue[1] * <br>
-// Email * $ExcelValue[3] * <br>
-// Password * $ExcelValue[4] *
-
-// <br>
-// Thanks,<br>" . env('APP_NAME');
-//                                         $mail->send();
-//                                     } catch (Exception $e) {
-//                                         //return response()->json([ 'status'=>'success' , 'clientmsg' => 'Added successfully Mail Not Send' ]);
-//                                     }
-//                                 }
-//                                 if ($RetailerPlanId > 0) {
-
-//                                     $RetailerPlanDetail = new EmployeeProfile();
-//                                     $RetailerPlanDetail->user_id = $RetailerPlanId;
-//                                     if ($ExcelValue[5]) {
-//                                         $RetailerPlanDetail->department = trim($ExcelValue[5]);
-//                                     }
-
-//                                     $RetailerPlanDetail->position = trim($ExcelValue[6]);
-
-//                                     if ($RetailerPlanDetail->save()) {
-//                                         $IsDataSuccessfullyInserted = true;
-//                                         $IsSaved = true;
-//                                     }
-
-//                                     $exist_slug = Department::where('slug', str_slug(trim($ExcelValue[5])))->first();
-//                                     if ($exist_slug) {
-//                                         // return redirect()->route('admin.employee.index')->withFlashDanger('Department title is already exist');
-//                                         $RetailerPlanDetail->department = $exist_slug->id;
-//                                         $RetailerPlanDetail->save();
-//                                         $IsDataSuccessfullyInserted = true;
-//                                     } else {
-//                                         $dep = new Department();
-//                                         $dep->title = trim($ExcelValue[5]);
-//                                         $dep->slug = str_slug(trim($ExcelValue[5]));
-//                                         $message = trim($ExcelValue[1]);
-//                                         $dom = new \DOMDocument();
-//                                         $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-//                                         $dep->content = $dom->saveHTML();
-//                                         $dep->user_id = auth()->user()->id;
-//                                         $dep->published = 1;
-//                                         $dep->sidebar = 1;
-//                                         if ($dep->save()) {
-//                                             if (empty($ExcelValue[4])) {
-//                                                 $RetailerPlanDetail->department = $dep->id;
-//                                                 $RetailerPlanDetail->save();
-//                                             }
-//                                             // $RetailerPlanId = $RetailerPlan->id;
-//                                             $IsDataSuccessfullyInserted = true;
-//                                         }
-//                                     }
-//                                     // $dep = new Department();
-
-//                                 }
-//                                 if ($IsDataSuccessfullyInserted) {
-//                                     $TotalData++;
-//                                 }
-//                             }
-//                         } else if ($exist_email) {
-//                             return redirect()->route('admin.employee.index')->withFlashDanger('Email is already exist');
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         if ($IsSaved) {
-//             return redirect()->route('admin.employee.index')->withFlashSuccess(trans('alerts.backend.general.created'));
-//         }
-//         return redirect()->route('admin.employee.index')->withFlashDanger('Something went wrong');
-//     }
-
     public function external_employee_create()
     {
         $countries = DB::table('master_countries')->get();
@@ -1169,17 +986,6 @@ class EmployeeController extends Controller
         return redirect()->route('admin.employee.external_index')->withFlashSuccess(trans('alerts.backend.general.created'));
     }
 
-    // public function internal_reports(){
-
-    //     $reports = DB::table('reports')->join('users','users.id','reports.user_id')
-    //                     ->join('department','department.id','reports.departments')
-    //                     ->select('reports.*','users.first_name as username','department.title as department')
-    //                     ->orderBy('reports.id','DESC')
-    //                     ->get();
-    //     // dd($reports1);
-    //     return view('backend.employee.internal_report',compact('reports'));
-    // }
-
     public function reports_create_internal()
     {
         $departments = Department::all();
@@ -1200,8 +1006,6 @@ class EmployeeController extends Controller
         $reports->save();
         return redirect()->route('admin.employee.internal_reports')->withFlashSuccess(trans('Internal Reports Added succefully'));
     }
-
-
 
     public function enrolled_get_data_internal(Request $request, $course_id, $show_deleted = 0, $search_type = null)
     {
@@ -1230,24 +1034,11 @@ class EmployeeController extends Controller
                 ->orderBy('created_at', 'desc');
         })->get();
 
-        // $teachers->where('course_id',$course_id)->groupBy('user_id')
-        // ->orderBy('created_at','desc');
-
-
-
-
-
-        // $teachers = $teachers->get();
-
-        //dd($teachers);
-
         if (auth()->user()->isAdmin()) {
             $has_view = true;
             $has_edit = true;
             $has_delete = true;
         }
-        //$teachers = $teachers->get();
-        //dd($teachers);
 
         return DataTables::of($teachers)
             ->addIndexColumn()
@@ -1260,10 +1051,6 @@ class EmployeeController extends Controller
                 }
 
                 if ($has_view) {
-                    /*
-                    $view = view('backend.datatable.action-view')
-                        ->with(['route' => route('admin.employee.course_detail', [$course_id,$q->id])])->render();
-                    */
                 }
 
                 if ($has_edit) {
@@ -1281,9 +1068,6 @@ class EmployeeController extends Controller
                         ->render();
                     $view .= $delete;
                 }
-
-                //$view .= '<a class="btn btn-warning mb-1" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">' . trans('labels.backend.courses.title') . '</a>';
-
                 return $view;
             })
             ->addColumn('email', function ($q) {
@@ -1400,10 +1184,7 @@ class EmployeeController extends Controller
             return response()->json(['status' => 'success', 'clientmsg' => 'Added successfully Mail Not Send']);
         }
 
-        // $teacher = User::where('id',$id)->first();
-        // $teacher->password = Hash::make($request->password);
-        // $teacher->updated_at = date('Y-m-d H:i:s');
-        // $teacher->save();
+     
         return redirect()->route('admin.employee.index')->withFlashSuccess(trans('Password reset link send successfully'));
     }
 
@@ -1467,83 +1248,6 @@ class EmployeeController extends Controller
             ->make();
     }
 
-    // public function internal_attendence_report()
-    // {
-    //     $data = [];
-    //     // $data['val'] = SubscribeCourse::join('courses', 'courses.id', 'subscribe_courses.course_id')
-    //     //     ->join('users', 'users.id', 'subscribe_courses.user_id')
-    //     //     ->leftJoin('video_progresses', 'video_progresses.user_id', 'users.id')
-    //     //     ->leftJoin('course_user', 'course_user.course_id', 'courses.id')
-    //     //     ->leftJoin('assignments', 'assignments.course_id', 'courses.id')
-    //     //     ->join('employee_profiles', 'employee_profiles.user_id', 'users.id')
-    //     //     //->groupBy('users.id')
-    //     //     ->select('course_user.user_id as course_user_id', 'video_progresses.progress_per', 'courses.id as this_course_id', 'users.*', 'courses.*', 'users.id as this_users_id', 'subscribe_courses.*', 'subscribe_courses.created_at as sub_created_at', 'employee_profiles.department', 'employee_profiles.position', 'assignments.id as assignment_id')
-    //     //     ->where('user_id','4319')
-    //     //     ->where('employee_type', 'internal')
-    //     //     ->get();
-    //     // echo '<pre>'; print_r($data['val']);die;     
-    //     $subscribeCourse = SubscribeCourse::orderBy('id', 'Desc')->get();
-
-    //     $data['val'] = [];
-
-
-    //     $i = 0;
-    //     foreach ($subscribeCourse as $value) {
-
-    //         $value['user_detail'] = DB::table('users')->where('id', $value->user_id)->first();
-
-    //         $courses = DB::table('courses')->where('id', $value->course_id)->first();
-
-    //         $value['courses'] = $courses;
-
-    //         $course_user = DB::table('course_user')->where('course_id', $value->course_id)->first();
-    //         $value['course_user'] = $course_user;
-    //         $value->username = '';
-    //         if (!empty($course_user)) {
-    //             $username = DB::table('users')->where('id', $course_user->user_id)->first();
-    //             $value->username = $username->first_name . ' ' . $username->last_name;
-    //         }
-
-    //         $video_progresses = DB::table('video_progresses')->where('user_id', $value->user_id)->first();
-
-    //         $value['video_progresses'] = $video_progresses;
-    //         if (!empty($video_progresses)) {
-    //             $value->progress_per = $video_progresses->progress_per;
-
-    //             $value->progress_per = CustomHelper::progress($value->course_id, $value->user_id);
-
-    //             if ($value->progress_per > 0 && $value->progress_per < 70) {
-    //                 $value->progress_status = 'In progress';
-    //             } else if ($value->progress_per >= 70) {
-    //                 $value->progress_status = 'Completed';
-    //             } else {
-    //                 $value->progress_status = 'Not started';
-    //             }
-    //         } else {
-    //             $value->progress_status = 'Not started';
-    //             $value->progress_per = '0';
-    //         }
-    //         $value['assignments'] = DB::table('assignments')->where('course_id', $value->course_id)->first();
-    //         $value['employee_profiles'] = DB::table('employee_profiles')->where('user_id', $value->user_id)->first();
-
-    //         //$course_status= CustomHelper::progress($value->course_id);
-    //         //echo '<pre>';print_r($course_status);die;
-
-
-    //         if ($value->sub_created_at != null || $value->sub_created_at) {
-    //             $value->assign_date = '-';
-    //         }
-
-
-
-    //         //             $i++;
-    //     }
-
-
-    //     //echo '<pre>'; print_r($subscribeCourse);die;    
-    //     return view('backend.employee.internal_attendace_report', compact('data', 'subscribeCourse'));
-    // }
-
     public function exportInternalAttendenceReportAsCsv(Request $request)
     {
         ini_set('max_execution_time', 3000);
@@ -1570,7 +1274,6 @@ class EmployeeController extends Controller
         ]);
     }
 
-
     public function checkExportDownloadReady()
     {
         $status = false;
@@ -1591,7 +1294,6 @@ class EmployeeController extends Controller
         ]);
     }
 
-
     public function exportTraineesAsCsv()
     {
         ini_set('max_execution_time', 3000);
@@ -1600,13 +1302,11 @@ class EmployeeController extends Controller
 
     public function internal_attendence_report__(Request $request)
     {
-        
-        //Artisan::call('generate-user-internal-report');
 
         if ($request->ajax()) {
 
             ExportInternalReportNotification::where('user_id', auth()->user()->id)->delete();
-
+            $progress_status = $request->progress_status ?? null;
             $user_id = $request->user_id ?? null;
             $course_id = $request->course_id ?? null;
             $assign_from_date = $request->from ?? null;
@@ -1614,11 +1314,19 @@ class EmployeeController extends Controller
 
             //dd($request->all());
 
-            $subscribeCourse = SubscribeCourse::with('user', 'student', 'course')
-                                    ->whereHas('user', function ($query) use ($user_id) {
+            $subscribeCourse = SubscribeCourse::with('user', 'user.employee' , 'student', 'course')
+                                    ->whereHas('user', function ($query) use ($user_id , $dept_id) {
                                         if (!empty($user_id)) {
                                             $query->where('id', $user_id);
                                         }
+                                        if (!empty($dept_id)) {
+                                            $query->whereHas('employee', function ($q) use ($dept_id) {
+                                            $q->where('department', $dept_id);
+                                            });
+                                        }
+                                    })
+                                    ->when(!empty($progress_status), function ($q) use ($progress_status) {
+                                        $q->where('progress_status', $progress_status);
                                     })
                                     ->when(!empty($assign_from_date) && !empty($assign_to_date), function ($q) use ($assign_from_date, $assign_to_date) {
                                         $q->whereBetween('assign_date', [$assign_from_date, $assign_to_date]);
@@ -1865,18 +1573,19 @@ class EmployeeController extends Controller
                     }
                 })
                 ->addColumn('progress_status', function ($row) {
-                    $progress = CustomHelper::progress($row->course_id, $row->user_id);
-                    if ($progress > 0 && $progress < 70) {
-                        return 'In progress';
-                    } elseif ($progress >= 70) {
-                        return 'Completed';
+                    switch ($row->progress_status) {
+                        case 'not_started':
+                            return 'Not Started';
+                        case 'in_progress':
+                            return 'In Progress';
+                        case 'completed':
+                            return 'Completed';
+                        default:
+                            return '-';
                     }
-                    return 'Not started';
                 })
                 ->addColumn('assignment_status', function ($row) {
                     if($row->has_assesment) {
-                        //$progress = CustomHelper::progress($row->course_id, $row->user_id);
-                        //dd($progress);
                         if($row->assesment_taken) {
                             $score = @$row->student->id ? @$row->assignmentRawScore(@$row->student->id) : 0;
                             if($score >= 70) {
