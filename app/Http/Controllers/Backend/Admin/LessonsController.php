@@ -155,9 +155,7 @@ class LessonsController extends Controller
             })
             ->editColumn('free_lesson', fn($q) => $q->free_lesson == 1 ? 'Yes' : 'No')
             ->editColumn('published', fn($q) => $q->published == 1 ? 'Yes' : 'No')
-            ->rawColumns(['lesson_image', 'qr_code', 'attendance', 'actions']
-           
-
+            ->rawColumns(['lesson_image', 'qr_code', 'attendance', 'actions'])
             ->make();
     }
 
@@ -196,10 +194,6 @@ class LessonsController extends Controller
     }
 
     public function store(StoreLessonsRequest $request)
-{
-    if (!Gate::allows('lesson_create')) {
-        return abort(401);
-    }
     {
         if (!Gate::allows('lesson_create')) {
             return abort(401);
@@ -610,5 +604,4 @@ class LessonsController extends Controller
         return back()->withFlashSuccess(trans('alerts.backend.general.deleted'));
 
     }
-}
 }
