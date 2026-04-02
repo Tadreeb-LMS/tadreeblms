@@ -133,7 +133,6 @@
 @stop
 
 @push('after-scripts')
-<<<<<<< feature/lessons-filtering-and-security-fixes
 <script>
     $(document).ready(function () {
         @php
@@ -164,107 +163,6 @@
                         { extend: 'csv', text: 'CSV', exportOptions: { columns: [1, 2, 3, 4, 5] } },
                         { extend: 'pdf', text: 'PDF', exportOptions: { columns: [1, 2, 3, 4, 5] } },
                     ],
-=======
-    <script>
-
-        $(document).ready(function () {
-            var route = '{{route('admin.lessons.get_data')}}';
-
-
-            @php
-                $show_deleted = (request('show_deleted') == 1) ? 1 : 0;
-                $course_id = (request('course_id') != "") ? request('course_id') : '';
-            $route = route('admin.lessons.get_data',['show_deleted' => $show_deleted,'course_id' => $course_id]);
-            @endphp
-
-            route = '{{$route}}';
-            route = route.replace(/&amp;/g, '&');
-
-            $('#myTable').DataTable({
-                processing: true,
-                serverSide: true,
-                iDisplayLength: 10,
-                retrieve: true,
-                dom: "<'table-controls'lfB>" +
-                     "<'table-responsive't>" +
-                     "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
-                             buttons: [
-    {
-        extend: 'collection',
-        text: '<i class="fa fa-download icon-styles"></i>',
-        className: '',
-        buttons: [
-            {
-                extend: 'csv',
-                text: 'CSV',
-                exportOptions: {
-                    columns: [1, 2, 3, 4, 5]
-                }
-            },
-            {
-                extend: 'pdf',
-                text: 'PDF',
-                exportOptions: {
-                    columns: [1, 2, 3, 4, 5]
-                }
-            }
-        ]
-    },
-      {extend: 'colvis',
-    text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>',
-    className: ''},
-],
-                // buttons: [
-                //     {
-                //         extend: 'csv',
-                //         exportOptions: {
-                //             columns: [ 1, 2, 3, 4]
-                //         }
-                //     },
-                //     {
-                //         extend: 'pdf',
-                //         exportOptions: {
-                //             columns: [ 1, 2, 3, 4]
-                //         }
-                //     },
-                //     'colvis'
-                // ],
-                ajax: route,
-                columns: [
-                        @if(request('show_deleted') != 1)
-                    {
-                        "data": function (data) {
-                            return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
-                        }, "orderable": false, "searchable": false, "name": "id"
-                    },
-                        @endif
-                    {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
-                    //{data: "id", name: 'id'},
-
-                    {data: "title", name: 'title'},
-                    {data: "course", name: 'course.title', defaultContent: 'N/A'},
-                    {data: "lesson_start_date", name: 'lesson_start_date'},
-                    {data: "duration", name: 'duration'},
-                    {data: "attendance", name: 'attendance'},
-                    {data: "qr_code" , name: "qr_code"},
-                    {data: "published", name: "published"},
-                    {data: "actions", name: "actions"}
-                ],
-                @if(request('show_deleted') != 1)
-                columnDefs: [
-                    {"width": "5%", "targets": 0},
-                    {"className": "text-center", "targets": [0]}
-                ],
-                @endif
-                initComplete: function () {
-                   let $searchInput = $('#myTable_filter input[type="search"]');
-    $searchInput
-        .addClass('custom-search')
-        .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
-        .after('<i class="fa fa-search search-icon"></i>');
-
-    $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
->>>>>>> main
                 },
                 {
                     extend: 'colvis',
@@ -286,6 +184,7 @@
                 @endif
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false, orderable: false },
                 { data: 'title', name: 'title' },
+                { data: 'course', name: 'course.title', defaultContent: 'N/A' },
                 { data: 'lesson_start_date', name: 'lesson_start_date' },
                 { data: 'duration', name: 'duration' },
                 { data: 'attendance', name: 'attendance' },
