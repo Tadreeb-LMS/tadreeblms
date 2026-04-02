@@ -31,6 +31,69 @@
             border-radius: 3px;
         }
 
+        .media-file-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: #fff;
+        }
+
+        .media-file-row .file-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .media-file-row .file-type-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            background: #eef2f7;
+            color: #344054;
+        }
+
+        .media-file-row .file-type-badge.pdf {
+            background: #fee2e2;
+            color: #b42318;
+        }
+
+        .media-file-row .file-type-badge.audio {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .media-file-row .file-type-badge.file {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .media-file-row .remove-file {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 28px;
+            border-radius: 14px;
+            padding: 0 10px;
+            gap: 4px;
+            font-size: 12px;
+        }
+
     </style>
 
 @endpush
@@ -95,7 +158,7 @@
 
                     <div class="col-md-12 col-lg-5 form-group">
 
-                        <label for="lesson_image" class="control-label">{{ trans('labels.backend.lessons.fields.lesson_image').' '.trans('labels.backend.lessons.max_file_size') }}</label>
+                        <label for="lesson_image" class="control-label">{{ trans('labels.backend.lessons.fields.lesson_image').' '.trans('labels.backend.lessons.max_file_size') }} (JPEG, PNG, GIF)</label>
                         <input type="file" name="lesson_image" class="form-control" accept="image/jpeg,image/gif,image/png" style="margin-top: 4px;">
                         <input type="hidden" name="lesson_image_max_size" value="8">
                         <input type="hidden" name="lesson_image_max_width" value="4000">
@@ -110,10 +173,10 @@
                     <div class="col-md-12 col-lg-6 form-group">
 
                                 <div for="lesson_image" class="control-label mb-2">
-                         {{ trans('labels.backend.lessons.fields.lesson_image') }} {{ trans('labels.backend.lessons.max_file_size') }}
+                         {{ trans('labels.backend.lessons.fields.lesson_image') }} {{ trans('labels.backend.lessons.max_file_size') }} (JPEG, PNG, GIF)
                     </div>
-                     <div class="custom-file-upload-wrapper">
-                            <input type="file" name="image" id="customFileInput" class="custom-file-input">
+                    <div class="custom-file-upload-wrapper">
+                        <input type="file" name="lesson_image" id="lessonImageInput" class="custom-file-input">
                             <label for="customFileInput" class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
@@ -139,8 +202,8 @@
                 <div class="col-12 form-group">
                     <label for="downloadable_files" class="control-label">{{ trans('labels.backend.lessons.fields.downloadable_files').' '.trans('labels.backend.lessons.max_file_size') }}</label>
                      <div class="custom-file-upload-wrapper">
-                            <input type="file" name="image" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
+                            <input type="file" name="downloadable_files[]" id="downloadableFilesInput" class="custom-file-input" multiple>
+                            <label for="downloadableFilesInput" class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
                         </div>
@@ -155,14 +218,16 @@
                         <div class="files-list">
                             @if(count($lesson->media) > 0)
                                 @foreach($lesson->media as $media)
-                                        @if($media->type == 'download_file')
-                                            <p class="form-group">
-                                                <a download href="{{ $media->url }}"
-                                                target="_blank">{{ $media->file_name }}
-                                                    ({{ $media->size }} KB)</a>
-                                                <a href="#" data-media-id="{{$media->id}}"
-                                                class="btn btn-xs btn-danger delete remove-file">@lang('labels.backend.lessons.remove')</a>
-                                            </p>
+                                        @if($media->type == 'download_file' || str_contains((string)$media->type, '/'))
+                                            <div class="media-file-row">
+                                                <a class="file-name" download href="{{ $media->url }}" target="_blank" title="{{ $media->file_name }}">
+                                                    <span class="file-type-badge file">FILE</span>
+                                                    <span>{{ $media->file_name }}</span>
+                                                </a>
+                                                <a href="#" data-media-id="{{$media->id}}" class="btn btn-xs btn-danger delete remove-file" title="@lang('labels.backend.lessons.remove')">
+                                                    <span aria-hidden="true">🗑</span><span>@lang('labels.backend.lessons.remove')</span>
+                                                </a>
+                                            </div>
                                         @endif
                                 @endforeach
                             @endif
@@ -174,27 +239,27 @@
                 <div class="col-12 form-group">
                     <label for="pdf_files" class="control-label">{{ trans('labels.backend.lessons.fields.add_pdf') }}</label>
                     <div class="custom-file-upload-wrapper">
-                            <input type="file" name="image" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
+                            <input type="file" name="add_pdf" id="lessonPdfInput" class="custom-file-input" accept="application/pdf">
+                            <label for="lessonPdfInput" class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
                         </div>
                     <div class="photo-block mt-3">
                         <div class="files-list">
                             @if($lesson->media)
-                                {{-- {{ dd($lesson->media) }} --}}
-                                <p class="form-group">
-                                    {{-- <a href="{{ asset('storage/uploads/'.$lesson->media->name) }}"
-                                       target="_blank">{{ $lesson->media?->name }}
-                                        ({{ $lesson->media->size }} KB)</a> --}}
-                                    {{-- <a href="#" data-media-id="{{$lesson->media->id}}"
-                                       class="btn btn-xs btn-danger delete remove-file">@lang('labels.backend.lessons.remove')</a> --}}
-                                    @foreach($lesson->media as $media)
-                                        @if($media->type == 'lesson_pdf')
-                                        <iframe src="{{ $media->url }}" width="100%" height="500px"></iframe>
-                                        @endif
-                                    @endforeach
-                                </p>
+                                @foreach($lesson->media as $media)
+                                    @if($media->type == 'lesson_pdf')
+                                        <div class="media-file-row">
+                                            <a class="file-name" href="{{ $media->url }}" target="_blank" title="{{ $media->file_name }}">
+                                                <span class="file-type-badge pdf">PDF</span>
+                                                <span>{{ $media->file_name }}</span>
+                                            </a>
+                                            <a href="#" data-media-id="{{$media->id}}" class="btn btn-xs btn-danger delete remove-file" title="@lang('labels.backend.lessons.remove')">
+                                                <span aria-hidden="true">🗑</span><span>@lang('labels.backend.lessons.remove')</span>
+                                            </a>
+                                        </div>
+                                    @endif
+                                @endforeach
                             @endif
                         </div>
                     </div>
@@ -205,8 +270,8 @@
                 <div class="col-12 form-group">
                     <label for="pdf_files" class="control-label">{{ trans('labels.backend.lessons.fields.add_audio') }}</label>
                    <div class="custom-file-upload-wrapper">
-                            <input type="file" name="image" id="customFileInput" class="custom-file-input">
-                            <label for="customFileInput" class="custom-file-label">
+                            <input type="file" name="add_audio" id="lessonAudioInput" class="custom-file-input" accept="audio/*">
+                            <label for="lessonAudioInput" class="custom-file-label">
                             <i class="fa fa-upload mr-1"></i> Choose a file
                             </label>
                         </div>
@@ -215,16 +280,15 @@
                             @if($lesson->media)
                                     @foreach($lesson->media as $media)
                                         @if($media->type == 'lesson_audio')
-                                            <p class="form-group">
-                                                <a href="{{ $media->url }}"
-                                                target="_blank">{{ $media->file_name }}
-                                                    ({{ $media->size }} KB)</a>
-                                                <a href="#" data-media-id="{{$media->id}}"
-                                                class="btn btn-xs btn-danger delete remove-file">@lang('labels.backend.lessons.remove')</a>
-                                                <audio id="player" controls>
-                                                    <source src="{{ $media->url }}" type="audio/mp3" />
-                                                </audio>
-                                            </p>
+                                            <div class="media-file-row">
+                                                <a class="file-name" href="{{ $media->url }}" target="_blank" title="{{ $media->file_name }}">
+                                                    <span class="file-type-badge audio">AUDIO</span>
+                                                    <span>{{ $media->file_name }}</span>
+                                                </a>
+                                                <a href="#" data-media-id="{{$media->id}}" class="btn btn-xs btn-danger delete remove-file" title="@lang('labels.backend.lessons.remove')">
+                                                    <span aria-hidden="true">🗑</span><span>@lang('labels.backend.lessons.remove')</span>
+                                                </a>
+                                            </div>
                                     @endif
                                 @endforeach
                             @endif
@@ -311,6 +375,26 @@
                             frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                @endif
+            @endif
+
+            @if($video->type == 'vimeo' && $video->url)
+                @php
+                    $vimeoUrl = trim((string) $video->url);
+                    $vimeoEmbedUrl = null;
+                    if (preg_match('#(?:vimeo\.com/(?:video/|channels/[^/]+/|groups/[^/]+/videos/|album/[^/]+/video/)?|player\.vimeo\.com/video/)(\d+)#i', $vimeoUrl, $vm)) {
+                        $vimeoEmbedUrl = 'https://player.vimeo.com/video/' . $vm[1];
+                    }
+                @endphp
+                @if($vimeoEmbedUrl)
+                    <div class="mt-3">
+                        <iframe width="420" height="250"
+                            src="{{ $vimeoEmbedUrl }}"
+                            frameborder="0"
+                            allow="autoplay; fullscreen; picture-in-picture"
                             allowfullscreen>
                         </iframe>
                     </div>
@@ -460,17 +544,36 @@
         $(document).ready(function () {
             $(document).on('click', '.delete', function (e) {
                 e.preventDefault();
-                var parent = $(this).parent('.form-group');
+                var row = $(this).closest('.media-file-row');
+                if (!row.length) {
+                    row = $(this).closest('.form-group');
+                }
                 var confirmation = confirm('{{trans('strings.backend.general.are_you_sure')}}')
                 if (confirmation) {
+                    var trigger = $(this);
                     var media_id = $(this).data('media-id');
-                    $.post('{{route('admin.media.destroy')}}', {media_id: media_id, _token: '{{csrf_token()}}'},
-                        function (data, status) {
-                            if (data.success) {
-                                parent.remove();
+                    // Instant UI feedback.
+                    row.stop(true, true).fadeOut(150);
+                    trigger.prop('disabled', true);
+
+                    $.post('{{route('admin.media.destroy')}}', {media_id: media_id, _token: '{{csrf_token()}}'})
+                        .done(function (data) {
+                            if (data && data.success) {
+                                row.remove();
                             } else {
-                                alert('Something Went Wrong')
+                                row.show();
+                                trigger.prop('disabled', false);
+                                alert((data && data.message) ? data.message : 'Something went wrong');
                             }
+                        })
+                        .fail(function (xhr) {
+                            row.show();
+                            trigger.prop('disabled', false);
+                            var message = 'Something went wrong';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                message = xhr.responseJSON.message;
+                            }
+                            alert(message);
                         });
                 }
             })

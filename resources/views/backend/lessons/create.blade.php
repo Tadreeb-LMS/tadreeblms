@@ -121,7 +121,7 @@
                         <i class="fa fa-times remove_less_slug"
                             onclick="removeLesslug(this)"
                             style="position:absolute; top:-10px; right:-10px; color:red; font-size:18px; cursor:pointer; display:none;"
-                            title="Remove Lesson"></i>
+                            title="{{ __('course_pages.admin_lessons_create.remove_lesson') }}"></i>
 
                         <div class="row">
                             <div class="col-md-6">
@@ -148,12 +148,12 @@
                                 <div class="form-group">
                                     <div for="lesson_image" class="control-label mb-2">
                                         {{ trans('labels.backend.lessons.fields.lesson_image') }}
-                                        {{ trans('labels.backend.lessons.max_file_size') }}
+                                        {{ trans('labels.backend.lessons.max_file_size') }} (JPEG, PNG, GIF)
                                     </div>
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="lesson_image[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> Choose a file
+                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
                                         </label>
                                     </div>
                                 </div>
@@ -196,7 +196,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="downloadable_files_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> Choose a file
+                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
                                         </label>
                                     </div>
                                 </div>
@@ -210,7 +210,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="add_pdf_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> Choose a file
+                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
                                         </label>
                                     </div>
                                 </div>
@@ -224,7 +224,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="add_audio_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> Choose a file
+                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
                                         </label>
                                     </div>
                                 </div>
@@ -234,47 +234,47 @@
                         <div class="row addvideocol">
                             <div class="col-md-4 form-group parent_group mt-2">
                                 <div class="videos-section">
-                                    <h5>Lesson Videos</h5>
+                                    <h5>{{ __('course_pages.admin_lessons_create.lesson_videos') }}</h5>
 
                                     <div class="videos-wrapper"></div>
 
                                     <button type="button" class="btn btn-primary mt-2 addVideo">
-                                        Add Video
+                                        {{ __('course_pages.admin_lessons_create.add_video') }}
                                     </button>
                                 </div>
 
                                 <div class="video-template d-none">
                                     <div class="video-item card p-3 mb-3">
-                                        <label>Video Title</label>
+                                        <label>{{ __('course_pages.admin_lessons_create.video_title') }}</label>
                                         <input type="text" name="videos[INDEX][title]" class="form-control" disabled>
 
-                                        <label>Type</label>
+                                        <label>{{ __('course_pages.admin_lessons_create.type') }}</label>
                                         <select name="videos[INDEX][type]" class="form-control video-type" disabled>
-                                            <option value="upload">Upload</option>
+                                            <option value="upload">{{ __('course_pages.admin_lessons_create.upload') }}</option>
                                             <option value="youtube">YouTube</option>
                                             <option value="vimeo">Vimeo</option>
-                                            <option value="embed">Embed</option>
+                                            <option value="embed">{{ __('course_pages.admin_lessons_create.embed') }}</option>
                                         </select>
 
                                         <div class="video-url mt-2 d-none">
-                                            <label>Video URL</label>
+                                            <label>{{ __('course_pages.admin_lessons_create.video_url') }}</label>
                                             <input type="text" name="videos[INDEX][url]"
                                                 class="form-control video-url-input" disabled>
                                         </div>
 
                                         <div class="video-file mt-2 d-none">
-                                            <label>Upload File</label>
+                                            <label>{{ __('course_pages.admin_lessons_create.upload_file') }}</label>
                                             <input type="file" name="videos[INDEX][file]"
                                                 class="form-control video-file-input" disabled>
                                         </div>
 
                                         <label class="mt-2">
                                             <input type="checkbox" name="videos[INDEX][is_preview]" value="1" disabled>
-                                            Preview Video
+                                            {{ __('course_pages.admin_lessons_create.preview_video') }}
                                         </label>
 
                                         <button type="button" class="removeVideo btn btn-danger btn-sm mt-2">
-                                            Remove
+                                            {{ __('course_pages.admin_lessons_create.remove') }}
                                         </button>
                                     </div>
                                 </div>
@@ -287,15 +287,15 @@
 
                         <div class="form-group row">
                             <div class="col-md-4 col-sm-12">
-                                <div for="duration" class="form-control-label mb-2">Duration</div>
+                                <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.duration') }}</div>
                                 <div>
                                     <input type="text" name="duration[]" class="form-control"
-                                        placeholder="Duration [minutes]">
+                                        placeholder="{{ __('course_pages.admin_lessons_create.duration_minutes') }}">
                                 </div>
                             </div>
 
                             <div class="col-md-4 col-sm-12 start_date">
-                                <div for="duration" class="form-control-label mb-2">Lesson Start Date</div>
+                                <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.lesson_start_date') }}</div>
                                 <div>
                                     <input class="form-control" type="date" name="lesson_start_date[]"
                                         id="lesson_start_date">
@@ -323,11 +323,11 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <button type="button" name="addmorebtn" id="addmorebtn"
-                                class="btn btn-outline-info">Add More Lesson</button>
+                                class="btn btn-outline-info">{{ __('course_pages.admin_lessons_create.add_more_lesson') }}</button>
                         </div>
                         <div>
                             <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
-                                Save As Draft
+                                {{ __('course_pages.admin_lessons_create.save_as_draft') }}
                             </button>
                             <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
                                 Next
@@ -405,10 +405,22 @@
         }
     }
 
+    function renumberLessonFileInputs() {
+        $('.lesson-box').each(function (index) {
+            const pointer = index + 1;
+            $(this).find('input[name^="downloadable_files_"]').attr('name', 'downloadable_files_' + pointer + '[]');
+            $(this).find('input[name^="add_pdf_"]').attr('name', 'add_pdf_' + pointer + '[]');
+            $(this).find('input[name^="add_audio_"]').attr('name', 'add_audio_' + pointer + '[]');
+            $(this).find('input[name^="video_file_"]').attr('name', 'video_file_' + pointer + '[]');
+            $(this).find('input[name^="media_type_"]').attr('name', 'media_type_' + pointer + '[]');
+        });
+    }
+
     window.videoIndex = window.videoIndex || 0;
 
     $(document).ready(function () {
         initEditors($(document));
+        renumberLessonFileInputs();
 
         $(document).on('click', '.addVideo', function () {
             const $parent = $(this).closest('.parent_group');
@@ -435,7 +447,7 @@
 
         $(document).on('change', '.custom-file-input', function (e) {
             const label = this.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
+            const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('course_pages.admin_lessons_create.choose_file') }}';
 
             if (label) {
                 label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
@@ -485,115 +497,125 @@
     });
 
     $(document).on('submit', '#addLesson', function (e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        function parseIniSizeToBytes(sizeText) {
-            if (!sizeText) return 0;
-            const value = String(sizeText).trim();
-            const unit = value.slice(-1).toUpperCase();
-            const num = parseFloat(value);
-            if (isNaN(num)) return 0;
-            if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
-            if (unit === 'M') return Math.round(num * 1024 * 1024);
-            if (unit === 'K') return Math.round(num * 1024);
-            return Math.round(num);
+    function parseIniSizeToBytes(sizeText) {
+        if (!sizeText) return 0;
+        const value = String(sizeText).trim();
+        const unit = value.slice(-1).toUpperCase();
+        const num = parseFloat(value);
+
+        if (isNaN(num)) return 0;
+        if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
+        if (unit === 'M') return Math.round(num * 1024 * 1024);
+        if (unit === 'K') return Math.round(num * 1024);
+        return Math.round(num);
+    }
+
+    const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
+    const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
+
+    let totalBytes = 0;
+    let singleTooLarge = false;
+
+    $('#addLesson input[type="file"]').each(function () {
+        if (!this.files || !this.files.length) {
+            return;
         }
 
-        const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
-        const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
+        for (let idx = 0; idx < this.files.length; idx++) {
+            const f = this.files[idx];
+            totalBytes += f.size;
 
-        let totalBytes = 0;
-        let singleTooLarge = false;
+            if (phpUploadMax > 0 && f.size > phpUploadMax) {
+                singleTooLarge = true;
+            }
+        }
+    });
 
-        $('#addLesson input[type="file"]').each(function () {
-            if (!this.files || !this.files.length) {
+    if (singleTooLarge) {
+        const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
+        alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
+        return;
+    }
+
+    if (phpPostMax > 0 && totalBytes > phpPostMax) {
+        const maxMb = Math.floor(phpPostMax / (1024 * 1024));
+        alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
+        return;
+    }
+
+    $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
+    $('#nextBtn,#doneBtn').prop('disabled', true);
+
+    var form = $('#addLesson')[0];
+    var data = new FormData(form);
+
+    let url = '{{ route('admin.lessons.store') }}';
+    let redirect_url_course = $("#lesson_index").val();
+    let redirect_question_url = $("#add_question_url").val();
+    let course_id = $(".course_id").first().val();
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: data,
+        processData: false,
+        contentType: false,
+
+        success: function (res) {
+            $('.loading').text('');
+
+            if (!res || res.status !== 'success') {
+                $('#nextBtn,#doneBtn').prop('disabled', false);
+
+                const fallbackMessage = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
+                let msg = (res && (res.clientmsg || res.message))
+                    ? (res.clientmsg || res.message)
+                    : fallbackMessage;
+
+                if (typeof res === 'string' && res.indexOf('POST Content-Length') !== -1) {
+                    msg = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
+                }
+
+                alert(msg);
                 return;
             }
 
-            for (let idx = 0; idx < this.files.length; idx++) {
-                const f = this.files[idx];
-                totalBytes += f.size;
-                if (phpUploadMax > 0 && f.size > phpUploadMax) {
-                    singleTooLarge = true;
+            let clicked = $('#btn_clicked').val();
+
+            if (clicked === 'nextBtn') {
+                window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
+            }
+
+            if (clicked === 'doneBtn') {
+                window.location.href = redirect_url_course;
+            }
+        },
+
+        error: function (xhr) {
+            $('.loading').text('');
+            $('#nextBtn,#doneBtn').prop('disabled', false);
+
+            console.log(xhr.responseText);
+
+            let message = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
+
+            if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
+                message = xhr.responseJSON.clientmsg;
+            } else if (xhr.status === 413) {
+                message = 'Upload is too large for server limits. Please reduce the video size and try again.';
+            } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
+                    message = xhr.responseJSON.errors[firstKey][0];
                 }
             }
-        });
 
-        if (singleTooLarge) {
-            const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
-            alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
-            return;
+            alert(message);
         }
-
-        if (phpPostMax > 0 && totalBytes > phpPostMax) {
-            const maxMb = Math.floor(phpPostMax / (1024 * 1024));
-            alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
-            return;
-        }
-
-        $('.loading').text('processing please wait...');
-        $('#nextBtn,#doneBtn').prop('disabled', true);
-
-        var form = $('#addLesson')[0];
-        var data = new FormData(form);
-
-        let url = '{{ route('admin.lessons.store') }}';
-        let redirect_url_course = $("#lesson_index").val();
-        let redirect_question_url = $("#add_question_url").val();
-        let course_id = $(".course_id").first().val();
-
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: data,
-            processData: false,
-            contentType: false,
-
-            success: function (res) {
-                $('.loading').text('');
-
-                if (!res || res.status !== 'success') {
-                    $('#nextBtn,#doneBtn').prop('disabled', false);
-                    const fallbackMessage = 'Something went wrong';
-                    let msg = (res && (res.clientmsg || res.message)) ? (res.clientmsg || res.message) : fallbackMessage;
-                    if (typeof res === 'string' && res.indexOf('POST Content-Length') !== -1) {
-                        msg = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
-                    }
-                    alert(msg);
-                    return;
-                }
-
-                let clicked = $('#btn_clicked').val();
-
-                if (clicked === 'nextBtn') {
-                    window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
-                }
-
-                if (clicked === 'doneBtn') {
-                    window.location.href = redirect_url_course;
-                }
-            },
-
-            error: function (xhr) {
-                $('.loading').text('');
-                $('#nextBtn,#doneBtn').prop('disabled', false);
-
-                console.log(xhr.responseText);
-                let message = 'Something went wrong';
-                if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
-                    message = xhr.responseJSON.clientmsg;
-                } else if (xhr.status === 413) {
-                    message = 'Upload is too large for server limits. Please reduce the video size and try again.';
-                } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                    const firstKey = Object.keys(xhr.responseJSON.errors)[0];
-                    if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
-                        message = xhr.responseJSON.errors[firstKey][0];
-                    }
-                }
-                alert(message);
-            }
-        });
     });
+});
 
     var i = 1;
 
@@ -601,8 +623,8 @@
         ++i;
         $("#dynamicAddRemove").append(
             '<tr>' +
-                '<td><input type="text" name="addMoreInputFields[' + i + '][subject]" placeholder="Enter subject" class="form-control" /></td>' +
-                '<td><button type="button" class="btn btn-outline-danger remove-input-field">Delete</button></td>' +
+                '<td><input type="text" name="addMoreInputFields[' + i + '][subject]" placeholder="{{ __('course_pages.admin_lessons_create.enter_subject') }}" class="form-control" /></td>' +
+                '<td><button type="button" class="btn btn-outline-danger remove-input-field">{{ __('course_pages.admin_lessons_create.delete') }}</button></td>' +
             '</tr>'
         );
     });
@@ -640,6 +662,7 @@
         $(".mo_create").append(clone);
 
         initEditors(clone);
+        renumberLessonFileInputs();
     });
 
     function removeLesslug(el) {
@@ -653,6 +676,7 @@
         });
 
         box.remove();
+        renumberLessonFileInputs();
     }
 </script>
 @endpush
