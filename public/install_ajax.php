@@ -13,11 +13,11 @@ if (!$basePath) {
     exit;
 }
 
-$envFile           = $basePath . '/.env';
-$dbConfigFile      = __DIR__ . '/db_config.json';
+$envFile = $basePath . '/.env';
+$dbConfigFile = __DIR__ . '/db_config.json';
 $migrationDoneFile = $basePath . '/.migrations_done';
-$seedDoneFile      = $basePath . '/.seed_done';
-$installedFlag     = $basePath . '/installed';
+$seedDoneFile = $basePath . '/.seed_done';
+$installedFlag = $basePath . '/installed';
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +76,8 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     $phpBin = trim(shell_exec('which php'));
 }
 
-if (!$phpBin) fail("PHP 8.2 CLI not found. Please install php8.2-cli");
+if (!$phpBin)
+    fail("PHP 8.2 CLI not found. Please install php8.2-cli");
 
 //$composerBin = '/usr/local/bin/composer';
 if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -86,7 +87,8 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     }
 } else {
     $composerBin = '/usr/local/bin/composer';
-    if (!file_exists($composerBin)) fail("Composer not found at $composerBin");
+    if (!file_exists($composerBin))
+        fail("Composer not found at $composerBin");
 }
 
 
@@ -104,7 +106,7 @@ $step = $_REQUEST['step'] ?? 'check';
 |--------------------------------------------------------------------------
 */
 if ($step === 'db_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db_host     = trim($_POST['db_host'] ?? '');
+    $db_host = trim($_POST['db_host'] ?? '');
     $db_database = trim($_POST['db_database'] ?? '');
     $db_username = trim($_POST['db_username'] ?? '');
     $db_password = $_POST['db_password'] ?? '';
@@ -138,7 +140,6 @@ try {
         | CHECK SYSTEM
         */
         case 'check':
-            @unlink($envFile);
             @unlink($dbConfigFile);
             @unlink($migrationDoneFile);
             @unlink($seedDoneFile);
@@ -198,14 +199,15 @@ try {
                 }
             }
 
-            if (!$ok) fail($msg . "<br>Fix errors and reload");
+            if (!$ok)
+                fail($msg . "<br>Fix errors and reload");
 
             echo json_encode(['success' => true, 'message' => $msg . "✔ All requirements OK", 'next' => 'composer']);
             exit;
 
-            /*
-        | COMPOSER INSTALL
-        */
+        /*
+    | COMPOSER INSTALL
+    */
         case 'composer':
             if (!is_writable($basePath)) {
                 if (stripos(PHP_OS, 'WIN') === 0) {
@@ -234,106 +236,180 @@ try {
             exit;
 
 
-            /*
-        | DB CONFIG FORM
-        */
+        /*
+    | DB CONFIG FORM
+    */
         case 'db_config':
             echo json_encode(['message' => 'Please enter database info', 'show_db_form' => true, 'next' => 'env']);
             exit;
 
-            /*
-        | ENV SETUP
-        */
+        /*
+    | ENV SETUP
+    */
         case 'env':
-            if (!file_exists($dbConfigFile)) fail("DB config missing");
+            // Ensure DB config file exists
+            if (!file_exists($dbConfigFile)) {
+                fail("DB config missing");
+            }
+
+            // Load DB configuration
             $config = json_decode(file_get_contents($dbConfigFile), true);
+            if (!is_array($config)) {
+                fail("Invalid DB config");
+            }
 
-            if (!file_exists($basePath . '/.env.example')) fail(".env.example not found");
-            if (!file_exists($envFile)) copy($basePath . '/.env.example', $envFile);
-            if (!is_writable($envFile)) fail(".env not writable. Run: sudo chown \$USER:www-data $envFile && sudo chmod 664 $envFile");
+            // Ensure .env.example exists
+            $envExample = $basePath . '/.env.example';
+            if (!file_exists($envExample)) {
+                fail(".env.example not found");
+            }
 
+            // Create .env only if it does not exist (DO NOT delete existing .env)
+            if (!file_exists($envFile)) {
+                if (!copy($envExample, $envFile)) {
+                    fail("Failed to create .env from .env.example");
+                }
+            }
+
+            // Validate file readability and writability
+            if (!is_readable($envFile)) {
+                fail(".env not readable");
+            }
+
+            if (!is_writable($envFile)) {
+                fail(".env not writable. Run: sudo chown \$USER:www-data $envFile && sudo chmod 664 $envFile");
+            }
+
+            // Read current .env content
             $env = file_get_contents($envFile);
-            $env = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $config['host'], $env);
-            $env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=' . $config['database'], $env);
-            $env = preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME=' . $config['username'], $env);
-            $env = preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD="' . $config['password'] . '"', $env);
-            
-            // Add KEYGEN credentials
-            //$env .= "\nKEYGEN_ACCOUNT_ID=\"20586e9c-e2e3-4347-afec-9d58b919fd0b\"";
-            //env .= "\nKEYGEN_PRODUCT_ID=\"073428fb-f67c-4f39-8081-6f5c8890051e\"";
-            //env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"\n";
+            if ($env === false) {
+                fail("Failed to read .env");
+            }
+
+            // Prepare DB values
+            $replacements = [
+                'DB_HOST' => $config['host'] ?? '',
+                'DB_DATABASE' => $config['database'] ?? '',
+                'DB_USERNAME' => $config['username'] ?? '',
+                'DB_PASSWORD' => $config['password'] ?? '',
+            ];
+
+            // Update or append DB variables safely
+            foreach ($replacements as $key => $value) {
+
+                // Escape password properly
+                $escapedValue = ($key === 'DB_PASSWORD')
+                    ? '"' . addcslashes($value, "\\\"") . '"'
+                    : $value;
+
+                // If key exists, replace it; otherwise append it
+                if (preg_match('/^' . preg_quote($key, '/') . '=.*$/m', $env)) {
+                    $env = preg_replace(
+                        '/^' . preg_quote($key, '/') . '=.*$/m',
+                        $key . '=' . $escapedValue,
+                        $env
+                    );
+                } else {
+                    $env .= "\n" . $key . '=' . $escapedValue;
+                }
+            }
+
+            // Append KEYGEN variables only if not already present
             if (strpos($env, 'KEYGEN_ACCOUNT_ID=') === false) {
                 $env .= "\nKEYGEN_ACCOUNT_ID=\"20586e9c-e2e3-4347-afec-9d58b919fd0b\"";
             }
+
             if (strpos($env, 'KEYGEN_PRODUCT_ID=') === false) {
                 $env .= "\nKEYGEN_PRODUCT_ID=\"073428fb-f67c-4f39-8081-6f5c8890051e\"";
             }
+
             if (strpos($env, 'KEYGEN_API_TOKEN=') === false) {
                 $env .= "\nKEYGEN_API_TOKEN=\"admin-b63462006f5c936ac08de5322b8b1ba20dbfd738d6ff8cb868b5249a7b442d29v3\"";
             }
 
-            // External module integration flags (false by default; set to true when module is installed & configured)
+            // Add integration flags if missing
             if (strpos($env, 'ZOOM_INTEGRATION=') === false) {
                 $env .= "\nZOOM_INTEGRATION=false";
             }
 
+            // Ensure file ends with newline
             $env .= "\n";
-            file_put_contents($envFile, $env);
 
-            echo json_encode(['message' => '.env created ✔', 'next' => 'key']);
+            // Write .env atomically to avoid race conditions (important for artisan serve)
+            $tmpEnvFile = $envFile . '.tmp';
+
+            if (file_put_contents($tmpEnvFile, $env, LOCK_EX) === false) {
+                fail("Failed to write temporary .env");
+            }
+
+            // Replace original .env with the new one
+            if (!rename($tmpEnvFile, $envFile)) {
+                @unlink($tmpEnvFile);
+                fail("Failed to replace .env");
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => '.env created ✔',
+                'next' => 'key'
+            ]);
             exit;
 
-            /*
-        | APP KEY
-        */
+        /*
+    | APP KEY
+    */
         case 'key':
             blockIfNoVendor($basePath);
             exec("$phpBin \"$basePath/artisan\" key:generate --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("APP_KEY generation failed:\n" . implode("\n", $out));
+            if ($ret !== 0)
+                fail("APP_KEY generation failed:\n" . implode("\n", $out));
             echo json_encode(['message' => '✔ APP_KEY generated', 'next' => 'migrate']);
             exit;
 
-            /*
-        | MIGRATE
-        */
+        /*
+    | MIGRATE
+    */
         case 'migrate':
             blockIfNoVendor($basePath);
             exec("$phpBin \"$basePath/artisan\" migrate --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("Migration failed:\n" . implode("\n", $out));
+            if ($ret !== 0)
+                fail("Migration failed:\n" . implode("\n", $out));
             file_put_contents($migrationDoneFile, 'done');
             echo json_encode(['message' => '✔ Migrations completed', 'next' => 'seed']);
             exit;
 
-            /*
-        | SEED
-        */
+        /*
+    | SEED
+    */
         case 'seed':
             blockIfNoVendor($basePath);
             exec("$phpBin \"$basePath/artisan\" db:seed --force 2>&1", $out, $ret);
-            if ($ret !== 0) fail("Seeding failed:\n" . implode("\n", $out));
+            if ($ret !== 0)
+                fail("Seeding failed:\n" . implode("\n", $out));
             file_put_contents($seedDoneFile, 'done');
             echo json_encode(['message' => '✔ Database seeded', 'next' => 'permissions']);
             exit;
 
-            /*
-        | PERMISSIONS
-        */
+        /*
+    | PERMISSIONS
+    */
         case 'permissions':
             foreach (['storage', 'bootstrap/cache'] as $dir) {
-                if (!is_writable("$basePath/$dir")) fail("$dir is not writable");
+                if (!is_writable("$basePath/$dir"))
+                    fail("$dir is not writable");
             }
             echo json_encode(['message' => '✔ Permissions OK', 'next' => 'finish']);
             exit;
 
-            /*
-        | FINISH
-        */
+        /*
+    | FINISH
+    */
         case 'finish':
             file_put_contents($installedFlag, 'installed');
             $env = file_get_contents($envFile);
             if (strpos($env, 'APP_INSTALLED=') === false) {
                 $env .= "\nAPP_INSTALLED=true\n";
-            }else {
+            } else {
                 $env = preg_replace('/APP_INSTALLED=.*/', 'APP_INSTALLED=true', $env);
             }
 

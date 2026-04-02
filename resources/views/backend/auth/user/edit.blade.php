@@ -35,10 +35,13 @@
                     <input type="text"
                            name="first_name"
                            id="first_name"
-                           class="form-control"
+                           class="form-control @error('first_name') is-invalid @enderror"
                            value="{{ old('first_name', $user->first_name) }}"
                            maxlength="191"
                            required>
+                    @error('first_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -51,10 +54,13 @@
                     <input type="text"
                            name="last_name"
                            id="last_name"
-                           class="form-control"
+                           class="form-control @error('last_name') is-invalid @enderror"
                            value="{{ old('last_name', $user->last_name) }}"
                            maxlength="191"
                            required>
+                    @error('last_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -67,11 +73,14 @@
                     <input type="email"
                            name="email"
                            id="email"
-                           class="form-control"
-                           value="{{ $user->email }}"
+                           class="form-control @error('email') is-invalid @enderror"
+                           value="{{ old('email', $user->email) }}"
                            readonly
                            maxlength="191"
                            required>
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -94,41 +103,52 @@
                             <input class="form-check-input"
                                 type="checkbox"
                                 id="change_password"
+                                value="1"
                                 name="change_password"
+                                {{ old('change_password') ? 'checked' : '' }}
                                 onchange="togglePasswordFields()">
                             <label class="form-check-label" for="change_password">
                                 Want to edit password?
                             </label>
                         </div>
+                        @error('change_password')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
                 <!-- Password -->
-                <div class="form-group row d-none" id="password-section">
+                <div class="form-group row {{ old('change_password') ? '' : 'd-none' }}" id="password-section">
                     <label class="col-md-2 form-control-label">
                         @lang('validation.attributes.backend.access.users.password')
                     </label>
                     <div class="col-md-10 position-relative">
-                        <input type="text"
+                        <input type="password"
                             name="password"
                             id="password-field"
-                            class="form-control"
+                            class="form-control @error('password') is-invalid @enderror"
                             placeholder="Enter new password">
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
                 <!-- Password Confirmation -->
-                {{-- <div class="form-group row d-none" id="password-confirm-section">
+                <div class="form-group row {{ old('change_password') ? '' : 'd-none' }}" id="password-confirm-section">
                     <label class="col-md-2 form-control-label">
                         @lang('validation.attributes.backend.access.users.password_confirmation')
                     </label>
                     <div class="col-md-10">
                         <input type="password"
                             name="password_confirmation"
-                            class="form-control"
+                            class="form-control @error('password_confirmation') is-invalid @enderror"
                             placeholder="Confirm new password">
+                        @error('password_confirmation')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                </div> --}}
+                </div>
 
             {{-- Roles --}}
             <div class="form-group row">
@@ -144,6 +164,17 @@
                         <tbody>
                         <tr>
                             <td>
+                                @php
+                                    $selectedRoles = old('roles', $userRoles);
+                                    $roleLabels = [
+                                        'trainer' => 'Trainer',
+                                        'trainee' => 'Trainee',
+                                        'student' => 'Student',
+                                        'teacher' => 'Teacher',
+                                        'administrator' => 'Administrator',
+                                        'admin' => 'Admin',
+                                    ];
+                                @endphp
                                 @foreach($roles as $role)
                                     @if(1)
                                         <div class="card mb-2">
@@ -153,10 +184,10 @@
                                                            name="roles[]"
                                                            id="role-{{ $role->id }}"
                                                            value="{{ $role->name }}"
-                                                           class="form-check-input"
-                                                           {{ in_array($role->name, $userRoles) ? 'checked' : '' }}>
+                                                           class="form-check-input @error('roles') is-invalid @enderror"
+                                                           {{ in_array($role->name, $selectedRoles) ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="role-{{ $role->id }}">
-                                                        {{ ucwords($role->name) }}
+                                                        {{ $roleLabels[strtolower($role->name)] ?? ucwords(str_replace('_', ' ', $role->name)) }}
                                                     </label>
                                                 </div>
                                             </div>
@@ -174,6 +205,12 @@
                                         </div>
                                     @endif
                                 @endforeach
+                                @error('roles')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                                @error('roles.*')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </td>
                         </tr>
                         </tbody>
@@ -187,16 +224,19 @@
                     @lang('Department')
                 </label>
                 <div class="col-md-10">
-                    <select name="department" id="department" class="form-control">
+                    <select name="department" id="department" class="form-control @error('department') is-invalid @enderror">
                         <option value="">@lang('Select Department')</option>
                         @if(isset($departments))
                             @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}" {{ optional(optional($user->employee)->department_details)->id == $dept->id ? 'selected' : '' }}>
+                                <option value="{{ $dept->id }}" {{ (string) old('department', optional(optional($user->employee)->department_details)->id) === (string) $dept->id ? 'selected' : '' }}>
                                     {{ $dept->title }}
                                 </option>
                             @endforeach
                         @endif
                     </select>
+                    @error('department')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -218,34 +258,53 @@
 
 </form>
 @endsection
-@push('after-scripts')
-<script>
-    function togglePassword() {
-        var passwordField = document.getElementById("password-field");
-        var icon = document.getElementById("toggle-icon");
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            passwordField.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
+
+@push('after-styles')
+<style>
+    @keyframes validationAlertBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.35; }
     }
 
-    
+    .validation-alert-blink {
+        animation: validationAlertBlink 0.35s ease-in-out 3;
+    }
+</style>
+@endpush
+
+@push('after-scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const validationAlert = document.querySelector('.alert.alert-danger');
+        if (validationAlert) {
+            validationAlert.classList.add('validation-alert-blink');
+        }
+    });
+
     function togglePasswordFields() {
         const checked = document.getElementById('change_password').checked;
 
-        document.getElementById('password-section').classList.toggle('d-none', !checked);
-        document.getElementById('password-confirm-section').classList.toggle('d-none', !checked);
+        const passwordSection = document.getElementById('password-section');
+        const passwordConfirmSection = document.getElementById('password-confirm-section');
+        const passwordField = document.getElementById('password-field');
+        const passwordConfirmationField = document.querySelector('[name="password_confirmation"]');
+
+        passwordSection.classList.toggle('d-none', !checked);
+        passwordConfirmSection.classList.toggle('d-none', !checked);
 
         if (!checked) {
-            document.getElementById('password-field').value = '';
-            document.querySelector('[name="password_confirmation"]').value = '';
+            if (passwordField) {
+                passwordField.value = '';
+            }
+            if (passwordConfirmationField) {
+                passwordConfirmationField.value = '';
+            }
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        togglePasswordFields();
+    });
 
 
 </script>

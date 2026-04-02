@@ -112,16 +112,56 @@
     filter: brightness(0.95);
 }
 
+.dashboard-widget-tabs {
+    border-bottom: 1px solid #e3e7ed;
+}
+.dashboard-widget-tabs .nav-link {
+    color: #2f3e74;
+    font-weight: 600;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    padding: 8px 16px;
+}
+.dashboard-widget-tabs .nav-link.active {
+    background: #ffffff;
+    border-color: #e3e7ed #e3e7ed #ffffff;
+    color: #1d2b57;
+}
+.dashboard-widget-tabs .nav-link:hover {
+    color: #1d2b57;
+}
+
 
 </style>
 @endpush
 @php
 $local_lang = App::getLocale() ?? 'en';
+$show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
+    && isset($recent_courses)
+    && isset($latest_course_assignments);
 @endphp
 @section('content')
 
 
 @if(auth()->user()->hasRole('administrator') || !auth()->user()->hasRole('student'))
+@if($show_dashboard_widget_tabs)
+<div class="row mb-2">
+    <div class="col-12">
+        <ul class="nav nav-tabs dashboard-widget-tabs" role="tablist">
+            <li class="nav-item">
+                <button type="button" class="nav-link active" data-dashboard-tab="latest">
+                    @lang('strings.backend.dashboard.Latest-Course-Assignments')
+                </button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link" data-dashboard-tab="recent">
+                    @lang('strings.backend.dashboard.Recent-Courses')
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+@endif
 <div class="row">
 
     <div class="col-12 mb-3">
@@ -460,7 +500,7 @@ $local_lang = App::getLocale() ?? 'en';
 
     {{-- Latest Course Assignments card (admin/teacher only) --}}
     @if(isset($latest_course_assignments) && (auth()->user()->hasRole('administrator') || auth()->user()->hasRole('teacher')))
-    <div class="col-lg-4 col-md-12 col-sm-12">
+    <div class="col-lg-4 col-md-12 col-sm-12" id="dashboard-latest-assignments" data-dashboard-panel="latest">
         <div class="avg-card leftBorder3">
             <div class="avg-card-head d-flex justify-content-between align-items-center flex-wrap">
                 <h5 class="mb-0">
@@ -515,7 +555,7 @@ $local_lang = App::getLocale() ?? 'en';
 
 {{-- Recent Courses (Last 10 Created) - Admin only --}}
 @if(auth()->user()->hasRole('administrator') && isset($recent_courses))
-<div class="row mt-4">
+<div class="row mt-4" id="dashboard-recent-courses" data-dashboard-panel="recent" style="{{ $show_dashboard_widget_tabs ? 'display:none;' : '' }}">
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -870,6 +910,49 @@ $local_lang = App::getLocale() ?? 'en';
         animateProgress("progress1", "value1", {{ $av_completion_rate }});
         animateProgress("progress2", "value2", {{ $av_completed_score }});
         animateProgress("progress3", "value3", {{ '100' }});
+
+        const tabs = document.querySelectorAll('[data-dashboard-tab]');
+        const panels = document.querySelectorAll('[data-dashboard-panel]');
+        if (tabs.length && panels.length) {
+            const STORAGE_KEY = 'dashboard_widget_view';
+            const defaultTab = 'latest';
+
+            const setActive = (tabName, shouldSave) => {
+                tabs.forEach((tab) => {
+                    tab.classList.toggle('active', tab.dataset.dashboardTab === tabName);
+                });
+                panels.forEach((panel) => {
+                    const isActive = panel.dataset.dashboardPanel === tabName;
+                    panel.style.display = isActive ? '' : 'none';
+                });
+
+                if (shouldSave) {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, tabName);
+                    } catch (e) {
+                        // ignore storage errors
+                    }
+                }
+            };
+
+            let initialTab = defaultTab;
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored === 'latest' || stored === 'recent') {
+                    initialTab = stored;
+                }
+            } catch (e) {
+                // ignore storage errors
+            }
+
+            setActive(initialTab, false);
+
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => {
+                    setActive(tab.dataset.dashboardTab, true);
+                });
+            });
+        }
     });
 
     $(document).ready(function () {

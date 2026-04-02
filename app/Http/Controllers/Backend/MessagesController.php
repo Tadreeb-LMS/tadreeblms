@@ -16,9 +16,9 @@ class MessagesController extends Controller
     {
         // Chat functionality disabled due to missing package
         return view('backend.messages.index-desktop', [
-            'threads' => [],
+            'threads' => collect(),
             'teachers' => [],
-            'thread' => ""
+            'thread' => null,
         ]);
     }
 

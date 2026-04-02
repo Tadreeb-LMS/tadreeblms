@@ -180,17 +180,13 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                                             @empty
                                                             @endforelse
                                                         @endif --}}
-                                                        @if(auth()->check())
-
-                                                            @if(in_array($lesson->model->id,$completed_lessons))
-                                                                <div >
-                                                                    <a class="btn btn-warning mt-3"
-                                                                       href="{{route('lessons.show',['course_id' => $lesson->course->id,'slug'=>$lesson->model->slug])}}">
-                                                                        <span class=" text-white font-weight-bold ">@lang('labels.frontend.course.go')
-                                                                            ></span>
-                                                                    </a>
-                                                                </div>
-                                                            @endif
+                                                        @if(auth()->check() && $subscribe_status == 1 && $lesson->model_type == 'App\Models\Lesson' && !empty($lesson->model->slug))
+                                                            <div>
+                                                                <a class="btn btn-warning mt-3"
+                                                                   href="{{ route('lessons.show', ['course_id' => $lesson->course->id, 'slug' => $lesson->model->slug]) }}">
+                                                                    <span class="text-white font-weight-bold">@lang('labels.frontend.course.go') ></span>
+                                                                </a>
+                                                            </div>
                                                         @endif
                                                     </div>
 
@@ -233,6 +229,85 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                         </div>
                     </div>
                     <!-- /market guide -->
+
+                    <!-- Upcoming Live Sessions -->
+                    @if(auth()->check() && $subscribe_status == 1)
+                        @php
+                            $hasCourseMeeting = $course->meeting_start_at && \Carbon\Carbon::parse($course->meeting_start_at)->isFuture();
+                            $hasLiveSessions = isset($liveSessions) && $liveSessions->count() > 0;
+                        @endphp
+
+                        @if($hasCourseMeeting || $hasLiveSessions)
+                            <div class="upcoming-live-sessions mb65">
+                                <div class="course-details-category ul-li">
+                                    <span class="float-none"><i class="fas fa-video"></i> Upcoming Live Sessions</span>
+                                </div>
+
+                                {{-- Course-level single meeting --}}
+                                @if($hasCourseMeeting)
+                                    @php
+                                        $meetStart = \Carbon\Carbon::parse($course->meeting_start_at);
+                                        $meetUrl = (isset($isHostRole) && $isHostRole)
+                                            ? ($course->meeting_host_url ?: $course->meeting_join_url)
+                                            : $course->meeting_join_url;
+                                    @endphp
+                                    <div class="panel mb-3">
+                                        <div class="panel-body d-flex justify-content-between align-items-center flex-wrap" style="padding: 15px;">
+                                            <div>
+                                                <span class="badge badge-primary">{{ ucfirst($course->meeting_provider ?? 'Live') }}</span>
+                                                <strong class="ml-2">{{ $course->title }}</strong>
+                                                <div class="text-muted mt-1">
+                                                    <i class="fas fa-calendar-alt"></i> {{ $meetStart->format('D, d M Y') }}
+                                                    &nbsp;&nbsp;<i class="fas fa-clock"></i> {{ $meetStart->format('h:i A') }}
+                                                    @if($course->meeting_duration)
+                                                        &nbsp;&nbsp;<i class="fas fa-hourglass-half"></i> {{ $course->meeting_duration }} min
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            @if($meetUrl)
+                                                <a href="{{ $meetUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                    <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- Scheduled recurring sessions --}}
+                                @if($hasLiveSessions)
+                                    @foreach($liveSessions as $session)
+                                        @php
+                                            $sessionStart = \Carbon\Carbon::parse($session->session_date->format('Y-m-d') . ' ' . $session->session_time);
+                                            $sessionUrl = (isset($isHostRole) && $isHostRole)
+                                                ? ($session->host_url ?: $session->meeting_link)
+                                                : $session->meeting_link;
+                                        @endphp
+                                        <div class="panel mb-2">
+                                            <div class="panel-body d-flex justify-content-between align-items-center flex-wrap" style="padding: 15px;">
+                                                <div>
+                                                    <span class="badge badge-info">{{ ucfirst($session->provider ?? 'Live') }}</span>
+                                                    <strong class="ml-2">{{ $course->title }}</strong>
+                                                    <div class="text-muted mt-1">
+                                                        <i class="fas fa-calendar-alt"></i> {{ $sessionStart->format('D, d M Y') }}
+                                                        &nbsp;&nbsp;<i class="fas fa-clock"></i> {{ $sessionStart->format('h:i A') }}
+                                                        @if($session->duration)
+                                                            &nbsp;&nbsp;<i class="fas fa-hourglass-half"></i> {{ $session->duration }} min
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @if($sessionUrl)
+                                                    <a href="{{ $sessionUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                        <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        @endif
+                    @endif
+                    <!-- /Upcoming Live Sessions -->
 
                     <div class="course-review" style="display: none;">
                         <div class="section-title-2 mb20 headline text-left">
@@ -507,14 +582,18 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                 @endif
                                 @include('frontend.layouts.partials.wishlist',['course' => $course->id, 'price' => $course->price])
                             @else
-                                <?php 
+                                <?php
                                     $first_lesson_slug = null;
-                                    if(isset($course->publishedLessons[0])) {
+                                    if (isset($course->publishedLessons[0])) {
                                         $first_lesson_slug = $course->publishedLessons[0]->slug;
+                                    }
+                                    $continue_lesson_slug = $first_lesson_slug;
+                                    if (isset($continue_course) && isset($continue_course->model) && !empty($continue_course->model->slug)) {
+                                        $continue_lesson_slug = $continue_course->model->slug;
                                     }
                                 ?>
                                 @if(($continue_course || $subscribe_status == 1) && $course && count($lessons))
-                                    <a href="{{route('lessons.show',['course_id' => $course->id,'slug'=>$first_lesson_slug])}}"
+                                    <a href="{{ route('lessons.show', ['course_id' => $course->id, 'slug' => $continue_lesson_slug]) }}"
                                        class="genius-btn btn-block text-white  gradient-bg text-center text-uppercase  bold-font">
 
                                         @lang('labels.frontend.course.continue_course')

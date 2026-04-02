@@ -79,6 +79,8 @@
                                 <th>Enrolled Date</th>
                                 <th>@lang('labels.backend.teachers.fields.status')</th>
                                 <th>Completed Status</th>
+                                <th>Lesson Quiz</th>
+                                <th>Lesson Quiz Status</th>
                                 <th>Feedback</th>
                                 <th>Issue Certificate</th>
                                 <th>Track Employee</th>
@@ -158,6 +160,8 @@
                     {data: "enrolled_date", name: 'enrolled_date'},
                     {data: "status", name: 'status'},
                     {data: "course_completed", name: 'course_completed'},
+                    {data: "lesson_quiz", name: 'lesson_quiz'},
+                    {data: "lesson_quiz_status", name: 'lesson_quiz_status'},
                     {data: "feedback", name: 'feedback'},
                     {data: "issue_certificate", name: 'issue_certificate'},
                     {data: "track_employee", name: "track_employee"},

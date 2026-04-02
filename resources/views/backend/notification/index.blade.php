@@ -135,7 +135,7 @@
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-4">
 
                             <div class="custom-file-upload-wrapper">
-                                <input type="file" name="image" id="customFileInput" class="custom-file-input ">
+                                <input type="file" name="import_users" id="customFileInput" class="custom-file-input ">
                                 <label for="customFileInput" class="custom-file-label">
                                     <i class="fa fa-upload mr-1"></i> Choose a file
                                 </label>

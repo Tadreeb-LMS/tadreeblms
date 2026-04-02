@@ -192,6 +192,10 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::post('settings/license/sync-users', ['uses' => 'Admin\LicenseController@syncUsers'])->name('license.sync-users');
     Route::get('settings/license/check-limit', ['uses' => 'Admin\LicenseController@checkUserLimit'])->name('license.check-limit');
     Route::get('settings/license/keygen-usage', ['uses' => 'Admin\LicenseController@keygenUsage'])->name('license.keygen-usage');
+    //===== Certificate Template Settings Routes =====//
+    Route::get('settings/certificate-template', ['uses' => 'Admin\ConfigController@getCertificateTemplateSettings', 'as' => 'certificate-template-settings']);
+    Route::post('settings/certificate-template', ['uses' => 'Admin\ConfigController@saveCertificateTemplateSettings', 'as' => 'certificate-template-settings.save']);
+
     //===== SMTP Email Settings Routes =====//
     Route::get('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@index'])->name('smtp-settings');
     Route::post('settings/smtp', ['uses' => 'Admin\SmtpSettingsController@save'])->name('smtp-settings.save');
@@ -353,6 +357,7 @@ Route::post('courses_restore/{id}', ['uses' => 'Admin\CoursesController@restore'
 Route::delete('courses_perma_del/{id}', ['uses' => 'Admin\CoursesController@perma_del', 'as' => 'courses.perma_del']);
 Route::post('course-save-sequence', ['uses' => 'Admin\CoursesController@saveSequence', 'as' => 'courses.saveSequence']);
 Route::get('course-publish/{id}', ['uses' => 'Admin\CoursesController@publish', 'as' => 'courses.publish']);
+Route::post('courses/{id}/regenerate-meeting-links', ['uses' => 'Admin\CoursesController@regenerateMeetingLinks', 'as' => 'courses.regenerate_meeting_links']);
 Route::get('get-cms-data', 'Admin\CoursesController@getCmsData')->name('courses.get-cms-data');
 Route::get('cms-course', 'Admin\CoursesController@cmsCourse')->name('courses.cms-course');
 Route::get('exportCourseAsCsv', 'Admin\CoursesController@exportCourseAsCsv');
@@ -452,6 +457,13 @@ Route::group(['middleware' => 'role:teacher'], function () {
     //====== Review Routes =====//
     Route::resource('reviews', 'ReviewController');
     Route::get('get-reviews-data', ['uses' => 'ReviewController@getData', 'as' => 'reviews.get_data']);
+});
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('certificates/manage', 'CertificateController@adminIndex')->name('certificates.manage.index');
+    Route::get('certificates/manage-data', 'CertificateController@adminData')->name('certificates.manage.data');
+    Route::get('certificates/manage/{id}', 'CertificateController@show')->name('certificates.manage.show');
+    Route::post('certificates/manage/{id}/reissue', 'CertificateController@reissue')->name('certificates.manage.reissue');
 });
 
 

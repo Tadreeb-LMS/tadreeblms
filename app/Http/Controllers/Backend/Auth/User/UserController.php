@@ -50,13 +50,39 @@ class UserController extends Controller
             return abort(401);
         }
         $roles = Role::select('id','name')->get();
+        $departments = Department::where('published', 1)->orderBy('title')->get();
 
-        //dd($this->userRepository->getActivePaginated(25, 'id', 'asc'));
-
-        return view('backend.auth.user.index',compact('roles'))
-            ->withUsers($this->userRepository->getActivePaginated(25, 'id', 'asc'));
+        return view('backend.auth.user.index', compact('roles', 'departments'));
     }
 
+public function bulkUpdate(Request $request)
+{
+    $users = User::whereIn('id', $request->user_ids)->get();
+
+    foreach ($users as $user) {
+
+        // ✅ Update confirmed
+        if ($request->confirmed !== null && $request->confirmed !== '') {
+            $user->confirmed = $request->confirmed;
+            $user->save();
+        }
+
+        // ✅ Update department (CORRECT WAY)
+        if ($request->department_id) {
+            EmployeeProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                ['department' => $request->department_id]
+            );
+        }
+
+        // ✅ Update role
+        if (!empty($request->role)) {
+            $user->syncRoles([$request->role]);
+        }
+    }
+
+    return response()->json(['success' => true]);
+}
     /**
      * Display a listing of Courses via ajax DataTable.
      *
@@ -111,7 +137,7 @@ class UserController extends Controller
      */
     public function create(ManageUserRequest $request, RoleRepository $roleRepository, PermissionRepository $permissionRepository)
     {
-        return view('backend.auth.user.create', ['return_to' => $request->input('return_to')])
+        return view('backend.auth.user.create', ['return_to' => $this->sanitizeReturnTo($request->input('return_to'))])
             ->withRoles($roleRepository->with('permissions')->get(['id', 'name']))
             ->withPermissions($permissionRepository->get(['id', 'name']))
             ->withDepartments(Department::where('published', 1)->orderBy('title')->get());
@@ -125,7 +151,6 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        \Log::debug('User store return_to', ['return_to' => $request->input('return_to')]);
         $user = $this->userRepository->create($request->only(
             'first_name',
             'last_name',
@@ -154,12 +179,47 @@ class UserController extends Controller
             \Log::error('User created - Keygen sync error', ['error' => $e->getMessage()]);
         }
 
-        $returnTo = $request->input('return_to');
+        $returnTo = $this->sanitizeReturnTo($request->input('return_to'));
     
         if ($returnTo) {
-            return redirect($returnTo)->withFlashSuccess(__('alerts.backend.users.created'));
+            return redirect()->to($returnTo)->withFlashSuccess(__('alerts.backend.users.created'));
         }
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.created'));
+    }
+
+    /**
+     * Only allow internal return paths to prevent open redirects.
+     *
+     * @param string|null $returnTo
+     * @return string|null
+     */
+    protected function sanitizeReturnTo(?string $returnTo): ?string
+    {
+        if (! $returnTo) {
+            return null;
+        }
+
+        $parts = parse_url($returnTo);
+        if ($parts === false) {
+            return null;
+        }
+
+        // Absolute URL is allowed only when it targets current app host.
+        if (isset($parts['host'])) {
+            $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+            if (! $appHost || strcasecmp($parts['host'], $appHost) !== 0) {
+                return null;
+            }
+        }
+
+        $path = $parts['path'] ?? '';
+        if ($path === '' || substr($path, 0, 1) !== '/') {
+            return null;
+        }
+
+        $query = isset($parts['query']) ? '?'.$parts['query'] : '';
+
+        return $path.$query;
     }
 
     /**
@@ -232,7 +292,6 @@ class UserController extends Controller
 
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.updated'));
     }
-
     /**
      * @param ManageUserRequest $request
      * @param User              $user

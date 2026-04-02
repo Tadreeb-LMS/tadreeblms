@@ -172,7 +172,6 @@ top: 7px !important;
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
-
                     Select Dept
                     <div class="custom-select-wrapper mt-2">
                         <select name="dept_id" id="dept_id" class="select2 form-control custom-select-box">
@@ -188,6 +187,28 @@ top: 7px !important;
                         </span>
                     </div>
                 </div>
+
+                <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
+                    Progress Status
+                    <div class="custom-select-wrapper mt-2">
+                        <select name="progress_status" id="progress_status" class="form-control custom-select-box select2">
+                            <option value="">All</option>
+                            <option value="not_started" {{ request()->progress_status == 'not_started' ? 'selected' : '' }}>
+                                Not Started
+                            </option>
+                            <option value="in_progress" {{ request()->progress_status == 'in_progress' ? 'selected' : '' }}>
+                                In Progress
+                            </option>
+                            <option value="completed" {{ request()->progress_status == 'completed' ? 'selected' : '' }}>
+                                Completed
+                            </option>
+                        </select>
+                        <span class="custom-select-icon">
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
+                    </div>
+                </div>
+
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
 
                     <div class="">
@@ -254,6 +275,8 @@ top: 7px !important;
                                 <th style="width:120px">@lang('Progress Status')</th>
                                 <th style="width:140px">@lang('Assessment Score')</th>
                                 <th style="width:140px">@lang('Assessment status')</th>
+                                <th style="width:130px">@lang('Lesson Quiz')</th>
+                                <th style="width:140px">@lang('Lesson Quiz Status')</th>
                                 <th style="width:120px">@lang('Trainer Name')</th>
                                 <th style="display:none;width:140px">@lang('Assignment Date')</th>
                                 <th style="width:120px;width:140px">@lang('Assignment Date')</th>
@@ -405,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#dept_id').val(null).trigger('change');
             $('#assign_from_date').val(null);
             $('#assign_to_date').val(null);
-
+            $('#progress_status').val(null).trigger('change');
             $('#due_date').val(null);
 
             $('#advace_filter').submit();
@@ -462,6 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         d.from = $('#assign_from_date').val();
                         d.to = $('#assign_to_date').val();
                         d.due_date = $('#due_date').val();
+                        d.progress_status = $('#progress_status').val();
                     }
                 },
 
@@ -527,6 +551,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     { data: 'progress_status', orderable: false },
                     { data: 'assignment_score', orderable: false },
                     { data: 'assignment_status', orderable: false },
+                    { data: 'lesson_quiz', orderable: false },
+                    { data: 'lesson_quiz_status', orderable: false },
                     { data: 'trainer_name', orderable: false },
                     { data: 'assign_date', orderable: false },
                     { data: 'due_date', orderable: false }
@@ -556,167 +582,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 $('#advance-search-btn').prop('disabled', false);
             });
         }
-
-
-        // $('#sync-reports').click(function () {
-        //     if (!confirm("Are you sure you want to sync the report?")) return;
-
-        //     $.ajax({
-        //         url: "{{ route('admin.sync.report') }}",
-        //         method: "POST",
-        //         data: {
-        //             _token: "{{ csrf_token() }}"
-        //         },
-        //         beforeSend: function () {
-        //             $('#sync-reports').prop('disabled', true).text('Syncing...');
-        //         },
-        //         success: function (response) {
-        //             alert(response.message);
-        //         },
-        //         error: function (xhr) {
-        //             alert("Failed to sync. Please try again.");
-        //         },
-        //         complete: function () {
-        //             $('#sync-reports').prop('disabled', false).text('Sync Report');
-        //         }
-        //     });
-        // });
-
-
-         $(document).ready(function() {
-
-
-
-            var route = '{{ route('admin.employee.get_data') }}';
-
-            @if (request('show_deleted') == 1)
-                route = '{{ route('admin.employee.get_data', ['show_deleted' => 1]) }}';
-            @endif
-
-            var table = $('#myTable').DataTable({
-                // processing: true,
-                // serverSide: true,
-                iDisplayLength: 10,
-                retrieve: true,
-                dom:  "<'table-controls'lB>" +
-                     "<'table-responsive't>" +
-                     "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
-                // buttons: [{
-                //         extend: 'csv',
-                //     },
-                //     {
-                //         extend: 'pdfHtml5',
-                //         customize: function(doc) {
-                //             doc.defaultStyle.fontSize = 5; // Adjust the font size as needed
-                //         }
-                //     },
-                //     'colvis'
-                // ],
-                 buttons: [
-    {
-        extend: 'collection',
-        text: '<i class="fa fa-download icon-styles"></i>',
-        className: '',
-        buttons: [
-            {
-                extend: 'csv',
-                text: 'CSV',
-                exportOptions: {
-                    columns: [1, 2, 3, 4, 5]
-                }
-            },
-           {
-                        extend: 'pdfHtml5',
-                        text:"PDf",
-                        // customize: function(doc) {
-                        //     doc.defaultStyle.fontSize = 5;
-                        // }
-                    },
-        ]
-    },
-      {extend: 'colvis',
-    text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>',
-    className: ''},
-],
-                // buttons: [{
-                //         extend: 'csv',
-                //         exportOptions: {
-                //             columns: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                //         }
-                //     },
-                //     {
-                //         extend: 'pdf',
-                //         exportOptions: {
-                //             columns: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                //         }
-                //     },
-                //     'colvis'
-                // ],
-                ajax: route,
-                 columns: [
-                      { data: 'emp_id', name: 'emp_id', orderable: false },
-                         { data: 'user_status', name: 'user_status', orderable: false },
-                         { data: 'emp_name', name: 'emp_name', orderable: false },
-                         { data: 'emp_email', name: 'emp_email', orderable: false },
-                         { data: 'department', name: 'department', orderable: false },
-                         { data: 'emp_postition', name: 'emp_postition', orderable: false },
-                         { data: 'enroll_type', name: 'enroll_type', orderable: false },
-                         { data: 'course_category', name: 'course_category', orderable: false },
-                         { data: 'course_code', name: 'course_code', orderable: false },
-                         { data: 'course', name: 'course', orderable: false },
-                         { data: 'progress_per', name: 'progress_per', orderable: false },
-                         { data: 'progress_status', name: 'progress_status', orderable: false },
-                         { data: 'assignment_score', name: 'assignment_score', orderable: false },
-                         { data: 'assignment_status', name: 'assignment_status', orderable: false },
-                         { data: 'trainer_name', name: 'trainer_name', orderable: false },
-                         { data: 'assign_date', name: 'assign_date', orderable: false },
-                         { data: 'due_date', name: 'due_date', orderable: false }
-                     ],
-                @if (request('show_deleted') != 1)
-                    columnDefs: [{
-                            "width": "5%",
-                            "targets": 0
-                        },
-                        {
-                            "className": "text-center",
-                            "targets": [0]
-                        }
-                    ],
-                @endif
-                initComplete: function () {
-                     let $searchInput = $('#myTable_filter input[type="search"]');
-    $searchInput
-        .addClass('custom-search')
-        .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
-        .after('<i class="fa fa-search search-icon"></i>');
-
-    $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
-                },
-                  
-
-                createdRow: function(row, data, dataIndex) {
-                    $(row).attr('data-entry-id', data.id);
-                },
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name }}.json",
-                    buttons: {
-                        colvis: '{{ trans('datatable.colvis') }}',
-                        pdf: '{{ trans('datatable.pdf') }}',
-                        csv: '{{ trans('datatable.csv') }}',
-                    },
-                    search:""
-      
-                }
-
-            });
-            @if (auth()->user()->isAdmin())
-                $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' +
-                    '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>'
-                );
-            @endif
-
-
-
-        });
+        $(document).ready(function () {
+    loadDataTable(); 
+});
     </script>
 @endpush

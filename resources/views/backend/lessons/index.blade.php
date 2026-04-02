@@ -76,8 +76,8 @@
     {{ trans('labels.backend.lessons.fields.course') }}
 </label>
                     <div class=" custom-select-wrapper">
-    <select name="course_id" id="course_id" class="form-control custom-select-box select2" required>
-        <option value="">Select Course</option>
+    <select name="course_id" id="course_id" class="form-control custom-select-box select2">
+        <option value="">{{ __('course_pages.admin_lessons_index.select_course') }}</option>
         @foreach($courses as $id => $course)
             <option value="{{ $id }}" 
                 @if(request('course_id') == $id || old('course_id') == $id) selected @endif>
@@ -94,7 +94,7 @@
             <div class="d-block">
                 <ul class="list-inline">
                     <li class="list-inline-item">
-                        <a href="{{ route('admin.lessons.index',['course_id'=>request('course_id')]) }}"
+                        <a href="{{ route('admin.lessons.index') }}"
                            style="{{ request('show_deleted') == 1 ? '' : 'font-weight: 700' }}">{{trans('labels.general.all')}}</a>
                     </li>
                     |
@@ -105,40 +105,39 @@
                 </ul>
             </div>
 
-            @if(request('course_id') != "" || request('show_deleted') != "")
-                <div class="table-responsive">
+            <div class="table-responsive">
 
-                    <table id="myTable"
-                           class="table table-striped custom-teacher-table @can('lesson_delete') @if ( request('show_deleted') != 1 ) dt-select @endif @endcan">
-                        <thead>
-                        <tr>
-                            @can('lesson_delete')
-                                @if ( request('show_deleted') != 1 )
-                                    <th style="text-align:center;"><input class="mass" type="checkbox" id="select-all"/>
-                                    </th>@endif
-                            @endcan
-                                <th>@lang('labels.general.sr_no')</th>
+                <table id="myTable"
+                       class="table table-striped custom-teacher-table @can('lesson_delete') @if ( request('show_deleted') != 1 ) dt-select @endif @endcan">
+                    <thead>
+                    <tr>
+                        @can('lesson_delete')
+                            @if ( request('show_deleted') != 1 )
+                                <th style="text-align:center;"><input class="mass" type="checkbox" id="select-all"/>
+                                </th>@endif
+                        @endcan
+                            <th>@lang('labels.general.sr_no')</th>
 
-                                {{-- <th>@lang('labels.general.id')</th> --}}
-                            <th>@lang('labels.backend.lessons.fields.title')</th>
-                            <th>@lang('Lesson Start Date')</th>
-                            <th>@lang('Duration [minutes]')</th>
-                            <th>@lang('Attendance [count]')</th>
-                            <th>@lang('labels.backend.courses.fields.qr_code')</th>
-                            <th>@lang('labels.backend.lessons.fields.published')</th>
-                            @if( request('show_deleted') == 1 )
-                                <th style="text-align:center;">@lang('strings.backend.general.actions') &nbsp;</th>
-                            @else
-                                <th style="text-align:center;">@lang('strings.backend.general.actions') &nbsp;</th>
-                            @endif
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                            {{-- <th>@lang('labels.general.id')</th> --}}
+                        <th>@lang('labels.backend.lessons.fields.title')</th>
+                        <th>@lang('labels.backend.lessons.fields.course')</th>
+                        <th>{{ __('course_pages.admin_lessons_index.lesson_start_date') }}</th>
+                        <th>{{ __('course_pages.admin_lessons_index.duration_minutes') }}</th>
+                        <th>{{ __('course_pages.admin_lessons_index.attendance_count') }}</th>
+                        <th>@lang('labels.backend.courses.fields.qr_code')</th>
+                        <th>@lang('labels.backend.lessons.fields.published')</th>
+                        @if( request('show_deleted') == 1 )
+                            <th style="text-align:center;">@lang('strings.backend.general.actions') &nbsp;</th>
+                        @else
+                            <th style="text-align:center;">@lang('strings.backend.general.actions') &nbsp;</th>
+                        @endif
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
 
-                </div>
-            @endif
+            </div>
 
         </div>
     </div>
@@ -154,14 +153,12 @@
 
             @php
                 $show_deleted = (request('show_deleted') == 1) ? 1 : 0;
-                $course_id = (request('course_id') != "") ? request('course_id') : 0;
+                $course_id = (request('course_id') != "") ? request('course_id') : '';
             $route = route('admin.lessons.get_data',['show_deleted' => $show_deleted,'course_id' => $course_id]);
             @endphp
 
             route = '{{$route}}';
             route = route.replace(/&amp;/g, '&');
-
-            @if(request('course_id') != "" || request('show_deleted') != "")
 
             $('#myTable').DataTable({
                 processing: true,
@@ -179,14 +176,14 @@
         buttons: [
             {
                 extend: 'csv',
-                text: 'CSV',
+                text: '{{ trans("datatable.csv") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             },
             {
                 extend: 'pdf',
-                text: 'PDF',
+                text: '{{ trans("datatable.pdf") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
@@ -225,6 +222,7 @@
                     //{data: "id", name: 'id'},
 
                     {data: "title", name: 'title'},
+                    {data: "course", name: 'course.title', defaultContent: 'N/A'},
                     {data: "lesson_start_date", name: 'lesson_start_date'},
                     {data: "duration", name: 'duration'},
                     {data: "attendance", name: 'attendance'},
@@ -258,15 +256,14 @@
                         pdf : '{{trans("datatable.pdf")}}',
                         csv : '{{trans("datatable.csv")}}',
                     }, 
+                    lengthMenu : '{{trans("datatable.length_menu")}}',
                     search:"",
            }
             });
 
-            @endif
-
             @can('lesson_delete')
             @if(request('show_deleted') != 1)
-            $('.actions').html('<a href="' + '{{ route('admin.lessons.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>');
+            $('.actions').html('<a href="' + '{{ route('admin.lessons.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('course_pages.admin_lessons_index.delete_selected') }}</a>');
             @endif
             @endcan
 
@@ -276,7 +273,11 @@
             });
             $(document).on('change', '#course_id', function (e) {
                 var course_id = $(this).val();
-                window.location.href = "{{route('admin.lessons.index')}}" + "?course_id=" + course_id
+                if (course_id) {
+                    window.location.href = "{{ route('admin.lessons.index') }}" + "?course_id=" + course_id;
+                } else {
+                    window.location.href = "{{ route('admin.lessons.index') }}";
+                }
             });
         });
 

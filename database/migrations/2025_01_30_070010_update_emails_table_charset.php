@@ -13,13 +13,21 @@ class UpdateEmailsTableCharset extends Migration
      */
     public function up(): void
     {
-        // Convert table charset and collation
+        if (Schema::getConnection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
+        // Convert table charset and collation on MySQL only.
         DB::statement("ALTER TABLE jobs CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
     }
 
     public function down(): void
     {
-        // Revert back to previous charset (if needed)
+        if (Schema::getConnection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
+        // Revert back to previous charset (if needed) on MySQL only.
         DB::statement("ALTER TABLE jobs CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;");
     }
 }

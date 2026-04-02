@@ -166,13 +166,6 @@
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2])))
             <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
-                    href="{{ route('admin.department.index') }}">
-                    <i class="nav-icon fas fa-building"></i>
-                    <span class="title">@lang('menus.backend.sidebar.department')</span>
-                </a>
-            </li>
-            <li class="nav-item ">
                 <a class="nav-link {{ $request->segment(2) == 'position' ? 'active' : '' }}"
                     href="{{ route('admin.position.index') }}">
                     <i class="nav-icon icon-folder-alt"></i>
@@ -536,12 +529,22 @@
                 </li> --}}
 
 
-            <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
-                    href="{{ route('admin.certificates.index') }}">
-                    <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
-                </a>
-            </li>
+            @endif
+            @if ($logged_in_user->hasRole(config('access.users.admin_role')) || $logged_in_user->can('certificate_access'))
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
+                        href="{{ route('admin.certificates.manage.index') }}">
+                        <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
+                    </a>
+                </li>
+            @endif
+            @if ($logged_in_user->hasRole('student'))
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(1) == 'certificates' ? 'active' : '' }}"
+                        href="{{ route('admin.certificates.index') }}">
+                        <i class="nav-icon fas fa-trophy"></i> <span class="title">@lang('menus.backend.sidebar.certificates.title')</span>
+                    </a>
+                </li>
             @endif
             @if (true)
             {{-- <li class="nav-item ">
@@ -592,8 +595,8 @@
             (null !== Session::get('setvaluesession') && Session::get('setvaluesession') == 1))
             @can('access_management_access')
             <li
-                class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('admin/auth*'), 'open') }}">
-                <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/auth*')) }}"
+                class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['admin/auth*', 'user/department*']), 'open') }}">
+                <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern(['admin/auth*', 'user/department*'])) }}"
                     href="#">
                     <div>
 
@@ -643,6 +646,18 @@
                         <a class="nav-link {{ $request->segment(2) == 'employee' ? 'active' : '' }}"
                             href="{{ route('admin.employee.index') }}">
                             <span class="title">@lang('menus.backend.sidebar.trainees')</span>
+                        </a>
+                    </li>
+                    @endif
+                    @endcan
+                    @can('category_access')
+                    @if (null == Session::get('setvaluesession') ||
+                    (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2]))
+                    )
+                    <li class="nav-item ">
+                        <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
+                            href="{{ route('admin.department.index') }}">
+                            <span class="title">@lang('menus.backend.sidebar.department')</span>
                         </a>
                     </li>
                     @endif
@@ -710,6 +725,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings/certificate-template*')) }}"
+                            href="{{ route('admin.certificate-template-settings') }}">
+                            <span class="title"><i class="fas fa-certificate mr-1"></i>Certificate Template</span>
+                        </a>
+                    </li>
+
 
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('user/settings/smtp*')) }}"
@@ -770,6 +792,15 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/payment-gateways*')) }}"
                             href="{{ url('external-apps/payment-gateways/settings') }}">
                             <span class="title"><i class="fas fa-credit-card mr-1"></i>Payment Gateways</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if (!empty($enabledApps['hrms-integration-module']) && $enabledApps['hrms-integration-module'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/hrms*')) }}"
+                            href="{{ route('admin.hrms.settings') }}">
+                            <span class="title"><i class="fas fa-network-wired mr-1"></i>HRMS Integrations</span>
                         </a>
                     </li>
                     @endif
