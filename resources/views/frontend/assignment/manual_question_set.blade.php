@@ -78,7 +78,14 @@
                                 </div>
                             @endif
                         @endforeach
-                        <button type="button" class="btn btn-primary mg_all_submit">Submit</button>
+
+                        @if (count($test_questions) > 0)
+                            <button type="button" class="btn btn-primary mg_all_submit">Submit</button>
+                        @else
+                            <div class="alert alert-warning mb-0">
+                                No questions are available for this assessment yet. Please contact admin.
+                            </div>
+                        @endif
                     </form>
                 @endif
             </div>

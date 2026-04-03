@@ -64,6 +64,35 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                             {{session('success')}}
                         </div>
                     @endif
+                    @if(isset($nextTasks) && is_array($nextTasks))
+                        @if(!empty($nextTasks['open_assesment']) || !empty($nextTasks['reattempt_assesment']) || !empty($nextTasks['open_feedback']))
+                            <div class="alert alert-info fade show">
+                                <strong>Completion checklist:</strong>
+                                <ul class="mb-0 mt-2" style="padding-left: 18px;">
+                                    @if(!empty($nextTasks['open_assesment']))
+                                        <li>Complete the final course assessment to continue completion (lesson quizzes alone are not enough when a final assessment is configured).</li>
+                                    @endif
+                                    @if(!empty($nextTasks['reattempt_assesment']))
+                                        <li>Re-attempt the assessment to meet the passing criteria.</li>
+                                    @endif
+                                    @if(!empty($nextTasks['open_feedback']))
+                                        <li>Submit course feedback to unlock certificate/completion.</li>
+                                    @endif
+                                </ul>
+                                <div class="mt-3 d-flex flex-wrap" style="gap: 8px;">
+                                    @if(!empty($nextTasks['open_assesment']) && !empty($assessment_link))
+                                        <a class="btn btn-sm btn-success" href="{{ htmlspecialchars_decode($assessment_link) }}">Start Assessment</a>
+                                    @endif
+                                    @if(!empty($nextTasks['reattempt_assesment']) && !empty($assessment_link))
+                                        <a class="btn btn-sm btn-warning text-white" href="{{ htmlspecialchars_decode($assessment_link) }}">Re-attempt Assessment</a>
+                                    @endif
+                                    @if(!empty($nextTasks['open_feedback']))
+                                        <a class="btn btn-sm btn-info text-white" href="{{ route('course-feedback', $course->id) }}">Give Feedback</a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endif
                     <div class="course-details-item border-bottom-0 mb-0">
                         <div class="course-single-pic mb30">
                             @if($course->course_image != "")
@@ -265,7 +294,7 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                                 </div>
                                             </div>
                                             @if($meetUrl)
-                                                <a href="{{ $meetUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                <a href="{{ $meetUrl }}" class="btn btn-warning mt-2">
                                                     <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
                                                 </a>
                                             @endif
@@ -296,7 +325,7 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                                     </div>
                                                 </div>
                                                 @if($sessionUrl)
-                                                    <a href="{{ $sessionUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                    <a href="{{ $sessionUrl }}" class="btn btn-warning mt-2">
                                                         <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
                                                     </a>
                                                 @endif
@@ -627,15 +656,14 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                     <span >  {{$lessonCount}} </span></li>
                                 {{--<li>Language <span>English</span></li>--}}
                                 <li class="d-inline-block w-100"><em>@lang('labels.frontend.course.category')</em><span><a
-                                                href="{{route('courses.category',['category'=>$course->category->slug])}}"
-                                                target="_blank">{{$course->category->name}}</a> </span></li>
+                                                href="{{route('courses.category',['category'=>$course->category->slug])}}">{{$course->category->name}}</a> </span></li>
                                 <li> <em>@lang('labels.frontend.course.author') </em> <span>
 
                                         @foreach($course->teachers as $key=>$teacher)
 
                                             @if($teacher->hasRole('teacher'))
                                             @php $key++ @endphp
-                                            <a href="{{route('teachers.show',['id'=>$teacher->id])}}" target="_blank">
+                                            <a href="{{route('teachers.show',['id'=>$teacher->id])}}">
                                                 {{$teacher->full_name}}@if($key < count($course->teachers )), @endif
                                             </a>
                                             @endif
