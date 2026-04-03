@@ -13,6 +13,10 @@ class AddWeightToKpisTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('kpis') || Schema::hasColumn('kpis', 'weight')) {
+            return;
+        }
+
         Schema::table('kpis', function (Blueprint $table) {
             $table->decimal('weight', 8, 2)->default(1)->after('description');
         });
@@ -25,6 +29,10 @@ class AddWeightToKpisTable extends Migration
      */
     public function down()
     {
+        if (!Schema::hasTable('kpis') || !Schema::hasColumn('kpis', 'weight')) {
+            return;
+        }
+
         Schema::table('kpis', function (Blueprint $table) {
             $table->dropColumn('weight');
         });

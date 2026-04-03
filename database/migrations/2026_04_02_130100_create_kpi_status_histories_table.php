@@ -13,6 +13,10 @@ class CreateKpiStatusHistoriesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('kpi_status_histories')) {
+            return;
+        }
+
         Schema::create('kpi_status_histories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('kpi_id');
