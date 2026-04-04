@@ -250,7 +250,12 @@ trait FileUploadTrait
                 if ($request->hasFile($key)) {
     
                     if ($key == $downloadable_file_input) {
-                        foreach ($request->file($key) as $item) {
+                        $downloadableItems = $request->file($key);
+                        if (!is_array($downloadableItems)) {
+                            $downloadableItems = [$downloadableItems];
+                        }
+
+                        foreach ($downloadableItems as $item) {
                             $extension = array_last(explode('.', $item->getClientOriginalName()));
                             $name = array_first(explode('.', $item->getClientOriginalName()));
                             $filename = time() . '-' . Str::slug($name) . '.' . $extension;
@@ -261,7 +266,7 @@ trait FileUploadTrait
                                 'model_id' => $model->id,
                                 'name' => $filename,
                                 'url' => asset('storage/uploads/' . $filename),
-                                'type' => $item->getClientMimeType(),
+                                'type' => 'download_file',
                                 'file_name' => $filename,
                                 'size' => $size,
                             ]);
@@ -272,43 +277,55 @@ trait FileUploadTrait
                     } else {
                         if ($key != 'video_file') {
                             if ($key == 'add_pdf') {
-                                $file = $request->file($key);
-    
-                                $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
-                                $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                                $filename = time() . '-' . Str::slug($name) . '.' . $extension;
-    
-                                $size = $file->getSize() / 1024;
-                                $file->move(public_path('storage/uploads'), $filename);
-                                Media::create([
-                                    'model_type' => $model_type,
-                                    'model_id' => $model->id,
-                                    'name' => $filename,
-                                    'url' => asset('storage/uploads/' . $filename),
-                                    'type' => 'lesson_pdf',
-                                    'file_name' => $filename,
-                                    'size' => $size,
-                                ]);
-                                $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
+                                $pdfFiles = $request->file($key);
+                                if (!is_array($pdfFiles)) {
+                                    $pdfFiles = [$pdfFiles];
+                                }
+
+                                foreach ($pdfFiles as $file) {
+                                    $extension = array_last(explode('.', $file->getClientOriginalName()));
+                                    $name = array_first(explode('.', $file->getClientOriginalName()));
+                                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
+
+                                    $size = $file->getSize() / 1024;
+                                    $file->move(public_path('storage/uploads'), $filename);
+                                    Media::create([
+                                        'model_type' => $model_type,
+                                        'model_id' => $model->id,
+                                        'name' => $filename,
+                                        'url' => asset('storage/uploads/' . $filename),
+                                        'type' => 'lesson_pdf',
+                                        'file_name' => $filename,
+                                        'size' => $size,
+                                    ]);
+                                }
+
+                                $finalRequest = new Request(array_merge($finalRequest->all(), [$key => true]));
                             } elseif ($key == 'add_audio') {
-                                $file = $request->file($key);
-    
-                                $extension = array_last(explode('.', $request->file($key)->getClientOriginalName()));
-                                $name = array_first(explode('.', $request->file($key)->getClientOriginalName()));
-                                $filename = time() . '-' . Str::slug($name) . '.' . $extension;
-    
-                                $size = $file->getSize() / 1024;
-                                $file->move(public_path('storage/uploads'), $filename);
-                                Media::create([
-                                    'model_type' => $model_type,
-                                    'model_id' => $model->id,
-                                    'name' => $filename,
-                                    'type' => 'lesson_audio',
-                                    'file_name' => $filename,
-                                    'url' => asset('storage/uploads/' . $filename),
-                                    'size' => $size,
-                                ]);
-                                $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
+                                $audioFiles = $request->file($key);
+                                if (!is_array($audioFiles)) {
+                                    $audioFiles = [$audioFiles];
+                                }
+
+                                foreach ($audioFiles as $file) {
+                                    $extension = array_last(explode('.', $file->getClientOriginalName()));
+                                    $name = array_first(explode('.', $file->getClientOriginalName()));
+                                    $filename = time() . '-' . Str::slug($name) . '.' . $extension;
+
+                                    $size = $file->getSize() / 1024;
+                                    $file->move(public_path('storage/uploads'), $filename);
+                                    Media::create([
+                                        'model_type' => $model_type,
+                                        'model_id' => $model->id,
+                                        'name' => $filename,
+                                        'type' => 'lesson_audio',
+                                        'file_name' => $filename,
+                                        'url' => asset('storage/uploads/' . $filename),
+                                        'size' => $size,
+                                    ]);
+                                }
+
+                                $finalRequest = new Request(array_merge($finalRequest->all(), [$key => true]));
                             } else {
                                 if(is_array($request->file($key))){
                                     foreach($request->file($key) as $f){

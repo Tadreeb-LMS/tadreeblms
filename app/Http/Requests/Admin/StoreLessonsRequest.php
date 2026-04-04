@@ -23,8 +23,17 @@ class StoreLessonsRequest extends FormRequest
     public function rules()
     {
         return [
-            'course_id' => 'required',
-            'title' => 'required',
+            'course_id' => 'required|integer|exists:courses,id',
+            'title' => 'required|array|min:1',
+            'title.*' => 'required|string|max:255',
+            'published' => 'nullable|boolean',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'published' => (int) $this->boolean('published'),
+        ]);
     }
 }
