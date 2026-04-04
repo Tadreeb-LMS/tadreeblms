@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Bundle;
 use App\Models\Category;
-use App\Models\{EmployeeProfile, Course, courseAssignment, CourseAssignmentToUser, LearningPathwayCourse};
+use App\Models\{EmployeeProfile, Course, courseAssignment, CourseAssignmentToUser, LearningPathwayCourse, LiveSession, LiveSessionAttendance};
 use App\Models\Auth\{User};
 use App\Models\Review;
 use App\Models\Stripe\SubscribeCourse;
@@ -278,8 +278,17 @@ class CoursesController extends Controller
 
         $courseInPlan = courseOrBundlePlanExits($course->id, '');
         //dd($courseInPlan);
-        
-        return view($this->path . '.courses.course', compact('lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries'));
+
+        // Upcoming live sessions for this course
+        $liveSessions = LiveSession::where('course_id', $course->id)
+            ->where('session_date', '>=', Carbon::today())
+            ->orderBy('session_date')
+            ->orderBy('session_time')
+            ->get();
+
+        $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
+
+        return view($this->path . '.courses.course', compact('lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
     }
 
     public function show($course_slug)
@@ -350,8 +359,41 @@ $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
 
             $assessment_link = "";
 
-            // TEMP: Mark attendance when student clicks Join (TODO: move to teacher flow later)
-            if ($subscribe_data && !$subscribe_data->is_attended && request()->has('joined')) {
+            // --- Attendance marking ---
+            $isScheduledCourse = in_array($course->schedule_type, ['daily', 'weekly', 'custom']);
+
+            if ($isScheduledCourse && $subscribe_data && request()->has('joined')) {
+                // Scheduled course: mark per-session attendance (only within time window)
+                $joinedSessionId = request()->get('session_id');
+                if ($joinedSessionId) {
+                    $joinedSession = LiveSession::find($joinedSessionId);
+                    if ($joinedSession) {
+                        $sessionStart = Carbon::parse($joinedSession->session_date->format('Y-m-d') . ' ' . $joinedSession->session_time);
+                        $sessionEnd = $sessionStart->copy()->addMinutes((int)($joinedSession->duration ?? 60));
+                        $windowStart = $sessionStart->copy()->subMinutes(15);
+                        $now = Carbon::now();
+
+                        if ($now->between($windowStart, $sessionEnd)) {
+                            LiveSessionAttendance::firstOrCreate(
+                                ['live_session_id' => $joinedSessionId, 'user_id' => $logged_in_user_id],
+                                ['attended_at' => Carbon::now()]
+                            );
+                        }
+                    }
+                }
+
+                // Check if this is the last session (no future sessions after today)
+                $futureSessionsCount = LiveSession::where('course_id', $course->id)
+                    ->where('session_date', '>', Carbon::today())
+                    ->count();
+
+                if ($futureSessionsCount == 0 && !$subscribe_data->is_attended) {
+                    // Last session day — mark course-level attendance to trigger post-attendance flow
+                    DB::table('subscribe_courses')->where('id', $subscribe_data->id)->update(['is_attended' => 1]);
+                    $subscribe_data->is_attended = 1;
+                }
+            } elseif (!$isScheduledCourse && $subscribe_data && !$subscribe_data->is_attended && request()->has('joined')) {
+                // Single meeting: existing flow — mark attended immediately
                 DB::table('subscribe_courses')->where('id', $subscribe_data->id)->update(['is_attended' => 1]);
                 $subscribe_data->is_attended = 1;
             }
@@ -486,7 +528,16 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
                 $nextTasks = CustomHelper::getNextTask($subscribe_data, $course_id);
                 //dd($nextTasks);
 
-                return view($this->path . '.courses.course', compact('nextTasks','has_subscribtion','isGrantCertificate','hasFeedBack','feedback_given','is_course_started','is_course_completed','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries'));
+                // Upcoming live sessions for this course
+                $liveSessions = LiveSession::where('course_id', $course->id)
+                    ->where('session_date', '>=', Carbon::today())
+                    ->orderBy('session_date')
+                    ->orderBy('session_time')
+                    ->get();
+
+                $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
+
+                return view($this->path . '.courses.course', compact('nextTasks','has_subscribtion','isGrantCertificate','hasFeedBack','feedback_given','is_course_started','is_course_completed','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
 
             }
             
@@ -497,15 +548,58 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             $is_before = false;
             $both_pass = false;
 
-            $isGrantCertificate = $subscribe_data->grant_certificate;
+            $isGrantCertificate = $subscribe_data ? $subscribe_data->grant_certificate : false;
             //$is_attended = $subscribe_data->is_attended;
             //dd($hasFeedBack, $progress, $is_attended);
             $course_is_ready = 1;
-            $nextTasks = CustomHelper::getNextTask($subscribe_data, $course_id);
+            $nextTasks = $subscribe_data ? CustomHelper::getNextTask($subscribe_data, $course_id) : [
+                'download_certificate' => false,
+                'open_assesment' => false,
+                'open_feedback' => false,
+                'reattempt_assesment' => false,
+                'completed_assesment' => false,
+                'failed_in_assesment_all_attempts' => false,
+            ];
             //dd($nextTasks);
 
 
-            return view($this->path . '.courses.offline-course', compact('nextTasks','course_is_ready','has_subscribtion','hasFeedBack','feedback_given','is_course_started','is_course_completed','lessonCount', 'is_after_endtime','end_meeting_attend_time','due_date_time','is_attended', 'course', 'assessment_link', 'courseFeedbackLink', 'is_within_buffer', 'is_after_due','is_before', 'subscribe_data', 'hasAssessmentLink', 'isAssignmentTaken','both_pass', 'both_pass', 'first_lesson_slug', 'now','isGrantCertificate'));
+            // Today's live session for this course
+            $todaySession = LiveSession::where('course_id', $course->id)
+                ->whereDate('session_date', Carbon::today())
+                ->orderBy('session_time')
+                ->first();
+
+            // Upcoming live sessions
+            $liveSessions = LiveSession::where('course_id', $course->id)
+                ->where('session_date', '>=', Carbon::today())
+                ->orderBy('session_date')
+                ->orderBy('session_time')
+                ->get();
+
+            // All sessions for this course
+            $allSessions = LiveSession::where('course_id', $course->id)
+                ->orderBy('session_date')
+                ->orderBy('session_time')
+                ->get();
+
+            $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
+
+            // Scheduled course stats
+            $totalSessionsCount = $allSessions->count();
+            $attendedSessionsCount = 0;
+            $attendedSessionIds = [];
+            if ($isScheduledCourse && $totalSessionsCount > 0) {
+                $attendedSessionIds = LiveSessionAttendance::where('user_id', $logged_in_user_id)
+                    ->whereIn('live_session_id', $allSessions->pluck('id'))
+                    ->pluck('live_session_id')
+                    ->toArray();
+                $attendedSessionsCount = count($attendedSessionIds);
+            }
+
+            // Next session (for when there's no session today)
+            $nextSession = $liveSessions->where('session_date', '>', Carbon::today())->first();
+
+            return view($this->path . '.courses.offline-course', compact('nextTasks','course_is_ready','has_subscribtion','hasFeedBack','feedback_given','is_course_started','is_course_completed','lessonCount', 'is_after_endtime','end_meeting_attend_time','due_date_time','is_attended', 'course', 'assessment_link', 'courseFeedbackLink', 'is_within_buffer', 'is_after_due','is_before', 'subscribe_data', 'hasAssessmentLink', 'isAssignmentTaken','both_pass', 'both_pass', 'first_lesson_slug', 'now','isGrantCertificate', 'todaySession', 'liveSessions', 'allSessions', 'isHostRole', 'isScheduledCourse', 'totalSessionsCount', 'attendedSessionsCount', 'attendedSessionIds', 'nextSession'));
         }
         
         $purchased_course = \Auth::check() && $course->students()->where('user_id', \Auth::id())->count() > 0;
@@ -567,8 +661,17 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
         $end_meeting_attend_time = null;
 
         //dd("fdf");
-        
-        return view($this->path . '.courses.course', compact('hasFeedBack','feedback_given','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries'));
+
+        // Upcoming live sessions for this course
+        $liveSessions = LiveSession::where('course_id', $course->id)
+            ->where('session_date', '>=', Carbon::today())
+            ->orderBy('session_date')
+            ->orderBy('session_time')
+            ->get();
+
+        $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
+
+        return view($this->path . '.courses.course', compact('hasFeedBack','feedback_given','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
     }
 
     public function coursePreview($course_slug)
@@ -862,8 +965,17 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
         $nextTasks = CustomHelper::getNextTask($subscribe_data, $course->id);
 
         //dd($nextTasks);
-        
-        return view($this->path . '.courses.course', compact('nextTasks','is_course_completed','is_course_started','is_admin','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries'));
+
+        // Upcoming live sessions for this course
+        $liveSessions = LiveSession::where('course_id', $course->id)
+            ->where('session_date', '>=', Carbon::today())
+            ->orderBy('session_date')
+            ->orderBy('session_time')
+            ->get();
+
+        $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
+
+        return view($this->path . '.courses.course', compact('nextTasks','is_course_completed','is_course_started','is_admin','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
     }
 
     public function register_course(Request $request, $course_id)

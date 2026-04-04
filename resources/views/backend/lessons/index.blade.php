@@ -77,7 +77,7 @@
 </label>
                     <div class=" custom-select-wrapper">
     <select name="course_id" id="course_id" class="form-control custom-select-box select2">
-        <option value="">Select Course</option>
+        <option value="">{{ __('course_pages.admin_lessons_index.select_course') }}</option>
         @foreach($courses as $id => $course)
             <option value="{{ $id }}" 
                 @if(request('course_id') == $id || old('course_id') == $id) selected @endif>
@@ -120,9 +120,10 @@
 
                             {{-- <th>@lang('labels.general.id')</th> --}}
                         <th>@lang('labels.backend.lessons.fields.title')</th>
-                        <th>@lang('Lesson Start Date')</th>
-                        <th>@lang('Duration [minutes]')</th>
-                        <th>@lang('Attendance [count]')</th>
+                        <th>@lang('labels.backend.lessons.fields.course')</th>
+                        <th>{{ __('course_pages.admin_lessons_index.lesson_start_date') }}</th>
+                        <th>{{ __('course_pages.admin_lessons_index.duration_minutes') }}</th>
+                        <th>{{ __('course_pages.admin_lessons_index.attendance_count') }}</th>
                         <th>@lang('labels.backend.courses.fields.qr_code')</th>
                         <th>@lang('labels.backend.lessons.fields.published')</th>
                         @if( request('show_deleted') == 1 )
@@ -175,14 +176,14 @@
         buttons: [
             {
                 extend: 'csv',
-                text: 'CSV',
+                text: '{{ trans("datatable.csv") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             },
             {
                 extend: 'pdf',
-                text: 'PDF',
+                text: '{{ trans("datatable.pdf") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
@@ -221,6 +222,7 @@
                     //{data: "id", name: 'id'},
 
                     {data: "title", name: 'title'},
+                    {data: "course", name: 'course.title', defaultContent: 'N/A'},
                     {data: "lesson_start_date", name: 'lesson_start_date'},
                     {data: "duration", name: 'duration'},
                     {data: "attendance", name: 'attendance'},
@@ -254,13 +256,14 @@
                         pdf : '{{trans("datatable.pdf")}}',
                         csv : '{{trans("datatable.csv")}}',
                     }, 
+                    lengthMenu : '{{trans("datatable.length_menu")}}',
                     search:"",
            }
             });
 
             @can('lesson_delete')
             @if(request('show_deleted') != 1)
-            $('.actions').html('<a href="' + '{{ route('admin.lessons.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>');
+            $('.actions').html('<a href="' + '{{ route('admin.lessons.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('course_pages.admin_lessons_index.delete_selected') }}</a>');
             @endif
             @endcan
 

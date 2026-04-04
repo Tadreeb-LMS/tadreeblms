@@ -173,7 +173,7 @@ class FeedbackController extends Controller
     {
         $request->validate([
             'course_id' => 'required|numeric|min:1|exists:courses,id',
-            'feedback_question_ids' => 'array',
+            'feedback_question_ids' => 'nullable|array',
             'feedback_question_ids.*.' => 'numeric|min:1|exists:feedback_questions,id',
         ]);
 

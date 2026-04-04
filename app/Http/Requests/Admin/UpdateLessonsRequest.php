@@ -24,6 +24,14 @@ class UpdateLessonsRequest extends FormRequest
     {
         return [
             'title' => 'required',
+            'published' => 'nullable|boolean',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'published' => (int) $this->boolean('published'),
+        ]);
     }
 }

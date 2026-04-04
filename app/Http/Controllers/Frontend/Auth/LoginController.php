@@ -37,7 +37,7 @@ class LoginController extends Controller
     public function redirectPath()
     {
         if (auth()->check() && auth()->user()->isAdmin()) {
-            return '/admin/dashboard';
+            return '/user/dashboard';
         }
 
         return route(home_route());
@@ -118,11 +118,11 @@ class LoginController extends Controller
         ], 422);
         }
 
-$credentials = [
-    'email' => $request->email,
-    'password' => $request->password,
-    'is_deleted' => 0
-];
+        $credentials = [
+            'email'      => $request->email,
+            'password'   => $request->password,
+            'is_deleted' => 0,
+        ];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
             $user = auth()->user();
@@ -259,7 +259,7 @@ $credentials = [
         }
 
         if ($user->isAdmin()) {
-            return redirect('/admin/dashboard');
+            return redirect('/user/dashboard');
         }
 
         $redirect = $request->redirect_url ?? $this->redirectPath();

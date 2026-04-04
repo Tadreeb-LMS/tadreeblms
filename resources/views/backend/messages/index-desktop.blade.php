@@ -50,13 +50,13 @@
                             </div>
                         </div>
                         <div class="inbox_chat">
-                            @if($threads->count() > 0)
+                            @if(collect($threads)->count() > 0)
                                 @foreach($threads as $item)
                                     @if($item->latestMessage)
                                         <a class="@if($item->userUnreadMessagesCount(auth()->user()->id)) unread
                                             @endif" href="{{route('admin.messages').'?thread='.$item->id}}">
                                             <div data-thread="{{$item->id}}"
-                                                 class="chat_list @if(($thread != "") && ($thread->id == $item->id))  active_chat @endif" >
+                                                 class="chat_list @if(!empty($thread) && ($thread->id == $item->id))  active_chat @endif" >
                                                 <div class="chat_people">
 
                                                     <div class="chat_ib">
@@ -81,7 +81,7 @@
                             @endif
                         </div>
                     </div>
-                    @if(request()->has('thread'))
+                    @if(request()->has('thread') && !empty($thread))
                         <form method="post" action="{{route('admin.messages.reply')}}">
                             @csrf
 

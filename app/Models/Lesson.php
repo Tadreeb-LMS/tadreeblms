@@ -44,6 +44,15 @@ class Lesson extends Model
                 $lesson->media()->delete();
             }
 
+            static::creating(function ($lesson) {
+                if ($lesson->published === null) {
+                    $lesson->published = 0;
+                }
+
+                if ($lesson->free_lesson === null) {
+                    $lesson->free_lesson = 1;
+                }
+            });
         });
     }
 

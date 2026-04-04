@@ -138,13 +138,18 @@ class TestQuestionController extends Controller
 
     $marks = (int) $marksInput;
 
-    if ($marks < 1 || $marks > 999) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Marks must be between 1 and 999.',
-            'errors' => 'Marks must be between 1 and 999.',
-        ], 422);
-    }
+        $question_id = DB::table('test_questions')->insertGetId([
+            'temp_id' => $request->temp_id ?? null,
+            'test_id' => $request->test_id,
+            'question_type' => $request->question_type,
+            'question_text' => $request->question,
+            'solution' => $request->solution,
+            'marks' => $request->score,
+            'comment' => $request->comment,
+            'option_json' => $request->question_type != 3 ? $request->options : NULL,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
 
     if ($request->question_type == 1) {
         $options = isset($request->options) ? json_decode($request->options) : [];
@@ -451,7 +456,7 @@ class TestQuestionController extends Controller
             'question_type' => $request->question_type,
             'question_text' => $request->question,
             'solution' => $request->solution,
-            'score' => $request->score,
+            'marks' => $request->score,
             'comment' => $request->comment,
             'option_json' => $request->question_type != 3 ? $request->options : NULL
         ]);

@@ -70,6 +70,7 @@
             <span class="legend-item"><span class="legend-dot" style="background:#6c757d;"></span> Lessons</span>
             <span class="legend-item"><span class="legend-dot" style="background:#4285F4;"></span> Live Sessions (Zoom/Teams/Meet)</span>
             <span class="legend-item"><span class="legend-dot" style="background:#34A853;"></span> Live Lesson Slots</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#E91E63;"></span> Scheduled Sessions</span>
         </div>
 
         <div id="calendar"></div>
@@ -270,6 +271,11 @@
                {
                    events: {!! $liveLessonSlots !!},
                    color: '#34A853',
+                   textColor: '#fff',
+               },
+               {
+                   events: {!! $scheduledSessions !!},
+                   color: '#E91E63',
                    textColor: '#fff',
                }
             ]
