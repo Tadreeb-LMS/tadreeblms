@@ -14,18 +14,17 @@ use App\Jobs\SendEmailJob;
 use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
-use App\Http\Controllers\Backend\SettingsController;
-
+use App\Http\Controllers\Backend\SettingsController;        
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
-
-
-//Route::get('/install', [InstallerController::class, 'index']);
-//Route::post('/install/run', [InstallerController::class, 'run']);
-
+use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
 use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
+Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
+->name('admin.course.assign');
+Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);
 Route::get('/lesson/check-course', [App\Http\Controllers\Backend\Admin\LessonsController::class, 'checkCourse'])
     ->name('lessons.course.check');
 Route::get('/ldap-test', function () {
@@ -106,6 +105,8 @@ Route::get('reset-demo', function () {
 
 require_once "delta_academy_custom_routes.php";
 
+
+Route::get('/certificate-verification', [\App\Http\Controllers\CertificateVerificationController::class, 'verify'])->name('frontend.certificates.getVerificationForm');
 
 /*
  * Frontend Routes
@@ -220,15 +221,23 @@ Route::get('bundles/review/{id}/delete', ['uses' => 'BundlesController@deleteRev
 
 
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('lesson/{course_id}/{slug}/quiz', ['uses' => 'LessonsController@showLessonQuiz', 'as' => 'lessons.lesson_quiz.show']);
     Route::get('lesson/{course_id}/{slug?}/', ['uses' => 'LessonsController@show', 'as' => 'lessons.show']);
     Route::post('lesson/{slug}/test', ['uses' => 'LessonsController@test', 'as' => 'lessons.test']);
     Route::post('lesson/{slug}/retest', ['uses' => 'LessonsController@retest', 'as' => 'lessons.retest']);
+    Route::post('lesson/{lesson_id}/lesson-quiz', ['uses' => 'LessonsController@submitLessonQuiz', 'as' => 'lessons.lesson_quiz']);
     Route::post('video/progress', 'LessonsController@videoProgress')->name('update.videos.progress');
     Route::post('lesson/progress', 'LessonsController@courseProgress')->name('update.course.progress');
     Route::post('video/progress/update', 'LessonsController@videoProgressUpdates')->name('video.progress.update');
     Route::post('lesson/book-slot', 'LessonsController@bookSlot')->name('lessons.course.book-slot');
     Route::get('lesson/check-course', 'Backend\Admin\LessonsController@create')->name('lessons.course.check');
     Route::get('/record-attendance/{slug}', 'Backend\Admin\CoursesController@recordAttendance')->name('recordAttendance');
+});
+
+// Compatibility route for existing admin URLs used in bookmarks/manual links.
+Route::middleware(['auth', 'role:administrator|teacher'])->group(function () {
+    Route::get('admin/test_questions/create/{course_id?}/{temp_id?}/{onlytest?}', [TestQuestionController::class, 'create'])
+        ->name('admin.test_questions.create_compat');
 });
 
 Route::get('/search', [HomeController::class, 'searchCourse'])->name('search');
@@ -312,10 +321,11 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => con
     Route::post('change-location', 'MenuController@updateLocation')->name('update-location');
 });
 
-Route::get('certificate-verification', 'Backend\CertificateController@getVerificationForm')->name('frontend.certificates.getVerificationForm');
-Route::post('certificate-verification', 'Backend\CertificateController@verifyCertificate')->name('frontend.certificates.verify');
-Route::get('certificates/download', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
-Route::get('user/certificates/generate/{course_id}/{user_id}', 'Backend\CertificateController@generateCertificate')->name('admin.certificates.generate');
+
+Route::group(['middleware' => ['web', 'auth']], function () {
+    Route::get('user/certificates/download/{certificate_id?}', ['uses' => 'Backend\CertificateController@download', 'as' => 'certificates.download']);
+    Route::get('user/certificates/generate/{course_id}/{user_id}', 'Backend\CertificateController@generateCertificate')->name('admin.certificates.generate');
+});
 
 
 if (config('show_offers') == 1) {

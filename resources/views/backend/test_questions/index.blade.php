@@ -32,6 +32,11 @@
     border-bottom: none;
 }
 
+#add_new_question_btn.disabled {
+    pointer-events: none;
+    opacity: 0.65;
+}
+
     
     </style>
 
@@ -46,15 +51,29 @@
       @lang('labels.backend.questions.title')
    </h4>
    <div >
-         @if (app('request')->input('test_id'))
-           @php
-               $test_id = app('request')->input('test_id');
-           @endphp
-           <a href="{{ route('admin.test_questions.create') }}?test_id={{ $test_id }}"
-               class="btn btn-primary">@lang('strings.backend.general.app_add_new')</a>
-       @else
-           <a href="{{ route('admin.test_questions.create') }}" class="btn add-btn">@lang('strings.backend.general.app_add_new')</a>
-       @endif
+       @php
+           $test_id = app('request')->input('test_id');
+           $course_id = app('request')->input('course_id');
+           $add_new_href = 'javascript:void(0)';
+           $add_new_disabled = true;
+
+           if ($test_id) {
+               $add_new_href = route('admin.test_questions.create') . '?test_id=' . $test_id . ($course_id ? '&course_id=' . $course_id : '');
+               $add_new_disabled = false;
+           } elseif ($course_id) {
+               $add_new_href = route('admin.test_questions.create') . '?course_id=' . $course_id;
+               $add_new_disabled = false;
+           }
+       @endphp
+       <a
+           id="add_new_question_btn"
+           href="{{ $add_new_href }}"
+           data-base-url="{{ route('admin.test_questions.create') }}"
+           data-test-id="{{ $test_id }}"
+           class="btn add-btn {{ $add_new_disabled ? 'disabled' : '' }}"
+           aria-disabled="{{ $add_new_disabled ? 'true' : 'false' }}"
+           title="{{ $add_new_disabled ? 'Select a course first' : '' }}"
+       >@lang('strings.backend.general.app_add_new')</a>
    </div>
  
 </div>
@@ -81,10 +100,9 @@
         <div class="card-body">
             <div class="row mb-3">
                 @php
-                    $courses = $courses = Course::has('category')
+                    $courses = Course::has('category')
                         ->ofTeacher()
-                        ->pluck('title', 'id')
-                        ->prepend('Please select', '');
+                        ->pluck('title', 'id');
                 @endphp
                 <div class="col-md-12 col-lg-6 form-group mb-3">
 
@@ -116,6 +134,7 @@
                                 <tr>
                                     <th style="width: 80px;">@lang('Id')</th>
                                     <th style="width: 80px;">@lang('Test')</th>
+                                    <th style="width: 140px;">@lang('Course')</th>
                                     <th style="width: 130px;">@lang('Question Type')</th>
                                     <th style="width: 80px;">@lang('Question Text')</th>
                                     <th style="width: 80px;">@lang('Marks')</th>
@@ -127,6 +146,7 @@
                                     <tr>
                                         <td>{{ $value->id }}</td>
                                         <td>{{ $value->title }}</td>
+                                        <td>{{ $value->course_title ?? '-' }}</td>
                                         <td>
                                             @if ($value->question_type == 1)
                                                 Single Choice
@@ -267,7 +287,17 @@
 
         $(document).on('change', '#course_id', function(e) {
             var course_id = $(this).val();
-            window.location.href = "{{ route('admin.test_questions.index') }}" + "?course_id=" + course_id
+            var indexUrl = "{{ route('admin.test_questions.index') }}";
+            if (course_id) {
+                window.location.href = indexUrl + "?course_id=" + course_id;
+            } else {
+                window.location.href = indexUrl;
+            }
+        });
+
+        $(document).on('click', '#add_new_question_btn.disabled', function(e) {
+            e.preventDefault();
+            alert('Please select a course before adding a new question.');
         });
     </script>
 @endpush

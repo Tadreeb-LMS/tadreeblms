@@ -24,7 +24,7 @@
     <div class="pb-3 d-flex justify-content-between align-items-center">
         <h4 class="">@lang('Edit Pathway Assignment')</h4>
         <div class="float-right">
-            <a href="{{ url('/user/pathway-assignments') }}" class="add-btn">@lang('View Assignments')</a>
+            <!-- <a href="{{ url('/user/pathway-assignments') }}" class="add-btn">@lang('View Assignments')</a> -->
         </div>
     </div>
     <div class="card">

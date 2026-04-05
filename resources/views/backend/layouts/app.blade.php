@@ -202,7 +202,6 @@
     <script src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
     <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"
         integrity="sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ" crossorigin="anonymous">
     </script>
@@ -211,20 +210,16 @@
     <script>
         window._token = '{{ csrf_token() }}';
     </script>
-
+<script src="{{ asset('js/app.js') }}"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>  
     <script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
     <script>
-    CKEDITOR.config.versionCheck = false;
+    if (typeof CKEDITOR !== 'undefined') {
+        CKEDITOR.config.versionCheck = false;
+        CKEDITOR.config.removePlugins = 'easyimage,cloudservices';
+    }
     </script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof CKEDITOR !== 'undefined') {
-            document.querySelectorAll('.editor').forEach(el => {
-                CKEDITOR.replace(el);
-            });
-        }
-    });
-
     document.addEventListener('DOMContentLoaded', function () {
 
         if (typeof CKEDITOR === 'undefined') {
@@ -232,7 +227,17 @@
             return;
         }
 
+        const config = {
+            filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
+            filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{ csrf_token() }}',
+            filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
+            filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{ csrf_token() }}',
+            removePlugins: 'easyimage,cloudservices',
+            removeButtons: 'CodeSnippet'
+        };
+
         $('.editor').each(function () {
+            const $editor = $(this);
             let id = $(this).attr('id');
 
             // CKEditor REQUIRES an ID
@@ -241,13 +246,26 @@
                 $(this).attr('id', id);
             }
 
-            CKEDITOR.replace(id, {
-                filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
-                filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{ csrf_token() }}',
-                filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
-                filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{ csrf_token() }}',
-                extraPlugins: 'smiley,lineutils,widget,codesnippet,prism,colorbutton,colordialog'
-            });
+            const editorConfig = Object.assign({}, config);
+
+            // Allow specific textareas to start with a collapsed (expandable) toolbar.
+            if ($editor.data('collapsibleToolbar')) {
+                editorConfig.toolbarCanCollapse = true;
+                editorConfig.toolbarStartupExpanded = true;
+                editorConfig.toolbar = [
+                    { name: 'styles',      items: ['Format', 'FontSize'] },
+                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'RemoveFormat'] },
+                    { name: 'paragraph',   items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'] },
+                    { name: 'links',       items: ['Link', 'Unlink'] },
+                    { name: 'insert',      items: ['Image', 'Table'] },
+                    { name: 'clipboard',   items: ['Undo', 'Redo'] },
+                    { name: 'tools',       items: ['Maximize', 'ToolbarCollapse'] }
+                ];
+            }
+
+            if (!CKEDITOR.instances[id]) {
+                CKEDITOR.replace(id, editorConfig);
+            }
         });
 
     });

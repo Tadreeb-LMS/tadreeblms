@@ -51,8 +51,10 @@
                                         <option value="">Select</option>
                                         @if($published_courses)
                                         @foreach($published_courses as $row)
-                                        <option @if($row->id == request()->course_id) selected @endif value="{{ $row->id }}">{{ $row->title }}</option>
-                                        @endforeach
+ <option value="{{ $row->id }}"
+            @if(isset($selectedCourse) && $row->id == $selectedCourse) selected @endif>
+            {{ $row->title }}
+        </option>                                        @endforeach
                                         @endif
                                     </select>
                                     <span class="custom-select-icon">

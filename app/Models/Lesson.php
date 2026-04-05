@@ -18,8 +18,9 @@ class Lesson extends Model
     protected $fillable = [
         'temp_id',
         'title', 
-        //'arabic_title', 
-        'slug', 'lesson_image', 'short_text', 'full_text', 'position', 'downloadable_files', 'free_lesson', 'published', 'course_id'];
+        'arabic_title', 
+        'slug', 'lesson_image', 'short_text', 'full_text', 'duration', 'lesson_start_date', 'position', 'downloadable_files', 'free_lesson', 'published', 'course_id'
+    ];
 
     protected $appends = ['image','lesson_readtime'];
 
@@ -43,6 +44,15 @@ class Lesson extends Model
                 $lesson->media()->delete();
             }
 
+            static::creating(function ($lesson) {
+                if ($lesson->published === null) {
+                    $lesson->published = 0;
+                }
+
+                if ($lesson->free_lesson === null) {
+                    $lesson->free_lesson = 1;
+                }
+            });
         });
     }
 

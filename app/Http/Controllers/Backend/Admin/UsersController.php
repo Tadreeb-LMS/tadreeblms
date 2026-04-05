@@ -24,7 +24,8 @@ class UsersController extends Controller
             return abort(401);
         }
 
-        $users = User::all();
+        // $users = User::all();
+        $users = User::active()->paginate(20);
         return view('admin.users.index', compact('users'));
     }
 
@@ -136,8 +137,10 @@ class UsersController extends Controller
             return abort(401);
         }
         $user = User::findOrFail($id);
-        $user->delete();
-
+$user->update([
+    'is_deleted' => 1,
+    'account_status' => 'terminated'
+]);
         return redirect()->route('admin.users.index');
     }
 
@@ -154,9 +157,12 @@ class UsersController extends Controller
         if ($request->input('ids')) {
             $entries = User::whereIn('id', $request->input('ids'))->get();
 
-            foreach ($entries as $entry) {
-                $entry->delete();
-            }
+          foreach ($entries as $entry) {
+    $entry->update([
+        'is_deleted' => 1,
+        'account_status' => 'terminated'
+    ]);
+}
         }
     }
 

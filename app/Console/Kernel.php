@@ -61,6 +61,7 @@ class Kernel extends ConsoleKernel
     {
 
         $schedule->command('courses:unpublish-expired')->daily();
+        $schedule->command('courses:complete-live')->daily()->withoutOverlapping();
         $schedule->command(DispatchSubscribeCourseJobs::class)->daily()->withoutOverlapping();
         $schedule->command(SendManualAssignmentReminder::class)->daily()->withoutOverlapping();
         $schedule->command(SendCourseNotifications::class)->daily()->withoutOverlapping();

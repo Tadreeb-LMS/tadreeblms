@@ -55,11 +55,11 @@ class User extends Authenticatable
     use  HasRoles,
         Notifiable,
         SendUserPasswordReset,
-        SoftDeletes,
         UserAttribute,
         UserMethod,
         UserRelationship,
         UserScope,
+        SoftDeletes,
         Uuid;
     use HasApiTokens;
     // use Messagable {
@@ -72,10 +72,14 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'name',
         'first_name',
         'last_name',
         'email',
         'dob',
+        'password',
+        'is_deleted',
+        'account_status',
         'phone',
         'gender',
         'address',
@@ -110,7 +114,7 @@ class User extends Authenticatable
     /**
      * @var array
      */
-    protected $dates = ['last_login_at', 'deleted_at'];
+    protected $dates = ['last_login_at', 'is_deleted'];
 
     /**
      * The dynamic attributes from mutators that should be returned with the user object.
@@ -128,10 +132,12 @@ class User extends Authenticatable
         'confirmed' => 'boolean',
     ];
 
-    public function scopeActive($query)
-    {
-        $query->where('active', 1);
-    }
+    public function scopeActive($query) 
+    { 
+ return $query->where('is_deleted', 0)
+                 ->where('account_status', 'active');
+                     }
+    
 
     public function scopeStudent($query)
     {

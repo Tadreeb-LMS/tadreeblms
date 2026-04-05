@@ -216,6 +216,7 @@
                                class="form-control"
                                placeholder="{{ __('validation.attributes.frontend.email') }}"
                                maxlength="191"
+                               value="{{ old('email') }}"
                                required>
                     </div>
 
@@ -227,6 +228,7 @@
                                id="password"
                                class="form-control"
                                placeholder="{{ __('validation.attributes.frontend.password') }}"
+                               value="{{ old('password') }}"
                                required>
                     </div>
 
@@ -261,11 +263,17 @@
                             </button>
 
                             <input type="text"
-                            id="captcha-input"
+                                id="captcha-input"
                                 name="captcha"
                                 class="form-control captcha-input"
                                 placeholder="Code"
-                                required>
+                                required
+                            >
+                            @if ($errors->has('captcha'))
+                                <span class="text-danger">
+                                    {{ $errors->first('captcha') }}
+                                </span>
+                            @endif
                         </div>
                     </div>
 
@@ -306,9 +314,9 @@ $(document).ready(function () {
 
         let $form = $(this);
         let $errorBox = $('#error-msg');
+        let $btn  = $('#loginBtn');
 
         $errorBox.hide().text('');
-        let $btn  = $('#loginBtn');
         $btn.prop('disabled', true).text('Processing...');
 
         $.ajax({
@@ -321,13 +329,7 @@ $(document).ready(function () {
 
                 if (response.success === true && response.redirect) {
                     window.location.href = response.redirect;
-                    return;
-                }
-
-                // Backend returned success=false
-                if (response.message) {
-                    $errorBox.text(response.message).show();
-                    location.reload();
+                    
                 }
             },
 
@@ -338,25 +340,36 @@ $(document).ready(function () {
                 if (xhr.status === 422 && xhr.responseJSON?.errors) {
                     // Validation error – show first message
                     const errors = xhr.responseJSON.errors;
-                    message = Object.values(errors)[0][0];
+                    if (errors.captcha) {
+                        message = errors.captcha[0];
+                    } else {
+                        message = Object.values(errors)[0][0];
+                    }
                 }
-                else if (xhr.status === 401 || xhr.status === 403) {
-                    message = xhr.responseJSON?.message ?? 'Invalid login credentials.';
-                }
-                else if (xhr.status === 419) {
-                    message = 'Session expired. Please refresh the page.';
-                }
-                else if (xhr.responseJSON?.message) {
-                    message = xhr.responseJSON.message;
-                }
+                
 
-                $errorBox.text(message).show();
-                location.reload();
+                $('#error-msg').text(message).show();
+                refreshCaptcha();
+                $('#captcha-input').val('').focus();
+            },
+            complete: function () {
+                $('#loginBtn').prop('disabled', false).text('Login');
             }
         });
     });
 
 });
+function refreshCaptcha() {
+    fetch("{{ route('refresh.captcha') }}")
+        .then(response => response.json())
+        .then(data => {
+            $('#captcha-text').html("Captcha: " + data.captcha);
+            $('#captcha-input').val('');
+        })
+        .catch(() => {
+            console.error('Captcha refresh failed');
+        });
+}
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
