@@ -26,14 +26,22 @@ class StoreLessonsRequest extends FormRequest
             'course_id' => 'required|integer|exists:courses,id',
             'title' => 'required|array|min:1',
             'title.*' => 'required|string|max:255',
-            'published' => 'nullable|boolean',
+            'published' => 'nullable|array',
+            'published.*' => 'boolean',
         ];
     }
 
     protected function prepareForValidation()
     {
-        $this->merge([
-            'published' => (int) $this->boolean('published'),
-        ]);
+        if (is_array($this->published)) {
+            $published = array_map(function ($val) {
+                return (int) filter_var($val, FILTER_VALIDATE_BOOLEAN);
+            }, $this->published);
+            $this->merge(['published' => $published]);
+        } else {
+            $this->merge([
+                'published' => (int) $this->boolean('published'),
+            ]);
+        }
     }
 }

@@ -304,10 +304,10 @@
 
                             <div class="col-md-4 col-sm-12">
                                 <div class="checkbox" style="margin-top: 37px;">
-                                    <input type="hidden" name="published" value="0">
-                                    <input type="checkbox" name="published" value="1" id="published"
-                                        class="checkbox">
-                                    <label for="published" class="checkbox control-label font-weight-bold">
+                                    <input type="hidden" name="published[0]" value="0">
+                                    <input type="checkbox" name="published[0]" value="1" id="published_0"
+                                        class="checkbox published_checkbox">
+                                    <label for="published_0" class="checkbox control-label font-weight-bold published_label">
                                         {{ trans('labels.backend.lessons.fields.published') }}
                                     </label>
                                 </div>
@@ -413,6 +413,11 @@
             $(this).find('input[name^="add_audio_"]').attr('name', 'add_audio_' + pointer + '[]');
             $(this).find('input[name^="video_file_"]').attr('name', 'video_file_' + pointer + '[]');
             $(this).find('input[name^="media_type_"]').attr('name', 'media_type_' + pointer + '[]');
+
+            // Renumber published status inputs
+            $(this).find('input[name^="published["]').attr('name', 'published[' + index + ']');
+            $(this).find('.published_checkbox').attr('id', 'published_' + index);
+            $(this).find('.published_label').attr('for', 'published_' + index);
         });
     }
 
@@ -637,7 +642,7 @@
     $("#addmorebtn").on('click', function () {
         let clone = $('.lesson-template').first().clone(false);
 
-        clone.find('input, textarea').val('');
+        clone.find('input:not([type="checkbox"], [type="hidden"]), textarea').val('');
         clone.find('input[type="checkbox"]').prop('checked', false);
 
         clone.find('.cke').remove();

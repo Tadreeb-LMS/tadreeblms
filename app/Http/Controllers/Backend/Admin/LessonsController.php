@@ -222,7 +222,7 @@ class LessonsController extends Controller
                 }
 
 
-                $lesson_data = $request->except('downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title', 'short_text', 'full_text', 'duration', 'lesson_start_date', 'videos')
+                $lesson_data = $request->except('downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title', 'short_text', 'full_text', 'duration', 'lesson_start_date', 'videos', 'published')
                 + ['position' => Lesson::where('course_id', $request->course_id)->max('position') + 1];
 
                 //dd($lesson_data);
@@ -231,6 +231,7 @@ class LessonsController extends Controller
                
                 $temp_id = $request->temp_id ?? null;
                 $lesson->temp_id = $temp_id;
+                $lesson->published = is_array($request->published) ? ($request->published[$i] ?? 0) : ($request->published ?? 0);
                 $lesson->slug = $slug;
                 $lesson->title = $request->title[$i];
                 $lesson->arabic_title = $request->arabic_title[$i] ?? null;
