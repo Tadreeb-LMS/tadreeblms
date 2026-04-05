@@ -121,7 +121,7 @@
                         <i class="fa fa-times remove_less_slug"
                             onclick="removeLesslug(this)"
                             style="position:absolute; top:-10px; right:-10px; color:red; font-size:18px; cursor:pointer; display:none;"
-                            title="{{ __('course_pages.admin_lessons_create.remove_lesson') }}"></i>
+                            title="Remove Lesson"></i>
 
                         <div class="row">
                             <div class="col-md-6">
@@ -148,12 +148,12 @@
                                 <div class="form-group">
                                     <div for="lesson_image" class="control-label mb-2">
                                         {{ trans('labels.backend.lessons.fields.lesson_image') }}
-                                        {{ trans('labels.backend.lessons.max_file_size') }} (JPEG, PNG, GIF)
+                                        {{ trans('labels.backend.lessons.max_file_size') }}
                                     </div>
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="lesson_image[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -196,7 +196,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="downloadable_files_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -210,7 +210,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="add_pdf_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -224,7 +224,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="add_audio_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -234,47 +234,47 @@
                         <div class="row addvideocol">
                             <div class="col-md-4 form-group parent_group mt-2">
                                 <div class="videos-section">
-                                    <h5>{{ __('course_pages.admin_lessons_create.lesson_videos') }}</h5>
+                                    <h5>Lesson Videos</h5>
 
                                     <div class="videos-wrapper"></div>
 
                                     <button type="button" class="btn btn-primary mt-2 addVideo">
-                                        {{ __('course_pages.admin_lessons_create.add_video') }}
+                                        Add Video
                                     </button>
                                 </div>
 
                                 <div class="video-template d-none">
                                     <div class="video-item card p-3 mb-3">
-                                        <label>{{ __('course_pages.admin_lessons_create.video_title') }}</label>
+                                        <label>Video Title</label>
                                         <input type="text" name="videos[INDEX][title]" class="form-control" disabled>
 
-                                        <label>{{ __('course_pages.admin_lessons_create.type') }}</label>
+                                        <label>Type</label>
                                         <select name="videos[INDEX][type]" class="form-control video-type" disabled>
-                                            <option value="upload">{{ __('course_pages.admin_lessons_create.upload') }}</option>
+                                            <option value="upload">Upload</option>
                                             <option value="youtube">YouTube</option>
                                             <option value="vimeo">Vimeo</option>
-                                            <option value="embed">{{ __('course_pages.admin_lessons_create.embed') }}</option>
+                                            <option value="embed">Embed</option>
                                         </select>
 
                                         <div class="video-url mt-2 d-none">
-                                            <label>{{ __('course_pages.admin_lessons_create.video_url') }}</label>
+                                            <label>Video URL</label>
                                             <input type="text" name="videos[INDEX][url]"
                                                 class="form-control video-url-input" disabled>
                                         </div>
 
                                         <div class="video-file mt-2 d-none">
-                                            <label>{{ __('course_pages.admin_lessons_create.upload_file') }}</label>
+                                            <label>Upload File</label>
                                             <input type="file" name="videos[INDEX][file]"
                                                 class="form-control video-file-input" disabled>
                                         </div>
 
                                         <label class="mt-2">
                                             <input type="checkbox" name="videos[INDEX][is_preview]" value="1" disabled>
-                                            {{ __('course_pages.admin_lessons_create.preview_video') }}
+                                            Preview Video
                                         </label>
 
                                         <button type="button" class="removeVideo btn btn-danger btn-sm mt-2">
-                                            {{ __('course_pages.admin_lessons_create.remove') }}
+                                            Remove
                                         </button>
                                     </div>
                                 </div>
@@ -287,15 +287,15 @@
 
                         <div class="form-group row">
                             <div class="col-md-4 col-sm-12">
-                                <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.duration') }}</div>
+                                <div for="duration" class="form-control-label mb-2">Duration</div>
                                 <div>
                                     <input type="text" name="duration[]" class="form-control"
-                                        placeholder="{{ __('course_pages.admin_lessons_create.duration_minutes') }}">
+                                        placeholder="Duration [minutes]">
                                 </div>
                             </div>
 
                             <div class="col-md-4 col-sm-12 start_date">
-                                <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.lesson_start_date') }}</div>
+                                <div for="duration" class="form-control-label mb-2">Lesson Start Date</div>
                                 <div>
                                     <input class="form-control" type="date" name="lesson_start_date[]"
                                         id="lesson_start_date">
@@ -323,11 +323,11 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <button type="button" name="addmorebtn" id="addmorebtn"
-                                class="btn btn-outline-info">{{ __('course_pages.admin_lessons_create.add_more_lesson') }}</button>
+                                class="btn btn-outline-info">Add More Lesson</button>
                         </div>
                         <div>
                             <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
-                                {{ __('course_pages.admin_lessons_create.save_as_draft') }}
+                                Save As Draft
                             </button>
                             <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
                                 Next
@@ -447,7 +447,8 @@
 
         $(document).on('change', '.custom-file-input', function (e) {
             const label = this.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('course_pages.admin_lessons_create.choose_file') }}';
+            const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
+            //const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('course_pages.admin_lessons_create.choose_file') }}';
 
             if (label) {
                 label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
@@ -545,7 +546,7 @@
         return;
     }
 
-    $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
+    $('.loading').text('Please Wait');
     $('#nextBtn,#doneBtn').prop('disabled', true);
 
     var form = $('#addLesson')[0];

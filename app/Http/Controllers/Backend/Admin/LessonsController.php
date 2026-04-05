@@ -2,159 +2,100 @@
 
 namespace App\Http\Controllers\Backend\Admin;
 
+use App\Helpers\CustomHelper;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\FileUploadTrait;
+use App\Http\Requests\Admin\StoreLessonsRequest;
+use App\Http\Requests\Admin\UpdateLessonsRequest;
 use App\Models\Course;
 use App\Models\CourseTimeline;
 use App\Models\Lesson;
+use App\Models\LessonVideo;
 use App\Models\Media;
 use App\Models\Test;
-use App\Helpers\CustomHelper;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Gate;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreLessonsRequest;
-use App\Http\Requests\Admin\UpdateLessonsRequest;
-use App\Http\Controllers\Traits\FileUploadTrait;
-use App\Models\Category;
-use Yajra\DataTables\Facades\DataTables;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Notifications\Backend\LessonNotification;
 use App\Services\NotificationSettingsService;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Models\LessonVideo;
+use Yajra\DataTables\Facades\DataTables;
 
 class LessonsController extends Controller
 {
     use FileUploadTrait;
 
-    /**
-     * Display a listing of Lesson.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         if (!Gate::allows('lesson_access')) {
             return abort(401);
         }
-        $courses = Course::pluck('title', 'id')->prepend('Please select', '');
+
+        $courses = Course::orderBy('title')->get(['id', 'title']);
 
         return view('backend.lessons.index', compact('courses'));
     }
 
-    /**
-     * Display a listing of Lessons via ajax DataTable.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function getData(Request $request)
     {
-        $has_view = false;
-        $has_delete = false;
-        $has_edit = false;
-        $lessons = Lesson::with(['attendance_list', 'course'])
-    ->where('live_lesson', '=', 0)
-    ->whereIn('course_id', Course::pluck('id'));
+
+        $has_view   = auth()->user()->can('lesson_view');
+        $has_edit   = auth()->user()->can('lesson_edit');
+        $has_delete = auth()->user()->can('lesson_delete');
+
+        $lessons = Lesson::query()
+            ->with(['attendance_list', 'course'])
+            ->where(function ($query) {
+                $query->where('live_lesson', 0)->orWhereNull('live_lesson');
+            });
 
         if ($request->show_deleted == 1) {
             if (!Gate::allows('lesson_delete')) {
                 return abort(401);
             }
-            $lessons = $lessons->onlyTrashed();
+            $lessons->onlyTrashed();
         }
 
-        if ($request->course_id != "") {
-            $lessons = $lessons->where('course_id', (int)$request->course_id);
+        if ($request->filled('status') && in_array($request->status, ['published', 'unpublished'])) {
+            $lessons->where('published', $request->status === 'published' ? 1 : 0);
         }
 
-        $lessons = $lessons->orderBy('id', 'asc');
-
-
-
-
-        if (auth()->user()->can('lesson_view')) {
-            $has_view = true;
+        if ($request->filled('course_id') && is_numeric($request->course_id)) {
+            $lessons->where('course_id', (int) $request->course_id);
         }
-        if (auth()->user()->can('lesson_edit')) {
-            $has_edit = true;
-        }
-        if (auth()->user()->can('lesson_delete')) {
-            $has_delete = true;
-        }
+
+        $lessons->orderBy('id', 'asc');
 
         return DataTables::of($lessons)
             ->addIndexColumn()
-            // ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-            //     $view = "";
-            //     $edit = "";
-            //     $delete = "";
-            //     if ($request->show_deleted == 1) {
-            //         return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.lessons', 'label' => 'id', 'value' => $q->id]);
-            //     }
-            //     if ($has_view) {
-            //         $view = view('backend.datatable.action-view')
-            //             ->with(['route' => route('admin.lessons.show', ['lesson' => $q->id])])->render();
-            //     }
-            //     if ($has_edit) {
-            //         $edit = view('backend.datatable.action-edit')
-            //             ->with(['route' => route('admin.lessons.edit', ['lesson' => $q->id])])
-            //             ->render();
-            //         $view .= $edit;
-            //     }
-
-            //     if ($has_delete) {
-            //         $delete = view('backend.datatable.action-delete')
-            //             ->with(['route' => route('admin.lessons.destroy', ['lesson' => $q->id])])
-            //             ->render();
-            //         $view .= $delete;
-            //     }
-
-            //     if (auth()->user()->can('test_view')) {
-            //         if ($q->test != "") {
-            //             $view .= '<a href="' . route('admin.tests.index', ['lesson_id' => $q->id]) . '" class="btn btn-success btn-block mb-1">' . trans('labels.backend.tests.title') . '</a>';
-            //         }
-            //     }
-
-            //     return $view;
-            // })
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-    if ($request->show_deleted == 1) {
-        return view('backend.datatable.action-trashed')->with([
-            'route_label' => 'admin.lessons',
-            'label' => 'id',
-            'value' => $q->id
-        ]);
-    }
+                if ($request->show_deleted == 1) {
+                    return view('backend.datatable.action-trashed')->with([
+                        'route_label' => 'admin.lessons',
+                        'label'       => 'id',
+                        'value'       => $q->id,
+                    ]);
+                }
 
-    
-    $actions = '<div class="action-pill">';
+                $actions = '<div class="action-pill">';
 
-    if ($has_view) {
-        $actions .= '<a class="" href="' . route('admin.lessons.show', ['lesson' => $q->id]) . '">
-             <i class="fa fa-eye" aria-hidden="true"></i></a>';
-    }
+                if ($has_view) {
+                    $actions .= '<a href="' . route('admin.lessons.show', ['lesson' => $q->id]) . '">'
+                        . '<i class="fa fa-eye" aria-hidden="true"></i></a>';
+                }
 
-    if ($has_edit) {
-        $actions .= '<a class="" href="' . route('admin.lessons.edit', ['lesson' => $q->id]) . '">
-           <i class="fa fa-edit" aria-hidden="true"></i></a>';
-    }
+                if ($has_edit) {
+                    $actions .= '<a href="' . route('admin.lessons.edit', ['lesson' => $q->id]) . '">'
+                        . '<i class="fa fa-edit" aria-hidden="true"></i></a>';
+                }
 
-    if ($has_delete) {
-        // $actions .= '
-        //     <form method="POST" action="' . route('admin.lessons.destroy', $q->id) . '" class="" >
-        //         ' . csrf_field() . method_field('DELETE') . '
-        //         <a type="submit" class="" onclick="return confirm(\'Are you sure?\')">
-        //              <i class="fa fa-trash" aria-hidden="true"></i>
-        //         </a>
-        //     </form>';
-    }
+                $actions .= '</div>';
 
-    $actions .= '</div>';
-    return $actions;
-})
+                return $actions;
+            })
             ->editColumn('course', function ($q) {
     if ($q->course) {
         return '<a href="'.route('admin.courses.edit', $q->course->id).'">'
@@ -166,132 +107,100 @@ class LessonsController extends Controller
             ->addColumn('attendance', function ($q) {
                 $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
 
+                if ($courseId <= 0 || !$q->attendance_list || $q->attendance_list->isEmpty()) {
+                    return 0;
+                }
+
+                return '<a href="' . route('attendance.attendance.list', [$courseId, $q->id]) . '">'
+                    . 'View All (' . $q->attendance_list->count() . ')</a>';
+            })
+            ->addColumn('qr_code', function ($q) {
+                $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
+
                 if ($courseId <= 0) {
-                    return 0;
+                    return 'N/A';
                 }
 
-                if (isset($q->attendance_list) && count($q->attendance_list)) {
-                    return $q->attendance_list ? '<a href="' . route('attendance.attendance.list', [$courseId, $q->id]) . '">View All (' . count($q->attendance_list) . ')</a>' : 0;
-                } else {
-                    return 0;
-                }
+                $modalId    = 'qrModal_' . $q->id;
+                $qrCodeHtml = \QrCode::size(200)->generate(
+                    route('attendance.attendance.lesson', [$courseId, $q->id])
+                );
+
+                return '
+                    <a href="javascript:void(0);" data-toggle="modal" data-target="#' . $modalId . '">
+                        <i class="fa fa-qrcode ml-3" style="color:#ccc;"></i>
+                    </a>
+                    <div class="modal fade" id="' . $modalId . '" tabindex="-1" role="dialog"
+                         aria-labelledby="qrModalLabel_' . $q->id . '" aria-hidden="true">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="qrModalLabel_' . $q->id . '">QR Code</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    ' . $qrCodeHtml . '
+                                    <p class="mt-2 small text-muted">Scan to open attendance link</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
             })
-            // ->addColumn('qr_code', function ($q) {
-            //     return QrCode::size(80)->generate(route('attendance.attendance.lesson', [$q->course->id, $q->id]));
-            // })
-                ->addColumn('qr_code', function ($q) {
-            $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
-            if ($courseId <= 0) {
-            return 'N/A';
-            }
-
-    $modalId = 'qrModal_' . $q->id;
-
-    // Use original logic to generate the QR code
-            $qrCodeHtml = \QrCode::size(200)->generate(route('attendance.attendance.lesson', [$courseId, $q->id]));
-
-    $html = '
-        <a href="javascript:void(0);" data-toggle="modal" data-target="#' . $modalId . '">
-            <i class="fa fa-qrcode ml-3" style="color:#ccc;"></i>
-        </a>
-
-        <!-- Modal -->
-        <div class="modal fade" id="' . $modalId . '" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel_' . $q->id . '" aria-hidden="true">
-            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="qrModalLabel_' . $q->id . '">QR Code</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body text-center">
-                        ' . $qrCodeHtml . '
-                        <p class="mt-2 small text-muted">Scan to open attendance link</p>
-                    </div>
-                </div>
-            </div>
-        </div>';
-
-    return $html;
-})
             ->editColumn('lesson_image', function ($q) {
-                return ($q->lesson_image != null) ? '<img height="50px" src="' . asset('storage/uploads/' . $q->lesson_image) . '">' : 'N/A';
+                return $q->lesson_image
+                    ? '<img height="50px" src="' . asset('storage/uploads/' . $q->lesson_image) . '">'
+                    : 'N/A';
             })
-            ->editColumn('free_lesson', function ($q) {
-                return ($q->free_lesson == 1) ? "Yes" : "No";
-            })
-            ->editColumn('published', function ($q) {
-                return ($q->published == 1) ? "Yes" : "No";
-            })
-            ->rawColumns(['lesson_image', 'qr_code', 'attendance', 'actions' , 'course'])
+            ->editColumn('free_lesson', fn($q) => $q->free_lesson == 1 ? 'Yes' : 'No')
+            ->editColumn('published', fn($q) => $q->published == 1 ? 'Yes' : 'No')
+            ->rawColumns(['lesson_image', 'qr_code', 'attendance', 'actions'])
             ->make();
     }
 
-    /**
-     * Show the form for creating new Lesson.
-     *
-     * @return \Illuminate\Http\Response
-     */
-
     public function selectCourse()
-{
-    if (!Gate::allows('lesson_create')) {
-        return abort(401);
-    }
+    {
+        if (!Gate::allows('lesson_create')) {
+            return abort(401);
+        }
 
-    $courses = Course::has('category')->orderBy('title')->get();
-     return view('backend.lessons.select-course', compact('courses'));
-}
+        $courses = Course::has('category')->orderBy('title')->get();
+
+        return view('backend.lessons.select-course', compact('courses'));
+    }
 
     public function create(Request $request)
     {
-        //dd($request->all());
-
         if (!Gate::allows('lesson_create')) {
             return abort(401);
         }
-       
 
-        //dd( $course); 
+        $courses     = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
+        $courses_all = null;
+        $temp_id     = bin2hex(random_bytes(8));
 
-        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
-         $courses_all = null;
-    $temp_id = uniqid();
-        return view('backend.lessons.create', compact('courses' ,   'courses_all','temp_id'));
+        return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id'));
     }
-
-    /**
-     * Store a newly created Lesson in storage.
-     *
-     * @param  \App\Http\Requests\StoreLessonsRequest $request
-     * @return \Illuminate\Http\Response
-     */
 
     public function checkCourse(Request $request)
-{
-    $course = Course::with('category')->find($request->id);
+    {
+        $course = Course::with('category')->find((int) $request->id);
 
-    return response()->json([
-        'success' => true,
-        'category' => $course->category->name ?? null
-    ]);
-}
+        return response()->json([
+            'success'  => true,
+            'category' => $course->category->name ?? null,
+        ]);
+    }
 
     public function store(StoreLessonsRequest $request)
-{
-    if (!Gate::allows('lesson_create')) {
-        return abort(401);
-    }
     {
-        
-        //dd("jj");
         if (!Gate::allows('lesson_create')) {
             return abort(401);
         }
-        //dd($request->title);
-        // $count = count($request->title);
+
         $titles = $request->input('title', []);
+
         $count = is_array($titles) ? count($titles) : 0;
 
         if ($count < 1) {
@@ -301,31 +210,20 @@ class LessonsController extends Controller
             ], 422);
         }
 
+
         DB::beginTransaction();
-
-        //dd($request->all());
-
-        //dd($request->all(), );
 
         try {
             for ($i = 0; $i < $count; $i++) {
-                $slug = "";
-                
-                
-                $slug = uniqid() . Str::slug($request->title[$i]);
-                
+                $slug = bin2hex(random_bytes(8)) . Str::slug($request->title[$i]);
 
-                $slug_lesson = Lesson::where('slug', '=', $slug)->first();
-                if ($slug_lesson != null) {
-                    throw new Exception("Slug is already exits");
+                if (Lesson::where('slug', $slug)->exists()) {
+                    throw new Exception('Slug already exists.');
                 }
 
 
                 $lesson_data = $request->except('downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title', 'short_text', 'full_text', 'duration', 'lesson_start_date', 'videos')
                 + ['position' => Lesson::where('course_id', $request->course_id)->max('position') + 1];
-
-                // Checkbox fields can be omitted by some clients; enforce a DB-safe value.
-                $lesson_data['published'] = (int) $request->boolean('published');
 
                 //dd($lesson_data);
                 
@@ -399,6 +297,7 @@ class LessonsController extends Controller
                     }
                 }
                 // Lesson added notification
+
                 try {
                     $notificationSettings = app(NotificationSettingsService::class);
                     if ($notificationSettings->shouldNotify('lessons', 'lesson_added', 'email')) {
@@ -410,209 +309,299 @@ class LessonsController extends Controller
                     Log::error('Failed to send lesson added notification: ' . $e->getMessage());
                 }
 
-                $media = null;
+                $filesPointer    = $i + 1;
+                $mediaTypes      = $request->input('media_type_' . $filesPointer, []);
+                $videoFiles      = $request->file('video_file_' . $filesPointer, []);
+                $downloadedFiles = $request->file('downloadable_files_' . $filesPointer, []);
+                $addPdfs         = $request->file('add_pdf_' . $filesPointer, []);
+                $audioFiles      = $request->file('add_audio_' . $filesPointer, []);
 
-                //dd($request->downloadable_files, $lesson->id);
-                $lession_iddd = $lesson->id;
-                $files_pointer = $i + 1;
-                //dd($files_pointer);
-                $mediaTypes = $request->input('media_type_' . $files_pointer, []);
-
-                $video_files = $request->file('video_file_' . $files_pointer, []);
-
-                $downloadedFiles = $request->file('downloadable_files_' . $files_pointer, []);
-
-                $addPdfs = $request->file('add_pdf_' . $files_pointer, []);
-
-                //dd($addPdfs);
-
-                $audioFiles = $request->file('add_audio_' . $files_pointer, []);
-
-                //dd($downloadedFiles);
-
-if (!empty($downloadedFiles)) {                    
-                    $this->saveAllFilesByLesson($downloadedFiles, 'downloadable_files', Lesson::class, $lesson, $files_pointer, "download_file");
-                    
+                if (!empty($downloadedFiles)) {
+                    $this->saveAllFilesByLesson($downloadedFiles, 'downloadable_files', Lesson::class, $lesson, $filesPointer, 'download_file');
                 }
 
-    $titles = $request->input('title', []);
-    $count = is_array($titles) ? count($titles) : 0;
-    $temp_id = $request->temp_id ?? null;
 
-    DB::beginTransaction();
-
-    try {
-        for ($i = 0; $i < $count; $i++) {
-            // Generate unique slug
-            $slug = uniqid() . Str::slug($request->title[$i]);
-            if (Lesson::where('slug', $slug)->exists()) {
-                throw new Exception("Slug already exists");
-            }
-
-            // Prepare lesson data
-            $lesson_data = $request->except(
-                'downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title',
-                'short_text', 'full_text', 'duration', 'lesson_start_date'
-            ) + [
-                'position' => Lesson::where('course_id', $request->course_id)->max('position') + 1,
-                'temp_id' => $temp_id,
-                'slug' => $slug,
-                'title' => $request->title[$i],
-                'arabic_title' => $request->arabic_title[$i] ?? null,
-            ];
-
-            // Handle duration
-            $durationValue = $request->input("duration.$i", null);
-            if (is_array($durationValue)) {
-                $durationValue = json_encode($durationValue);
-            }
-            $lesson_data['duration'] = $durationValue;
-
-            // Handle lesson_start_date
-            $lessonStartDateValue = $request->input("lesson_start_date.$i", null);
-            if (is_array($lessonStartDateValue)) {
-                $lessonStartDateValue = $lessonStartDateValue['date'] ?? null;
-            }
-            $lesson_data['lesson_start_date'] = $lessonStartDateValue ? date('Y-m-d H:i', strtotime($lessonStartDateValue)) : null;
-
-            // Create lesson
-            $lesson = Lesson::create($lesson_data);
-
-            // Save lesson videos
-            $lessonVideos = $request->input("videos.$i", []);
-            foreach ($lessonVideos as $index => $video) {
-                $filePath = null;
-                if ($request->hasFile("videos.$i.$index.file")) {
-                    $filePath = $request->file("videos.$i.$index.file")->store('lesson_videos', 'public');
+                if (!empty($addPdfs)) {
+                    $this->saveAllFilesByLesson($addPdfs, 'add_pdf', Lesson::class, $lesson, $filesPointer, 'lesson_pdf');
                 }
 
-                LessonVideo::create([
-                    'lesson_id' => $lesson->id,
-                    'title' => $video['title'] ?? null,
-                    'type' => $video['type'] ?? 'upload',
-                    'url' => $video['url'] ?? null,
-                    'file_path' => $filePath,
-                    'sort_order' => $index,
-                    'is_preview' => isset($video['is_preview']) ? 1 : 0
-                ]);
+                if (!empty($audioFiles)) {
+                    $this->saveAllFilesByLesson($audioFiles, 'add_audio', Lesson::class, $lesson, $filesPointer, 'lesson_audio');
+                }
+
+                if (!empty($mediaTypes)) {
+                    foreach ($mediaTypes as $mediaType) {
+                        if (in_array($mediaType, ['youtube', 'vimeo', 'embed'])) {
+                            $videoUrl = trim((string) $request->video);
+                            $name     = $lesson->title . ' - video';
+                            Media::create([
+                                'model_type' => Lesson::class,
+                                'model_id'   => $lesson->id,
+                                'name'       => $name,
+                                'url'        => $videoUrl,
+                                'type'       => $mediaType,
+                                'file_name'  => $name,
+                                'size'       => 0,
+                            ]);
+                        }
+
+                        if ($mediaType === 'upload') {
+                            $this->saveAllFilesByLesson($videoFiles, 'video_file', Lesson::class, $lesson, $filesPointer, $mediaType);
+                        }
+                    }
+                }
+
+                $sequence = 1;
+                if ($lesson->course->courseTimeline->count() > 0) {
+                    $sequence = $lesson->course->courseTimeline->max('sequence') + 1;
+                }
+
+                if ($lesson->published == 1) {
+                    $timeline = CourseTimeline::where('model_type', Lesson::class)
+                        ->where('model_id', $lesson->id)
+                        ->where('course_id', $request->course_id)
+                        ->first();
+
+                    if (!$timeline) {
+                        $timeline             = new CourseTimeline();
+                        $timeline->course_id  = $request->course_id;
+                        $timeline->model_id   = $lesson->id;
+                        $timeline->model_type = Lesson::class;
+                        $timeline->sequence   = $sequence;
+                        $timeline->save();
+                    }
+                }
             }
 
-            // Save downloadable files, PDFs, audio
-            $files_pointer = $i + 1;
-            $downloadedFiles = $request->file('downloadable_files_' . $files_pointer, []);
-            $addPdfs = $request->file('add_pdf_' . $files_pointer, []);
-            $audioFiles = $request->file('add_audio_' . $files_pointer, []);
-            $video_files = $request->file('video_file_' . $files_pointer, []);
-            $mediaTypes = $request->input('media_type_' . $files_pointer, []);
-            //dd();
+            Course::where('id', $request->course_id)->update(['current_step' => 'lesson-added']);
 
-            //Update Course step
-            Course::where('id',$request->course_id)->update([
-                'current_step' => 'lesson-added'
-            ]);
-
-            $course = Course::with('latestModuleWeightage')->find($request->course_id);
-
-            //dd("kk");
+  
 
             DB::commit();
 
-            // update the progress instantly
             CustomHelper::updateToAllUserAssignedToCourse($request->course_id);
 
-            return response()->json(['status' => 'success', 'temp_id' =>$request->temp_id, 'media_type' => $request->media_type, 'clientmsg' => 'Added successfully']);
+            return response()->json([
+                'status'     => 'success',
+                'temp_id'    => $request->temp_id,
+                'media_type' => $request->media_type,
+                'clientmsg'  => 'Added successfully',
+            ]);
         } catch (Exception $e) {
-            DB::rollBack(); 
+            DB::rollBack();
             Log::error('Lesson save failed: ' . $e->getMessage());
+
             return response()->json(['status' => 'error', 'clientmsg' => 'Error: ' . $e->getMessage()], 500);
         }
-        
-        // return redirect()->route('admin.assessment_accounts.new-assisment', ['course_id' => $request->course_id])->withFlashSuccess(__('Attach test or assisment for course'));
     }
 
-
-    /**
-     * Show the form for editing Lesson.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         if (!Gate::allows('lesson_edit')) {
             return abort(401);
         }
-        $videos = '';
-        $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
 
-        $lesson = Lesson::with(['media', 'mediaVideo', 'videos'])->findOrFail($id);
 
-            if (!empty($downloadedFiles)) {
-                $this->saveAllFilesByLesson($downloadedFiles, 'downloadable_files', Lesson::class, $lesson, $files_pointer, "download_file");
+        $courses    = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
+        $lesson     = Lesson::with(['media', 'mediaVideo'])->findOrFail($id);
+        $videos     = $lesson->media ? $lesson->media()->pluck('url')->implode(',') : '';
+        $mediavideo = $lesson->mediaVideo;
+
+        return view('backend.lessons.edit', compact('mediavideo', 'lesson', 'courses', 'videos'));
+    }
+
+    public function update(UpdateLessonsRequest $request, $id)
+    {
+        if (!Gate::allows('lesson_edit')) {
+            return abort(401);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $slug = blank($request->slug) ? Str::slug($request->title) : $request->slug;
+
+            if (Lesson::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+                return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
             }
-            if (!empty($addPdfs)) {
-                $this->saveAllFilesByLesson($addPdfs, 'add_pdf', Lesson::class, $lesson, $files_pointer, "lesson_pdf");
+
+            $lesson                    = Lesson::findOrFail($id);
+            $lesson->update($request->except('downloadable_files', 'lesson_image'));
+            $lesson->slug              = $slug;
+            $lesson->duration          = $request->duration;
+            $lesson->lesson_start_date = date('Y-m-d H:i', strtotime($request->lesson_start_date));
+            $lesson->save();
+
+            try {
+                $notificationSettings = app(NotificationSettingsService::class);
+                if ($notificationSettings->shouldNotify('lessons', 'lesson_updated', 'email')) {
+                    $lessonCourse = Course::find($lesson->course_id);
+                    LessonNotification::sendLessonUpdatedEmail(\Auth::user(), $lesson, $lessonCourse);
+                    LessonNotification::createLessonUpdatedBell(\Auth::user(), $lesson, $lessonCourse);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send lesson updated notification: ' . $e->getMessage());
             }
-            if (!empty($audioFiles)) {
-                $this->saveAllFilesByLesson($audioFiles, 'add_audio', Lesson::class, $lesson, $files_pointer, "lesson_audio");
-            }
-            if ($mediaTypes && count($mediaTypes) > 0) {
-                foreach ($mediaTypes as $media) {
-                    if (in_array($media, ['youtube', 'vimeo', 'embed'])) {
-                        $video_url = trim((string)$request->video);
-                        $name = $lesson->title . ' - video';
-                        Media::create([
-                            'model_type' => Lesson::class,
-                            'model_id' => $lesson->id,
-                            'name' => $name,
-                            'url' => $video_url,
-                            'type' => $media,
-                            'file_name' => $name,
-                            'size' => 0,
-                        ]);
+
+            if (!blank($request->media_type)) {
+                $name  = $lesson->title . ' - video';
+                $media = $lesson->mediavideo ?: new Media();
+
+                if ($request->media_type !== 'upload') {
+                    $url      = $request->video;
+                    $videoId  = in_array($request->media_type, ['youtube', 'vimeo'])
+                        ? array_last(explode('/', $request->video))
+                        : '';
+
+                    $media->model_type = Lesson::class;
+                    $media->model_id   = $lesson->id;
+                    $media->name       = $name;
+                    $media->url        = $url;
+                    $media->type       = $request->media_type;
+                    $media->file_name  = $videoId;
+                    $media->size       = 0;
+                    $media->save();
+                }
+
+                if ($request->media_type === 'upload' && \Illuminate\Support\Facades\Request::hasFile('video_file')) {
+                    $file     = \Illuminate\Support\Facades\Request::file('video_file');
+                    $filename = time() . '-' . $file->getClientOriginalName();
+
+                    try {
+                        $url = CustomHelper::uploadToS3($file, $filename);
+                    } catch (Exception $e) {
+                        throw new Exception('The video could not be uploaded.');
+
                     }
-                    if ($media == 'upload') {
-                        $this->saveAllFilesByLesson($video_files, 'video_file', Lesson::class, $lesson, $files_pointer, $media);
-                    }
+
+                    $media = Media::query()
+                        ->where('model_type', Lesson::class)
+                        ->where('model_id', $lesson->id)
+                        ->first() ?? new Media();
+
+                    $media->model_type = Lesson::class;
+                    $media->model_id   = $lesson->id;
+                    $media->name       = $name;
+                    $media->url        = $url;
+                    $media->aws_url    = $url;
+                    $media->type       = $request->media_type;
+                    $media->file_name  = $filename;
+                    $media->size       = 0;
+                    $media->save();
                 }
             }
 
-            // Add to course timeline if published
-            if ($lesson->published == 1) {
-                $sequence = $lesson->course->courseTimeline->max('sequence') ?? 0;
-                $sequence++;
-                $timeline = CourseTimeline::firstOrNew([
-                    'course_id' => $request->course_id,
-                    'model_type' => Lesson::class,
-                    'model_id' => $lesson->id
-                ]);
-                $timeline->sequence = $sequence;
+
+            if ($request->hasFile('add_pdf')) {
+                optional($lesson->mediaPDF)->delete();
+            }
+
+            $this->saveAllFiles($request, 'downloadable_files', Lesson::class, $lesson);
+
+            $sequence = 1;
+            if ($lesson->course->courseTimeline->count() > 0) {
+                $sequence = $lesson->course->courseTimeline->max('sequence') + 1;
+            }
+
+            if ((int) $request->published === 1) {
+                $timeline = CourseTimeline::where('model_type', Lesson::class)
+                    ->where('model_id', $lesson->id)
+                    ->where('course_id', $request->course_id)
+                    ->firstOrNew([]);
+
+                $timeline->course_id  = $request->course_id;
+                $timeline->model_id   = $lesson->id;
+                $timeline->model_type = Lesson::class;
                 $timeline->save();
             }
 
-        } // end for loop
+            DB::commit();
 
-        // Update course step
-        Course::where('id', $request->course_id)->update(['current_step' => 'lesson-added']);
+            return redirect()
+                ->route('admin.lessons.index', ['course_id' => $request->course_id])
+                ->withFlashSuccess(__('alerts.backend.general.updated'));
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        DB::commit();
-
-        // update progress instantly
-        CustomHelper::updateToAllUserAssignedToCourse($request->course_id);
-
-        return response()->json([
-            'status' => 'success',
-            'temp_id' => $temp_id,
-            'media_type' => $request->media_type,
-            'clientmsg' => 'Added successfully'
-        ]);
-    } catch (Exception $e) {
-        DB::rollBack();
-        Log::error('Lesson save failed: ' . $e->getMessage());
-        return response()->json([
-            'status' => 'error',
-            'clientmsg' => 'Error: ' . $e->getMessage()
-        ], 500);
+            return back()->withFlashDanger('Error while updating...');
+        }
     }
-}
+
+    public function show($id)
+    {
+        if (!Gate::allows('lesson_view')) {
+            return abort(401);
+        }
+
+        $courses = Course::get()->pluck('title', 'id')->prepend('Please select', '');
+        $tests   = Test::where('lesson_id', $id)->get();
+        $lesson  = Lesson::findOrFail($id);
+
+        return view('backend.lessons.show', compact('lesson', 'tests', 'courses'));
+    }
+
+    public function destroy($id)
+    {
+        if (!Gate::allows('lesson_delete')) {
+            return abort(401);
+        }
+
+        $lesson = Lesson::findOrFail($id);
+        $lesson->chapterStudents()->where('course_id', $lesson->course_id)->forceDelete();
+        $lesson->delete();
+
+        return back()->withFlashSuccess(__('alerts.backend.general.deleted'));
+    }
+
+    public function massDestroy(Request $request)
+    {
+        if (!Gate::allows('lesson_delete')) {
+            return abort(401);
+        }
+
+        if ($request->input('ids')) {
+            Lesson::whereIn('id', $request->input('ids'))->get()->each->delete();
+        }
+    }
+
+    public function restore($id)
+    {
+        if (!Gate::allows('lesson_delete')) {
+            return abort(401);
+        }
+
+        Lesson::onlyTrashed()->findOrFail($id)->restore();
+
+        return back()->withFlashSuccess(trans('alerts.backend.general.restored'));
+    }
+
+    public function perma_del($id)
+    {
+        if (!Gate::allows('lesson_delete')) {
+            return abort(401);
+        }
+
+        $lesson = Lesson::onlyTrashed()->findOrFail($id);
+
+        if (File::exists(public_path('/storage/uploads/' . $lesson->lesson_image))) {
+            File::delete(public_path('/storage/uploads/' . $lesson->lesson_image));
+            File::delete(public_path('/storage/uploads/thumb/' . $lesson->lesson_image));
+        }
+
+        $lessonFile = Media::where('model_type', Lesson::class)->where('model_id', $lesson->id)->first();
+        if ($lessonFile) {
+            File::delete(public_path('/storage/uploads/' . $lessonFile->file_name));
+        }
+
+        $timelineStep = CourseTimeline::where('model_id', $id)
+            ->where('course_id', $lesson->course->id)
+            ->first();
+
+        optional($timelineStep)->delete();
+
+        $lesson->forceDelete();
+
+        return back()->withFlashSuccess(trans('alerts.backend.general.deleted'));
+
+    }
 }
