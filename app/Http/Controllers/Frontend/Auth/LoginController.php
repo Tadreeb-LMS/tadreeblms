@@ -125,6 +125,8 @@ class LoginController extends Controller
         ];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
+            $request->session()->regenerate();
+
             $user = auth()->user();
 
             if ($user->hasRole('administrator')) {
@@ -194,6 +196,7 @@ class LoginController extends Controller
                 $user->assignRole('student');
 
                 LaravelAuth::login($user, $request->has('remember'));
+                $request->session()->regenerate();
 
                 $redirect = route('admin.dashboard');
 
