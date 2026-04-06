@@ -37,9 +37,11 @@ class DatabaseSeeder extends Seeder
         $this->call(NewsSeeder::class);
         $this->call(KpiSeeder::class);
         $this->call(KpiLifecycleSeeder::class);
-            $this->call(LmsEventCaptureSeeder::class);
+        $this->call(LmsEventCaptureSeeder::class);
+
         //Artisan::call('translations:import');
         //Artisan::call('storage:link');
+
         Model::reguard();
     }
 }

@@ -177,7 +177,12 @@
                         </div>
                     </div>
                     <div class="form-group justify-content-end row">
-                        <button class="add-btn mr-3" type="submit">Send Notification</button>
+                        <button class="add-btn mr-3" type="submit">
+                            <span class="btn-text">Send Notification</span>
+                            <span class="btn-spinner d-none">
+                                <i class="fa fa-spinner fa-spin mr-2"></i>Loading...
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
