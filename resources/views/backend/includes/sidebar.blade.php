@@ -172,6 +172,15 @@
                     <span class="title">@lang('menus.backend.sidebar.position')</span>
                 </a>
             </li>
+            @if($logged_in_user->isAdmin())
+            <li class="nav-item ">
+                <a class="nav-link {{ $request->segment(2) == 'kpis' ? 'active' : '' }}"
+                    href="{{ route('admin.kpis.index') }}">
+                    <i class="nav-icon fa fa-bullseye"></i>
+                    <span class="title">KPI Management</span>
+                </a>
+            </li>
+            @endif
             @endif
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2,3])))
