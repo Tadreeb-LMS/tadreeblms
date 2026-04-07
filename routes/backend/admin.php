@@ -143,6 +143,8 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
 
     Route::post('settings/general', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-settings');
 
+    Route::get('settings/language/download-base', ['uses' => 'Admin\ConfigController@downloadBaseLanguageFile', 'as' => 'settings.language.download-base']);
+
     
     Route::post('settings/landing-general-setting', ['uses' => 'Admin\ConfigController@saveLandingPageGeneralSettings'])->name('landing-general-settings');
 

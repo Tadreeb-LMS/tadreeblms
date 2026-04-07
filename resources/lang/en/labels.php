@@ -615,6 +615,7 @@ return array(
         'right_to_left' => 'Right to Left',
         'left_to_right' => 'Left to right',
         'display_type' => 'Display Type',
+        'download_base_language_file' => 'Download Base Language File',
       ),
       'user_registration_settings' =>
       array(

@@ -462,6 +462,14 @@
         <div class="col">
 
             <div class="form-group row">
+                <div class="col-md-12 mb-3">
+                    <a href="{{ route('admin.settings.language.download-base') }}" class="btn btn-secondary">
+                        <i class="fa fa-download mr-1"></i> {{ __('labels.backend.general_settings.language_settings.download_base_language_file') }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="form-group row">
                 <label class="col-md-2 form-control-label" for="default_language">
                     {{ __('labels.backend.general_settings.language_settings.default_language') }}
                 </label>

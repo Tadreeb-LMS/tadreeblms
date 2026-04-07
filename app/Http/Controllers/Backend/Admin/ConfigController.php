@@ -535,4 +535,30 @@ class ConfigController extends Controller
 
         return back()->withFlashSuccess(__('alerts.backend.general.updated'));
     }
+
+    public function downloadBaseLanguageFile()
+    {
+        if (!auth()->user()->isAdmin()) {
+            return abort(403);
+        }
+
+        $langPath = resource_path('lang/en');
+        $merged = [];
+
+        foreach (File::files($langPath) as $file) {
+            if ($file->getExtension() === 'php') {
+                $keys = require $file->getPathname();
+                if (is_array($keys)) {
+                    $merged[$file->getFilenameWithoutExtension()] = $keys;
+                }
+            }
+        }
+
+        $json = json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+        return response($json, 200, [
+            'Content-Type'        => 'application/json',
+            'Content-Disposition' => 'attachment; filename="en.json"',
+        ]);
+    }
 }
