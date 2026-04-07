@@ -1,21 +1,17 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
+return array(
+  'backend' => array(
+    'access' => array(
       'title' => 'Acceso',
-      'roles' => 
-      array (
+      'roles' => array(
         'all' => 'Todos los roles',
         'create' => 'Crear rol',
         'edit' => 'Editar rol',
         'management' => 'Gestión de roles',
         'main' => 'Roles',
       ),
-      'users' => 
-      array (
+      'users' => array(
         'all' => 'Todos los usuarios',
         'change-password' => 'Cambia la contraseña',
         'create' => 'Crear usuario',
@@ -26,191 +22,212 @@ return array (
         'view' => 'Ver Usuario',
       ),
     ),
-    'log-viewer' => 
-    array (
+    'log-viewer' => array(
       'main' => 'Visor de registro',
       'dashboard' => 'Panel de depuración',
       'logs' => 'Troncos',
     ),
-    'sidebar' => 
-    array (
+    'sidebar' => array(
       'dashboard' => 'Tablero',
-      'general' => 'General',
+      'general' => 'generales',
       'history' => 'Historia',
       'system' => 'Sistema',
-      'account' => 
-      array (
+      'account' => array(
         'title' => 'Cuenta',
       ),
-      'backup' => 
-      array (
+      'backup' => array(
         'title' => 'Apoyo',
       ),
-      'blogs' => 
-      array (
+      'blogs' => array(
         'title' => 'Blog',
       ),
-      'categories' => 
-      array (
+      'categories' => array(
         'title' => 'Las categorías',
       ),
-      'change-password' => 
-      array (
+      'change-password' => array(
         'title' => 'Cambia la contraseña',
       ),
-      'contact' => 
-      array (
+      'contact' => array(
         'title' => 'Contacto',
       ),
-      'contacts' => 
-      array (
+      'contacts' => array(
         'title' => 'Lleva',
       ),
-      'courses' => 
-      array (
+      'courses' => array(
         'manage' => 'Gestionar cursos',
         'management' => 'Gestión de cursos',
         'title' => 'Los cursos',
       ),
-      'debug-site' => 
-      array (
+      'debug-site' => array(
         'title' => 'Depurar el sitio',
       ),
-      'faqs' => 
-      array (
+      'faqs' => array(
         'title' => 'Preguntas frecuentes',
       ),
-      'footer' => 
-      array (
+      'footer' => array(
         'title' => 'Pie de página',
       ),
-      'hero-slider' => 
-      array (
+      'hero-slider' => array(
         'title' => 'Control deslizante de héroe',
       ),
-      'invoices' => 
-      array (
+      'invoices' => array(
         'title' => 'Facturas',
       ),
-      'lessons' => 
-      array (
+      'lessons' => array(
         'title' => 'Lecciones',
       ),
-      'menu-manager' => 
-      array (
+      'menu-manager' => array(
         'title' => 'Gestor de menú',
       ),
-      'messages' => 
-      array (
+      'messages' => array(
         'title' => 'Mensajes',
       ),
-      'newsletter-configuration' => 
-      array (
+      'newsletter-configuration' => array(
         'title' => 'Configuración del boletín',
       ),
-      'orders' => 
-      array (
+      'orders' => array(
         'title' => 'Pedidos',
       ),
-      'pages' => 
-      array (
+      'pages' => array(
         'title' => 'Administrador de páginas',
       ),
-      'questions-options' => 
-      array (
+      'questions-options' => array(
         'title' => 'Preguntas Opciones',
       ),
-      'questions' => 
-      array (
+      'questions' => array(
         'title' => 'Preguntas',
       ),
-      'reasons' => 
-      array (
+      'reasons' => array(
         'title' => 'Razones',
       ),
-      'reviews' => 
-      array (
+      'reviews' => array(
         'title' => 'Opiniones',
       ),
-      'settings' => 
-      array (
-        'general' => 'General',
+      'settings' => array(
+        'general' => 'generales',
         'social-login' => 'Inicio de sesión social',
         'title' => 'Ajustes',
+        'zoom_setting' => 'Configuración de zoom',
+        'landing_page_setting' => 'Configuración de la página de destino',
+        'certificate_template' => 'Plantilla de certificado',
+        'zoom_configuration' => 'Configuración de Zoom',
+        'google_meet_configuration' => 'Configuración de Google Meet',
+        's3_storage_settings' => 'Configuración de almacenamiento S3',
+        'license' => 'Configuración de licencia',
+        'smtp' => 'Configuración de correo electrónico (SMTP)',
       ),
-      'site-management' => 
-      array (
+      'site-management' => array(
         'title' => 'Manejo de sitio',
       ),
-      'sponsors' => 
-      array (
+      'sponsors' => array(
         'title' => 'Los patrocinadores',
       ),
-      'teachers' => 
-      array (
+      'teachers' => array(
         'title' => 'Maestros',
       ),
-      'testimonials' => 
-      array (
+      'testimonials' => array(
         'title' => 'Testimonios',
       ),
-      'tests' => 
-      array (
+      'tests' => array(
         'title' => 'Pruebas',
       ),
-      'translations' => 
-      array (
+      'translations' => array(
         'title' => 'Gerente de traducción',
       ),
-      'update' => 
-      array (
+      'update' => array(
         'title' => 'Actualizar',
       ),
-      'certificates' => 
-      array (
+      'certificates' => array(
         'title' => 'Certificados',
       ),
-      'bundles' => 
-      array (
+      'bundles' => array(
         'title' => 'manojos',
       ),
-      'reports' => 
-      array (
+      'reports' => array(
         'sales' => 'Ventas',
         'students' => 'Estudiantes',
         'title' => 'Informes',
       ),
-      'coupons' => 
-      array (
+      'coupons' => array(
         'title' => 'Cupones',
       ),
-      'sitemap' => 
-      array (
+      'sitemap' => array(
         'title' => 'Mapa del sitio',
       ),
-      'tax' => 
-      array (
+      'tax' => array(
         'title' => 'Impuesto',
       ),
-      'forums-category' => 
-      array (
+      'forums-category' => array(
         'title' => 'Categorías de foros',
       ),
-      'payments' => 
-      array (
+      'payments' => array(
         'title' => 'pagos',
       ),
-      'payments_requests' => 
-      array (
+      'payments_requests' => array(
         'title' => 'solicitud de pago',
       ),
+      'roles_mgt' => 'Permisos de roles',
+      'Invitations' => 'Invitaciones',
+      'Send-Email-Notification' => 'Enviar notificación por correo electrónico',
+      'notification-settings' => 'Configuración de notificaciones',
+      'My-Assignments' => 'Mis tareas',
+      'My-Courses' => 'Mis cursos',
+      'Employee-Requests' => 'Solicitudes de empleados',
+      'Contact-Requests' => 'Solicitudes de contacto',
+      'Pathway-Assignments' => 'Asignaciones de ruta',
+      'Learning-Pathways' => 'Caminos de aprendizaje',
+      'Learning-Pathways-Management' => 'Gestión de rutas de aprendizaje',
+      'Manual-Assessment' => 'Evaluación manual',
+      'trainers' => 'Entrenadores',
+      'trainees' => 'Aprendices',
+      'internal' => 'Interno',
+      'external' => 'Externo',
+      'feedback' => 'Comentarios',
+      'course_questions' => 'Preguntas del curso',
+      'calendar' => 'Calendario',
+      'department' => 'Grupo de usuarios',
+      'Add User Group' => 'Agregar grupo de usuarios',
+      'position' => 'Posiciones',
+      'assessment_accounts' => 'Cuentas de evaluación',
+      'course_assessment' => 'Evaluación del curso',
+      'user_assignments' => 'Asignaciones de usuarios',
+      'courses_assessments' => 'Evaluaciones de cursos',
+      'course_feedback_questions' => 'Preguntas de retroalimentación sobre cursos',
+      'user_feedback_answers' => 'Respuestas a comentarios de usuarios',
+      'all_reports' => 'Todos los informes',
+      'internal_trainee_info' => 'Información interna del aprendiz',
+      'internal_attendance_reports' => 'Informes de asistencia interna',
+      'external_trainee_info' => 'Información del aprendiz externo',
+      'external_attendance_report' => 'Informes de asistencia externa',
+      'trainee_info' => 'Información del aprendiz',
+      'attendance_report' => 'Informe de asistencia',
+      'news_n_update' => 'Noticias y actualización',
+      'latest_libraries' => 'Últimas bibliotecas',
+      'announcement' => 'Anuncio',
+      'assessment_accounts_manually' => 'Cuentas de evaluación manualmente',
+      'courses_assignments' => 'Asignaciones de cursos',
+      'latest_events' => 'Últimos eventos',
+      'live_lessons' => array(
+        'title' => 'Lecciones en vivo',
+      ),
+      'live_lesson_slots' => array(
+        'title' => 'Espacios para lecciones en vivo',
+      ),
+      'subscription' => array(
+        'title' => 'Suscripción',
+      ),
+      'wishlist' => array(
+        'title' => 'Lista de deseos',
+      ),
+    ),
+    'stripe' => array(
+      'title' => 'raya',
+      'plan' => 'Planes',
     ),
   ),
-  'language-picker' => 
-  array (
+  'language-picker' => array(
     'language' => 'Idioma',
-    'langs' => 
-    array (
+    'langs' => array(
       'ar' => 'Arábica',
       'zh' => 'chino',
       'zh-TW' => 'Chino tradicional',
@@ -233,7 +250,7 @@ return array (
       'th' => 'tailandés',
       'tr' => 'turco',
       'af' => 'africaans',
-      'ak' => 'Akan',
+      'ak' => 'akan',
       'sq_AL' => 'Albanés (Albania)',
       'sq' => 'albanés',
       'am_ET' => 'Amárico (etiopía)',
@@ -257,25 +274,25 @@ return array (
       'ar_YE' => 'Árabe (Yemen)',
       'hy_AM' => 'Armenio (armenia)',
       'hy' => 'armenio',
-      'as_IN' => 'Assamese (India)',
+      'as_IN' => 'Asamés (India)',
       'as' => 'Asamés',
       'asa_TZ' => 'Asu (Tanzania)',
-      'asa' => 'Asu',
+      'asa' => 'Asú',
       'az_Cyrl' => 'Azerbaiyano (cirílico)',
       'az_Cyrl_AZ' => 'Azerbaiyán (cirílico, Azerbaiyán)',
       'az_Latn' => 'Azerbaiyano (latín)',
       'az_Latn_AZ' => 'Azerbaiyano (latín, azerbaiyán)',
       'az' => 'Azerbaiyano',
-      'bm_ML' => 'Bambara (Mali)',
-      'bm' => 'Bambara',
+      'bm_ML' => 'Bambara (Malí)',
+      'bm' => 'bambara',
       'eu_ES' => 'Vasco (españa)',
       'eu' => 'vasco',
       'be_BY' => 'Bielorruso (bielorruso)',
       'be' => 'Bielorruso',
       'bem_ZM' => 'Bemba (Zambia)',
-      'bem' => 'Bemba',
+      'bem' => 'bemba',
       'bez_TZ' => 'Bena (Tanzania)',
-      'bez' => 'Bena',
+      'bez' => 'bena',
       'bn_BD' => 'Bengalí (Bangladesh)',
       'bn_IN' => 'Bengalí (india)',
       'bn' => 'bengalí',
@@ -314,7 +331,7 @@ return array (
       'nl_BE' => 'Holandés (Bélgica)',
       'nl_NL' => 'Holandés (Países Bajos)',
       'ebu_KE' => 'Embu (Kenia)',
-      'ebu' => 'Embu',
+      'ebu' => 'embú',
       'en_AS' => 'Inglés (Samoa Americana)',
       'en_AU' => 'Inglés (Australia)',
       'en_BE' => 'Inglés (Bélgica)',
@@ -346,13 +363,13 @@ return array (
       'eo' => 'esperanto',
       'et_EE' => 'Estonio (estonia)',
       'et' => 'Estonio',
-      'ee_GH' => 'Ewe (Ghana)',
-      'ee_TG' => 'Ewe (Togo)',
+      'ee_GH' => 'Oveja (Ghana)',
+      'ee_TG' => 'Oveja (Togo)',
       'ee' => 'Oveja',
       'fo_FO' => 'Feroés (Islas Feroe)',
       'fo' => 'Feroés',
       'fil_PH' => 'Filipino (filipino)',
-      'fil' => 'Filipino',
+      'fil' => 'filipino',
       'fi_FI' => 'Finlandés (finlandia)',
       'fi' => 'finlandés',
       'fr_BE' => 'Francés (Bélgica)',
@@ -387,7 +404,7 @@ return array (
       'fr_CH' => 'Francés (Suiza)',
       'fr_TG' => 'Francés (Togo)',
       'ff_SN' => 'Fulah (Senegal)',
-      'ff' => 'Fulah',
+      'ff' => 'Fulá',
       'gl_ES' => 'Gallego (españa)',
       'gl' => 'gallego',
       'lg_UG' => 'Ganda (Uganda)',
@@ -402,8 +419,8 @@ return array (
       'de_CH' => 'Alemán (Suiza)',
       'el_CY' => 'Griego (chipre)',
       'el_GR' => 'Griego (grecia)',
-      'gu_IN' => 'Gujarati (India)',
-      'gu' => 'Gujarati',
+      'gu_IN' => 'Guyaratí (India)',
+      'gu' => 'gujarati',
       'guz_KE' => 'Gusii (Kenia)',
       'guz' => 'Gusii',
       'ha_Latn' => 'Hausa (latín)',
@@ -414,14 +431,14 @@ return array (
       'haw_US' => 'Hawaiano (Estados Unidos)',
       'haw' => 'hawaiano',
       'he_IL' => 'Hebreo (israel)',
-      'hi_IN' => 'Hindi (India)',
+      'hi_IN' => 'Hindú (India)',
       'hi' => 'hindi',
       'hu_HU' => 'Húngaro (Hungría)',
       'hu' => 'húngaro',
       'is_IS' => 'Islandés (islandia)',
       'is' => 'islandés',
       'ig_NG' => 'Igbo (Nigeria)',
-      'ig' => 'Igbo',
+      'ig' => 'igbo',
       'id_ID' => 'Indonesio (indonesia)',
       'ga_IE' => 'Irlandés (irlanda)',
       'ga' => 'irlandesa',
@@ -438,24 +455,24 @@ return array (
       'kln' => 'Kalenjin',
       'kam_KE' => 'Kamba (Kenia)',
       'kam' => 'Kamba',
-      'kn_IN' => 'Kannada (India)',
+      'kn_IN' => 'Canarés (India)',
       'kn' => 'Canada',
       'kk_Cyrl' => 'Kazajo (cirílico)',
       'kk_Cyrl_KZ' => 'Kazajo (cirílico, Kazajstán)',
       'kk' => 'Kazajo',
       'km_KH' => 'Khmer (Camboya)',
-      'km' => 'Khmer',
+      'km' => 'jemer',
       'ki_KE' => 'Kikuyu (Kenia)',
-      'ki' => 'Kikuyu',
+      'ki' => 'kikuyu',
       'rw_RW' => 'Kinyarwanda (Ruanda)',
       'rw' => 'Kinyarwanda',
       'kok_IN' => 'Konkani (India)',
       'kok' => 'Konkani',
       'ko_KR' => 'Coreano (corea del sur)',
       'ko' => 'coreano',
-      'khq_ML' => 'Koyra Chiini (Mali)',
+      'khq_ML' => 'Koyra Chiini (Malí)',
       'khq' => 'Koyra Chiini',
-      'ses_ML' => 'Koyraboro Senni (Mali)',
+      'ses_ML' => 'Koyraboro Senni (Malí)',
       'ses' => 'Koyraboro Senni',
       'lag_TZ' => 'Langi (Tanzania)',
       'lag' => 'Langi',
@@ -464,37 +481,37 @@ return array (
       'lt_LT' => 'Lituano (lituania)',
       'lt' => 'lituano',
       'luo_KE' => 'Luo (Kenia)',
-      'luo' => 'Luo',
+      'luo' => 'luo',
       'luy_KE' => 'Luyia (Kenia)',
-      'luy' => 'Luyia',
+      'luy' => 'luyia',
       'mk_MK' => 'Macedonio (Macedonia)',
       'mk' => 'macedónio',
       'jmc_TZ' => 'Machame (Tanzania)',
-      'jmc' => 'Machame',
+      'jmc' => 'machame',
       'kde_TZ' => 'Makonde (Tanzania)',
-      'kde' => 'Makonde',
+      'kde' => 'Makondé',
       'mg_MG' => 'Malgache (madagascar)',
       'mg' => 'madagascarí',
       'ms_BN' => 'Malayo (brunei)',
       'ms_MY' => 'Malayo (malasia)',
       'ms' => 'malayo',
       'ml_IN' => 'Malayalam (India)',
-      'ml' => 'Malayalam',
+      'ml' => 'malayalam',
       'mt_MT' => 'Maltés (malta)',
       'mt' => 'maltés',
       'gv_GB' => 'Manx (Reino Unido)',
       'gv' => 'de la isla de Man',
-      'mr_IN' => 'Marathi (India)',
-      'mr' => 'Marathi',
+      'mr_IN' => 'Maratí (India)',
+      'mr' => 'marathi',
       'mas_KE' => 'Masai (Kenia)',
       'mas_TZ' => 'Masai (Tanzania)',
-      'mas' => 'Masai',
+      'mas' => 'masai',
       'mer_KE' => 'Meru (Kenia)',
-      'mer' => 'Meru',
+      'mer' => 'meru',
       'mfe_MU' => 'Morisyen (Mauricio)',
       'mfe' => 'Morisyen',
-      'naq_NA' => 'Nama (Namibia)',
-      'naq' => 'Nama',
+      'naq_NA' => 'Namá (Namibia)',
+      'naq' => 'nombre',
       'ne_IN' => 'Nepalí (india)',
       'ne_NP' => 'Nepalí (Nepal)',
       'ne' => 'Nepalí',
@@ -505,14 +522,14 @@ return array (
       'nn_NO' => 'Nynorsk noruego (Noruega)',
       'nn' => 'Nynorsk noruego',
       'nyn_UG' => 'Nyankole (Uganda)',
-      'nyn' => 'Nyankole',
+      'nyn' => 'Nyankolé',
       'or_IN' => 'Oriya (India)',
       'or' => 'Oriya',
       'om_ET' => 'Oromo (Etiopía)',
       'om_KE' => 'Oromo (Kenia)',
-      'om' => 'Oromo',
+      'om' => 'oromo',
       'ps_AF' => 'Pashto (Afganistán)',
-      'ps' => 'Pashto',
+      'ps' => 'pastún',
       'fa_AF' => 'Persa (Afganistán)',
       'fa_IR' => 'Persa (iran)',
       'pl_PL' => 'Polaco (Polonia)',
@@ -523,8 +540,8 @@ return array (
       'pt' => 'portugués',
       'pa_Arab' => 'Punjabi (árabe)',
       'pa_Arab_PK' => 'Punjabi (árabe, Pakistán)',
-      'pa_Guru' => 'Punjabi (Gurmukhi)',
-      'pa_Guru_IN' => 'Punjabi (Gurmukhi, India)',
+      'pa_Guru' => 'Punjabí (Gurmukhi)',
+      'pa_Guru_IN' => 'Punjabí (Gurmukhi, India)',
       'pa' => 'punjabi',
       'ro_MD' => 'Rumano (moldavia)',
       'ro_RO' => 'Rumano (rumania)',
@@ -532,16 +549,16 @@ return array (
       'rm_CH' => 'Romansh (Suiza)',
       'rm' => 'Romanche',
       'rof_TZ' => 'Rombo (Tanzania)',
-      'rof' => 'Rombo',
+      'rof' => 'rombo',
       'ru_MD' => 'Ruso (Moldavia)',
       'ru_RU' => 'Ruso (Rusia)',
       'ru_UA' => 'Ruso (Ucrania)',
       'rwk_TZ' => 'Rwa (Tanzania)',
-      'rwk' => 'Rwa',
+      'rwk' => 'Rua',
       'saq_KE' => 'Samburu (Kenia)',
       'saq' => 'Samburu',
       'sg_CF' => 'Sango (República Centroafricana)',
-      'sg' => 'Sango',
+      'sg' => 'sango',
       'seh_MZ' => 'Sena (Mozambique)',
       'seh' => 'Sena',
       'sr_Cyrl' => 'Serbio (cirílico)',
@@ -553,7 +570,7 @@ return array (
       'sr_Latn_ME' => 'Serbio (latín, montenegro)',
       'sr_Latn_RS' => 'Serbio (latín, serbia)',
       'sr' => 'serbio',
-      'sn_ZW' => 'Shona (Zimbabwe)',
+      'sn_ZW' => 'Shona (Zimbabue)',
       'sn' => 'Shona',
       'ii_CN' => 'Sichuan Yi (China)',
       'ii' => 'Sichuan Yi',
@@ -564,7 +581,7 @@ return array (
       'sl_SI' => 'Esloveno (eslovenia)',
       'sl' => 'esloveno',
       'xog_UG' => 'Soga (Uganda)',
-      'xog' => 'Soga',
+      'xog' => 'soga',
       'so_DJ' => 'Somalí (Djibouti)',
       'so_ET' => 'Somalí (etiopía)',
       'so_KE' => 'Somalí (Kenia)',
@@ -593,7 +610,7 @@ return array (
       'es_UY' => 'Español (uruguay)',
       'es_VE' => 'Español (venezuela)',
       'sw_KE' => 'Swahili (Kenia)',
-      'sw_TZ' => 'Swahili (Tanzania)',
+      'sw_TZ' => 'Suajili (Tanzania)',
       'sw' => 'swahili',
       'sv_FI' => 'Sueco (finlandia)',
       'sv_SE' => 'Sueco (Suecia)',
@@ -610,17 +627,17 @@ return array (
       'ta_LK' => 'Tamil (Sri Lanka)',
       'ta' => 'Tamil',
       'te_IN' => 'Telugu (india)',
-      'te' => 'Telugu',
+      'te' => 'telugu',
       'teo_KE' => 'Teso (Kenia)',
       'teo_UG' => 'Teso (Uganda)',
-      'teo' => 'Teso',
+      'teo' => 'teso',
       'th_TH' => 'Tailandés (tailandia)',
       'bo_CN' => 'Tibetano (China)',
       'bo_IN' => 'Tibetano (india)',
       'bo' => 'Tibetano',
-      'ti_ER' => 'Tigrinya (Eritrea)',
+      'ti_ER' => 'Tigriña (Eritrea)',
       'ti_ET' => 'Tigrinya (Etiopía)',
-      'ti' => 'Tigrinya',
+      'ti' => 'Tigriña',
       'to_TO' => 'Tonga (Tonga)',
       'to' => 'Tonga',
       'tr_TR' => 'Turco (Turquía)',
@@ -628,7 +645,7 @@ return array (
       'uk' => 'ucranio',
       'ur_IN' => 'Urdu (india)',
       'ur_PK' => 'Urdu (Pakistán)',
-      'ur' => 'Urdu',
+      'ur' => 'urdu',
       'uz_Arab' => 'Uzbeko (árabe)',
       'uz_Arab_AF' => 'Uzbeko (árabe, Afganistán)',
       'uz_Cyrl' => 'Uzbeko (cirílico)',
@@ -643,7 +660,7 @@ return array (
       'cy_GB' => 'Galés (Reino Unido)',
       'cy' => 'galés',
       'yo_NG' => 'Yoruba (Nigeria)',
-      'yo' => 'Yoruba',
+      'yo' => 'yoruba',
       'zu_ZA' => 'Zulu (Sudáfrica)',
       'zu' => 'zulú',
     ),

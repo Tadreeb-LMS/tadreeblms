@@ -1,16 +1,13 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'roles' => 
-    array (
+return array(
+  'backend' => array(
+    'roles' => array(
       'created' => 'El rol fue creado exitosamente.',
       'deleted' => 'El rol fue eliminado con éxito.',
       'updated' => 'El rol fue actualizado exitosamente.',
     ),
-    'users' => 
-    array (
+    'users' => array(
       'cant_resend_confirmation' => 'La aplicación está configurada actualmente para aprobar manualmente los usuarios.',
       'confirmation_email' => 'Se ha enviado un nuevo correo electrónico de confirmación a la dirección que figura en el archivo.',
       'confirmed' => 'El usuario fue confirmado con éxito.',
@@ -24,8 +21,7 @@ return array (
       'updated' => 'El usuario fue actualizado con éxito.',
       'updated_password' => 'La contraseña del usuario se actualizó con éxito.',
     ),
-    'general' => 
-    array (
+    'general' => array(
       'backup_warning' => 'Por favor, rellene los detalles necesarios para la copia de seguridad',
       'cancelled' => 'Actualización cancelada.',
       'created' => 'Creado con éxito.',
@@ -36,21 +32,41 @@ return array (
       'updated' => 'Actualizado con éxito.',
       'delete_warning' => 'No puedes eliminar el curso. Los estudiantes ya están matriculados. Anular la publicación del curso',
       'delete_warning_bundle' => 'No puedes eliminar Bundle. Los estudiantes ya están matriculados. Anular la publicación del paquete',
-      'slug_exist' => 'Existe un registro con la misma babosa, actualice la babosa.',
+      'slug_exist' => 'Existe un registro con el mismo Slug, actualice el Slug.',
       'teacher_delete_warning' => 'No puedes eliminar al profesor. Los cursos ya están agregados. Cambiar el estado en su lugar',
+      'mark_attendance' => 'Su asistencia está marcada con éxito.',
+      'couse_not_subscribed' => 'No estás suscrito a este curso.',
+      'already_mark_present' => 'Ya tienes marca presente.',
+      'you_are_late_for_this_lesson' => 'Llegas tarde a esta lección',
+      'not_yet_started_lesson' => 'Aún no ha comenzado la lección.',
+    ),
+    'stripe_plan' => array(
+      'stripe_credentials' => 'Credenciales de Stripe no disponibles',
     ),
   ),
-  'frontend' => 
-  array (
-    'contact' => 
-    array (
+  'frontend' => array(
+    'contact' => array(
       'sent' => 'Su información fue enviada con éxito. Le responderemos lo antes posible al correo electrónico proporcionado.',
     ),
-    'course' => 
-    array (
+    'course' => array(
       'completed' => '¡Felicidades! Has completado con éxito el curso. Revisa tu certificado en el tablero',
+      'certificate_issued' => 'El certificado se ha generado correctamente.',
+      'slot_booking' => 'Reserva de espacio para lecciones en vivo exitosamente',
+      'subscription_plan_expired' => 'Su plan de suscripción expiró',
+      'subscription_plan_cancelled' => 'Su plan de suscripción cancelado',
+      'sub_course_limit_over' => 'El límite del curso de su plan de suscripción ha superado',
+      'sub_bundle_limit_over' => 'El límite del paquete de su plan de suscripción ha superado',
+      'sub_course_success' => 'Suscríbete al curso exitosamente',
+      'sub_bundle_success' => 'Paquete Suscríbete exitosamente',
+      'sub_course_not_access' => 'Su plan de suscripción, no ningún acceso al curso',
+      'sub_bundle_not_access' => 'Su plan de suscripción, no ningún paquete de acceso',
     ),
     'duplicate_course' => 'ya está comprado por supuesto.',
     'duplicate_bundle' => 'ya está comprado en paquete.',
+    'wishlist' => array(
+      'exist' => 'Este curso ya está en la lista de deseos.',
+      'added' => 'Curso agregado exitosamente a la lista de deseos',
+    ),
   ),
+  'processing' => 'Procesamiento',
 );

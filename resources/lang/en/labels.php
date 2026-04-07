@@ -1249,6 +1249,7 @@ return array(
     ),
     'zoom_setting' => array(
       'management' => 'Zoom Setting',
+      'select_timezone' => 'Select Timezone',
       'audio_options' => array(
         'both' => 'Both',
         'voip' => 'VoIP',

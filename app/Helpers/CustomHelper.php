@@ -11,6 +11,7 @@ use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
 use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
+use App\Services\LmsEventRecorder;
 use Auth;
 use DB;
 use Carbon\Carbon;
@@ -335,9 +336,20 @@ class CustomHelper
         $total_lessons = count($lessons);
         $progress = 0;
 
-        // 5️⃣ If no lessons → give FULL lesson weight
+        // 5️⃣ If no lessons → check live sessions for scheduled courses
         if ($total_lessons == 0) {
-            $progress = $lesson_weight;
+            $totalSessions = \App\Models\LiveSession::where('course_id', $course->id)->count();
+
+            if ($totalSessions > 0) {
+                // Use actual attendance records for progress
+                $sessionIds = \App\Models\LiveSession::where('course_id', $course->id)->pluck('id');
+                $attendedSessions = \App\Models\LiveSessionAttendance::where('user_id', $user_id)
+                    ->whereIn('live_session_id', $sessionIds)
+                    ->count();
+                $progress = ($attendedSessions / $totalSessions) * $lesson_weight;
+            } else {
+                $progress = $lesson_weight;
+            }
         } else {
             // Otherwise calculate lesson % done
             $completed_lessons = 0;
@@ -376,8 +388,22 @@ class CustomHelper
             $progress = 99;
         }
 
-        // 8️⃣ Cap at 100
-        return min(100, round($progress));
+        // 8️⃣ Reset incorrectly completed scheduled courses
+        $finalProgress = min(100, round($progress));
+        if ($finalProgress < 100 && $sub_data->is_completed == 1) {
+            DB::table('subscribe_courses')
+                ->where('course_id', $course->id)
+                ->where('user_id', $user_id)
+                ->update([
+                    'is_completed' => 0,
+                    'completed_at' => null,
+                    'assignment_progress' => $finalProgress,
+                ]);
+            $sub_data->is_completed = 0;
+            $sub_data->assignment_progress = $finalProgress;
+        }
+
+        return $finalProgress;
     }
 
 
@@ -614,6 +640,13 @@ class CustomHelper
                             ]
                         );
 
+                    app(LmsEventRecorder::class)->record(
+                        $user_id,
+                        LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                        ['course_id' => (int) $course_id, 'source' => 'assignment_progress'],
+                        Carbon::now()
+                    );
+
                     // Send course completed notification
                     try {
                         $notificationSettings = app(\App\Services\NotificationSettingsService::class);
@@ -673,6 +706,12 @@ class CustomHelper
         if ($total_plus == 100) {
             DB::table('subscribe_courses')->where('course_id', $course_id)
                 ->where('user_id', $user_id)->update(['is_completed' => 1]);
+            app(LmsEventRecorder::class)->record(
+                $user_id,
+                LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                ['course_id' => (int) $course_id, 'source' => 'lesson_progress'],
+                Carbon::now()
+            );
         }
 
         return $total_plus;

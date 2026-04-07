@@ -1,5 +1,5 @@
 <?php
 
-return [
-    'time_left_next_lesson' => ':attribute time remaining',
-];
+return array(
+  'time_left_next_lesson' => ':attribute الوقت المتبقي',
+);

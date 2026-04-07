@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app' . config('theme_layout'))
 
-@section('title', 'Certificate Verification | ' . app_name())
+@section('title', __('cert_verification_pages.title') . ' | ' . app_name())
 
 @push('after-styles')
 <style>
@@ -82,63 +82,63 @@
                     @if($status === 'verified')
                         <div class="status-header status-verified">
                             <div class="status-icon"><i class="fas fa-check-circle"></i></div>
-                            <h2 class="text-white mb-0">Authentic Certificate</h2>
-                            <p class="text-white opacity-75 mt-2">Verified by TadreebLMS Registry</p>
+                            <h2 class="text-white mb-0">{{ __('cert_verification_pages.authentic_certificate') }}</h2>
+                            <p class="text-white opacity-75 mt-2">{{ __('cert_verification_pages.verified_by_registry') }}</p>
                         </div>
                         <div class="verification-details text-center">
                             <div class="detail-item">
-                                <div class="detail-label">Certified Professional</div>
+                                <div class="detail-label">{{ __('cert_verification_pages.certified_professional') }}</div>
                                 <div class="detail-value">{{ $student_name }}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Course Title</div>
+                                <div class="detail-label">{{ __('cert_verification_pages.course_title') }}</div>
                                 <div class="detail-value">{{ $course_title }}</div>
                             </div>
                             <div class="row">
                                 <div class="col-6">
                                     <div class="detail-item">
-                                        <div class="detail-label">Completion Date</div>
+                                        <div class="detail-label">{{ __('cert_verification_pages.completion_date') }}</div>
                                         <div class="detail-value">{{ $completion_date }}</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="detail-item">
-                                        <div class="detail-label">Certificate ID</div>
+                                        <div class="detail-label">{{ __('cert_verification_pages.certificate_id') }}</div>
                                         <div class="detail-value">{{ $certificate_id }}</div>
                                     </div>
                                 </div>
                             </div>
                             
                             <a href="{{ route('admin.certificates.generate', ['course_id' => $certificate->course_id, 'user_id' => $certificate->user_id]) }}" class="download-btn">
-                                <i class="fas fa-download mr-2"></i> Download Original PDF
+                                <i class="fas fa-download mr-2"></i> {{ __('cert_verification_pages.download_original_pdf') }}
                             </a>
                         </div>
                     @elseif($status === 'revoked')
                         <div class="status-header status-revoked">
                             <div class="status-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                            <h2 class="text-white mb-0">Certificate Revoked</h2>
-                            <p class="text-white opacity-75 mt-2">Credential Nullified</p>
+                            <h2 class="text-white mb-0">{{ __('cert_verification_pages.certificate_revoked') }}</h2>
+                            <p class="text-white opacity-75 mt-2">{{ __('cert_verification_pages.credential_nullified') }}</p>
                         </div>
                         <div class="verification-details text-center">
-                            <h4 class="text-danger mb-4">Caution</h4>
+                            <h4 class="text-danger mb-4">{{ __('cert_verification_pages.caution') }}</h4>
                             <p class="mb-4">{{ $message }}</p>
                             <div class="detail-item border-0">
-                                <div class="detail-label">Revocation Date</div>
+                                <div class="detail-label">{{ __('cert_verification_pages.revocation_date') }}</div>
                                 <div class="detail-value text-danger">{{ $revoked_at }}</div>
                             </div>
                         </div>
                     @else
                         <div class="status-header status-invalid">
                             <div class="status-icon"><i class="fas fa-times-circle"></i></div>
-                            <h2 class="text-white mb-0">Invalid Credential</h2>
+                            <h2 class="text-white mb-0">{{ __('cert_verification_pages.invalid_credential') }}</h2>
                         </div>
                         <div class="verification-details text-center">
                             <p class="lead mb-4">{{ $message }}</p>
                             <div class="alert alert-warning">
-                                <strong>Warning:</strong> This hash does not match any record in our system. This may indicate a counterfeit certificate.
+                                <strong>{{ __('cert_verification_pages.warning') }}:</strong> {{ __('cert_verification_pages.invalid_hash_warning') }}
                             </div>
                             <a href="{{ route('frontend.index') }}" class="btn btn-outline-secondary mt-3">
-                                Return to Homepage
+                                {{ __('cert_verification_pages.return_to_homepage') }}
                             </a>
                         </div>
                     @endif

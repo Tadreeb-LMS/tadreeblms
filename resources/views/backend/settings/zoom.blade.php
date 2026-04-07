@@ -52,7 +52,7 @@
                         {!! Form::label('zoom__timezone', trans('labels.backend.zoom_setting.fields.timezone'), ['class' => 'col-md-2 form-control-label']) !!}
                         <div class="col-md-10">
                             <select name="zoom__timezone" class="form-control select2">
-                                <option> Select Timezone</option>
+                                <option>{{ trans('labels.backend.zoom_setting.select_timezone') }}</option>
                                 @foreach(\DateTimeZone::listIdentifiers(DateTimeZone::ALL) as $time_zone)
                                     <option value="{{ $time_zone}}"
                                         {{ (config('zoom.timezone')? config('zoom.timezone'):'UTC') == $time_zone?'selected':'' }}>

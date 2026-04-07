@@ -39,7 +39,7 @@ width: 58% !important;
 
 <div class="container-fluid">
     <div class="grow pb-3">
-                <h4 class="text-20">@lang('Course Feedback Questions')</h4>
+                <h4 class="text-20">{{ __('user_feedback.feedback_questions.title') }}</h4>
               </div>
                <div class="card">
         <div class="card-body">
@@ -67,13 +67,13 @@ width: 58% !important;
     </div>
 </div> -->
 
-           <table id="myTable" class="table custom-teacher-table table-striped @can('lesson_delete') @if (request('show_deleted') != 1) dt-select @endif @endcan">
+                           <table id="myTable" class="table custom-teacher-table table-striped @can('lesson_delete') @if (request('show_deleted') != 1) dt-select @endif @endcan">
                                  <thead>
                         <tr>
-                            <th>S. No.</th>
-                            <th>Course Name</th>
-                            <th>Question</th>
-                            <th class="text-center">Actions</th>
+                            <th>{{ __('user_feedback.feedback_questions.serial_no') }}</th>
+                            <th>{{ __('user_feedback.feedback_questions.course_name') }}</th>
+                            <th>{{ __('user_feedback.feedback_questions.question') }}</th>
+                            <th class="text-center">{{ __('user_feedback.feedback_questions.actions') }}</th>
                         </tr>
                     </thead>
                                 <tbody>
@@ -129,7 +129,7 @@ width: 58% !important;
         //     $('#custom-loader').hide();
         // }
                 },
-                language:{search:""
+                language:{lengthMenu: '{{ trans('datatable.length_menu') }}',search:""
     //                               paginate: {
     //     previous: '<i class="fa fa-angle-left"></i>',
     //     next: '<i class="fa fa-angle-right"></i>'

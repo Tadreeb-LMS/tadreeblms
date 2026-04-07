@@ -27,71 +27,71 @@
 
                     <div class="row">
                         <div class="col-md-8">
-                            <h5 class="mb-3">Module Details</h5>
+                            <h5 class="mb-3">{{ __('external_apps.external_apps.module_details') }}</h5>
                             
                             <table class="table table-sm">
                                 <tr>
-                                    <td><strong>Description:</strong></td>
-                                    <td>{{ $app->description ?? 'No description provided' }}</td>
+                                    <td><strong>{{ __('labels.backend.courses.fields.description') }}:</strong></td>
+                                    <td>{{ $app->description ?? __('external_apps.external_apps.no_description_provided') }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Version:</strong></td>
+                                    <td><strong>{{ __('external_apps.external_apps.version') }}:</strong></td>
                                     <td>{{ $app->version ?? '1.0.0' }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Status:</strong></td>
+                                    <td><strong>{{ __('external_apps.external_apps.status') }}:</strong></td>
                                     <td>
                                         <span class="badge badge-{{ $app->getStatusBadge() }}">{{ ucfirst($app->status) }}</span>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Installation Path:</strong></td>
+                                    <td><strong>{{ __('external_apps.external_apps.installation_path') }}:</strong></td>
                                     <td>
                                         <code class="text-muted" style="font-size: 0.85em;">{{ $app->installed_path ?? 'N/A' }}</code>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Installed:</strong></td>
-                                    <td>{{ $app->installed_at ? $app->installed_at->format('M d, Y H:i A') : 'Not installed' }}</td>
+                                    <td><strong>{{ __('external_apps.external_apps.installed') }}:</strong></td>
+                                    <td>{{ $app->installed_at ? $app->installed_at->format('M d, Y H:i A') : __('external_apps.external_apps.not_installed') }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Last Updated:</strong></td>
-                                    <td>{{ $app->last_updated_at ? $app->last_updated_at->format('M d, Y H:i A') : 'Never' }}</td>
+                                    <td><strong>{{ __('external_apps.external_apps.last_updated') }}:</strong></td>
+                                    <td>{{ $app->last_updated_at ? $app->last_updated_at->format('M d, Y H:i A') : __('external_apps.external_apps.never') }}</td>
                                 </tr>
                             </table>
 
                             @if ($app->error_message)
                             <div class="alert alert-danger mt-3">
-                                <h5><i class="fas fa-exclamation-circle mr-2"></i>Error</h5>
+                                <h5><i class="fas fa-exclamation-circle mr-2"></i>{{ __('external_apps.external_apps.error') }}</h5>
                                 <p class="mb-0">{{ $app->error_message }}</p>
                             </div>
                             @endif
                         </div>
 
                         <div class="col-md-4">
-                            <h5 class="mb-3">Actions</h5>
+                            <h5 class="mb-3">{{ __('external_apps.external_apps.actions') }}</h5>
                             
                             <div class="list-group">
                                 <div class="list-group-item">
-                                    <strong class="d-block mb-2">Status</strong>
+                                    <strong class="d-block mb-2">{{ __('external_apps.external_apps.status') }}</strong>
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" class="custom-control-input" id="toggleStatus"
                                                {{ $app->is_enabled ? 'checked' : '' }}
                                                {{ $app->status !== 'active' ? 'disabled' : '' }}>
                                         <label class="custom-control-label" for="toggleStatus">
-                                            {{ $app->is_enabled ? 'Enabled' : 'Disabled' }}
+                                            {{ $app->is_enabled ? __('external_apps.external_apps.enabled') : __('external_apps.external_apps.disabled') }}
                                         </label>
                                     </div>
                                 </div>
 
                                 @if ($app->status === 'active')
                                 <a href="{{ route('admin.external-apps.edit-config', $app->slug) }}" class="list-group-item list-group-item-action">
-                                    <i class="fas fa-cog mr-2"></i>Configure Module
+                                    <i class="fas fa-cog mr-2"></i>{{ __('external_apps.external_apps.configure_module') }}
                                 </a>
                                 @endif
 
                                 <button type="button" class="list-group-item list-group-item-action text-danger" id="uninstallBtn">
-                                    <i class="fas fa-trash mr-2"></i>Uninstall Module
+                                    <i class="fas fa-trash mr-2"></i>{{ __('external_apps.external_apps.uninstall_module') }}
                                 </button>
                             </div>
                         </div>
@@ -99,7 +99,7 @@
 
                     @if ($app->configuration && count($app->configuration) > 0)
                     <hr class="my-4">
-                    <h5 class="mb-3">Current Configuration</h5>
+                    <h5 class="mb-3">{{ __('external_apps.external_apps.current_configuration') }}</h5>
                     <div class="card bg-light">
                         <div class="card-body">
                             <pre class="mb-0">{{ json_encode($app->configuration, JSON_PRETTY_PRINT) }}</pre>
@@ -109,7 +109,7 @@
 
                     <div class="mt-4">
                         <a href="{{ route('admin.external-apps.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left mr-1"></i>Back to External Apps
+                            <i class="fas fa-arrow-left mr-1"></i>{{ __('external_apps.external_apps.back') }}
                         </a>
                     </div>
                 </div>
@@ -124,26 +124,26 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="uninstallModalLabel">
-                    <i class="fas fa-warning mr-2"></i>Confirm Uninstall
+                    <i class="fas fa-warning mr-2"></i>{{ __('external_apps.external_apps.confirm_uninstall') }}
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to uninstall <strong>{{ $app->name }}</strong>?</p>
+                <p>{{ __('external_apps.external_apps.sure_uninstall_generic') }} <strong>{{ $app->name }}</strong>?</p>
                 <p class="text-warning">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
-                    This action will remove all module files and data. This cannot be undone.
+                    {{ __('external_apps.external_apps.uninstall_warning') }}
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('external_apps.external_apps.cancel') }}</button>
                 <form id="uninstallForm" action="{{ route('admin.external-apps.destroy', $app->slug) }}" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash mr-1"></i>Uninstall Module
+                        <i class="fas fa-trash mr-1"></i>{{ __('external_apps.external_apps.uninstall_module') }}
                     </button>
                 </form>
             </div>
@@ -182,7 +182,7 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 const response = xhr.responseJSON;
-                showAlert(response.message || 'An error occurred', 'error');
+                showAlert(response.message || '{{ __('external_apps.external_apps.an_error_occurred') }}', 'error');
                 $toggle.prop('checked', !enabled);
             }
         });

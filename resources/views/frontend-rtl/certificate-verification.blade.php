@@ -101,10 +101,10 @@
                                     <div class="table-responsive">
                                     <table class="table">
                                         <tr class="bg-dark text-white">
-                                            <th>Course Name</th>
-                                            <th>Student Name</th>
-                                            <th>Certified at</th>
-                                            <th>Actions</th>
+                                            <th>{{ __('course_pages.certificate.course_name') }}</th>
+                                            <th>{{ __('course_pages.certificate.student_name') }}</th>
+                                            <th>{{ __('course_pages.certificate.certified_at') }}</th>
+                                            <th>{{ __('course_pages.certificate.actions') }}</th>
                                         </tr>
                                         @foreach(session('data')['certificates'] as $certificate)
                                             <tr>

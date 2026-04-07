@@ -14,15 +14,9 @@ use App\Jobs\SendEmailJob;
 use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
 use App\Http\Controllers\LessonController;
-use App\Http\Controllers\Backend\SettingsController;
-
+use App\Http\Controllers\Backend\SettingsController;        
 use App\Http\Controllers\Backend\Admin\CourseFeedbackController;
 use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
-
-
-//Route::get('/install', [InstallerController::class, 'index']);
-//Route::post('/install/run', [InstallerController::class, 'run']);
-
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
@@ -86,7 +80,9 @@ Route::get('email-test', function () {
 });
 
 // Switch between the included languages
-Route::get('lang/{lang}', [LanguageController::class, 'swap']);
+Route::get('lang/{lang}', [LanguageController::class, 'swap'])
+    ->where('lang', '[A-Za-z_-]+')
+    ->name('locale.swap');
 
 
 Route::get('/sitemap-' . \Illuminate\Support\Str::slug(config('app.name')) . '/{file?}', 'SitemapController@index');

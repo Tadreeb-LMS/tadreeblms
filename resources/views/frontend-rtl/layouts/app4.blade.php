@@ -224,15 +224,15 @@
                                     @if(count($locales) > 1)
                                         <li class="menu-item-has-children ul-li-block">
                                             <a href="#">
-                                                    <span class="d-md-down-none">@lang('menus.language-picker.language')
-                                                        ({{ strtoupper(app()->getLocale()) }})</span>
+                                                    <span class="d-md-down-none">{{ trans('menus.language-picker.language', [], 'en') }}
+                                                        ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                                             </a>
                                             <ul class="sub-menu">
                                                 @foreach($locales as $lang)
                                                     @if($lang != app()->getLocale())
                                                         <li>
-                                                            <a href="{{ '/lang/'.$lang }}"
-                                                               class=""> @lang('menus.language-picker.langs.'.$lang)</a>
+                                                            <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
+                                                               class=""> {{ locale_label($lang) }}</a>
                                                         </li>
                                                     @endif
                                                 @endforeach
@@ -346,7 +346,7 @@
                                 <button class="menu-link" data-toggle="collapse"
                                         data-target="#collapseLang"
                                         aria-expanded="true" aria-controls="collapseLang">
-                                    @lang('menus.language-picker.language')
+                                    {{ trans('menus.language-picker.language', [], 'en') }}
                                     ({{ strtoupper(app()->getLocale()) }})
                                 </button>
                             </div>
@@ -356,8 +356,8 @@
                                 @foreach($locales as $lang)
                                     @if($lang != app()->getLocale())
                                         <li>
-                                            <a href="{{ '/lang/'.$lang }}"
-                                               class=""> @lang('menus.language-picker.langs.'.$lang)</a>
+                                            <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
+                                               class=""> {{ trans('menus.language-picker.langs.' . $lang, [], 'en') }}</a>
                                         </li>
                                     @endif
                                 @endforeach
@@ -373,7 +373,9 @@
 
 
         @yield('content')
-        @include('cookieConsent::index')
+        @if(view()->exists('cookieConsent::index'))
+            @include('cookieConsent::index')
+        @endif
         @include('frontend-rtl.layouts.partials.footer')
 
     </div><!-- #app -->

@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return array(
   'accepted' => 'يجب قبول السمة:',
   'active_url' => 'السمة: ليست عنوان URL صالحًا.',
   'after' => 'يجب أن تكون السمة: تاريخ بعد: تاريخ.',
@@ -9,36 +9,29 @@ return array (
   'alpha_dash' => ': قد تحتوي السمة على أحرف وأرقام وشرطات وشرطات سفلية فقط.',
   'alpha_num' => 'قد تحتوي السمة على أحرف وأرقام فقط.',
   'array' => 'يجب أن تكون السمة صفيف.',
-  'attributes' => 
-  array (
-    'backend' => 
-    array (
-      'access' => 
-      array (
-        'permissions' => 
-        array (
+  'attributes' => array(
+    'backend' => array(
+      'access' => array(
+        'permissions' => array(
           'associated_roles' => 'الأدوار المرتبطة',
           'dependencies' => 'تبعيات',
           'display_name' => 'اسم العرض',
           'first_name' => 'الاسم الاول',
           'group' => 'مجموعة',
           'group_sort' => 'ترتيب المجموعة',
-          'groups' => 
-          array (
+          'groups' => array(
             'name' => 'أسم المجموعة',
           ),
           'last_name' => 'الكنية',
           'name' => 'اسم',
           'system' => 'النظام',
         ),
-        'roles' => 
-        array (
+        'roles' => array(
           'associated_permissions' => 'أذونات المرتبطة',
           'name' => 'اسم',
           'sort' => 'فرز',
         ),
-        'users' => 
-        array (
+        'users' => array(
           'active' => 'نشيط',
           'associated_roles' => 'الأدوار المرتبطة',
           'confirmed' => 'تم تأكيد',
@@ -54,10 +47,8 @@ return array (
           'timezone' => 'وحدة زمنية',
         ),
       ),
-      'settings' => 
-      array (
-        'general_settings' => 
-        array (
+      'settings' => array(
+        'general_settings' => array(
           'app_locale' => 'لغة التطبيق',
           'app_name' => 'اسم التطبيق',
           'app_timezone' => 'التطبيق المنطقة الزمنية',
@@ -89,45 +80,38 @@ return array (
           'onesignal_code' => 'الصق شفرة البرنامج النصي OneSignal هنا',
           'show_offers' => 'عرض صفحة العروض',
         ),
-        'social_settings' => 
-        array (
-          'bitbucket' => 
-          array (
+        'social_settings' => array(
+          'bitbucket' => array(
             'client_id' => 'معرف العميل',
             'client_secret' => 'سر العميل',
             'redirect' => 'إعادة توجيه URL',
             'label' => 'Bitbucket حالة تسجيل الدخول',
           ),
-          'facebook' => 
-          array (
+          'facebook' => array(
             'client_id' => 'معرف العميل',
             'client_secret' => 'سر العميل',
             'redirect' => 'إعادة توجيه URL',
             'label' => 'فيسبوك حالة تسجيل الدخول',
           ),
-          'github' => 
-          array (
+          'github' => array(
             'client_id' => 'معرف العميل',
             'client_secret' => 'سر العميل',
             'redirect' => 'إعادة توجيه URL',
             'label' => 'جيثب حالة تسجيل الدخول',
           ),
-          'google' => 
-          array (
+          'google' => array(
             'client_id' => 'معرف العميل',
             'client_secret' => 'سر العميل',
             'label' => 'حالة تسجيل الدخول إلى Google',
             'redirect' => 'إعادة توجيه URL',
           ),
-          'linkedin' => 
-          array (
+          'linkedin' => array(
             'client_id' => 'معرف العميل',
             'client_secret' => 'سر العميل',
             'label' => 'LinkedIn حالة تسجيل الدخول',
             'redirect' => 'إعادة توجيه URL',
           ),
-          'twitter' => 
-          array (
+          'twitter' => array(
             'client_id' => 'معرف العميل',
             'client_secret' => 'سر العميل',
             'label' => 'حالة تسجيل الدخول إلى تويتر',
@@ -136,8 +120,7 @@ return array (
         ),
       ),
     ),
-    'frontend' => 
-    array (
+    'frontend' => array(
       'avatar' => 'الصورة الرمزية الموقع',
       'captcha' => 'كلمة التحقق المطلوبة',
       'email' => 'عنوان بريد الكتروني',
@@ -165,8 +148,7 @@ return array (
   ),
   'before' => 'يجب أن تكون السمة: تاريخ قبل: تاريخ.',
   'before_or_equal' => 'يجب أن تكون السمة: تاريخ قبل أو تساوي: تاريخ.',
-  'between' => 
-  array (
+  'between' => array(
     'array' => 'يجب أن تحتوي السمة: على: العناصر min و: max.',
     'file' => 'يجب أن تكون السمة: بين: min و: max كيلو بايت.',
     'numeric' => 'يجب أن تكون السمة بين: min و: max.',
@@ -174,10 +156,8 @@ return array (
   ),
   'boolean' => 'يجب أن يكون حقل السمة صواب أو خطأ.',
   'confirmed' => 'تأكيد السمة غير متطابق.',
-  'custom' => 
-  array (
-    'attribute-name' => 
-    array (
+  'custom' => array(
+    'attribute-name' => array(
       'rule-name' => 'رسالة مخصصة',
     ),
   ),
@@ -192,15 +172,13 @@ return array (
   'exists' => 'السمة المحددة: غير صالحة.',
   'file' => 'يجب أن تكون السمة ملف.',
   'filled' => 'يجب أن يحتوي حقل السمة على قيمة.',
-  'gt' => 
-  array (
+  'gt' => array(
     'array' => 'يجب أن تحتوي السمة: على أكثر من: عناصر القيمة.',
     'file' => 'يجب أن تكون السمة: أكبر من: قيمة كيلو بايت.',
     'numeric' => 'يجب أن تكون السمة: أكبر من: قيمة.',
     'string' => 'يجب أن تكون السمة: أكبر من: أحرف القيمة.',
   ),
-  'gte' => 
-  array (
+  'gte' => array(
     'array' => 'يجب أن تحتوي السمة: على عناصر قيمة أو أكثر.',
     'file' => 'يجب أن تكون السمة: أكبر من أو تساوي: قيمة الكيلوبايت.',
     'numeric' => 'يجب أن تكون السمة: أكبر من أو تساوي: value.',
@@ -214,22 +192,19 @@ return array (
   'ipv4' => 'يجب أن تكون السمة: عنوان IPv4 صالحًا.',
   'ipv6' => 'يجب أن تكون السمة: عنوان IPv6 صالحًا.',
   'json' => 'يجب أن تكون السمة: سلسلة JSON صالحة.',
-  'lt' => 
-  array (
+  'lt' => array(
     'array' => 'يجب أن تحتوي السمة: على أقل من: عناصر القيمة.',
     'file' => 'يجب أن تكون السمة: أقل من: قيمة كيلو بايت.',
     'numeric' => 'يجب أن تكون السمة: أقل من: قيمة.',
     'string' => 'يجب أن تكون السمة: أقل من: قيمة الأحرف.',
   ),
-  'lte' => 
-  array (
+  'lte' => array(
     'array' => 'يجب ألا تحتوي السمة: على أكثر من: عناصر القيمة.',
     'file' => 'يجب أن تكون السمة: أقل من أو تساوي: قيمة الكيلوبايت.',
     'numeric' => 'يجب أن تكون السمة: أقل من أو تساوي: value.',
     'string' => 'يجب أن تكون السمة: أقل من أو تساوي: أحرف القيمة.',
   ),
-  'max' => 
-  array (
+  'max' => array(
     'array' => 'قد لا تحتوي السمة: أكثر من: العناصر القصوى.',
     'file' => 'قد لا تكون السمة: أكبر من: كحد أقصى',
     'numeric' => 'قد لا تكون السمة: أكبر من:',
@@ -237,8 +212,7 @@ return array (
   ),
   'mimes' => 'يجب أن تكون السمة: ملف نوع:attribute قيم.',
   'mimetypes' => 'يجب أن تكون السمة: ملف نوع:attribute قيم.',
-  'min' => 
-  array (
+  'min' => array(
     'array' => 'يجب أن تحتوي السمة: على الأقل: عناصر دقيقة.',
     'file' => 'يجب أن تكون السمة: الأقل كيلوبايت.',
     'numeric' => 'يجب أن تكون السمة: min على الأقل.',
@@ -257,8 +231,7 @@ return array (
   'required_without' => 'حقل السمة: مطلوب عندما تكون القيم غير موجودة.',
   'required_without_all' => 'حقل السمة: مطلوب عند عدم وجود: من القيم.',
   'same' => 'السمة: و الأخرى يجب أن تتطابق.',
-  'size' => 
-  array (
+  'size' => array(
     'array' => 'يجب أن تحتوي السمة: عناصر الحجم.',
     'file' => 'يجب أن تكون السمة: size كيلوبايت.',
     'numeric' => 'يجب أن تكون السمة: size.',

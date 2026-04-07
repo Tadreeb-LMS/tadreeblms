@@ -37,7 +37,7 @@ class LoginController extends Controller
     public function redirectPath()
     {
         if (auth()->check() && auth()->user()->isAdmin()) {
-            return '/admin/dashboard';
+            return '/user/dashboard';
         }
 
         return route(home_route());
@@ -118,13 +118,15 @@ class LoginController extends Controller
         ], 422);
         }
 
-$credentials = [
-    'email' => $request->email,
-    'password' => $request->password,
-    'is_deleted' => 0
-];
+        $credentials = [
+            'email'      => $request->email,
+            'password'   => $request->password,
+            'is_deleted' => 0,
+        ];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
+            $request->session()->regenerate();
+
             $user = auth()->user();
 
             if ($user->hasRole('administrator')) {
@@ -194,6 +196,7 @@ $credentials = [
                 $user->assignRole('student');
 
                 LaravelAuth::login($user, $request->has('remember'));
+                $request->session()->regenerate();
 
                 $redirect = route('admin.dashboard');
 
@@ -231,7 +234,10 @@ $credentials = [
             throw new GeneralException(__('exceptions.frontend.auth.deactivated'));
         }
 
-        if (isset($user->employee_type)) {
+        if ($user->isAdmin()) {
+            // Admins should always land in the full sidebar mode.
+            Session::put('setvaluesession', 1);
+        } elseif (isset($user->employee_type)) {
             if (empty($user->employee_type)) {
                 Session::put('setvaluesession', 1);
             } elseif ($user->employee_type === 'internal') {
@@ -259,7 +265,7 @@ $credentials = [
         }
 
         if ($user->isAdmin()) {
-            return redirect('/admin/dashboard');
+            return redirect('/user/dashboard');
         }
 
         $redirect = $request->redirect_url ?? $this->redirectPath();

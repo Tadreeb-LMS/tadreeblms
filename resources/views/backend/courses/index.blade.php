@@ -22,7 +22,7 @@
    </h4>
    <div class="d-flex">
    <div class="">
-         <a href="{{ route('admin.courses.cms-course') }}" class="btn btn-outline-success create_done mr-3">@lang('View CME Course')</a>
+       <a href="{{ route('admin.courses.cms-course') }}" class="btn btn-outline-success create_done mr-3">{{ __('course_pages.admin_index.view_cme_course') }}</a>
 
      </div>
        @can('course_create')
@@ -54,35 +54,35 @@
             {{-- Advanced Filters Section --}}
             <div class="row mb-4">
                 <div class="col-md-3">
-                    <label for="filter_status" class="font-weight-bold">Status Filter</label>
+                    <label for="filter_status" class="font-weight-bold">{{ __('course_pages.admin_index.status_filter') }}</label>
                     <select id="filter_status" class="form-control">
-                        <option value="">All</option>
-                        <option value="published">Published</option>
-                        <option value="draft">Draft</option>
-                        <option value="expired">Expired</option>
+                        <option value="">{{ __('course_pages.admin_index.all') }}</option>
+                        <option value="published">{{ __('course_pages.admin_index.published') }}</option>
+                        <option value="draft">{{ __('course_pages.admin_index.draft') }}</option>
+                        <option value="expired">{{ __('course_pages.admin_index.expired') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="filter_category" class="font-weight-bold">Category Filter</label>
+                    <label for="filter_category" class="font-weight-bold">{{ __('course_pages.admin_index.category_filter') }}</label>
                     <select id="filter_category" class="form-control">
-                        <option value="">All Categories</option>
+                        <option value="">{{ __('course_pages.admin_index.all_categories') }}</option>
                         @foreach($categories as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="filter_teacher" class="font-weight-bold">Trainer Filter</label>
+                    <label for="filter_teacher" class="font-weight-bold">{{ __('course_pages.admin_index.trainer_filter') }}</label>
                     <select id="filter_teacher" class="form-control">
-                        <option value="">All Trainers</option>
+                        <option value="">{{ __('course_pages.admin_index.all_trainers') }}</option>
                         @foreach($teachers as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-3 align-self-end">
-                    <button id="btn_filter" class="btn btn-primary"><i class="fa fa-filter"></i> Apply Filter</button>
-                    <button id="btn_reset" class="btn btn-secondary"><i class="fa fa-undo"></i> Reset</button>
+                    <button id="btn_filter" class="btn btn-primary"><i class="fa fa-filter"></i> {{ __('course_pages.admin_index.apply_filter') }}</button>
+                    <button id="btn_reset" class="btn btn-secondary"><i class="fa fa-undo"></i> {{ __('course_pages.admin_index.reset') }}</button>
                 </div>
             </div>
 
@@ -115,12 +115,12 @@
 
 
 
-                            <th>@lang('CC')</th>
-                            <th>@lang('CL')</th>
+                            <th>{{ __('course_pages.admin_index.course_code') }}</th>
+                            <th>{{ __('course_pages.admin_index.course_language') }}</th>
                             <th>@lang('labels.backend.courses.fields.title')</th>
                             <!-- <th>@lang('Arabic Title')</th> -->
                             <th>@lang('labels.backend.courses.fields.category')</th>
-                            <th>Price</th>
+                            <th>@lang('labels.backend.courses.fields.price')</th>
                             
                             @if (Auth::user()->isAdmin())
                                
@@ -129,16 +129,16 @@
                               
                             @endif
                             {{-- <th>@lang('Assignment')</th> --}}
-                            <th>@lang('TSE')</th>
-                            <th>@lang('TD')</th>
+                            <th>{{ __('course_pages.admin_index.total_students_enrolled') }}</th>
+                            <th>{{ __('course_pages.admin_index.total_duration') }}</th>
                             <th>@lang('labels.backend.courses.fields.status')</th>
-                            <th>Start Date</th>
-<th>Expiry Date</th>
+                            <th>{{ __('course_pages.admin_index.start_date') }}</th>
+                            <th>{{ __('course_pages.admin_index.expiry_date') }}</th>
                             <th>@lang('labels.backend.courses.fields.qr_code')</th>
                             <th>@lang('labels.backend.lessons.title')</th>
-                            <th >@lang('Test')</th>
-                            <th>@lang('Assesment')</th>
-                            <th>@lang('FD')</th>
+                            <th>{{ __('course_pages.admin_index.test') }}</th>
+                            <th>{{ __('course_pages.admin_index.assessment') }}</th>
+                            <th>{{ __('course_pages.admin_index.feedback') }}</th>
                             @if (request('show_deleted') == 1)
                                 <th >@lang('strings.backend.general.actions')</th>
                             @else
@@ -159,13 +159,13 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Course Created</h5>
+                <h5 class="modal-title">{{ __('course_pages.admin_index.course_created') }}</h5>
             </div>
 
             <div class="modal-body text-center">
                 <p>
-                    Your Course has been created successfully.
-                    Would you like to assign this course to users?
+                    {{ __('course_pages.admin_index.course_created_success') }}
+                    {{ __('course_pages.admin_index.assign_course_prompt') }}
                 </p>
             </div>
 
@@ -173,12 +173,12 @@
 
           <a href="{{ route('admin.asmnt_0_withcourse') }}?course_id={{ session('course_id') }}"
    class="btn btn-success">
-   Yes, Assign Now
+    {{ __('course_pages.admin_index.yes_assign_now') }}
 </a>
 
                 <button type="button" class="btn btn-secondary"
                         data-dismiss="modal">
-                    I'll Assign Later
+                    {{ __('course_pages.admin_index.assign_later') }}
                 </button>
 
             </div>
@@ -418,6 +418,7 @@ window.addEventListener('load', function () {
                         pdf: '{{ trans('datatable.pdf') }}',
                         csv: '{{ trans('datatable.csv') }}',
                     },
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
                     search:"",
     
                 }
@@ -445,9 +446,9 @@ window.addEventListener('load', function () {
             tempInput.select();
             try {
                 document.execCommand('copy');
-                toastr.success('Link copied successfully');
+                toastr.success('{{ __('course_pages.admin_index.link_copied_success') }}');
             } catch (err) {
-                toastr.error('Failed to copy link. Please try later.');
+                toastr.error('{{ __('course_pages.admin_index.link_copy_failed') }}');
             }
             document.body.removeChild(tempInput);
         });

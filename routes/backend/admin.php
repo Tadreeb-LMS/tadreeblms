@@ -30,6 +30,8 @@ Route::get('setvaluesession/{type}', [DashboardController::class, 'setvaluesessi
 
 Route::group(['middleware' => ['role:administrator']], function () {
     Route::resource('roles', 'Admin\RolesController');
+    Route::resource('kpis', 'Admin\KpiController')->except(['show']);
+    Route::post('kpis/{kpi}/toggle-status', 'Admin\KpiController@toggleStatus')->name('kpis.toggle-status');
 });
 
 Route::group(['middleware' => 'role:teacher|administrator'], function () {
@@ -357,6 +359,7 @@ Route::post('courses_restore/{id}', ['uses' => 'Admin\CoursesController@restore'
 Route::delete('courses_perma_del/{id}', ['uses' => 'Admin\CoursesController@perma_del', 'as' => 'courses.perma_del']);
 Route::post('course-save-sequence', ['uses' => 'Admin\CoursesController@saveSequence', 'as' => 'courses.saveSequence']);
 Route::get('course-publish/{id}', ['uses' => 'Admin\CoursesController@publish', 'as' => 'courses.publish']);
+Route::post('courses/{id}/regenerate-meeting-links', ['uses' => 'Admin\CoursesController@regenerateMeetingLinks', 'as' => 'courses.regenerate_meeting_links']);
 Route::get('get-cms-data', 'Admin\CoursesController@getCmsData')->name('courses.get-cms-data');
 Route::get('cms-course', 'Admin\CoursesController@cmsCourse')->name('courses.cms-course');
 Route::get('exportCourseAsCsv', 'Admin\CoursesController@exportCourseAsCsv');

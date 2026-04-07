@@ -1,12 +1,11 @@
 <?php
 
-return array (
-  'nav-menu' => 
-  array (
+return array(
+  'nav-menu' => array(
     'about-us' => 'À propos de nous',
-    'blog' => 'Blog',
+    'blog' => 'Blogue',
     'bundles' => 'Liasses',
-    'contact' => 'Contact',
+    'contact' => 'Contacter',
     'courses' => 'Cours',
     'forums' => 'Les forums',
   ),

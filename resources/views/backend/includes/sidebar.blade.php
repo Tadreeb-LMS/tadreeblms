@@ -172,6 +172,15 @@
                     <span class="title">@lang('menus.backend.sidebar.position')</span>
                 </a>
             </li>
+            @if($logged_in_user->isAdmin())
+            <li class="nav-item ">
+                <a class="nav-link {{ $request->segment(2) == 'kpis' ? 'active' : '' }}"
+                    href="{{ route('admin.kpis.index') }}">
+                    <i class="nav-icon fa fa-bullseye"></i>
+                    <span class="title">KPI Management</span>
+                </a>
+            </li>
+            @endif
             @endif
             @if (null == Session::get('setvaluesession') ||
             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1,2,3])))
@@ -728,7 +737,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings/certificate-template*')) }}"
                             href="{{ route('admin.certificate-template-settings') }}">
-                            <span class="title"><i class="fas fa-certificate mr-1"></i>Certificate Template</span>
+                            <span class="title"><i class="fas fa-certificate mr-1"></i>@lang('menus.backend.sidebar.settings.certificate_template')</span>
                         </a>
                     </li>
 
@@ -748,7 +757,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/zoom/configure')) }}"
                             href="{{ route('admin.external-apps.edit-config', ['slug' => 'zoom']) }}">
-                            <span class="title">Zoom Configuration</span>
+                            <span class="title">@lang('menus.backend.sidebar.settings.zoom_configuration')</span>
                         </a>
                     </li>
                     @endif
@@ -756,7 +765,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/external-apps/google-meet-integration/configure')) }}"
                             href="{{ route('admin.external-apps.edit-config', ['slug' => 'google-meet-integration']) }}">
-                            <span class="title">Google Meet Configuration</span>
+                            <span class="title">@lang('menus.backend.sidebar.settings.google_meet_configuration')</span>
                         </a>
                     </li>
                     @endif
@@ -764,7 +773,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/s3-storage-settings*')) }}"
                             href="{{ route('admin.s3-storage-settings') }}">
-                            <span class="title"><i class="fas fa-cloud mr-1"></i>S3 Storage Settings</span>
+                            <span class="title"><i class="fas fa-cloud mr-1"></i>@lang('menus.backend.sidebar.settings.s3_storage_settings')</span>
                         </a>
                     </li>
                     @endif
@@ -792,6 +801,15 @@
                         <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/payment-gateways*')) }}"
                             href="{{ url('external-apps/payment-gateways/settings') }}">
                             <span class="title"><i class="fas fa-credit-card mr-1"></i>Payment Gateways</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if (!empty($enabledApps['hrms-integration-module']) && $enabledApps['hrms-integration-module'])
+                    <li class="nav-item">
+                        <a class="nav-link {{ active_class(Active::checkUriPattern('external-apps/hrms*')) }}"
+                            href="{{ route('admin.hrms.settings') }}">
+                            <span class="title"><i class="fas fa-network-wired mr-1"></i>HRMS Integrations</span>
                         </a>
                     </li>
                     @endif
