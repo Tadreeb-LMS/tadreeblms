@@ -135,6 +135,13 @@ Route::middleware(['auth'])->group(function () {
  */
 
 Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
+
+Route::post('course-feedback/add-questions', [CourseFeedbackController::class, 'addQuestionsToCourse'])
+    ->name('course-feedback.add-questions');
+
+Route::delete('/admin/course-feedback/delete/{id}', [CourseFeedbackController::class, 'deleteQuestion'])
+    ->name('admin.course-feedback.delete');
+
 Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
     ->name('course-feedback-questions.edit');
 
