@@ -256,7 +256,7 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
 
 
         </div>
-        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder4">
+        <a href="{{ route('admin.certificates.manage.index') }}" class="col-lg-2 dash-card mb-3 ml-3 leftBorder4" style="text-decoration: none; color: inherit;">
             <div class="d-flex justify-content-center">
                 <h5>
                     {{ $total_certificate_issued }}
@@ -276,7 +276,7 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
             </div>
 
 
-        </div>
+        </a>
     </div>
 
 </div>

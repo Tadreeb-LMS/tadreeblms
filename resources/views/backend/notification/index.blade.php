@@ -5,6 +5,7 @@
 @section('style')
 
 @endsection
+
 @push('after-styles')
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" rel="stylesheet" />
 <style>
@@ -18,8 +19,6 @@
         display: block;
     }
 
-
-
     .form-check-input {
         position: absolute;
         margin-top: 0.3rem;
@@ -27,98 +26,109 @@
     }
 
     .select2-container--default .select2-selection--single .select2-selection__arrow {
-    display: none !important;
-}
-   .select2-container .select2-search--inline .select2-search__field {
-    box-sizing: border-box;
-    border: none;
-    font-size: 100%;
-    margin-top: 5px;
-    padding-left: 8px;
-}
+        display: none !important;
+    }
 
-.select2-container--default .select2-selection--multiple:focus {
-    outline: none !important;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
-    border-color: #007bff !important;
-}
-.select2-container--default.select2-container--focus .select2-selection--multiple {
-     outline: none !important;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
-    border-color: #007bff !important;
-}
-.select2-container--default .select2-selection--multiple{
-    border: 1px solid #ccc !important;
-}
+    .select2-container .select2-search--inline .select2-search__field {
+        box-sizing: border-box;
+        border: none;
+        font-size: 100%;
+        margin-top: 5px;
+        padding-left: 8px;
+    }
 
-.select2-container--default .select2-selection--single {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-.select2-container--default .select2-selection--single .select2-selection__arrow b{
-    display: none;
-}
-.select2-container .select2-selection--single .select2-selection__rendered {
-    display: block;
-    padding-left: 10px;
-    padding-right: 20px;
-    padding-top: 1px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.select2-container .select2-selection--single {
-    box-sizing: border-box;
-    cursor: pointer;
-    display: block;
-    height: 32px;
-    user-select: none;
-    -webkit-user-select: none;
-}
+    .select2-container--default .select2-selection--multiple:focus {
+        outline: none !important;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
+        border-color: #007bff !important;
+    }
 
-.recipient-mode-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 14px 16px;
-    background: #fafafa;
-}
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        outline: none !important;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
+        border-color: #007bff !important;
+    }
 
-.recipient-source-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    align-items: center;
-}
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ccc !important;
+    }
 
-.recipient-source-option {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    font-weight: 500;
-}
+    .select2-container--default .select2-selection--single {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
 
-.recipient-source-disabled {
-    opacity: 0.55;
-}
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        display: none;
+    }
 
-.recipient-help {
-    margin-top: 8px;
-    color: #6b7280;
-    font-size: 0.9rem;
-}
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        display: block;
+        padding-left: 10px;
+        padding-right: 20px;
+        padding-top: 1px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .select2-container .select2-selection--single {
+        box-sizing: border-box;
+        cursor: pointer;
+        display: block;
+        height: 32px;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .recipient-mode-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 14px 16px;
+        background: #fafafa;
+    }
+
+    .recipient-source-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: center;
+    }
+
+    .recipient-source-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .recipient-source-disabled {
+        opacity: 0.55;
+    }
+
+    .recipient-help {
+        margin-top: 8px;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .ck-editor__editable {
+        height: 150px !important;
+    }
 </style>
 @endpush
+
 @section('content')
 <div class="pb-3">
     <h4 class="">{{ __('admin_pages.email_notifications.title') }}</h4>
 </div>
+
 <div class="card">
     <form action="{{ url('/user/send-email-notification') }}" method="post" class="ajax" enctype="multipart/form-data">
         <div class="card-body">
             <div class="row">
-
                 <div class="col-12">
 
                     <div class="form-group row mt-2">
@@ -152,10 +162,9 @@
                         <label class="col-lg-3 col-md-12 col-sm-12 form-control-label required"
                             for="test_id">{{ __('admin_pages.email_notifications.users') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 custom-select-wrapper">
-                            <select name="users[]" class="form-control custom-select-box select2 js-example-questions-placeholder-multiple"
-                                multiple>
+                            <select name="users[]" class="form-control custom-select-box select2 js-example-questions-placeholder-multiple" multiple>
                                 @foreach ($users as $row)
-                                <option value="{{ $row->id }}"> {{ $row->full_name }} </option>
+                                    <option value="{{ $row->id }}"> {{ $row->full_name }} </option>
                                 @endforeach
                             </select>
                             <span class="custom-select-icon" style="right: 23px;">
@@ -169,22 +178,21 @@
                             for="first_name">{{ __('admin_pages.email_notifications.select_department') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 custom-select-wrapper">
                             <select name="department_id" class="form-control custom-select-box select2 js-example-placeholder-single">
-                                <option value="" selected disabled> {{ __('admin_pages.email_notifications.select_one') }} </option>
+                                <option value="" selected disabled>{{ __('admin_pages.email_notifications.select_one') }}</option>
                                 @foreach ($departments as $row)
-                                <option value="{{ $row->id }}"> {{ $row->title }} </option>
+                                    <option value="{{ $row->id }}"> {{ $row->title }} </option>
                                 @endforeach
                             </select>
                             <span class="custom-select-icon" style="right: 23px;">
                                 <i class="fa fa-chevron-down"></i>
                             </span>
-                        </div><!--col-->
+                        </div>
                     </div>
 
                     <div class="form-group row mt-2 recipient-source-group" data-recipient-mode="import">
                         <label class="col-lg-3 col-md-12 col-sm-12 mb-4 form-control-label"
                             for="first_name">{{ __('admin_pages.email_notifications.import_users') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-4">
-
                             <div class="custom-file-upload-wrapper">
                                 <input type="file" name="import_users" id="customFileInput" class="custom-file-input ">
                                 <label for="customFileInput" class="custom-file-label">
@@ -199,7 +207,7 @@
                             for="first_name">{{ __('admin_pages.email_notifications.send_to_all_users') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
                             <input class="form-check-input" type="checkbox" value="1" id="select_all_users" name="select_all_users">
-                        </div><!--col-->
+                        </div>
                     </div>
 
                     <div class="form-group row mt-2">
@@ -223,6 +231,7 @@
                                 placeholder="{{ __('admin_pages.email_notifications.email_content_placeholder') }}"></textarea>
                         </div>
                     </div>
+
                     <div class="form-group justify-content-end row">
                         <button class="add-btn mr-3" type="submit">
                             <span class="btn-text">{{ __('admin_pages.email_notifications.send_notification') }}</span>
@@ -231,12 +240,14 @@
                             </span>
                         </button>
                     </div>
+
                 </div>
             </div>
         </div>
     </form>
 </div>
 @endsection
+
 @push('after-scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="/js/helpers/form-submit.js"></script>
@@ -285,10 +296,8 @@
         });
 
         ClassicEditor
-            .create($('#emailContent')[0]) // Use jQuery to select the element
+            .create($('#emailContent')[0])
             .then(editor => {
-                console.log('Editor initialized');
-                // Optionally store the editor instance for later use
                 $('#emailContent').data('editor', editor);
             })
             .catch(error => {
@@ -296,6 +305,7 @@
             });
     });
 </script>
+
 <script>
     document.querySelectorAll('.custom-file-input').forEach(function(input) {
         input.addEventListener('change', function(e) {
@@ -306,14 +316,3 @@
     });
 </script>
 @endpush
-<style>
-    .ck-editor__editable {
-        height: 150px !important;
-    }
-
-    .form-check-input {
-        position: absolute;
-        margin-top: 0.3rem;
-        margin-left: 0.75px !important;
-    }
-</style>
