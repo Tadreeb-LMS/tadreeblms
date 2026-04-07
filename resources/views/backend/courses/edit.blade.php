@@ -611,7 +611,7 @@
 
     <div class="col-md-6 d-none" id="price_field">
 
-        <label for="price" class="font-weight-bold">Course Price</label>
+        <label for="price" class="font-weight-bold">{{ __('labels.backend.courses.fields.price') }}</label>
 
         <div class="input-group price-box">
             <div class="input-group-prepend">

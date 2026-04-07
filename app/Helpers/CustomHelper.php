@@ -7,10 +7,11 @@ use App\Http\Controllers\LessonsController;
 use App\Models\Auth\User;
 use App\Models\Course;
 use App\Models\Category;
-use App\Models\courseAssignment;
+use App\Models\CourseAssignment;
 use App\Models\AssignmentQuestion;
 use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
+use App\Services\LmsEventRecorder;
 use Auth;
 use DB;
 use Carbon\Carbon;
@@ -639,6 +640,13 @@ class CustomHelper
                             ]
                         );
 
+                    app(LmsEventRecorder::class)->record(
+                        $user_id,
+                        LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                        ['course_id' => (int) $course_id, 'source' => 'assignment_progress'],
+                        Carbon::now()
+                    );
+
                     // Send course completed notification
                     try {
                         $notificationSettings = app(\App\Services\NotificationSettingsService::class);
@@ -662,9 +670,8 @@ class CustomHelper
         return $total_plus;
     }
 
-    public static function courseProgress($course_id, $user_id = 0)
+        public static function courseProgress($course_id, $user_id = 0)
     {
-
         if ($user_id == 0) {
             $user_id = Auth::user()->id;
         }
@@ -672,6 +679,7 @@ class CustomHelper
         $total_lessons = Lesson::where('course_id', $course_id)->where('published', 1)->pluck('id');
         $total_lessons_count = count($total_lessons);
         $total_lessons_completes = 0;
+
         foreach ($total_lessons as $lesson) {
             $lessonStatusEmployee = self::lessonStatusEmployee(0, $lesson, $course_id, $user_id);
             if ($lessonStatusEmployee == 'Completed') {
@@ -687,6 +695,7 @@ class CustomHelper
         $courseController = new LessonsController;
         $hasAssessmentLink = $courseController->hasAssessmentLink($course_id, $user_id);
         $courseFeedbackLink = $courseController->courseFeedbackLink($course_id);
+
         if (!$hasAssessmentLink && !$courseFeedbackLink && $total_lessons_count == 0) {
             $total_plus = 100;
         }
@@ -704,20 +713,26 @@ class CustomHelper
                 $wasCompleted = (int) $subscription->is_completed === 1;
                 $now = Carbon::now();
 
-                DB::table('subscribe_courses')->where('course_id', $course_id)
-                    ->where('user_id', $user_id)
-                    ->update([
-                        'is_completed' => 1,
-                        'completed_at' => $now->format('Y-m-d H:i:s'),
-                        'course_progress_status' => 2,
-                        'assignment_progress' => 100,
-                    ]);
+                $updateData = [
+                    'course_progress_status' => 2,
+                    'assignment_progress' => 100,
+                ];
 
-                // Keep completion and certificate flags aligned with current rules.
+                if (! $wasCompleted) {
+                    $updateData['is_completed'] = 1;
+                    $updateData['completed_at'] = $now->format('Y-m-d H:i:s');
+                }
+
+                DB::table('subscribe_courses')
+                    ->where('course_id', $course_id)
+                    ->where('user_id', $user_id)
+                    ->update($updateData);
+
                 self::updateGrantCertificate($course_id, $user_id);
 
                 $subscription->refresh();
-                if (!$wasCompleted && (int) $subscription->is_completed === 1) {
+
+                if (! $wasCompleted && (int) $subscription->is_completed === 1) {
                     app(LmsEventRecorder::class)->record(
                         $user_id,
                         LmsEventRecorder::TYPE_COURSE_COMPLETED,
@@ -827,7 +842,7 @@ class CustomHelper
     {
 
         if (Auth::user()) {
-            $is_course_assigned = courseAssignment::where('course_id', $course_id)->whereRaw("FIND_IN_SET(?, assign_to)", [Auth::user()->id])->count();
+            $is_course_assigned = CourseAssignment::where('course_id', $course_id)->whereRaw("FIND_IN_SET(?, assign_to)", [Auth::user()->id])->count();
             //dd($is_course_assigned);
             if ($is_course_assigned > 0) {
                 return 1;
@@ -1071,7 +1086,7 @@ class CustomHelper
 
     public static function syncCourseAssignmentAndSubscribeCourseData()
     {
-        $cas = courseAssignment::get();
+        $cas = CourseAssignment::get();
 
         foreach ($cas as $ca) {
             if (strpos($ca->assign_to, ',') !== false) {

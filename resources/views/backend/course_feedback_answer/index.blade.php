@@ -1,6 +1,6 @@
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
-@section('title', __('User Feedback Answers') . ' | ' . app_name())
+@section('title', __('user_feedback.feedback_answers.title') . ' | ' . app_name())
 @push('after-styles')
 <style>
     .feedback-filters {
@@ -110,7 +110,7 @@
 
 <div>
     <div class="grow pb-3">
-                <h4 class="text-20"> @lang('User Feedback Answer')</h4>
+                <h4 class="text-20"> {{ __('user_feedback.feedback_answers.title') }}</h4>
               </div>
               <div class="card">
                    
@@ -120,12 +120,12 @@
                   <div class="card-body">
                       <div class="feedback-filters">
                           <div class="d-flex align-items-center mb-3">
-                              <h5 class="feedback-filters-title mb-0">Filters</h5>
+                              <h5 class="feedback-filters-title mb-0">{{ __('user_feedback.feedback_answers.filters') }}</h5>
                           </div>
 
                           <div class="row mb-2">
                               <div class="col-12 col-lg-4 form-group">
-                                  <label for="filter_course_ids" class="control-label">Courses</label>
+                                  <label for="filter_course_ids" class="control-label">{{ __('user_feedback.feedback_answers.courses') }}</label>
                                   <select name="filter_course_ids[]" id="filter_course_ids" class="form-control custom-select-box js-example-placeholder-courses select2" multiple>
                                       @foreach($courses as $courseId => $courseName)
                                           <option value="{{ $courseId }}">{{ $courseName }}</option>
@@ -134,7 +134,7 @@
                               </div>
 
                               <div class="col-12 col-lg-4 form-group">
-                                  <label for="filter_user_ids" class="control-label">Users</label>
+                                  <label for="filter_user_ids" class="control-label">{{ __('user_feedback.feedback_answers.users') }}</label>
                                   <select name="filter_user_ids[]" id="filter_user_ids" class="form-control custom-select-box js-example-placeholder-multiple select2" multiple>
                                       @foreach($users as $userId => $userName)
                                           <option value="{{ $userId }}">{{ $userName }}</option>
@@ -143,12 +143,12 @@
                               </div>
 
                               <div class="col-6 col-lg-2 form-group">
-                                  <label for="filter_date_from" class="control-label">From Date</label>
+                                  <label for="filter_date_from" class="control-label">{{ __('user_feedback.feedback_answers.from_date') }}</label>
                                   <input type="date" id="filter_date_from" class="form-control" autocomplete="off">
                               </div>
 
                               <div class="col-6 col-lg-2 form-group">
-                                  <label for="filter_date_to" class="control-label">To Date</label>
+                                  <label for="filter_date_to" class="control-label">{{ __('user_feedback.feedback_answers.to_date') }}</label>
                                   <input type="date" id="filter_date_to" class="form-control" autocomplete="off">
                               </div>
                           </div>
@@ -160,9 +160,9 @@
                                           <path d="M7.25 2.25h5.1L16 5.9v10.6a1.25 1.25 0 0 1-1.25 1.25h-7.5A1.25 1.25 0 0 1 6 16.5V3.5a1.25 1.25 0 0 1 1.25-1.25Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
                                           <path d="M12.25 2.5V5.75H15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                       </svg>
-                                      <span>Download as Excel</span>
+                                      <span>{{ __('user_feedback.feedback_answers.download_excel') }}</span>
                                   </a>
-                                  <button type="button" id="reset-filters" class="btn btn-reset-filters">Reset Filters</button>
+                                  <button type="button" id="reset-filters" class="btn btn-reset-filters">{{ __('user_feedback.feedback_answers.reset_filters') }}</button>
                               </div>
                           </div>
                       </div>
@@ -172,11 +172,11 @@
                               class="table dt-select custom-teacher-table table-striped @can('lesson_delete') @if (request('show_deleted') != 1) dt-select @endif @endcan">
                               <thead>
                                   <tr>
-                                      <th>S. No.</th>
-                                      <th>User Name</th>
-                                      <th>Course Name</th>
-                                      <th>Submitted On</th>
-                                      <th>Detail</th>
+                                      <th>{{ __('user_feedback.feedback_answers.serial_no') }}</th>
+                                      <th>{{ __('user_feedback.feedback_answers.user_name') }}</th>
+                                      <th>{{ __('user_feedback.feedback_answers.course_name') }}</th>
+                                      <th>{{ __('user_feedback.feedback_answers.submitted_on') }}</th>
+                                      <th>{{ __('user_feedback.feedback_answers.detail') }}</th>
                                   </tr>
                               </thead>
                               <tbody>
@@ -194,11 +194,11 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">Feedback Detail</h5>
+            <h5 class="modal-title">{{ __('user_feedback.feedback_answers.feedback_detail') }}</h5>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-            <p id="feedback-content">Loading...</p>
+            <p id="feedback-content">{{ __('user_feedback.feedback_answers.loading') }}</p>
         </div>
         </div>
     </div>
@@ -308,6 +308,7 @@
                     }
                 ],
                 language:{
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
                     search:"",
     //                               paginate: {
     //     previous: '<i class="fa fa-angle-left"></i>',

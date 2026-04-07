@@ -42,9 +42,9 @@
                 <div class="col-md-6">
                     <h3 class="title">{{ $lessons_list->title }}</h3>
                     <p class="desc">{!! $lessons_list->short_text !!}</p>
-                    <h4 class="title">Course:{{ $lessons_list->course->title }}</h4>
-                    <p class="desc">Date: {{ date('d/m/Y h:i A',strtotime($lessons_list->lesson_start_date)) }}</p>
-                    <p class="desc">Duration: {{ $lessons_list->duration }}</p>
+                    <h4 class="title">{{ __('attendance_pages.attendance.course') }} {{ $lessons_list->course->title }}</h4>
+                    <p class="desc">{{ __('attendance_pages.attendance.date') }} {{ date('d/m/Y h:i A',strtotime($lessons_list->lesson_start_date)) }}</p>
+                    <p class="desc">{{ __('attendance_pages.attendance.duration') }} {{ $lessons_list->duration }}</p>
                     @if ($lessons_list->course->course_image)
                         <img width="300" height="80" src="{{ asset('storage/uploads/'.$lessons_list->course->course_image) }}" class="mt-1">
                     @endif
@@ -67,11 +67,11 @@
                         <input type="hidden" name="course_id" value="{{ $lessons_list->course_id }}" />
                         <input type="hidden" name="lesson_id" value="{{ $lessons_list->id }}" />
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Enter Your Email address</label>
-                            <input type="email"  class="form-control" name="email" id="email" placeholder="Enter email">
-                            <small id="emailHelp" class="form-text text-muted">Please mark your attendance here.</small>
+                            <label for="exampleInputEmail1">{{ __('attendance_pages.attendance.email_address') }}</label>
+                            <input type="email"  class="form-control" name="email" id="email" placeholder="{{ __('attendance_pages.attendance.email_address') }}">
+                            <small id="emailHelp" class="form-text text-muted">{{ __('attendance_pages.attendance.help_text') }}</small>
                         </div>
-                        <button type="submit" class="btn btn-primary">Mark Present</button>
+                        <button type="submit" class="btn btn-primary">{{ __('attendance_pages.attendance.mark_present') }}</button>
                     </form>
                 </div>
                 

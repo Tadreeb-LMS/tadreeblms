@@ -171,7 +171,7 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
 
                             @endif
                         @else
-                            <a onclick="openLogin()" href="#" class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold">Please login to continue</a>            
+                            <a onclick="openLogin()" href="#" class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold">{{ __('auth_pages.login.login_to_continue') }}</a>            
                         @endif
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', 'Employee' . ' | ' . app_name())
+@section('title', __('admin_pages.employee.page_title') . ' | ' . app_name())
 @push('after-styles')
     <link rel="stylesheet" href="{{ asset('assets/css/colors/switch.css') }}">
        <style>
@@ -99,14 +99,14 @@
 <div>
     <div class="d-flex justify-content-between pb-3">
         <div class="grow">
-            <h4 class="text-20">@lang('Trainee')</h4>
+            <h4 class="text-20">{{ __('admin_pages.employee.title') }}</h4>
         </div>
 
         @can('trainee_create')
         <div>
             <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.employee.index')]) }}">
                 <button type="button" class="add-btn">
-                    Add More Trainees
+                    {{ __('admin_pages.employee.add_more_trainees') }}
                 </button>
             </a>
         </div>
@@ -119,7 +119,7 @@
 
                 <!-- IMPORT FORM -->
                 <div class="col-lg-6 col-sm-12 mb-4">
-                    <h6>@lang('Import Department')</h6>
+                    <h6>{{ __('admin_pages.employee.import_department') }}</h6>
                     <form method="POST" action="{{ route('admin.employee.import') }}" enctype="multipart/form-data">
     @csrf
 
@@ -127,11 +127,11 @@
         <input type="file" name="import_file"  id="importFileInput" class="form-control form-control-sm">
        
         <button type="submit" class="btn btn-primary btn-sm">
-            Import
+            {{ __('admin_pages.employee.import') }}
         </button>
 
         <a href="{{ route('employee.sample') }}" class="btn btn-outline-secondary btn-sm">
-            Download Sample Excel
+            {{ __('admin_pages.employee.download_sample_excel') }}
         </a>
     </div>
 </form>
@@ -170,13 +170,13 @@
                             @endif
                         @endcan
 
-                        <th>@lang('SL NO')</th>
-                        <th>@lang('Employee Id')</th>
+                        <th>{{ __('labels.general.sr_no') }}</th>
+                        <th>{{ __('admin_pages.employee.employee_id') }}</th>
                         <th>@lang('labels.backend.teachers.fields.first_name')</th>
                         <th>@lang('labels.backend.teachers.fields.last_name')</th>
                         <th>@lang('labels.backend.teachers.fields.email')</th>
-                        <th>@lang('Department')</th>
-                        <th>@lang('Position')</th>
+                        <th>{{ __('admin_pages.auth_users.department') }}</th>
+                        <th>{{ __('position_pages.table.position_name') }}</th>
                         @if(request('show_deleted') != 1)
                         <th>@lang('labels.backend.teachers.fields.status')</th>
                         @endif
@@ -197,7 +197,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Reset password</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">{{ __('admin_pages.employee.reset_password') }}</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -205,10 +205,10 @@
 
                 <div class="modal-body">
                     <form action="" id="password-reset-form">
-                        <h4>Are you sure you want to reset the password for <span class="email"></span>?</h4>
+                        <h4>{{ __('admin_pages.employee.reset_password_confirm') }} <span class="email"></span>?</h4>
 
                         <div class="form-group m-0">
-                            <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                            <button type="submit" class="btn btn-primary">{{ __('admin_pages.employee.send_reset_link') }}</button>
                         </div>
                     </form>
                 </div>
@@ -328,6 +328,7 @@
                         pdf: '{{ trans('datatable.pdf') }}',
                         csv: '{{ trans('datatable.csv') }}',
                     },
+                    emptyTable: '{{ __('admin_pages.employee.no_data_available') }}',
                     search:"",
     //                              paginate: {
     //     previous: '<i class="fa fa-angle-left"></i>',
@@ -351,8 +352,8 @@ $(document).on('click', '.switch-input', function (e) {
     let isChecked = checkbox.is(':checked');
 
     let message = isChecked
-        ? 'Do you want to activate this user?'
-        : 'Do you want to deactivate this user?';
+        ? '{{ __('admin_pages.employee.activate_user_confirm') }}'
+        : '{{ __('admin_pages.employee.deactivate_user_confirm') }}';
 
     if (!confirm(message)) {
         // revert toggle state if cancelled
@@ -371,7 +372,7 @@ $(document).on('click', '.switch-input', function (e) {
             $('#myTable').DataTable().ajax.reload(null, false);
         },
         error: function () {
-            alert('Something went wrong');
+            alert('{{ __('admin_pages.employee.something_went_wrong') }}');
             checkbox.prop('checked', !isChecked);
         }
     });
@@ -396,7 +397,7 @@ $(document).on('click', '.switch-input', function (e) {
                     type: "get",
                     url: $('#password-reset-form').attr('action'),
                     success: function(response) {
-                        alert('Password reset link sent successfully');
+                        alert('{{ __('admin_pages.employee.password_reset_link_sent') }}');
                         $('#resetPasswordModal').modal('hide');
                     }
                 });
@@ -408,7 +409,7 @@ $(document).on('click', '.switch-input', function (e) {
     document.querySelectorAll('.custom-file-input').forEach(function(input) {
         input.addEventListener('change', function(e) {
             const label = input.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
+            const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('admin_pages.employee.choose_file') }}';
             label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
         });
     });

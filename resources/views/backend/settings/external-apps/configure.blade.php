@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Configure ' . $app->name)
+@section('title', __('external_apps.external_apps.configure_title', ['name' => $app->name]))
 
 @section('content')
 <div class="container-fluid">
@@ -10,12 +10,12 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">
-                            <i class="fas fa-cog mr-2"></i>Configure {{ $app->name }}
+                            <i class="fas fa-cog mr-2"></i>{{ __('external_apps.external_apps.configure_title', ['name' => $app->name]) }}
                         </h4>
                         <div>
                             @if ($app->slug === 'interactive-whiteboard' && $app->is_enabled)
                                 <a href="{{ url('external-apps/whiteboard/dashboard') }}" class="btn btn-sm btn-info mr-2">
-                                    <i class="fas fa-tachometer-alt mr-1"></i> Open Whiteboard Dashboard
+                                    <i class="fas fa-tachometer-alt mr-1"></i> {{ __('external_apps.external_apps.open_whiteboard_dashboard') }}
                                 </a>
                             @endif
                             <span class="badge badge-{{ $app->getStatusBadge() }}">{{ ucfirst($app->status) }}</span>
@@ -39,24 +39,24 @@
 
                     {{-- Module info summary --}}
                     <div class="alert alert-info mb-4">
-                        <h5><i class="fas fa-info-circle mr-2"></i>Module Information</h5>
+                        <h5><i class="fas fa-info-circle mr-2"></i>{{ __('external_apps.external_apps.module_info') }}</h5>
                         <table class="table table-sm mb-0">
-                            <tr><td><strong>Name:</strong></td><td>{{ $app->name }}</td></tr>
-                            <tr><td><strong>Version:</strong></td><td>{{ $app->version ?? 'N/A' }}</td></tr>
+                            <tr><td><strong>{{ __('external_apps.external_apps.name') }}:</strong></td><td>{{ $app->name }}</td></tr>
+                            <tr><td><strong>{{ __('external_apps.external_apps.version') }}:</strong></td><td>{{ $app->version ?? 'N/A' }}</td></tr>
                             <tr>
-                                <td><strong>Status:</strong></td>
+                                <td><strong>{{ __('external_apps.external_apps.status') }}:</strong></td>
                                 <td><span class="badge badge-{{ $app->getStatusBadge() }}">{{ ucfirst($app->status) }}</span></td>
                             </tr>
                             <tr>
-                                <td><strong>Enabled:</strong></td>
+                                <td><strong>{{ __('external_apps.external_apps.enabled_label') }}:</strong></td>
                                 <td>
                                     <span class="badge {{ $app->is_enabled ? 'badge-success' : 'badge-secondary' }}">
-                                        {{ $app->is_enabled ? 'Yes' : 'No' }}
+                                        {{ $app->is_enabled ? __('external_apps.external_apps.yes') : __('external_apps.external_apps.no') }}
                                     </span>
                                 </td>
                             </tr>
                             <tr>
-                                <td><strong>Credentials stored in:</strong></td>
+                                <td><strong>{{ __('external_apps.external_apps.credentials_stored_in') }}:</strong></td>
                                 <td>
                                     <code class="text-muted" style="font-size:.85em;">
                                         {{ $app->installed_path }}/.env
@@ -77,9 +77,9 @@
                         @if (!empty($fields))
                             <h5 class="mb-4 d-flex align-items-center">
                                 <i class="fas fa-sliders-h mr-2 text-primary"></i>
-                                Configuration Settings
+                                {{ __('external_apps.external_apps.configuration_settings') }}
                                 <small class="ml-2 text-muted" style="font-size:.75rem;">
-                                    (stored in module .env)
+                                    {{ __('external_apps.external_apps.stored_in_module_env') }}
                                 </small>
                             </h5>
 
@@ -122,7 +122,7 @@
                                                        name="{{ $key }}"
                                                        value="1"
                                                        {{ $currentVal ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="field_{{ $key }}">Enabled</label>
+                                                <label class="custom-control-label" for="field_{{ $key }}">{{ __('external_apps.external_apps.enabled') }}</label>
                                             </div>
                                         @elseif ($type === 'textarea')
                                             <textarea class="form-control"
@@ -147,7 +147,7 @@
                         @else
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                                No configuration fields defined for this module.
+                                {{ __('external_apps.external_apps.no_configuration_fields') }}
                             </div>
                         @endif
 
@@ -155,17 +155,17 @@
                             <hr class="mt-4 mb-4">
                             <h5 class="mb-4 d-flex align-items-center">
                                 <i class="fas fa-plug mr-2 text-primary"></i>
-                                Test Connection
+                                {{ __('external_apps.external_apps.test_connection') }}
                             </h5>
                             <div class="alert alert-info" role="alert">
                                 <i class="fas fa-info-circle mr-2"></i>
-                                Click the button below to test if the {{ $app->name }} API credentials provided above are working correctly. You do not need to save the configuration first.
+                                {{ __('external_apps.external_apps.test_connection_info', ['name' => $app->name]) }}
                             </div>
                             <div id="testConnectionAlertContainer"></div>
                             <div class="row">
                                 <div class="col text-left">
                                     <button type="button" class="btn btn-info" id="btnTestConnection">
-                                        <i class="fas fa-link mr-1"></i> Test {{ $app->name }} Connection
+                                        <i class="fas fa-link mr-1"></i> {{ __('external_apps.external_apps.test_connection_button', ['name' => $app->name]) }}
                                     </button>
                                 </div>
                             </div>
@@ -178,12 +178,12 @@
                         <div class="row">
                             <div class="col text-left">
                                 <a href="{{ route('admin.external-apps.index') }}" class="btn btn-secondary">
-                                    Back
+                                    {{ __('external_apps.external_apps.back_short') }}
                                 </a>
                             </div>
                             <div class="col text-right">
                                 <button type="submit" class="btn btn-primary px-4">
-                                    <i class="fas fa-save mr-1"></i>Save Configuration
+                                    <i class="fas fa-save mr-1"></i>{{ __('external_apps.external_apps.save_configuration') }}
                                 </button>
                             </div>
                         </div>
@@ -226,11 +226,11 @@ $(document).ready(function () {
         var clientSecret = $('#field_ZOOM_CLIENT_SECRET').val();
 
         if (!accountId || !clientId || !clientSecret) {
-            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in Account ID, Client ID, and Client Secret before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>{{ __('external_apps.external_apps.zoom_required_fields') }}<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
             return;
         }
 
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>{{ __('external_apps.external_apps.testing') }}');
 
         $.ajax({
             url: '{{ url("external-apps/zoom/test-connection") }}',
@@ -246,7 +246,7 @@ $(document).ready(function () {
                 btn.prop('disabled', false).html(btnHtml);
             },
             error: function(xhr) {
-                var msg = 'Failed to connect to Zoom API.';
+                var msg = '{{ __('external_apps.external_apps.zoom_connect_failed') }}';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }
@@ -273,11 +273,11 @@ $(document).ready(function () {
         var serviceAccount = $('#field_GOOGLE_SERVICE_ACCOUNT_JSON').val();
 
         if (!clientId || (!clientSecret && !serviceAccount)) {
-            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in Client ID along with either the Client Secret or Service Account JSON before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>{{ __('external_apps.external_apps.google_required_fields') }}<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
             return;
         }
 
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>{{ __('external_apps.external_apps.testing') }}');
 
         $.ajax({
             url: '{{ url("external-apps/google-meet-integration/test-connection") }}',
@@ -294,7 +294,7 @@ $(document).ready(function () {
                 btn.prop('disabled', false).html(btnHtml);
             },
             error: function(xhr) {
-                var msg = 'Failed to connect to Google API.';
+                var msg = '{{ __('external_apps.external_apps.google_connect_failed') }}';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }
@@ -320,11 +320,11 @@ $(document).ready(function () {
         var clientSecret = $('#field_TEAMS_CLIENT_SECRET').val();
 
         if (!tenantId || !clientId || !clientSecret) {
-            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in Tenant ID, Client ID, and Client Secret before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>{{ __('external_apps.external_apps.teams_required_fields') }}<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
             return;
         }
 
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>{{ __('external_apps.external_apps.testing') }}');
 
         $.ajax({
             url: '{{ url("external-apps/teams/test-connection") }}',
@@ -340,7 +340,7 @@ $(document).ready(function () {
                 btn.prop('disabled', false).html(btnHtml);
             },
             error: function(xhr) {
-                var msg = 'Failed to connect to Microsoft Graph API.';
+                var msg = '{{ __('external_apps.external_apps.teams_connect_failed') }}';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }
@@ -367,11 +367,11 @@ $(document).ready(function () {
         var appCluster = $('#field_PUSHER_APP_CLUSTER').val();
 
         if (!appId || !appKey || !appSecret || !appCluster) {
-            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>Please fill in App ID, Key, Secret, and Cluster before testing.<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
+            alertContainer.html('<div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-exclamation-triangle mr-2"></i>{{ __('external_apps.external_apps.whiteboard_required_fields') }}<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>');
             return;
         }
 
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>{{ __('external_apps.external_apps.testing') }}');
 
         $.ajax({
             url: '{{ url("external-apps/whiteboard/test-connection") }}',
@@ -388,7 +388,7 @@ $(document).ready(function () {
                 btn.prop('disabled', false).html(btnHtml);
             },
             error: function(xhr) {
-                var msg = 'Failed to connect to Pusher API.';
+                var msg = '{{ __('external_apps.external_apps.whiteboard_connect_failed') }}';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     msg = xhr.responseJSON.message;
                 }

@@ -125,6 +125,8 @@ class LoginController extends Controller
         ];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
+            $request->session()->regenerate();
+
             $user = auth()->user();
 
             if ($user->hasRole('administrator')) {
@@ -194,6 +196,7 @@ class LoginController extends Controller
                 $user->assignRole('student');
 
                 LaravelAuth::login($user, $request->has('remember'));
+                $request->session()->regenerate();
 
                 $redirect = route('admin.dashboard');
 
@@ -231,7 +234,10 @@ class LoginController extends Controller
             throw new GeneralException(__('exceptions.frontend.auth.deactivated'));
         }
 
-        if (isset($user->employee_type)) {
+        if ($user->isAdmin()) {
+            // Admins should always land in the full sidebar mode.
+            Session::put('setvaluesession', 1);
+        } elseif (isset($user->employee_type)) {
             if (empty($user->employee_type)) {
                 Session::put('setvaluesession', 1);
             } elseif ($user->employee_type === 'internal') {

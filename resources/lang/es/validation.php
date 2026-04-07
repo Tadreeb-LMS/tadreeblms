@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return array(
   'accepted' => 'El atributo: debe ser aceptado.',
   'active_url' => 'El atributo: no es una URL válida.',
   'after' => 'El atributo: debe ser una fecha después de: fecha.',
@@ -11,8 +11,7 @@ return array (
   'array' => 'El atributo: debe ser una matriz.',
   'before' => 'El atributo: debe ser una fecha anterior a: fecha.',
   'before_or_equal' => 'El atributo: debe ser una fecha anterior o igual a la fecha.',
-  'between' => 
-  array (
+  'between' => array(
     'numeric' => 'El atributo: debe estar entre: min y: max.',
     'file' => 'El atributo: debe estar entre: mínimo y: máximo de kilobytes.',
     'string' => 'El atributo: debe estar entre: min y: max caracteres.',
@@ -31,15 +30,13 @@ return array (
   'exists' => 'El atributo seleccionado: no es válido.',
   'file' => 'El atributo: debe ser un archivo.',
   'filled' => 'El campo: atributo debe tener un valor.',
-  'gt' => 
-  array (
+  'gt' => array(
     'numeric' => 'El atributo: debe ser mayor que: valor.',
     'file' => 'El atributo: debe ser mayor que: valor de kilobytes.',
     'string' => 'El atributo: debe ser mayor que: caracteres de valor.',
     'array' => 'El atributo: debe tener más de: elementos de valor.',
   ),
-  'gte' => 
-  array (
+  'gte' => array(
     'numeric' => 'El atributo: debe ser mayor o igual que el valor.',
     'file' => 'El atributo: debe ser mayor o igual que el valor de kilobytes.',
     'string' => 'El atributo: debe ser mayor o igual que los caracteres de valor.',
@@ -53,30 +50,26 @@ return array (
   'ipv4' => 'El atributo: debe ser una dirección IPv4 válida.',
   'ipv6' => 'El atributo: debe ser una dirección IPv6 válida.',
   'json' => 'El atributo: debe ser una cadena JSON válida.',
-  'lt' => 
-  array (
+  'lt' => array(
     'numeric' => 'El atributo: debe ser menor que: valor.',
     'file' => 'El atributo: debe ser menor que: valor de kilobytes.',
     'string' => 'El atributo: debe ser menor que: caracteres de valor.',
     'array' => 'El atributo: debe tener menos de: elementos de valor.',
   ),
-  'lte' => 
-  array (
+  'lte' => array(
     'numeric' => 'El atributo: debe ser menor o igual que el valor.',
     'file' => 'El atributo: debe ser menor o igual que el valor de kilobytes.',
     'string' => 'El atributo: debe ser menor o igual que el valor de los caracteres.',
     'array' => 'El atributo: no debe tener más de: elementos de valor.',
   ),
-  'max' => 
-  array (
+  'max' => array(
     'numeric' => 'El atributo: no puede ser mayor que: max.',
     'file' => 'El atributo: no puede ser mayor que: max kilobytes.',
     'string' => 'El atributo: no puede ser mayor que: max caracteres.',
     'array' => 'El atributo: no puede tener más de: elementos máximos.',
   ),
   'mimes' => 'El atributo: debe ser un archivo de tipo: valores.',
-  'min' => 
-  array (
+  'min' => array(
     'numeric' => 'El atributo: debe ser al menos: min.',
     'file' => 'El atributo: debe ser al menos: kilobytes mínimos.',
     'string' => 'El atributo: debe tener al menos: min caracteres.',
@@ -95,8 +88,7 @@ return array (
   'required_without' => 'El campo: atributo es obligatorio cuando: los valores no están presentes.',
   'required_without_all' => 'El campo: atributo es obligatorio cuando ninguno de los valores está presente.',
   'same' => 'El: atributo y: otro debe coincidir.',
-  'size' => 
-  array (
+  'size' => array(
     'numeric' => 'El atributo: debe ser: tamaño.',
     'file' => 'El atributo: debe ser: kilobytes de tamaño.',
     'string' => 'El atributo: debe ser: caracteres de tamaño.',
@@ -108,28 +100,21 @@ return array (
   'uploaded' => 'El atributo: no se pudo cargar.',
   'url' => 'El formato de atributo: no es válido.',
   'uuid' => 'El atributo: debe ser un UUID válido.',
-  'custom' => 
-  array (
-    'attribute-name' => 
-    array (
+  'custom' => array(
+    'attribute-name' => array(
       'rule-name' => 'mensaje personalizado',
     ),
   ),
-  'attributes' => 
-  array (
-    'backend' => 
-    array (
-      'access' => 
-      array (
-        'permissions' => 
-        array (
+  'attributes' => array(
+    'backend' => array(
+      'access' => array(
+        'permissions' => array(
           'associated_roles' => 'Roles asociados',
           'dependencies' => 'Dependencias',
           'display_name' => 'Nombre para mostrar',
           'group' => 'Grupo',
           'group_sort' => 'Grupo de clasificación',
-          'groups' => 
-          array (
+          'groups' => array(
             'name' => 'Nombre del grupo',
           ),
           'name' => 'Nombre',
@@ -137,14 +122,12 @@ return array (
           'last_name' => 'Apellido',
           'system' => 'Sistema',
         ),
-        'roles' => 
-        array (
+        'roles' => array(
           'associated_permissions' => 'Permisos asociados',
           'name' => 'Nombre',
           'sort' => 'Ordenar',
         ),
-        'users' => 
-        array (
+        'users' => array(
           'active' => 'Activo',
           'associated_roles' => 'Roles asociados',
           'confirmed' => 'Confirmado',
@@ -160,10 +143,8 @@ return array (
           'language' => 'Idioma',
         ),
       ),
-      'settings' => 
-      array (
-        'general_settings' => 
-        array (
+      'settings' => array(
+        'general_settings' => array(
           'app_locale' => 'Localidad de la aplicación',
           'app_name' => 'Nombre de la aplicación',
           'app_timezone' => 'Zona horaria de la aplicación',
@@ -185,8 +166,8 @@ return array (
           'mail_driver' => 'Controlador de correo',
           'layout_type' => 'Tipo de diseño',
           'homepage' => 'Seleccione la página de inicio',
-          'captcha_site_key' => 'Captcha Key',
-          'captcha_site_secret' => 'Captcha Secret',
+          'captcha_site_key' => 'Clave Captcha',
+          'captcha_site_secret' => 'Captcha secreto',
           'captcha_status' => 'Estado Captcha',
           'retest_status' => 'Volver a probar',
           'google_analytics' => 'Código de Google Analytics',
@@ -195,45 +176,38 @@ return array (
           'onesignal_code' => 'Pegue el código de secuencia de comandos de OneSignal aquí',
           'show_offers' => 'Mostrar página de ofertas',
         ),
-        'social_settings' => 
-        array (
-          'twitter' => 
-          array (
+        'social_settings' => array(
+          'twitter' => array(
             'redirect' => 'Redireccionar URL',
             'label' => 'Estado de inicio de sesión de Twitter',
             'client_secret' => 'Secreto del cliente',
             'client_id' => 'Identificación del cliente',
           ),
-          'linkedin' => 
-          array (
+          'linkedin' => array(
             'redirect' => 'Redireccionar URL',
             'client_secret' => 'Secreto del cliente',
             'client_id' => 'Identificación del cliente',
             'label' => 'Estado de inicio de sesión de LinkedIn',
           ),
-          'google' => 
-          array (
+          'google' => array(
             'redirect' => 'Redireccionar URL',
             'label' => 'Estado de inicio de sesión de Google',
             'client_secret' => 'Secreto del cliente',
             'client_id' => 'Identificación del cliente',
           ),
-          'github' => 
-          array (
+          'github' => array(
             'client_secret' => 'Secreto del cliente',
             'client_id' => 'Identificación del cliente',
             'redirect' => 'Redireccionar URL',
             'label' => 'Estado de inicio de sesión de Github',
           ),
-          'facebook' => 
-          array (
+          'facebook' => array(
             'client_secret' => 'Secreto del cliente',
             'redirect' => 'Redireccionar URL',
             'label' => 'Estado de inicio de sesión de Facebook',
             'client_id' => 'Identificación del cliente',
           ),
-          'bitbucket' => 
-          array (
+          'bitbucket' => array(
             'client_secret' => 'Secreto del cliente',
             'redirect' => 'Redireccionar URL',
             'client_id' => 'Identificación del cliente',
@@ -242,8 +216,7 @@ return array (
         ),
       ),
     ),
-    'frontend' => 
-    array (
+    'frontend' => array(
       'avatar' => 'Ubicación de Avatar',
       'email' => 'Dirección de correo electrónico',
       'first_name' => 'Nombre de pila',
@@ -259,7 +232,7 @@ return array (
       'timezone' => 'Zona horaria',
       'language' => 'Idioma',
       'upload' => 'Subir',
-      'gravatar' => 'Gravatar',
+      'gravatar' => 'gravatar',
       'captcha' => 'Captcha requerido',
       'female' => 'Hembra',
       'male' => 'Masculino',

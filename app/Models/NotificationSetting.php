@@ -28,123 +28,123 @@ class NotificationSetting extends Model
     {
         return [
             'users' => [
-                'label' => 'User Management',
+                'label' => __('admin_pages.notification_settings.modules.users'),
                 'icon' => 'fas fa-users',
                 'events' => [
                     'user_created' => [
-                        'label' => 'User Created',
+                        'label' => __('admin_pages.notification_settings.events.user_created'),
                         'channels' => ['email'],
                     ],
                     'user_updated' => [
-                        'label' => 'User Updated',
+                        'label' => __('admin_pages.notification_settings.events.user_updated'),
                         'channels' => ['email'],
                     ],
                     'user_activated' => [
-                        'label' => 'User Activated / Deactivated',
+                        'label' => __('admin_pages.notification_settings.events.user_activated'),
                         'channels' => ['email'],
                     ],
                     'role_assigned' => [
-                        'label' => 'Role Assigned',
+                        'label' => __('admin_pages.notification_settings.events.role_assigned'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'courses' => [
-                'label' => 'Courses',
+                'label' => __('admin_pages.notification_settings.modules.courses'),
                 'icon' => 'fas fa-graduation-cap',
                 'events' => [
                     'course_created' => [
-                        'label' => 'Course Created',
+                        'label' => __('admin_pages.notification_settings.events.course_created'),
                         'channels' => ['email'],
                     ],
                     'course_published' => [
-                        'label' => 'Course Published / Unpublished',
+                        'label' => __('admin_pages.notification_settings.events.course_published'),
                         'channels' => ['email'],
                     ],
                     'course_expired' => [
-                        'label' => 'Course Expired',
+                        'label' => __('admin_pages.notification_settings.events.course_expired'),
                         'channels' => ['email'],
                     ],
                     'course_enrollment' => [
-                        'label' => 'Course Enrollment',
+                        'label' => __('admin_pages.notification_settings.events.course_enrollment'),
                         'channels' => ['email'],
                     ],
                     'course_due_reminder' => [
-                        'label' => 'Course Due Reminder',
+                        'label' => __('admin_pages.notification_settings.events.course_due_reminder'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'lessons' => [
-                'label' => 'Lessons',
+                'label' => __('admin_pages.notification_settings.modules.lessons'),
                 'icon' => 'fas fa-file-alt',
                 'events' => [
                     'lesson_added' => [
-                        'label' => 'Lesson Added',
+                        'label' => __('admin_pages.notification_settings.events.lesson_added'),
                         'channels' => ['email'],
                     ],
                     'lesson_updated' => [
-                        'label' => 'Lesson Updated',
+                        'label' => __('admin_pages.notification_settings.events.lesson_updated'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'assessments' => [
-                'label' => 'Assessments / Tests',
+                'label' => __('admin_pages.notification_settings.modules.assessments'),
                 'icon' => 'fas fa-clipboard-check',
                 'events' => [
                     'test_assigned' => [
-                        'label' => 'Test Assigned',
+                        'label' => __('admin_pages.notification_settings.events.test_assigned'),
                         'channels' => ['email'],
                     ],
                     'test_completed' => [
-                        'label' => 'Test Completed',
+                        'label' => __('admin_pages.notification_settings.events.test_completed'),
                         'channels' => ['email'],
                     ],
                     'test_results_published' => [
-                        'label' => 'Test Results Published',
+                        'label' => __('admin_pages.notification_settings.events.test_results_published'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'trainees' => [
-                'label' => 'Trainees',
+                'label' => __('admin_pages.notification_settings.modules.trainees'),
                 'icon' => 'fas fa-user-graduate',
                 'events' => [
                     'trainee_enrolled' => [
-                        'label' => 'Trainee Enrolled',
+                        'label' => __('admin_pages.notification_settings.events.trainee_enrolled'),
                         'channels' => ['email'],
                     ],
                     'trainee_completed_course' => [
-                        'label' => 'Trainee Completed Course',
+                        'label' => __('admin_pages.notification_settings.events.trainee_completed_course'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'trainers' => [
-                'label' => 'Trainers',
-                'icon' => 'fas fa-chalkboard-teacher',
+                'label' => __('admin_pages.notification_settings.modules.trainers'),
+                'icon' => 'fas fa-chalkboard-user',
                 'events' => [
                     'trainer_assigned' => [
-                        'label' => 'Trainer Assigned to Course',
+                        'label' => __('admin_pages.notification_settings.events.trainer_assigned'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'system' => [
-                'label' => 'System / Security',
+                'label' => __('admin_pages.notification_settings.modules.system'),
                 'icon' => 'fas fa-shield-alt',
                 'events' => [
                     'login_alerts' => [
-                        'label' => 'Login Alerts',
+                        'label' => __('admin_pages.notification_settings.events.login_alerts'),
                         'channels' => ['email'],
                     ],
                     'password_reset' => [
-                        'label' => 'Password Reset',
+                        'label' => __('admin_pages.notification_settings.events.password_reset'),
                         'channels' => ['email'],
                     ],
                     'failed_login' => [
-                        'label' => 'Failed Login Attempts',
+                        'label' => __('admin_pages.notification_settings.events.failed_login'),
                         'channels' => ['email'],
                     ],
                 ],

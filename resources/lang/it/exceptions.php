@@ -1,0 +1,66 @@
+<?php
+
+return array(
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
+        'cant_delete_admin' => 'Non è possibile eliminare il ruolo di amministratore.',
+        'needs_permission' => 'È necessario selezionare almeno un\'autorizzazione per questo ruolo.',
+        'create_error' => 'Si è verificato un problema durante la creazione di questo ruolo. Per favore riprova.',
+        'update_error' => 'Si è verificato un problema durante l\'aggiornamento di questo ruolo. Per favore riprova.',
+        'already_exists' => 'Quel ruolo esiste già. Scegli un nome diverso.',
+        'delete_error' => 'Si è verificato un problema durante l\'eliminazione di questo ruolo. Per favore riprova.',
+        'has_users' => 'Non è possibile eliminare un ruolo con utenti associati.',
+        'not_found' => 'Quel ruolo non esiste.',
+      ),
+      'users' => array(
+        'already_confirmed' => 'Questo utente è già confermato.',
+        'cant_delete_own_session' => 'Non puoi eliminare la tua sessione.',
+        'session_wrong_driver' => 'Per utilizzare questa funzionalità, il driver di sessione deve essere impostato su database.',
+        'social_delete_error' => 'Si è verificato un problema durante la rimozione dell\'account social dell\'utente.',
+        'role_needed_create' => 'Devi scegliere almeno un ruolo.',
+        'create_error' => 'Si è verificato un problema durante la creazione di questo utente. Per favore riprova.',
+        'update_error' => 'Si è verificato un problema durante l\'aggiornamento di questo utente. Per favore riprova.',
+        'update_password_error' => 'Si è verificato un problema durante la modifica della password di questo utente. Per favore riprova.',
+        'cant_deactivate_self' => 'Non puoi farlo a te stesso.',
+        'mark_error' => 'Si è verificato un problema durante l\'aggiornamento di questo utente. Per favore riprova.',
+        'cant_confirm' => 'Si è verificato un problema durante la conferma dell\'account utente.',
+        'not_confirmed' => 'Questo utente non è confermato.',
+        'cant_unconfirm_admin' => 'Non puoi deconfermare il super amministratore.',
+        'cant_unconfirm_self' => 'Non puoi deconfermare te stesso.',
+        'delete_first' => 'Questo utente deve essere eliminato prima di poter essere distrutto in modo permanente.',
+        'delete_error' => 'Si è verificato un problema durante l\'eliminazione di questo utente. Per favore riprova.',
+        'cant_restore' => 'Questo utente non è stato eliminato, quindi non può essere ripristinato.',
+        'restore_error' => 'Si è verificato un problema durante il ripristino di questo utente. Per favore riprova.',
+        'email_error' => 'L\'indirizzo email appartiene a un altro utente.',
+        'not_found' => 'Quell\'utente non esiste.',
+        'cant_delete_admin' => 'Non puoi eliminare il super amministratore.',
+        'cant_delete_self' => 'Non puoi eliminare te stesso.',
+        'role_needed' => 'Devi scegliere almeno un ruolo.',
+      ),
+    ),
+  ),
+  'frontend' => array(
+    'auth' => array(
+      'confirmation' => array(
+        'success' => 'Il tuo account è stato confermato con successo!',
+        'already_confirmed' => 'Il tuo account è già confermato.',
+        'resent' => 'Una nuova e-mail di conferma è stata inviata all\'indirizzo in archivio.',
+        'pending' => 'Il tuo account è attualmente in attesa di approvazione.',
+        'resend' => 'Il tuo account non è confermato. Fai clic sul collegamento di conferma nell\'e-mail oppure <a href=":url">fai clic qui</a> per inviare nuovamente l\'e-mail di conferma.',
+        'confirm' => 'Conferma il tuo account!',
+        'mismatch' => 'Il tuo codice di conferma non corrisponde.',
+        'created_pending' => 'Il tuo account è stato creato con successo ed è in attesa di approvazione. Una e-mail verrà inviata quando il tuo account sarà approvato.',
+        'created_confirm' => 'Il tuo account è stato creato con successo. Ti abbiamo inviato una e-mail per confermare il tuo account.',
+        'not_found' => 'Quel codice di conferma non esiste.',
+      ),
+      'deactivated' => 'Il tuo account è stato disattivato.',
+      'password' => array(
+        'reset_problem' => 'Si è verificato un problema durante la reimpostazione della password. Si prega di inviare nuovamente l\'e-mail di reimpostazione della password.',
+        'change_mismatch' => 'Questa non è la tua vecchia password.',
+      ),
+      'email_taken' => 'Quell\'indirizzo e-mail è già occupato.',
+      'registration_disabled' => 'La registrazione è attualmente chiusa.',
+    ),
+  ),
+);

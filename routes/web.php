@@ -80,7 +80,9 @@ Route::get('email-test', function () {
 });
 
 // Switch between the included languages
-Route::get('lang/{lang}', [LanguageController::class, 'swap']);
+Route::get('lang/{lang}', [LanguageController::class, 'swap'])
+    ->where('lang', '[A-Za-z_-]+')
+    ->name('locale.swap');
 
 
 Route::get('/sitemap-' . \Illuminate\Support\Str::slug(config('app.name')) . '/{file?}', 'SitemapController@index');
