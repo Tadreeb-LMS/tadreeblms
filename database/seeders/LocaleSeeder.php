@@ -37,6 +37,13 @@ class LocaleSeeder extends Seeder
 
             ],
             [
+                'name' => 'Italian',
+                'short_name' => 'it',
+                'display_type' => 'ltr',
+                'is_default' => 0,
+
+            ],
+            [
                 'name' => 'Arabic',
                 'short_name' => 'ar',
                 'display_type' => 'rtl',

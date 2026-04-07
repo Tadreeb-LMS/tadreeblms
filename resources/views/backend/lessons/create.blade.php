@@ -148,7 +148,7 @@
                                 <div class="form-group">
                                     <div for="lesson_image" class="control-label mb-2">
                                         {{ trans('labels.backend.lessons.fields.lesson_image') }}
-                                        {{ trans('labels.backend.lessons.max_file_size') }} (JPEG, PNG, GIF)
+                                        {{ trans('labels.backend.lessons.max_file_size') }}
                                     </div>
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="lesson_image[]" class="custom-file-input">
@@ -304,10 +304,10 @@
 
                             <div class="col-md-4 col-sm-12">
                                 <div class="checkbox" style="margin-top: 37px;">
-                                    <input type="hidden" name="published" value="0">
-                                    <input type="checkbox" name="published" value="1" id="published"
-                                        class="checkbox">
-                                    <label for="published" class="checkbox control-label font-weight-bold">
+                                    <input type="hidden" name="published[0]" value="0">
+                                    <input type="checkbox" name="published[0]" value="1" id="published_0"
+                                        class="checkbox published_checkbox">
+                                    <label for="published_0" class="checkbox control-label font-weight-bold published_label">
                                         {{ trans('labels.backend.lessons.fields.published') }}
                                     </label>
                                 </div>
@@ -413,6 +413,10 @@
             $(this).find('input[name^="add_audio_"]').attr('name', 'add_audio_' + pointer + '[]');
             $(this).find('input[name^="video_file_"]').attr('name', 'video_file_' + pointer + '[]');
             $(this).find('input[name^="media_type_"]').attr('name', 'media_type_' + pointer + '[]');
+
+            $(this).find('input[name^="published["]').attr('name', 'published[' + index + ']');
+            $(this).find('.published_checkbox').attr('id', 'published_' + index);
+            $(this).find('.published_label').attr('for', 'published_' + index);
         });
     }
 
@@ -447,7 +451,9 @@
 
         $(document).on('change', '.custom-file-input', function (e) {
             const label = this.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('course_pages.admin_lessons_create.choose_file') }}';
+            const fileName = e.target.files.length > 0
+                ? e.target.files[0].name
+                : '{{ __('course_pages.admin_lessons_create.choose_file') }}';
 
             if (label) {
                 label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
@@ -497,125 +503,125 @@
     });
 
     $(document).on('submit', '#addLesson', function (e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    function parseIniSizeToBytes(sizeText) {
-        if (!sizeText) return 0;
-        const value = String(sizeText).trim();
-        const unit = value.slice(-1).toUpperCase();
-        const num = parseFloat(value);
+        function parseIniSizeToBytes(sizeText) {
+            if (!sizeText) return 0;
+            const value = String(sizeText).trim();
+            const unit = value.slice(-1).toUpperCase();
+            const num = parseFloat(value);
 
-        if (isNaN(num)) return 0;
-        if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
-        if (unit === 'M') return Math.round(num * 1024 * 1024);
-        if (unit === 'K') return Math.round(num * 1024);
-        return Math.round(num);
-    }
-
-    const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
-    const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
-
-    let totalBytes = 0;
-    let singleTooLarge = false;
-
-    $('#addLesson input[type="file"]').each(function () {
-        if (!this.files || !this.files.length) {
-            return;
+            if (isNaN(num)) return 0;
+            if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
+            if (unit === 'M') return Math.round(num * 1024 * 1024);
+            if (unit === 'K') return Math.round(num * 1024);
+            return Math.round(num);
         }
 
-        for (let idx = 0; idx < this.files.length; idx++) {
-            const f = this.files[idx];
-            totalBytes += f.size;
+        const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
+        const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
 
-            if (phpUploadMax > 0 && f.size > phpUploadMax) {
-                singleTooLarge = true;
-            }
-        }
-    });
+        let totalBytes = 0;
+        let singleTooLarge = false;
 
-    if (singleTooLarge) {
-        const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
-        alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
-        return;
-    }
-
-    if (phpPostMax > 0 && totalBytes > phpPostMax) {
-        const maxMb = Math.floor(phpPostMax / (1024 * 1024));
-        alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
-        return;
-    }
-
-    $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
-    $('#nextBtn,#doneBtn').prop('disabled', true);
-
-    var form = $('#addLesson')[0];
-    var data = new FormData(form);
-
-    let url = '{{ route('admin.lessons.store') }}';
-    let redirect_url_course = $("#lesson_index").val();
-    let redirect_question_url = $("#add_question_url").val();
-    let course_id = $(".course_id").first().val();
-
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: data,
-        processData: false,
-        contentType: false,
-
-        success: function (res) {
-            $('.loading').text('');
-
-            if (!res || res.status !== 'success') {
-                $('#nextBtn,#doneBtn').prop('disabled', false);
-
-                const fallbackMessage = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
-                let msg = (res && (res.clientmsg || res.message))
-                    ? (res.clientmsg || res.message)
-                    : fallbackMessage;
-
-                if (typeof res === 'string' && res.indexOf('POST Content-Length') !== -1) {
-                    msg = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
-                }
-
-                alert(msg);
+        $('#addLesson input[type="file"]').each(function () {
+            if (!this.files || !this.files.length) {
                 return;
             }
 
-            let clicked = $('#btn_clicked').val();
+            for (let idx = 0; idx < this.files.length; idx++) {
+                const f = this.files[idx];
+                totalBytes += f.size;
 
-            if (clicked === 'nextBtn') {
-                window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
-            }
-
-            if (clicked === 'doneBtn') {
-                window.location.href = redirect_url_course;
-            }
-        },
-
-        error: function (xhr) {
-            $('.loading').text('');
-            $('#nextBtn,#doneBtn').prop('disabled', false);
-
-            console.log(xhr.responseText);
-
-            let message = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
-
-            if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
-                message = xhr.responseJSON.clientmsg;
-            } else if (xhr.status === 413) {
-                message = 'Upload is too large for server limits. Please reduce the video size and try again.';
-            } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                const firstKey = Object.keys(xhr.responseJSON.errors)[0];
-                if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
-                    message = xhr.responseJSON.errors[firstKey][0];
+                if (phpUploadMax > 0 && f.size > phpUploadMax) {
+                    singleTooLarge = true;
                 }
             }
+        });
 
-            alert(message);
+        if (singleTooLarge) {
+            const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
+            alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
+            return;
         }
+
+        if (phpPostMax > 0 && totalBytes > phpPostMax) {
+            const maxMb = Math.floor(phpPostMax / (1024 * 1024));
+            alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
+            return;
+        }
+
+        $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
+        $('#nextBtn,#doneBtn').prop('disabled', true);
+
+        var form = $('#addLesson')[0];
+        var data = new FormData(form);
+
+        let url = '{{ route('admin.lessons.store') }}';
+        let redirect_url_course = $("#lesson_index").val();
+        let redirect_question_url = $("#add_question_url").val();
+        let course_id = $(".course_id").first().val();
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data,
+            processData: false,
+            contentType: false,
+
+            success: function (res) {
+                $('.loading').text('');
+
+                if (!res || res.status !== 'success') {
+                    $('#nextBtn,#doneBtn').prop('disabled', false);
+
+                    const fallbackMessage = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
+                    let msg = (res && (res.clientmsg || res.message))
+                        ? (res.clientmsg || res.message)
+                        : fallbackMessage;
+
+                    if (typeof res === 'string' && res.indexOf('POST Content-Length') !== -1) {
+                        msg = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
+                    }
+
+                    alert(msg);
+                    return;
+                }
+
+                let clicked = $('#btn_clicked').val();
+
+                if (clicked === 'nextBtn') {
+                    window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
+                }
+
+                if (clicked === 'doneBtn') {
+                    window.location.href = redirect_url_course;
+                }
+            },
+
+            error: function (xhr) {
+                $('.loading').text('');
+                $('#nextBtn,#doneBtn').prop('disabled', false);
+
+                console.log(xhr.responseText);
+
+                let message = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
+
+                if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
+                    message = xhr.responseJSON.clientmsg;
+                } else if (xhr.status === 413) {
+                    message = 'Upload is too large for server limits. Please reduce the video size and try again.';
+                } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                    if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
+                        message = xhr.responseJSON.errors[firstKey][0];
+                    }
+                }
+
+                alert(message);
+            }
+        });
     });
-});
 
     var i = 1;
 
@@ -636,7 +642,7 @@
     $("#addmorebtn").on('click', function () {
         let clone = $('.lesson-template').first().clone(false);
 
-        clone.find('input, textarea').val('');
+        clone.find('input:not([type="checkbox"], [type="hidden"]), textarea').val('');
         clone.find('input[type="checkbox"]').prop('checked', false);
 
         clone.find('.cke').remove();

@@ -1,0 +1,37 @@
+<?php
+
+return array(
+  'login_modal' => array(
+    'login_title' => 'تسجيل الدخول',
+    'register_title' => 'سجل الآن',
+    'email' => 'البريد الإلكتروني',
+    'placeholder_email' => 'أدخل البريد الإلكتروني',
+    'password' => 'كلمة المرور',
+    'placeholder_password' => 'أدخل كلمة المرور',
+    'password_confirm' => 'تأكيد كلمة المرور',
+    'placeholder_confirm' => 'أدخل تأكيد كلمة المرور',
+    'name' => 'الاسم',
+    'placeholder_name' => 'أدخل الاسم',
+    'gender' => 'الجنس',
+    'male' => 'ذكر',
+    'female' => 'أنثى',
+    'other' => 'آخر',
+    'phone' => 'رقم الهاتف',
+    'placeholder_phone' => 'أدخل الهاتف',
+    'remember_me' => 'تذكرني',
+    'forgot_password' => 'هل نسيت كلمة المرور؟',
+    'login_button' => 'تسجيل الدخول',
+    'signup_button' => 'إنشاء حساب',
+    'have_account' => 'هل لديك حساب بالفعل؟',
+    'no_account' => 'ليس لديك حساب؟',
+  ),
+  'assignment_modal' => array(
+    'title' => 'تعيين المسار',
+    'select_user' => 'اختر مستخدم / مجموعة مستخدمين',
+    'select_course' => 'اختر المسار',
+    'cancel' => 'إلغاء',
+    'assign_button' => 'تعيين',
+    'success_message' => 'تم تعيين المسار بنجاح!',
+    'error_message' => 'فشل تعيين المسار',
+  ),
+);

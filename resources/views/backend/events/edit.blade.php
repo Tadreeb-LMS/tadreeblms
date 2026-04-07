@@ -28,8 +28,8 @@
             <div class="card-body">
                 <div class="col-md-3 mb-4">
                     <select name="lang" id="change-lang" class="form-control">
-                        <option value="en" @if (request()->lang == 'en') selected @endif>English</option>
-                        <option value="ar" @if (request()->lang == 'ar') selected @endif>Arabic</option>
+                        <option value="en" @if (request()->lang == 'en') selected @endif>{{ locale_label('en') }}</option>
+                        <option value="ar" @if (request()->lang == 'ar') selected @endif>{{ locale_label('ar') }}</option>
                     </select>
                 </div>
 

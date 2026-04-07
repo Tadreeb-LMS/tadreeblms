@@ -101,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
 
         Carbon::setLocale(config('app.locale'));
         App::setLocale(config('app.locale'));
+        config()->set('theme_layout', theme_layout_id(config('theme_layout')));
         config()->set('invoices.currency', config('app.currency'));
 
         if (Schema::hasTable('configs')) {
@@ -188,7 +189,7 @@ if (
             $appCurrency = getCurrency(config('app.currency'));
 
             if (Schema::hasTable('locales')) {
-                $locales = Locale::whereIn('short_name', ['en', 'ar'])->pluck('short_name as locale')->toArray();
+                $locales = Locale::pluck('short_name as locale')->toArray();
             }
             //            $view->with(compact('locales', 'appCurrency'));
 

@@ -85,7 +85,7 @@
                 </div>
                 <div class="popup-text text-center">
                     <h2>@lang('labels.frontend.modal.my_account')</h2>
-                    <p>@lang('Login to continue')</p>
+                    <p>{{ __('auth_pages.login.login_to_continue') }}</p>
                 </div>
                 <button type="button" class="close modal_close" aria-hidden="true">×</button>
             </div>
@@ -126,7 +126,7 @@
                             </div>
 
                             <div class="contact-info mb-2 catcha-block">
-                                <label>Captcha: <span id="login-captcha-question"></span></label>
+                                <label>{{ __('auth_pages.login.captcha') }}: <span id="login-captcha-question"></span></label>
                                 <input type="text" name="captcha" class="captcha" required>
                                 <span id="login-captcha-error" class="text-danger"></span>
                             </div>
@@ -154,11 +154,11 @@
             <!-- Header -->
             <div class="modal-header1 backgroud-style">
                 <div class="popup-text text-center">
-                    <h2>@lang('Register')</h2>
-                    <p>@lang('Please register yourself')</p>
+                    <h2>{{ __('auth_pages.modal.register_title') }}</h2>
+                    <p>{{ __('auth_pages.modal.register_prompt') }}</p>
                     {{-- {{ $default_admin_email }} --}}
                     @if($default_admin_email->email == env('DEMO_EMAIL', 'admin@seeder.com'))
-                    <p>@lang('Please register an user as administrator')</p>
+                    <p>{{ __('auth_pages.modal.register_admin_prompt') }}</p>
                     @endif
                 </div>
                 <button type="button" class="close modal_close" aria-hidden="true">×</button>
@@ -213,14 +213,14 @@
 
                             <!-- Language Select -->
                             <div class="contact-info mb-2 plang">
-                                <label>Preferred Language</label><br>
+                                <label>{{ __('auth_pages.modal.preferred_language') }}</label><br>
 
                                 <label class="radio-inline mr-3 mb-0">
-                                    <input type="radio" name="fav_lang" value="english" checked> {{ __('English') }}
+                                    <input type="radio" name="fav_lang" value="english" checked> {{ __('auth_pages.modal.english') }}
                                 </label>
 
                                 <label class="radio-inline mr-3 mb-0">
-                                    <input type="radio" name="fav_lang" value="arabic"> {{ __('Arabic') }}
+                                    <input type="radio" name="fav_lang" value="arabic"> {{ __('auth_pages.modal.arabic') }}
                                 </label>
                             </div>
 
@@ -270,7 +270,7 @@
                             @endif
 
                             <div class="contact-info mb-2 catcha-block">
-                                <label>Captcha: <span id="register-captcha-question"></span></label>
+                                <label>{{ __('auth_pages.login.captcha') }}: <span id="register-captcha-question"></span></label>
                                 <input type="text" name="captcha" class="captcha" required>
                                 <span id="captcha-error" class="text-danger"></span>
                             </div>

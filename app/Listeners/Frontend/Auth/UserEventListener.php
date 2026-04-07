@@ -4,6 +4,7 @@ namespace App\Listeners\Frontend\Auth;
 
 use Carbon\Carbon;
 use App\Notifications\Backend\SystemNotification;
+use App\Services\LmsEventRecorder;
 use App\Services\NotificationSettingsService;
 
 /**
@@ -35,6 +36,15 @@ class UserEventListener
         }
 
         $event->user->save();
+
+        app(LmsEventRecorder::class)->record(
+            $event->user->id,
+            LmsEventRecorder::TYPE_USER_LOGIN,
+            [
+                'ip' => $ip_address,
+                'source' => 'web',
+            ]
+        );
 
         \Log::info('User Logged In: '.$event->user->full_name);
 

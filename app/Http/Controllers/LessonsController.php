@@ -23,6 +23,7 @@ use Yajra\DataTables\DataTables;
 use DB;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Services\LmsEventRecorder;
 
 
 class LessonsController extends Controller
@@ -988,6 +989,18 @@ class LessonsController extends Controller
             'test_result' => $correct,
         ]);
 
+        app(LmsEventRecorder::class)->record(
+            auth()->id(),
+            LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+            [
+                'course_id' => (int) $lesson->course_id,
+                'test_id' => (int) $lessonTest->id,
+                'attempt_scope' => 'lesson',
+                'score' => (float) $correct,
+                'total_questions' => count($submitted),
+            ]
+        );
+
         return back();
     }
 
@@ -1047,6 +1060,20 @@ class LessonsController extends Controller
                 'course_id' => $test->course->id
             ]);
         }
+
+        app(LmsEventRecorder::class)->record(
+            \Auth::id(),
+            LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+            [
+                'course_id' => (int) $test->course_id,
+                'test_id' => (int) $test->id,
+                'attempt_scope' => 'course',
+                'score' => (float) $test_score,
+                'total_questions' => (int) $total_questions,
+                'percentage' => round((float) $percentage, 2),
+                'passed' => $test_pass === 'Pass',
+            ]
+        );
 
         return back()->with([
             'message' => 'Test score: ' . $test_score,

@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use CustomHelper;
 use Exception;
 use App\Notifications\Backend\AssessmentNotification;
+use App\Services\LmsEventRecorder;
 use App\Services\NotificationSettingsService;
 
 class AssessmentController extends Controller
@@ -463,6 +464,17 @@ class AssessmentController extends Controller
                 
 
                 $progressdata = CustomHelper::updateUserProgress($user_id, $course_id);
+
+                app(LmsEventRecorder::class)->record(
+                    $user_id,
+                    LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+                    [
+                        'course_id' => (int) $course_id,
+                        'assessment_id' => (int) $assessment_test_id,
+                        'attempt_scope' => 'assessment',
+                        'source' => 'web',
+                    ]
+                );
 
                 // Assessment Submitted + Graded notifications
                 try {

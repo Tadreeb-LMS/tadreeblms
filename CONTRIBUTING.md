@@ -20,6 +20,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
   - [Reporting Bugs](#reporting-bugs)
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Your First Code Contribution](#your-first-code-contribution)
+  - [Translations](#translations)
   - [Improving The Documentation](#improving-the-documentation)
 - [Styleguides](#styleguides)
   - [Commit Messages](#commit-messages)
@@ -131,6 +132,55 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/Tadree
 include Setup of env, IDE and typical getting started instructions?
 
 -->
+
+### Translations
+
+TadreebLMS uses Laravel translation files stored in `resources/lang/<locale>/*.php`. User-facing text must not be hardcoded in Blade templates, JavaScript embedded in Blade, or newly added UI components.
+
+When you add or fix translatable UI:
+
+- Reuse an existing translation file when the text belongs to an existing screen/domain, for example `course_pages.php`, `attendance_pages.php`, `user_feedback.php`.
+- Create a new translation file only when the screen/domain does not fit an existing group.
+- Add the same key in all supported locales currently used by the project: `en`, `it`, `es`, `fr`, `ar`.
+- Prefer structured keys grouped by page or feature, for example `lesson_quiz_pages.complete_quiz_unlock_next`.
+- In Blade views, use `__('group.key')` instead of hardcoded strings.
+- In JavaScript inside Blade, inject translated strings with `@json(__('group.key'))` instead of writing literal text directly in JS.
+- Do not couple application logic to translated button labels or visible text. If behavior depends on a button/action, use ids, names, or data attributes and keep translations only for display.
+
+Current pattern used in the codebase:
+
+```php
+// resources/lang/en/lesson_quiz_pages.php
+return array(
+  'lesson_quiz' => 'Lesson Quiz',
+  'complete_quiz_unlock_next' => 'Complete this quiz to unlock the next lesson.',
+);
+```
+
+```blade
+<b>{{ __('lesson_quiz_pages.lesson_quiz') }}: {{ $lesson->title }}</b>
+<p>{{ __('lesson_quiz_pages.complete_quiz_unlock_next') }}</p>
+```
+
+For existing grouped files, follow the same structure already in use, for example nested arrays such as:
+
+```php
+// resources/lang/en/course_pages.php
+'course_detail' => array(
+  'open_quiz' => 'Open Lesson Quiz',
+),
+```
+
+```blade
+{{ __('course_pages.course_detail.open_quiz') }}
+```
+
+Before opening a PR:
+
+- Check that every new UI string has been moved to translations.
+- Check that the same keys exist in all supported locales.
+- Verify that pages still render correctly when the locale changes.
+- If you touched JS in a Blade file, verify that translated strings are injected safely and that no behavior depends on localized text.
 
 ### Improving The Documentation
 <!-- TODO

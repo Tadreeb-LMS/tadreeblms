@@ -53,7 +53,7 @@
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.first_name')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.last_name')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.email')</th>
-                                <th style="width: 100px;">@lang('Department')</th>
+                                <th style="width: 100px;">{{ __('admin_pages.auth_users.department') }}</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.confirmed')</th>
                                 <th style="width: 100px;">@lang('labels.backend.access.users.table.roles')</th>
                                 <th style="width: 130px;">@lang('labels.backend.access.users.table.other_permissions')</th>

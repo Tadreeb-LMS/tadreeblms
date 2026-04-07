@@ -11,6 +11,7 @@ use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
 use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
+use App\Services\LmsEventRecorder;
 use Auth;
 use DB;
 use Carbon\Carbon;
@@ -639,6 +640,13 @@ class CustomHelper
                             ]
                         );
 
+                    app(LmsEventRecorder::class)->record(
+                        $user_id,
+                        LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                        ['course_id' => (int) $course_id, 'source' => 'assignment_progress'],
+                        Carbon::now()
+                    );
+
                     // Send course completed notification
                     try {
                         $notificationSettings = app(\App\Services\NotificationSettingsService::class);
@@ -698,6 +706,12 @@ class CustomHelper
         if ($total_plus == 100) {
             DB::table('subscribe_courses')->where('course_id', $course_id)
                 ->where('user_id', $user_id)->update(['is_completed' => 1]);
+            app(LmsEventRecorder::class)->record(
+                $user_id,
+                LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                ['course_id' => (int) $course_id, 'source' => 'lesson_progress'],
+                Carbon::now()
+            );
         }
 
         return $total_plus;

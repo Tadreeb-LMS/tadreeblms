@@ -1,12 +1,9 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'users' => 
-      array (
+return array(
+  'backend' => array(
+    'access' => array(
+      'users' => array(
         'delete_user_confirm' => 'Êtes-vous sûr de vouloir supprimer cet utilisateur de manière permanente? Toute erreur dans l’application faisant référence à l’identifiant de cet utilisateur sera la plus probable. Procédez à vos risques et périls. Ça ne peut pas être annulé.',
         'if_confirmed_off' => '(Si confirmé est éteint)',
         'restore_user_confirm' => 'Restaurer cet utilisateur à son état d\'origine?',
@@ -14,14 +11,42 @@ return array (
         'no_deleted' => 'Il n\'y a pas d\'utilisateurs supprimés.',
       ),
     ),
-    'dashboard' => 
-    array (
+    'dashboard' => array(
       'title' => 'Tableau de bord',
       'welcome' => 'Bienvenue',
       'my_courses' => 'Mes cours',
+      'average-completion-rate' => 'Taux d\'achèvement moyen',
+      'average-assessment-score' => 'Note d\'évaluation moyenne',
+      'Total-Certificates' => 'Total des certificats',
+      'Achieved-certificates' => 'Certificats obtenus',
+      'Completed' => 'Terminé',
+      'Remaining' => 'Restant',
+      'Filter-Your-Progress' => 'Filtrez vos progrès',
+      'Employee' => 'Sélectionnez un employé',
+      'select-one' => 'Sélectionnez-en un',
+      'Period' => 'Période',
+      'Department' => 'Groupe d\'utilisateurs',
+      'Course' => 'Sélectionnez un cours',
+      'Course-Categeory' => 'Sélectionnez une catégorie',
+      'search' => 'Rechercher',
+      'reset' => 'Réinitialiser',
+      'Active-Users' => 'Utilisateurs actifs',
+      'Added-Courses' => 'Cours ajoutés',
+      'Assigned-Users' => 'Utilisateurs attribués',
+      'Assignments' => 'Missions',
+      'Certificate-Issued' => 'Certificat délivré',
+      'Latest-Course-Assignments' => 'Derniers devoirs de cours',
+      'View-All' => 'Tout afficher',
+      'Course-Name' => 'Nom du cours',
+      'Assigned-To' => 'Attribué à',
+      'Assigned-By' => 'Attribué par',
+      'Due-Date' => 'Date d\'échéance',
+      'Assigned-Date' => 'Date assignée',
+      'Quick-View' => 'Aperçu rapide',
+      'No-assignments-yet' => 'Aucun devoir de cours récent.',
+      'Recent-Courses' => 'Cours récents (10 derniers créés)',
     ),
-    'general' => 
-    array (
+    'general' => array(
       'all_rights_reserved' => 'Tous les droits sont réservés.',
       'are_you_sure' => 'Es-tu sûr de vouloir faire ça?',
       'boilerplate_link' => 'JThemes Studio',
@@ -30,19 +55,16 @@ return array (
       'minutes' => 'minutes',
       'search_placeholder' => 'Chercher...',
       'timeout' => 'Vous avez été automatiquement déconnecté pour des raisons de sécurité, car vous n’avez exercé aucune activité dans',
-      'see_all' => 
-      array (
+      'see_all' => array(
         'messages' => 'Voir tous les messages',
         'notifications' => 'Voir tout',
         'tasks' => 'Voir toutes les tâches',
       ),
-      'status' => 
-      array (
+      'status' => array(
         'online' => 'En ligne',
         'offline' => 'Hors ligne',
       ),
-      'you_have' => 
-      array (
+      'you_have' => array(
         'messages' => '{0} Vous n\'avez pas de message | {1} Vous avez 1 message | [2, Inf] Vous avez: nombre de messages',
         'notifications' => '{0} Vous n\'avez pas de notifications | {1} Vous avez 1 notification | [2, Inf] Vous avez: notifications de numéro',
         'tasks' => '{0} Vous n\'avez pas de tâches | {1} vous avez 1 tâche | [2, Inf] Vous avez: nombre de tâches',
@@ -67,17 +89,19 @@ return array (
       'app_view' => 'Vue',
       'custom_controller_index' => 'Index du contrôleur personnalisé.',
       'trashed' => 'Mis à la poubelle',
+      'trainers' => 'Formateurs',
+      'app_add_new_course' => 'Ajouter un nouveau cours',
+      'app_assign_trainer' => 'Veuillez désigner un formateur pour ces cours',
+      'app_assign_lessons ' => 'Veuillez ajouter des leçons',
     ),
-    'search' => 
-    array (
+    'search' => array(
       'empty' => 'Veuillez entrer un terme de recherche.',
       'incomplete' => 'Vous devez écrire votre propre logique de recherche pour ce système.',
       'title' => 'Résultats de la recherche',
       'results' => 'Résultats de recherche pour: requête',
     ),
     'welcome' => 'Bienvenue sur le tableau de bord',
-    'menu_manager' => 
-    array (
+    'menu_manager' => array(
       'Category' => 'Catégorie',
       'add_to_menu' => 'Ajouter au menu',
       'assigned_menu' => 'Menu assigné',
@@ -111,7 +135,7 @@ return array (
       'move_up' => 'Déplacer vers le haut',
       'name' => 'prénom',
       'or' => 'Ou',
-      'page' => 'Page',
+      'page' => 'Pages',
       'pages' => 'Des pages',
       'post' => 'Poster',
       'posts' => 'Des postes',
@@ -131,10 +155,8 @@ return array (
       'auto_add_pages_desc' => 'Ajouter automatiquement de nouvelles pages de premier niveau à ce menu',
     ),
   ),
-  'emails' => 
-  array (
-    'auth' => 
-    array (
+  'emails' => array(
+    'auth' => array(
       'account_confirmed' => 'Votre compte a été confirmé.',
       'error' => 'Oups!',
       'greeting' => 'salut!',
@@ -147,30 +169,24 @@ return array (
       'reset_password' => 'Cliquez ici pour réinitialiser votre mot de passe',
       'click_to_confirm' => 'Cliquez ici pour confirmer votre compte:',
     ),
-    'contact' => 
-    array (
+    'contact' => array(
       'email_body_title' => 'Vous avez une nouvelle demande de formulaire de contact: Voici les détails:',
       'subject' => 'Une nouvelle soumission de formulaire de contact: app_name!',
     ),
-    'offline_order' => 
-    array (
+    'offline_order' => array(
       'subject' => 'Concernant votre commande récente sur: app_name',
     ),
   ),
-  'frontend' => 
-  array (
+  'frontend' => array(
     'test' => 'Tester',
-    'tests' => 
-    array (
-      'based_on' => 
-      array (
+    'tests' => array(
+      'based_on' => array(
         'permission' => 'Basé sur la permission -',
         'role' => 'Basé sur les rôles -',
       ),
       'js_injected_from_controller' => 'Javascript injecté à partir d\'un contrôleur',
       'using_blade_extensions' => 'Utilisation des extensions de lame',
-      'using_access_helper' => 
-      array (
+      'using_access_helper' => array(
         'array_permissions' => 'Utilisation d\'Access Helper avec un tableau de noms de permission ou d\'identifiants où l\'utilisateur doit tout posséder.',
         'array_permissions_not' => 'Utilisation d\'Access Helper avec un tableau de noms de permission ou d\'identifiants pour lesquels l\'utilisateur ne doit pas nécessairement tout posséder.',
         'array_roles' => 'Utiliser Access Helper avec un tableau de noms de rôles ou d’ID où l’utilisateur doit tout posséder.',
@@ -184,12 +200,11 @@ return array (
       'you_can_see_because' => 'Vous pouvez voir cela parce que vous avez le rôle de \': rôle\'!',
       'you_can_see_because_permission' => 'Vous pouvez voir cela parce que vous avez la permission de \': permission\'!',
     ),
-    'general' => 
-    array (
+    'general' => array(
       'joined' => 'Rejoint',
+      'add_to_wishlist' => 'Ajouter à la liste de souhaits',
     ),
-    'user' => 
-    array (
+    'user' => array(
       'change_email_notice' => 'Si vous modifiez votre adresse e-mail, vous serez déconnecté jusqu\'à ce que vous confirmiez votre nouvelle adresse e-mail.',
       'email_changed_notice' => 'Vous devez confirmer votre nouvelle adresse e-mail avant de pouvoir vous reconnecter.',
       'profile_updated' => 'Profil mis à jour avec succès.',

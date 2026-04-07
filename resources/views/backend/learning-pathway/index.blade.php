@@ -1,6 +1,6 @@
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
-@section('title', __('Learning Pathways') . ' | ' . app_name())
+@section('title', __('learning_pathway_pages.index.title') . ' | ' . app_name())
 @push('after-styles')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" rel="stylesheet" />
       <style>
@@ -9,7 +9,7 @@
 @endpush
 @section('content')
 <div class="pb-3 align-items-center d-flex justify-content-between">
-    <h5 >@lang('Learning Pathways')</h5>
+    <h5>{{ __('learning_pathway_pages.index.title') }}</h5>
     <div >
          @can('learning_pathway_create')
         <a href="{{ route('admin.learning-pathways.create') }}" class="btn add-btn">@lang('strings.backend.general.app_add_new')</a>
@@ -22,11 +22,11 @@
                 <table id="myTable" class="table dt-select custom-teacher-table table-striped">
                     <thead>
                         <tr>
-                            <th>@lang('Name')</th>
-                            <th>@lang('Courses')</th>
-                            <th>@lang('Description')</th>
-                            <th>@lang('In Sequence')</th>
-                            <th>@lang('strings.backend.general.actions')</th>
+                            <th>{{ __('learning_pathway_pages.index.name') }}</th>
+                            <th>{{ __('learning_pathway_pages.index.courses') }}</th>
+                            <th>{{ __('learning_pathway_pages.index.description') }}</th>
+                            <th>{{ __('learning_pathway_pages.index.in_sequence') }}</th>
+                            <th>{{ __('learning_pathway_pages.index.actions') }}</th>
                         </tr>
                     </thead>
 
@@ -110,6 +110,8 @@
                 },
                    
         language:{
+            emptyTable: '{{ __('learning_pathway_pages.index.no_data_available') }}',
+            lengthMenu: '{{ trans('datatable.length_menu') }}',
             search:""
         }
                 

@@ -75,6 +75,7 @@ use SkyRaptor\Chatter\Mail\ChatterDiscussionUpdated;
 use SkyRaptor\Chatter\Models\Models;
 use JWTAuth;
 use Illuminate\Support\Str;
+use App\Services\LmsEventRecorder;
 
 class ApiController extends Controller
 {
@@ -209,6 +210,18 @@ class ApiController extends Controller
                 	'success' => false,
                 	'message' => 'Could not create token.',
                 ], 500);
+        }
+
+        $apiUser = User::query()->where('email', $credentials['email'] ?? null)->first();
+        if ($apiUser) {
+            app(LmsEventRecorder::class)->record(
+                $apiUser->id,
+                LmsEventRecorder::TYPE_USER_LOGIN,
+                [
+                    'ip' => request()->getClientIp(),
+                    'source' => 'api',
+                ]
+            );
         }
 
         return response()->json([
@@ -801,6 +814,19 @@ class ApiController extends Controller
         }
 
         $result = TestsResultsAnswer::where('tests_result_id', '=', $test_result->id)->get()->toArray();
+
+        app(LmsEventRecorder::class)->record(
+            \Auth::id(),
+            LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+            [
+                'course_id' => (int) $test->course_id,
+                'test_id' => (int) $test->id,
+                'attempt_scope' => 'course',
+                'score' => (float) $test_score,
+                'total_questions' => count($request->question_data),
+                'source' => 'api',
+            ]
+        );
 
         return response()->json(['status' => 'success','result_id' =>$test_result->id, 'score' => $test_score,'result' => $result]);
     }

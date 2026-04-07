@@ -69,15 +69,16 @@
     </style>
 @endpush
 @section('content')
-    <form method="POST" action="{{ route('admin.settings.general.update') }}" id="general-settings-form" class="form-horizontal" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.general-settings') }}" id="general-settings-form" class="form-horizontal" enctype="multipart/form-data">
     @csrf
+    <input type="hidden" name="active_tab" id="active_tab" value="general">
 
     <div class="card">
         <div class="card-body">
             <div class="col-md-3 mb-4 pl-0 custom-select-wrapper">
                 <select name="lang" id="change-lang" class="form-control custom-select-box">
-                    <option value="en" @if (request()->lang == 'en') selected @endif>English</option>
-                    <option value="ar" @if (request()->lang == 'ar') selected @endif>Arabic</option>
+                    <option value="en" @if (request()->lang == 'en') selected @endif>{{ locale_label('en') }}</option>
+                    <option value="ar" @if (request()->lang == 'ar') selected @endif>{{ locale_label('ar') }}</option>
                 </select>
                 <span class="custom-select-icon" style="right: 23px;">
         <i class="fa fa-chevron-down"></i>
@@ -88,6 +89,22 @@
                     <ul class="nav main-nav-tabs nav-tabs">
                         <li class="nav-item"><a data-toggle="tab" class="nav-link active " href="#general">
                                 {{ __('labels.backend.general_settings.title') }}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#layout">
+                                {{ __('labels.backend.general_settings.layout_type') }}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#email">
+                                {{ __('labels.backend.general_settings.email.mail_from_name') }}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#payment_settings">
+                                {{ __('labels.backend.general_settings.payment_settings.stripe') }}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#language_settings">
+                                {{ __('labels.backend.general_settings.language_settings.default_language') }}
                             </a>
                         </li>
                        
@@ -177,7 +194,6 @@
         Save Settings
     </button>
 </div>
-</form>
 
                         </div>
                     </div>
@@ -216,10 +232,12 @@
                                 </label>
                                 <div class="col-md-10">
                                     <select class="form-control" id="theme_layout" name="theme_layout">
-                                        <option value="1" selected>{{ __('labels.backend.general_settings.layout_label') }} 1</option>
-                                        <option value="2">{{ __('labels.backend.general_settings.layout_label') }} 2</option>
-                                        <option value="3">{{ __('labels.backend.general_settings.layout_label') }} 3</option>
-                                        <option value="4">{{ __('labels.backend.general_settings.layout_label') }} 4</option>
+                                        @php($themeLayouts = (array) config('theme_layouts.layouts', []))
+                                        @foreach($themeLayouts as $layoutId => $layoutMeta)
+                                            <option value="{{ $layoutId }}" {{ theme_layout_id(config('theme_layout')) === (string) $layoutId ? 'selected' : '' }}>
+                                                {{ __('labels.backend.general_settings.layout_label') }} {{ $layoutId }} ({{ $layoutMeta['name'] ?? ucfirst($layoutMeta['slug'] ?? $layoutId) }})
+                                            </option>
+                                        @endforeach
                                     </select>
                                     <span class="help-text font-italic">
                                         {{ __('labels.backend.general_settings.layout_note') }}
@@ -251,6 +269,12 @@
                                         @endforeach
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="text-end mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    Save Layout
+                                </button>
                             </div>
 
                         </div>
@@ -471,7 +495,7 @@
                             <option data-display-type="{{ $lang->display_type }}"
                                 value="{{ $lang->short_name }}"
                                 @if ($lang->is_default) selected @endif>
-                                {{ trans('menus.language-picker.langs.' . $lang->short_name) }}
+                                {{ locale_label($lang->short_name) }}
                             </option>
                         @endforeach
                     </select>
@@ -513,7 +537,13 @@
             @if (request()->has('tab'))
                 var tab = "{{ request('tab') }}";
                 $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+                $('#active_tab').val(tab);
             @endif
+
+            $('.main-nav-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                var href = $(e.target).attr('href') || '#general';
+                $('#active_tab').val(href.replace('#', ''));
+            });
 
             //========= Initialisation for Iconpicker ===========//
             $('#icon').iconpicker({

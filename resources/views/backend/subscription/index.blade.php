@@ -1,7 +1,7 @@
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
 
-@section('title', 'Subscription' . ' | ' . app_name())
+@section('title', __('admin_pages.subscription.title') . ' | ' . app_name())
 @push('after-styles')
  <style>
     
@@ -12,10 +12,10 @@
 @section('content')
 
 <div class="pb-3 d-flex justify-content-between align-items-center">
-    <h4 >Employees Request</h4>
+    <h4>{{ __('admin_pages.subscription.employee_requests') }}</h4>
     @can('blog_create')
         <div >
-            <a href="#" class="add-btn">View All</a>
+            <a href="#" class="add-btn">{{ __('admin_pages.subscription.view_all') }}</a>
         </div>
     @endcan
 </div>
@@ -47,11 +47,11 @@
                                     </th>
                                 @endif
                             @endcan
-                            <th>@lang('Trainee No')</th>
-                            <th>@lang('User Name')</th>
-                            <th>@lang('Email')</th>
-                            <th>@lang('Course Name')</th>
-                            <th>@lang('Position')</th>
+                            <th>{{ __('admin_pages.subscription.trainee_no') }}</th>
+                            <th>{{ __('admin_pages.subscription.user_name') }}</th>
+                            <th>{{ __('admin_pages.subscription.email') }}</th>
+                            <th>{{ __('admin_pages.subscription.course_name') }}</th>
+                            <th>{{ __('admin_pages.subscription.position') }}</th>
                             <th>@lang('labels.backend.pages.fields.status')</th>
                             <th>@lang('labels.backend.pages.fields.created')</th>
                             @if (request('show_deleted') == 1)
@@ -75,7 +75,7 @@
 @push('after-scripts')
     <script>
         $(document).ready(function() {
-            // var route = '{{ route('admin.subscription.get_data') }}';
+            var route = '{{ route('admin.subscription.get_data') }}';
 
             @if (request('show_deleted') == 1)
                 route = '{{ route('admin.subscription.get_data', ['show_deleted' => 1]) }}';
@@ -113,14 +113,14 @@
         buttons: [
             {
                 extend: 'csv',
-                text: 'CSV',
+                text: '{{ trans("datatable.csv") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             },
             {
                 extend: 'pdf',
-                text: 'PDF',
+                text: '{{ trans("datatable.pdf") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
@@ -203,6 +203,8 @@
                 },
                 language: {
                     url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name }}.json",
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
+                    emptyTable: '{{ __('admin_pages.subscription.no_data_available') }}',
                     buttons: {
                         colvis: '{{ trans('datatable.colvis') }}',
                         pdf: '{{ trans('datatable.pdf') }}',
@@ -217,7 +219,7 @@
             @can('blog_delete')
                 @if (request('show_deleted') != 1)
                     $('.actions').html('<a href="' + '{{ route('admin.subscription.mass_destroy') }}' +
-                        '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>'
+                        '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('admin_pages.subscription.delete_selected') }}</a>'
                         );
                 @endif
             @endcan

@@ -1,17 +1,13 @@
 <?php
 
 return array(
-  'backend' =>
-  array(
-    'access' =>
-    array(
-      'roles' =>
-      array(
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
         'create' => 'خلق دور',
         'edit' => 'تحرير الدور',
         'management' => 'إدارة الدور',
-        'table' =>
-        array(
+        'table' => array(
           'number_of_users' => 'عدد المستخدمين',
           'permissions' => 'أذونات',
           'role' => 'وظيفة',
@@ -19,8 +15,7 @@ return array(
           'total' => 'مجموع الأدوار |',
         ),
       ),
-      'users' =>
-      array(
+      'users' => array(
         'active' => 'المستخدمين النشطين',
         'all_permissions' => 'جميع الأذونات',
         'change_password' => 'غير كلمة السر',
@@ -33,8 +28,7 @@ return array(
         'no_permissions' => 'لا أذونات',
         'no_roles' => 'لا أدوار لتعيين.',
         'permissions' => 'أذونات',
-        'table' =>
-        array(
+        'table' => array(
           'abilities' => 'قدرات',
           'confirmed' => 'تم تأكيد',
           'created' => 'أضيفت',
@@ -53,12 +47,9 @@ return array(
           'status' => 'الحالة',
           'total' => 'مجموع المستخدمين | مجموع المستخدمين',
         ),
-        'tabs' =>
-        array(
-          'content' =>
-          array(
-            'overview' =>
-            array(
+        'tabs' => array(
+          'content' => array(
+            'overview' => array(
               'avatar' => 'الصورة الرمزية',
               'confirmed' => 'تم تأكيد',
               'created_at' => 'أنشئت في',
@@ -74,8 +65,7 @@ return array(
               'timezone' => 'وحدة زمنية',
             ),
           ),
-          'titles' =>
-          array(
+          'titles' => array(
             'history' => 'التاريخ',
             'overview' => 'نظرة عامة',
           ),
@@ -85,14 +75,13 @@ return array(
         'select_role' => 'اختر الدور',
       ),
     ),
-    'backup' =>
-    array(
+    'backup' => array(
       'api_key' => 'مفتاح API',
       'api_secret' => 'سر API',
       'app_key' => 'مفتاح التطبيق',
       'app_secret' => 'سر التطبيق',
       'app_token' => 'رمز التطبيق',
-      'aws' => 'AWS S3',
+      'aws' => 'أوس S3',
       'backup_files' => 'ملفات النسخ الاحتياطي',
       'backup_note' => '<b> ملاحظة </b>: لتشغيل هذه النسخة الاحتياطية بشكل صحيح ، يلزمك إضافة الكود التالي إلى  <b>CRON TAB:</b><br><code>* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1</code>',
       'backup_notice' => 'يرجى الرجوع الوثائق قبل بدء النسخ الاحتياطي. لديها كل التفاصيل خطوة بخطوة لإنشاء نسخة احتياطية مع Dropbox.',
@@ -104,7 +93,7 @@ return array(
       'db' => 'قاعدة البيانات',
       'db_app' => 'ملفات قاعدة البيانات والتطبيق',
       'db_storage' => 'ملفات قاعدة البيانات والتخزين',
-      'dropbox' => 'Dropbox',
+      'dropbox' => 'دروببوإكس',
       'dropbox_note' => 'يرجى الخروج من وثائق <b> كيفية الحصول على مفاتيح تطبيق DropBox؟ </b>',
       'email' => 'إشعار البريد الإلكتروني',
       'enable_disable' => 'مفعل وغير مفعل',
@@ -114,12 +103,10 @@ return array(
       'title' => 'دعم',
       'weekly' => 'أسبوعي',
     ),
-    'blogs' =>
-    array(
+    'blogs' => array(
       'create' => 'انشاء مدونة',
       'edit' => 'تحرير المدونة',
-      'fields' =>
-      array(
+      'fields' => array(
         'category' => 'الفئة',
         'clear' => 'واضح',
         'comments' => 'تعليقات',
@@ -131,7 +118,7 @@ return array(
         'meta_keywords' => 'كلمات دلالية',
         'meta_title' => 'عنوان الفوقية',
         'publish' => 'نشر',
-        'slug' => 'سبيكة',
+        'slug' => 'Slug',
         'status' => 'الحالة',
         'tags' => 'الكلمات',
         'tags_placeholder' => 'إضافة العلامات هنا',
@@ -142,16 +129,13 @@ return array(
       'title' => 'مدونة',
       'view' => 'عرض المدونات',
     ),
-    'categories' =>
-    array(
+    'categories' => array(
       'create' => 'إنشاء فئة',
       'edit' => 'تحرير الفئة',
-      'fields' =>
-      array(
+      'fields' => array(
         'courses' => 'الدورات',
         'icon' => 'أيقونة',
-        'icon_type' =>
-        array(
+        'icon_type' => array(
           'icon' => 'اختر أيقونة',
           'image' => 'تحميل الصور',
           'select_any' => 'اختر أي',
@@ -161,7 +145,7 @@ return array(
         'name' => 'اسم',
         'or' => 'أو',
         'select_icon' => 'اختر أيقونة',
-        'slug' => 'سبيكة',
+        'slug' => 'Slug',
         'status' => 'الحالة',
         'blog' => 'مدونة',
       ),
@@ -169,11 +153,9 @@ return array(
       'view' => 'عرض الفئات',
       'not_allowed' => 'غير مسموح! الفئة تحتوي على البيانات.',
     ),
-    'courses' =>
-    array(
-      'fields' =>
-      array(
-        'slug' => 'سبيكة',
+    'courses' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'status' => 'الحالة',
         'category' => 'الفئة',
         'course' => 'دورة',
@@ -182,7 +164,7 @@ return array(
         'featured' => 'الدورات المميزة',
         'lessons' => 'الدروس',
         'qr_code' => 'رمز الاستجابة السريعة',
-        array(
+        0 => array(
           'add' => 'أضف دروس',
           'view' => 'عرض الدروس',
         ),
@@ -200,7 +182,11 @@ return array(
         'trending' => 'الدورات الحديثة',
         'free' => 'حر',
         'unpublished' => 'غير منشور',
-        'draft' => 'مسودة'
+        'draft' => 'مسودة',
+        'external_students' => 'الطلاب الخارجيون',
+        'internal_students' => 'طلاب الداخلية',
+        'strike' => 'سعر الإضراب',
+        'expire_at' => 'انتهاء/تعطيل تاريخ الدورة',
       ),
       'add_categories' => 'إضافة فئات',
       'add_teachers' => 'إضافة المعلمين',
@@ -215,17 +201,21 @@ return array(
       'select_category' => 'اختر الفئة',
       'select_teachers' => 'اختر المعلمين',
       'select_students' => 'حدد الطلاب',
-      'slug_placeholder' => 'سبيكة الإدخال أو سيتم إنشاؤه تلقائيا',
+      'slug_placeholder' => 'Enter Slug or it will be generated automatically',
       'test' => 'اختبار',
       'timeline_description' => 'سحب وتغيير تسلسل الدروس / الاختبارات بالطبع',
       'title' => 'الدورات',
       'view' => 'عرض الدورات',
+      'add_internal_students' => 'إضافة الطلاب الداخليين',
+      'add_external_students' => 'إضافة طلاب خارجيين',
+      'select_internal_students' => 'حدد الطلاب الداخليين',
+      'select_external_students' => 'حدد الطلاب الخارجيين',
+      'select_questions' => 'حدد الأسئلة',
+      'select_courses' => 'حدد الدورات',
     ),
-    'lessons' =>
-    array(
-      'fields' =>
-      array(
-        'slug' => 'سبيكة',
+    'lessons' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'add_audio' => 'إضافة الصوت',
         'add_pdf' => 'إضافة PDF',
         'add_video' => 'أضف فيديو',
@@ -242,6 +232,7 @@ return array(
         'short_text' => 'نص قصير',
         'title' => 'عنوان',
         'youtube_videos' => 'يوتيوب فيديو',
+        'add_subtitle' => 'أضف عنوانًا فرعيًا',
       ),
       'create' => 'إنشاء الدرس',
       'edit' => 'تحرير الدرس',
@@ -251,7 +242,7 @@ return array(
       'remove' => 'إزالة',
       'select_course' => 'اختر الدورة',
       'short_description_placeholder' => 'إدخال وصف قصير للدرس',
-      'slug_placeholder' => 'سبيكة الإدخال أو سيتم إنشاؤه تلقائيا',
+      'slug_placeholder' => 'Enter Slug or it will be generated automatically',
       'title' => 'الدروس',
       'video_guide' => '<p class = "mb-1"> <b> Youtube: </b> اذهب إلى Youtube -> اذهب إلى الفيديو الذي تريد عرضه -> انقر على زر المشاركة أسفل الفيديو. انسخ تلك الروابط والصقها في مربع النص أعلاه </p>
       <p class = "mb-1"> <b> Vimeo: </b> اذهب إلى Vimeo -> اذهب إلى الفيديو الذي تريد عرضه -> انقر على زر المشاركة وانسخ عنوان url للفيديو هنا </p>
@@ -261,14 +252,12 @@ return array(
       'vimeo_note' => '<b> تعليمات لإضافة رابط فيديو: </b> <br> انتقل إلى vimeo -> فيديو مفتوح -> انقر بزر الماوس الأيمن على الفيديو و <b> نسخ عنوان URL للفيديو </b> والصقه هنا. <br> لإضافة مقاطع فيديو متعددة ، قم بفصلها باستخدام علامة <b> و </b> (فاصلة).',
       'yt_note' => '<b> تعليمات لإضافة رابط فيديو: </b> <br> انتقل إلى youtube -> open video -> انقر بزر الماوس الأيمن على الفيديو و <b> نسخ عنوان URL للفيديو </b> والصقه هنا. <br> لإضافة مقاطع فيديو متعددة ، قم بفصلها باستخدام علامة <b> و </b> (فاصلة).',
     ),
-    'pages' =>
-    array(
-      'fields' =>
-      array(
+    'pages' => array(
+      'fields' => array(
         'email' => 'البريد الإلكتروني',
         'course_name' => 'اسم الدورة',
         'view' => 'عرض',
-        'slug' => 'سبيكة',
+        'slug' => 'Slug',
         'status' => 'الحالة',
         'clear' => 'واضح',
         'content' => 'يحتوى',
@@ -288,10 +277,8 @@ return array(
       'title' => 'صفحات',
       'view' => 'عرض الصفحات',
     ),
-    'faqs' =>
-    array(
-      'fields' =>
-      array(
+    'faqs' => array(
+      'fields' => array(
         'status' => 'الحالة',
         'answer' => 'إجابة',
         'category' => 'الفئة',
@@ -302,14 +289,11 @@ return array(
       'title' => 'أسئلة وأجوبة',
       'view' => 'عرض الأسئلة الشائعة',
     ),
-    'hero_slider' =>
-    array(
-      'fields' =>
-      array(
+    'hero_slider' => array(
+      'fields' => array(
         'status' => 'الحالة',
         'bg_image' => 'صورة BG',
-        'buttons' =>
-        array(
+        'buttons' => array(
           'add' => 'إضافة',
           'label' => 'ضع الكلمة المناسبة',
           'link' => 'حلقة الوصل',
@@ -320,15 +304,13 @@ return array(
         ),
         'hero_text' => 'نص البطل',
         'name' => 'اسم',
-        'overlay' =>
-        array(
+        'overlay' => array(
           'note' => 'إذا قمت بتشغيله. سيتم عرض تراكب أسود على صورتك. سيكون مفيدًا عندما لا تكون صورة BG أغمق أو لا تحتوي على تراكب',
           'title' => 'غطاء',
         ),
         'sequence' => 'تسلسل',
         'sub_text' => 'النص الفرعي',
-        'widget' =>
-        array(
+        'widget' => array(
           'countdown_timer' => 'العد التنازلي',
           'input_date_time' => 'تاريخ الإدخال والوقت',
           'search_bar' => 'شريط البحث',
@@ -347,10 +329,8 @@ return array(
       'title' => 'بطل المتزلج',
       'view' => 'عرض الشرائح',
     ),
-    'reasons' =>
-    array(
-      'fields' =>
-      array(
+    'reasons' => array(
+      'fields' => array(
         'status' => 'الحالة',
         'content' => 'يحتوى',
         'icon' => 'أيقونة',
@@ -362,10 +342,8 @@ return array(
       'title' => 'أسباب',
       'view' => 'عرض الأسباب',
     ),
-    'sponsors' =>
-    array(
-      'fields' =>
-      array(
+    'sponsors' => array(
+      'fields' => array(
         'status' => 'الحالة',
         'link' => 'حلقة الوصل',
         'logo' => 'شعار',
@@ -376,10 +354,8 @@ return array(
       'title' => 'الرعاة',
       'view' => 'عرض الرعاة',
     ),
-    'teachers' =>
-    array(
-      'fields' =>
-      array(
+    'teachers' => array(
+      'fields' => array(
         'status' => 'الحالة',
         'email' => 'عنوان بريد الكتروني',
         'first_name' => 'الاسم الاول',
@@ -392,10 +368,8 @@ return array(
       'title' => 'معلمون',
       'view' => 'عرض المعلمين',
     ),
-    'testimonials' =>
-    array(
-      'fields' =>
-      array(
+    'testimonials' => array(
+      'fields' => array(
         'status' => 'الحالة',
         'content' => 'يحتوى',
         'name' => 'اسم',
@@ -406,10 +380,8 @@ return array(
       'title' => 'الشهادات - التوصيات',
       'view' => 'عرض الشهادات',
     ),
-    'contacts' =>
-    array(
-      'fields' =>
-      array(
+    'contacts' => array(
+      'fields' => array(
         'email' => 'البريد الإلكتروني',
         'message' => 'رسالة',
         'name' => 'اسم',
@@ -418,8 +390,7 @@ return array(
       ),
       'title' => 'يؤدي',
     ),
-    'dashboard' =>
-    array(
+    'dashboard' => array(
       'Course-Name' => 'اسم الدورة التدريبية',
       'type-your-course' => 'الرجاء كتابة اسم الدورة',
       'course-status' => 'حالة الدورة التدريبية',
@@ -467,9 +438,10 @@ return array(
       'pending_orders' => 'أوامر معلقة',
       'success' => 'نجاح',
       'failed' => 'فشل',
+      'my_subscribed_courses' => 'الدورات التدريبية التي اشتركت فيها',
+      'my_subscribed_course_bundles' => 'حزم الدورة التدريبية التي اشتركت فيها',
     ),
-    'general_settings' =>
-    array(
+    'general_settings' => array(
       'disable_landing_page' => 'تعطيل الصفحة المقصودة',
       'custom_css' => 'لغة تنسيق ويب حسب الطلب',
       'custom_js' => 'شبيبة مخصصة',
@@ -484,8 +456,7 @@ return array(
       'captcha_status' => 'وضع كلمة التحقق',
       'change_email' => 'تغيير الايميل',
       'confirm_email' => 'تأكيد عنوان البريد الإلكتروني',
-      'contact' =>
-      array(
+      'contact' => array(
         'location_on_map' => 'الموقع على الخريطة',
         'map_note' => '<ol class="map-guide">
 <li>اذهب إلى <a class="text-bold" target="_blank" href="//maps.google.com">خرائط جوجل</a> </li>
@@ -510,8 +481,7 @@ return array(
       'counter' => 'عداد',
       'counter_note' => '<b> ثابت </b> = إضافة بيانات لعداد يدويًا. الرجاء إدخال النص الدقيق الذي تريد عرضه في قسم عداد الواجهة الأمامية ، <br> <b> قاعدة البيانات / حقيقي </b> = سيستغرق الأمر بيانات حقيقية من قاعدة البيانات لجميع الحقول (الطلاب المسجلين ، إجمالي الدورات ، إجمالي المعلمين)',
       'database' => 'قاعدة البيانات / ريال',
-      'email' =>
-      array(
+      'email' => array(
         'mail_driver' => 'سائق البريد',
         'mail_driver_note' => 'يمكنك تحديد أي برنامج تشغيل تريده لإعداد Mail. <ب> السابقين. SMTP و Mailgun و Mandrill و SparkPost و Amazon SES إلخ. </b> <br> أضف <b> برنامج تشغيل فرديًا فقط </b>',
         'mail_encryption' => 'تشفير البريد',
@@ -535,8 +505,7 @@ return array(
       ),
       'enable_registration' => 'تمكين التسجيل',
       'font_color' => 'لون الخط',
-      'footer' =>
-      array(
+      'footer' => array(
         'bottom_footer' => 'أسفل تذييل',
         'bottom_footer_note' => 'ملاحظة: يتضمن النص حقوق الطبع والنشر وصلات تذييل',
         'copyright_text' => 'نص حقوق النشر',
@@ -545,7 +514,7 @@ return array(
         'footer_links' => 'روابط تذييل الصفحة',
         'link' => 'حلقة الوصل',
         'link_label' => 'ضع الكلمة المناسبة',
-        'link_url' => 'URL',
+        'link_url' => 'عنوان URL',
         'newsletter_form' => 'نموذج النشرة الإخبارية',
         'popular_categories' => 'فئات شعبية',
         'popular_courses' => 'دورات شعبية',
@@ -559,45 +528,40 @@ return array(
         'title' => 'تذييل',
         'trending_courses' => 'تتجه الدورات',
       ),
-      'general' =>
-      array(
+      'general' => array(
         'score_label' => 'النتيجة',
         'score_new' => 'النتيجة',
-        'title' => 'جنرال لواء',
+        'title' => 'عام',
       ),
       'google_analytics' => 'جوجل تحليلات مدونة',
       'google_analytics_id' => 'معرف Google Analytics',
       'google_analytics_id_note' => 'كيف تحصل على Google Analytics ID؟',
       'homepage' => 'اختر الصفحة الرئيسية',
-      'language_settings' =>
-      array(
+      'language_settings' => array(
         'default_language' => 'اللغة الافتراضية',
         'display_type' => 'نوع العرض',
         'left_to_right' => 'من اليسار إلى اليمين',
         'right_to_left' => 'من اليمين الى اليسار',
         'title' => 'اعدادات اللغة',
       ),
-      'layout' =>
-      array(
+      'layout' => array(
         'title' => 'نسق',
       ),
-      'layout_note' => 'سيؤدي هذا إلى تغيير تخطيط سمة الواجهة الأمامية',
+      'layout_note' => 'سيؤدي هذا إلى تغيير تخطيط قالب الواجهة الأمامية',
       'layout_type' => 'نوع التخطيط',
-      'logos' =>
-      array(
+      'logos' => array(
         'title' => 'الشعارات',
       ),
       'mail_configuration_note' => 'هل قمت بتكوين: ربط إعدادات البريد </a>؟ من الضروري الإعداد لإرسال / استقبال رسائل البريد الإلكتروني',
-      'mail_driver' => 'سائق البريد',
+      'mail_driver' => 'برنامج تشغيل البريد',
       'mail_from_address' => 'البريد من العنوان',
       'mail_from_name' => 'البريد من الاسم',
       'mail_host' => 'مضيف البريد',
       'mail_password' => 'بريد كلمة المرور',
       'mail_port' => 'ميناء البريد',
       'mail_username' => 'البريد اسم المستخدم',
-      'management' => 'الاعدادات العامة',
-      'newsletter' =>
-      array(
+      'management' => 'الإعدادات العامة',
+      'newsletter' => array(
         'api_key' => 'مفتاح API',
         'api_key_note' => 'أنشئ <b> مفتاح API </b> من <a target="_blank" href="https://mailchimp.com/"> <b> حساب Mailchimp </b> </a> والصقه أعلاه مربع النوع.',
         'api_key_note_sendgrid' => 'قم بإنشاء <b> مفتاح API </b> من <a target="_blank" href="https://sendgrid.com/"> <b> حساب SendGrid </b> </a> والصقه في أعلاه مربع الكتابة.',
@@ -615,18 +579,17 @@ return array(
         'mailchimp' => 'ميل تشيمب',
         'manage_lists' => 'إدارة قوائم SendGrid',
         'select_list' => 'اختر قائمة',
-        'sendgrid' => 'SendGrid',
+        'sendgrid' => 'سيندغريد',
         'sendgrid_lists' => 'SendGrid قوائم البريد الإلكتروني',
         'title' => 'تكوين النشرة الإخبارية',
       ),
       'password_expires_days' => 'كلمة المرور تنتهي أيام',
       'password_history' => 'كلمة السر التاريخ',
-      'payment_settings' =>
-      array(
+      'payment_settings' => array(
         'client_id' => 'معرف العميل',
         'client_secret' => 'سر',
         'how_to_paypal' => 'كيفية الحصول على بيانات اعتماد API في PayPal؟',
-        'how_to_stripe' => 'كيفية الحصول على أوراق اعتماد API STRIPE؟',
+        'how_to_stripe' => 'كيفية الحصول على بيانات اعتماد Stripe API؟',
         'key' => 'مفتاح API',
         'live' => 'حي',
         'mode' => 'الوضع',
@@ -638,39 +601,60 @@ return array(
         'paypal_note' => 'يعيد توجيه إلى paypal للدفع',
         'sandbox' => 'رمل',
         'secret' => 'سر API',
-        'stripe' => 'طريقة الدفع الشريطية',
-        'stripe_note' => 'تمكن المدفوعات في الموقع مع بطاقات الخصم / الائتمان',
+        'stripe' => 'طريقة الدفع عبر Stripe',
+        'stripe_note' => 'تُمكّن المدفوعات في الموقع باستخدام بطاقات الخصم أو الائتمان',
         'title' => 'تكوين الدفع',
         'select_currency' => 'اختر العملة',
         'bluesnap' => 'Bluesnap طريقة الدفع',
         'bluesnap_note' => 'نموذج بطاقة Bluesnap للدفع',
         'how_to_bluesnap' => 'كيفية الحصول على بيانات اعتماد Bluesnap API؟',
         'offline_mode_instruction' => 'أدخل تعليمات الدفع في وضع عدم الاتصال',
+        'instamojo' => 'طريقة الدفع على الانستقرام',
+        'instamojo_note' => 'يعيد التوجيه إلى instamojo للدفع',
+        'instamojo_token' => 'رمز API',
+        'instamojo_mode_note' => '<b>Sandbox</b>= سيتم استخدامه لاختبار الدفعات باستخدام بيانات اعتماد اختبار Instamojo. سيتم إعادة توجيه هذه الخيارات لاختبار دفع Instamojo باستخدام بيانات اعتماد مستخدم Sandbox. سيتم استخدامه للمعاملات الوهمية فقط.<br><a href="//test.instamojo.com/">كيفية الحصول على بيانات اعتماد Instamojo Test API؟</a><br>
+      <b>Live</b> = سيتم استخدامه مع بيانات اعتماد Live Instamojo الخاصة بك لإجراء معاملة فعلية مع المستخدمين العاديين باستخدام حساب Instamojo.<br><a href="//www.instamojo.com">كيفية الحصول على بيانات اعتماد Instamojo Live API؟</a>',
+        'razorpay' => 'طريقة الدفع Razorpay',
+        'razorpay_note' => 'يعيد التوجيه إلى RazorPay للدفع',
+        'how_to_razorpay' => 'كيفية الحصول على بيانات اعتماد RAZORPAY API؟',
+        'cashfree' => 'طريقة الدفع نقدا مجانا',
+        'cashfree_note' => 'يعيد التوجيه إلى CashFree للدفع',
+        'cashfree_app_id' => 'معرف التطبيق',
+        'cashfree_secret' => 'المفتاح السري',
+        'cashfree_mode_note' => '<b>Sandbox</b>= سيتم استخدامه لاختبار الدفعات باستخدام بيانات اعتماد اختبار CasFree. يمكن للحساب الذي يحتوي على INR فقط إجراء الدفعات باستخدام Cashfree في الوقت الحالي. سيتم إعادة توجيه هذه الخيارات لاختبار الدفع النقدي باستخدام بيانات اعتماد مستخدم Sandbox. سيتم استخدامه للمعاملات الوهمية فقط.<br><a href="//test.cashfree.com">كيفية الحصول على بيانات اعتماد Cashfree Test API؟</a><br>
+      <b>Live</b> = سيتم استخدامه مع بيانات اعتماد Live Cashfree الخاصة بك لإجراء معاملة فعلية مع مستخدمين عاديين باستخدام حساب Cashfree.<br><strong>إذا قمت بتعيين بوابة الدفع هذه، فقم بتعيين عملتك كـ INR</strong><br><a href="//www.cashfree.com">كيفية الحصول على بيانات اعتماد Cashfree Live API؟</a>',
+        'payu' => 'طريقة الدفع PayUMoney',
+        'payu_note' => 'يعيد التوجيه إلى PayUMoney للدفع',
+        'payu_salt' => 'ملح',
+        'how_to_payu' => 'كيفية الحصول على بيانات اعتماد PayUMoney API؟',
+        'payu_mode_note' => '<b>Sandbox</b>= سيتم استخدامه لاختبار الدفعات باستخدام بيانات اعتماد اختبار PayUMoney. يمكن للحساب باستخدام INR فقط إجراء الدفعات باستخدام الدفع في الوقت الحالي. سيتم إعادة توجيه هذه الخيارات لاختبار دفع PayUMoney باستخدام بيانات اعتماد مستخدم Sandbox. سيتم استخدامه للمعاملات الوهمية فقط.<br>
+      <b>Live</b> = سيتم استخدامه مع بيانات اعتماد Live PayUMoney الخاصة بك لإجراء معاملة فعلية مع مستخدمين عاديين باستخدام حساب PayUMoney.<br><strong>إذا قمت بتعيين بوابة الدفع هذه، فقم بتعيين عملتك كـ INR</strong>',
+        'flutter' => 'طريقة الدفع الرفرفة',
+        'how_to_flutter' => 'كيفية الحصول على بيانات اعتماد Flutter API؟',
+        'flutter_note' => 'يعيد التوجيه إلى Flutter للدفع',
       ),
       'requires_approval' => 'يتطلب موافقة',
       'retest_note' => 'تمكين / تعطيل إذا كان المستخدم سيكون قادرا على إعادة اختبار للامتحان نفسه',
       'sections_note' => 'بمجرد النقر فوق "تحديث" ، سترى قائمة بالأقسام لتشغيل / إيقاف',
       'static' => 'ثابتة',
       'theme_layout' => 'تخطيط الموضوع',
-      'title' => 'جنرال لواء',
-      'total_courses' => 'أدخل مجموع الدورات. على سبيل المثال: 1 كيلو ، 1000 إلخ',
-      'total_students' => 'أدخل مجموع الطلاب. على سبيل المثال: 1 كيلو ، مليون ، 1000 إلخ.',
-      'total_teachers' => 'أدخل مجموع المعلمين. على سبيل المثال: 1 كيلو ، 1000 إلخ',
-      'user_registration_settings' =>
-      array(
+      'title' => 'عام',
+      'total_courses' => 'أدخل إجمالي الدورات. مثال: 1K أو 1000 وما إلى ذلك.',
+      'total_students' => 'أدخل إجمالي الطلاب. مثال: 1K أو 1 Million أو 1000 وما إلى ذلك.',
+      'total_teachers' => 'أدخل إجمالي المدربين. مثال: 1K أو 1000 وما إلى ذلك.',
+      'user_registration_settings' => array(
         'desc' => 'سيتم عرض الحقول المحددة من الشريط الجانبي الأيمن في نموذج التسجيل',
-        'fields' =>
-        array(
+        'fields' => array(
           'address' => 'عنوان',
           'city' => 'مدينة',
           'country' => 'بلد',
           'dob' => 'تاريخ الولادة',
           'email' => 'البريد الإلكتروني',
-          'female' => 'إناثا',
+          'female' => 'أنثى',
           'first_name' => 'الاسم الاول',
           'gender' => 'جنس',
           'last_name' => 'الكنية',
-          'male' => 'الذكر',
+          'male' => 'ذكر',
           'other' => 'آخر',
           'password' => 'كلمه السر',
           'phone' => 'هاتف',
@@ -685,12 +669,10 @@ return array(
       'how_to_onesignal' => 'كيفية إنشاء التطبيق في OneSignal؟',
       'onesignal_note' => 'تمكين / تعطيل تكوين OneSignal لموقع الويب.',
       'setup_onesignal' => 'كيفية إعداد OneSignal؟',
-      'api_clients' =>
-      array(
+      'api_clients' => array(
         'api_client_name' => 'اسم عميل API',
         'enable' => 'ممكن',
-        'fields' =>
-        array(
+        'fields' => array(
           'action' => 'إنجاز',
           'id' => 'هوية شخصية',
           'name' => 'اسم',
@@ -699,25 +681,27 @@ return array(
         ),
         'generate' => 'توليد',
         'live' => 'حي',
-        'please_input_api_client_name' => 'الرجاء إدخال اسم عميل API',
+        'please_input_api_client_name' => 'يرجى إدخال اسم عميل API',
         'revoke' => 'إبطال',
         'revoked' => 'إلغاء - فسخ',
-        'something_went_wrong' => 'هناك خطأ ما',
+        'something_went_wrong' => 'حدث خطأ ما',
         'title' => 'عملاء API',
         'developer_manual' => 'دليل المطور',
         'note' => '<span class = "text-risk font-weight-bold"> ملاحظة: </span> سيكون هذا القسم مفيدًا لهدف API. يمكنك إنشاء <b> معرف العميل </b> و <b> عميل السرية </b> لاستخدامه في تطبيق Android أو ساعي البريد لاختبار واجهة برمجة التطبيقات. <br> تحتاج إلى تخصيص المعلمات وعنوان URL وفقًا لمتطلباتك.',
       ),
       'teacher_commission_rate' => 'معدل عمولة المعلم',
-      'box' => 'صندوق',
-      'layout_label' => 'نسق',
-      'layout_type_note' => 'سيؤدي هذا إلى تغيير نوع تخطيط الواجهة الأمامية',
+      'box' => 'مربع',
+      'layout_label' => 'التخطيط',
+      'layout_type_note' => 'سيؤدي هذا إلى تغيير نوع تخطيط قالب الواجهة الأمامية',
       'list_update_note' => 'بمجرد النقر فوق "تحديث" ، سترى قائمة بالأقسام لتشغيل / إيقاف.',
       'wide' => 'واسع',
+      'admin_registration_mail' => 'بريد التسجيل',
+      'admin_registration_mail_note' => 'تمكين / تعطيل إذا كان المشرف سيكون قادرًا على استلام بريد مستخدم التسجيل الجديد',
+      'admin_order_mail' => 'طلب البريد',
+      'admin_order_mail_note' => 'تمكين / تعطيل إذا كان المشرف سيكون قادرًا على استلام بريد الطلب الجديد',
     ),
-    'invoices' =>
-    array(
-      'fields' =>
-      array(
+    'invoices' => array(
+      'fields' => array(
         'amount' => 'كمية',
         'download' => 'تحميل',
         'order_date' => 'تاريخ الطلب',
@@ -725,8 +709,7 @@ return array(
       ),
       'title' => 'الفواتير',
     ),
-    'logo' =>
-    array(
+    'logo' => array(
       'favicon' => 'أضف فافيكون',
       'favicon_note' => 'ملاحظة: قم بتحميل الشعار بدقة <b> 32 × 32 </b> بكسل وإضافات <b> .png </b> أو <b> .gif </b> أو <b> .ico </b>',
       'logo_b' => 'الشعار 1',
@@ -739,12 +722,10 @@ return array(
       'logo_white_note' => 'ملاحظة: قم بتحميل الشعار مع <b> بنص أبيض وخلفية شفافة فقط بتنسيق .png </b> و <b> 294 × 50 </b> (WxH>) بكسل. <br> <b> الارتفاع </b> ثابت ، <b> العرض </b> وفقًا لـ <b> نسبة العرض إلى الارتفاع </b>.',
       'title' => 'تغيير الشعار',
     ),
-    'menu-manager' =>
-    array(
+    'menu-manager' => array(
       'title' => 'مدير القائمة',
     ),
-    'messages' =>
-    array(
+    'messages' => array(
       'compose' => 'مؤلف موسيقى',
       'search_user' => 'بحث المستخدم',
       'select_recipients' => 'اختر المستلمين',
@@ -752,25 +733,21 @@ return array(
       'title' => 'رسائل',
       'type_a_message' => 'اكتب رسالة',
     ),
-    'orders' =>
-    array(
+    'orders' => array(
       'complete' => 'أكمل يدويا',
       'download_invoice' => 'تحميل فاتورة',
-      'fields' =>
-      array(
+      'fields' => array(
         'amount' => 'كمية',
         'date' => 'تاريخ الطلب',
         'items' => 'العناصر',
         'ordered_by' => 'مرتبة حسب',
-        'payment_status' =>
-        array(
+        'payment_status' => array(
           'completed' => 'منجز',
           'failed' => 'فشل',
           'pending' => 'قيد الانتظار',
           'title' => 'دفع',
         ),
-        'payment_type' =>
-        array(
+        'payment_type' => array(
           'offline' => 'غير متصل على الانترنت',
           'paypal' => 'باي بال',
           'stripe' => 'بطاقة الائتمان / الخصم (بوابة الدفع عبر الشريط)',
@@ -783,12 +760,10 @@ return array(
       'title' => 'أوامر',
       'view_invoice' => 'عرض الفاتورة',
     ),
-    'questions' =>
-    array(
+    'questions' => array(
       'create' => 'إنشاء سؤال',
       'edit' => 'تحرير السؤال',
-      'fields' =>
-      array(
+      'fields' => array(
         'correct' => 'صيح',
         'course' => 'دورة',
         'lesson' => 'درس',
@@ -806,12 +781,10 @@ return array(
       'view' => 'عرض الأسئلة',
       'test' => 'اختبار',
     ),
-    'questions_options' =>
-    array(
+    'questions_options' => array(
       'create' => 'إنشاء خيار',
       'edit' => 'تحرير الخيار',
-      'fields' =>
-      array(
+      'fields' => array(
         'correct' => 'صيح',
         'course' => 'دورة',
         'lesson' => 'درس',
@@ -825,10 +798,8 @@ return array(
       'title' => 'خيار الأسئلة',
       'view' => 'عرض خيارات السؤال',
     ),
-    'reviews' =>
-    array(
-      'fields' =>
-      array(
+    'reviews' => array(
+      'fields' => array(
         'content' => 'يحتوى',
         'course' => 'دورة',
         'time' => 'زمن',
@@ -836,8 +807,7 @@ return array(
       ),
       'title' => 'التعليقات',
     ),
-    'social_settings' =>
-    array(
+    'social_settings' => array(
       'fb_api_note' => 'كيفية الحصول على مؤهلات اعتماد واجهة برمجة تطبيقات Facebook؟',
       'fb_note' => 'تمكين / تعطيل تسجيل الدخول إلى موقع Facebook',
       'google_api_note' => 'كيفية الحصول على بيانات اعتماد Google API؟',
@@ -848,24 +818,23 @@ return array(
       'twitter_api_note' => 'كيفية الحصول على بيانات اعتماد Twitter API؟',
       'twitter_note' => 'تمكين / تعطيل تسجيل الدخول إلى Twitter لموقع الويب',
     ),
-    'tests' =>
-    array(
+    'tests' => array(
       'create' => 'إنشاء اختبار',
       'edit' => 'تحرير الاختبار',
-      'fields' =>
-      array(
+      'fields' => array(
         'course' => 'دورة',
         'description' => 'وصف',
         'lesson' => 'درس',
         'published' => 'نشرت',
         'questions' => 'الأسئلة',
         'title' => 'عنوان',
+        'score_field' => 'النتيجة',
+        'score_field_placeholder' => 'النتيجة',
       ),
       'title' => 'اختبارات',
       'view' => 'عرض الاختبارات',
     ),
-    'translations' =>
-    array(
+    'translations' => array(
       'add_new_locale' => 'إضافة لغة جديدة',
       'adding' => 'مضيفا ...',
       'append_new_translations' => 'إلحاق ترجمات جديدة',
@@ -896,8 +865,7 @@ return array(
       'warning' => 'تحذير ، الترجمات غير مرئية حتى يتم تصديرها مرة أخرى إلى ملف التطبيق / اللغة ، باستخدام
                          <code> php translation translation: export </code> زر الأمر أو النشر.',
     ),
-    'update' =>
-    array(
+    'update' => array(
       'current_version' => 'النسخة الحالية',
       'file_replaced' => 'سيتم تحديث / استبدال الملفات التالية',
       'note_before_upload' => '<p> <b> يرجى أخذ BACKUP قبل التحديث. </b> قد يأتي ملف zip المحدث مع مجلدات جديدة وتحديثات للملفات. <b> سيتم استبدال ملفاتك الحالية بملف جديد </b>. لذا ، <b> إذا قمت بإجراء أي تغييرات في ملفات التطبيق الحالية ، فسيكون هذا المفقود </b>. </p>
@@ -908,14 +876,12 @@ return array(
       'upload' => 'تحميل الإصدار الجديد <small> (update.zip) </small>',
       'warning' => '<b> تحذير: نوصيك بشدة بتحديث المظهر حسب رقم الإصدار </b>. <br> <b> مثال: </b> update_v1.zip، update_v2.zip. من فضلك لا تقفز رقم الإصدار. إذا كان رقم الإصدار هو 1 وتريد تحديثه ، فقم بالتحديث إلى الإصدار 2. لا تقم بالتحديث مباشرة إلى الإصدار 3.',
     ),
-    'certificates' =>
-    array(
+    'certificates' => array(
       'back_to_list' => 'العودة إلى القائمة',
       'confirm_reissue' => 'هل أنت متأكد أنك تريد إعادة إصدار هذه الشهادة؟',
       'download' => 'تحميل',
       'reissue' => 'إعادة إصدار الشهادة',
-      'fields' =>
-      array(
+      'fields' => array(
         'action' => 'إنجاز',
         'all_courses' => 'كل الدورات',
         'all_statuses' => 'كل الحالات',
@@ -942,24 +908,21 @@ return array(
         'download-certificate' => ' تحميل الشهادة',
         'user_details' => 'تفاصيل المستخدم',
         'user_email' => 'بريد المستخدم',
-        'user_name' => 'اسم المستخدم'
+        'user_name' => 'اسم المستخدم',
       ),
       'title' => 'شهادات',
       'view' => 'رأي',
     ),
-    'bundles' =>
-    array(
-      'fields' =>
-      array(
-        'slug' => 'سبيكة',
+    'bundles' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'status' => 'الحالة',
         'category' => 'الفئة',
         'course' => 'دورة',
         'course_image' => 'صورة الدورة',
         'description' => 'وصف',
         'featured' => 'الدورات المميزة',
-        'lessons' =>
-        array(
+        'lessons' => array(
           'add' => 'أضف دروس',
           'view' => 'عرض الدروس',
         ),
@@ -973,12 +936,12 @@ return array(
         'start_date' => 'تاريخ البدء',
         'teachers' => 'معلمون',
         'students' => 'الطلاب',
-
         'title' => 'عنوان',
         'trending' => 'الدورات الحديثة',
         'courses' => 'الدورات',
         'free' => 'حر',
         'unpublished' => 'غير منشور',
+        'expire_at' => 'انتهاء الصلاحية / تعطيل تاريخ الحزمة',
       ),
       'add_categories' => 'إضافة فئات',
       'add_teachers' => 'إضافة المعلمين',
@@ -993,7 +956,7 @@ return array(
       'select_category' => 'اختر الفئة',
       'select_teachers' => 'اختر المعلمين',
       'select_students' => 'حدد الطلاب',
-      'slug_placeholder' => 'سبيكة الإدخال أو سيتم إنشاؤه تلقائيا',
+      'slug_placeholder' => 'Enter Slug or it will be generated automatically',
       'test' => 'اختبار',
       'timeline_description' => 'سحب وتغيير تسلسل الدروس / الاختبارات بالطبع',
       'title' => 'بال',
@@ -1001,12 +964,10 @@ return array(
       'add_courses' => 'إضافة الدورات',
       'select_courses' => 'اختر الدورات',
     ),
-    'reports' =>
-    array(
+    'reports' => array(
       'bundles' => 'بال',
       'courses' => 'الدورات',
-      'fields' =>
-      array(
+      'fields' => array(
         'bundle' => 'حزمة',
         'completed' => 'بالطبع الانتهاء',
         'content' => 'يحتوى',
@@ -1017,15 +978,35 @@ return array(
         'students' => 'الطلاب',
         'time' => 'زمن',
         'user' => 'المستعمل',
+        'amount' => 'المبلغ',
+        'student' => 'طالب',
+        'date' => 'التاريخ',
+        'transaction' => 'معرف المعاملة',
       ),
       'sales_report' => 'تقرير المبيعات',
       'students_report' => 'تقرير الطلاب',
       'title' => 'تقارير',
       'total_earnings' => 'الأرباح الكلية',
       'total_sales' => 'إجمالي المبيعات',
+      'date_range' => 'النطاق الزمني',
+      'select_student' => 'حدد الطالب',
+      'select_bundle' => 'حدد الحزمة',
+      'select_course' => 'حدد الدورة التدريبية',
+      'filter' => 'تصفية',
+      'reset' => 'إعادة تعيين',
+      'apply_date' => 'تاريخ التقديم',
+      'date_input_lang' => array(
+        'today' => 'اليوم',
+        'yesterday' => 'أمس',
+        'last_7_days' => 'آخر 7 أيام',
+        'last_30_days' => 'آخر 30 يومًا',
+        'this_month' => 'هذا الشهر',
+        'last_month' => 'الشهر الماضي',
+        'quarter_to_date' => 'الربع حتى الآن',
+        'year_to_date' => 'سنة حتى الآن',
+      ),
     ),
-    'coupons' =>
-    array(
+    'coupons' => array(
       'amount_note' => 'إذا تم تحديد <b> معدل الخصم </b> ، فنسبة معدل الإدخال. إذا تم تحديد <b> معدل ثابت </b> ، فقم بإدخال مبلغ معين ليتم خصمه.',
       'bundles' => 'بال',
       'courses' => 'الدورات',
@@ -1033,8 +1014,7 @@ return array(
       'description' => 'وصف',
       'discount_rate' => 'معدل الخصم',
       'edit' => 'تحرير القسيمة',
-      'fields' =>
-      array(
+      'fields' => array(
         'amount' => 'كمية',
         'code' => 'الشفرة',
         'description' => 'وصف',
@@ -1057,8 +1037,7 @@ return array(
       'unlimited' => 'غير محدود',
       'view' => 'عرض كوبونات',
     ),
-    'sitemap' =>
-    array(
+    'sitemap' => array(
       'daily' => 'اليومي',
       'generate' => 'توفير',
       'generated' => 'تم إنشاء ملف Sitemap بنجاح.',
@@ -1069,12 +1048,10 @@ return array(
       'title' => 'خريطة الموقع',
       'weekly' => 'أسبوعي',
     ),
-    'tax' =>
-    array(
+    'tax' => array(
       'create' => 'إنشاء ضريبة',
       'edit' => 'تحرير الضريبة',
-      'fields' =>
-      array(
+      'fields' => array(
         'name' => 'اسم',
         'rate' => 'معدل',
         'status' => 'الحالة',
@@ -1084,12 +1061,10 @@ return array(
       'title' => 'ضريبة',
       'view' => 'عرض الضريبة',
     ),
-    'forum_category' =>
-    array(
+    'forum_category' => array(
       'create' => 'إنشاء فئة المنتدى',
       'edit' => 'تحرير فئة المنتدى',
-      'fields' =>
-      array(
+      'fields' => array(
         'category' => 'الفئة',
         'color' => 'اللون',
         'order' => 'طلب',
@@ -1101,8 +1076,7 @@ return array(
       'title' => 'أقسام المنتدى',
       'view' => 'مشاهدة قسم المنتدى',
     ),
-    'payments' =>
-    array(
+    'payments' => array(
       'title' => 'المدفوعات',
       'total_earnings' => 'الأرباح الكلية',
       'total_withdrawals' => 'إجمالي السحوبات',
@@ -1113,20 +1087,17 @@ return array(
       'add_withdrawal_request' => 'إضافة طلب السحب',
       'approve' => 'يوافق',
       'reject' => 'رفض',
-      'payment_type' =>
-      array(
+      'payment_type' => array(
         'bank' => 'مصرف',
         'paypal' => 'باي بال',
         'offline' => 'غير متصل على الانترنت',
       ),
-      'status' =>
-      array(
+      'status' => array(
         'pending' => 'قيد الانتظار',
         'approved' => 'وافق',
         'rejected' => 'مرفوض',
       ),
-      'fields' =>
-      array(
+      'fields' => array(
         'amount' => 'كمية',
         'payment_type' => 'نوع الدفع',
         'status' => 'الحالة',
@@ -1135,16 +1106,223 @@ return array(
         'teacher_name' => 'اسم المعلم',
       ),
     ),
+    'live_lessons' => array(
+      'title' => 'الدرس المباشر',
+      'create' => 'إنشاء درس مباشر',
+      'edit' => 'تحرير الدرس المباشر',
+      'view' => 'عرض الدرس',
+      'select_course' => 'حدد الدورة التدريبية',
+      'short_description_placeholder' => 'أدخل وصفًا موجزًا للدرس المباشر',
+      'fields' => array(
+        'course' => 'بالطبع',
+        'title' => 'العنوان',
+        'short_text' => 'فرز الوصف',
+      ),
+    ),
+    'live_lesson_slots' => array(
+      'title' => 'فتحات الدرس المباشر',
+      'select_lesson' => 'حدد الدرس',
+      'create' => 'إنشاء فتحة الدرس المباشر',
+      'edit' => 'تحرير فتحة الدرس المباشر',
+      'view' => 'عرض الفتحة',
+      'slot' => 'فتحة',
+      'short_description_placeholder' => 'أدخل وصفًا مختصرًا للفتحة',
+      'start_url' => 'عنوان URL للبدء',
+      'slot_booked_student_list' => 'فتحة قائمة الطلاب المحجوزة',
+      'student_name' => 'اسم الطالب',
+      'student_email' => 'البريد الإلكتروني للطالب',
+      'closed' => 'مغلق',
+      'type' => array(
+        'select_type' => 'حدد النوع',
+        'daily' => 'يوميا',
+        'weekly' => 'أسبوعيا',
+        'monthly' => 'شهريا',
+      ),
+      'fields' => array(
+        'lesson' => 'الدرس',
+        'topic' => 'الموضوع',
+        'short_text' => 'فرز الوصف',
+        'date_of_slot' => 'التاريخ',
+        'duration' => 'المدة (بالدقائق)',
+        'meeting_id' => 'معرف الاجتماع',
+        'date' => 'التاريخ',
+        'password' => 'كلمة المرور',
+        'change_default_setting' => 'تغيير الإعداد الافتراضي',
+        'student_limit' => 'حد الطالب',
+      ),
+    ),
+    'zoom_setting' => array(
+      'management' => 'إعداد التكبير',
+      'select_timezone' => 'اختر المنطقة الزمنية',
+      'audio_options' => array(
+        'both' => 'كلاهما',
+        'voip' => 'الصوت عبر بروتوكول الإنترنت',
+        'telephony' => 'الاتصالات الهاتفية',
+      ),
+      'meeting_approval_options' => array(
+        'automatically' => 'تلقائيا',
+        'manually' => 'يدويا',
+        'no_registration_required' => 'لا التسجيل مطلوب',
+      ),
+      'auto_recording_options' => array(
+        'none' => 'لا شيء',
+        'local' => 'محلي',
+        'cloud' => 'سحابة',
+      ),
+      'fields' => array(
+        'api_key' => 'مفتاح واجهة برمجة التطبيقات',
+        'api_secret' => 'المفتاح السري',
+        'join_before_host' => 'انضم قبل المضيف',
+        'host_video' => 'فيديو المضيف',
+        'participant_video' => 'فيديو المشارك',
+        'participant_mic_mute' => 'كتم صوت الميكروفون المشارك',
+        'waiting_room' => 'غرفة الانتظار',
+        'audio_option' => 'خيار الصوت',
+        'meeting_join_approval' => 'الموافقة على الانضمام إلى الاجتماع',
+        'auto_recording' => 'التسجيل التلقائي',
+        'timezone' => 'المنطقة الزمنية',
+      ),
+    ),
+    'stripe' => array(
+      'plan' => array(
+        'title' => 'خطط الشريط',
+        'create' => 'إنشاء خطة شريطية',
+        'edit' => 'تحرير خطة الشريط',
+        'view' => 'عرض خطة الشريط',
+        'select_product' => 'حدد المنتج',
+        'course' => '{0} وصول غير محدود|{99} عدم الوصول|[1,*] :quantity',
+        'bundle' => '{0} وصول غير محدود|{99} عدم الوصول|[1,*] :quantity',
+        'interval_type' => array(
+          '' => 'حدد الفاصل الزمني',
+          'day' => 'يوم',
+          'week' => 'الأسبوع',
+          'month' => 'شهر',
+          'year' => 'سنة',
+        ),
+        'input_quantity_note' => '0 يعني الوصول غير المحدود، 99 يعني عدم الوصول',
+        'stripe_currency_note' => '<strong>يرجى استخدام رمز العملة بالأحرف الصغيرة. ابحث عن رمز العملة الخاص بك <a href="//stripe.com/docs/currencies#presentment-currencies" target="_blank">هنا</a></strong>',
+        'fields' => array(
+          'product' => 'المنتج',
+          'name' => 'الاسم',
+          'description' => 'الوصف',
+          'amount' => 'المبلغ',
+          'currency' => 'العملة',
+          'interval' => 'الفاصل الزمني',
+          'course' => 'كمية الدورة',
+          'bundle' => 'كمية الحزمة',
+        ),
+      ),
+    ),
+    'subscription' => array(
+      'title' => 'الاشتراك',
+      'invoice_list' => 'قائمة الفاتورة',
+      'click_here' => 'انقر هنا',
+      'cancel_title' => 'إلغاء الاشتراك',
+      'subscribe_plan' => 'خطة الاشتراك',
+      'date' => 'التاريخ',
+      'sub_total' => 'المجموع الفرعي',
+      'total' => 'المجموع',
+      'download' => 'تحميل',
+      'active_plan' => 'الخطة النشطة',
+      'course' => 'بالطبع',
+      'bundle' => 'حزمة',
+      'quantity' => '{0} غير محدود|{99} عدم الوصول|[1,*] :quantity',
+    ),
+    'wishlist' => array(
+      'title' => 'قائمة الرغبات',
+      'course' => 'بالطبع',
+    ),
+    'license_settings' => array(
+      'title' => 'إعدادات الترخيص',
+      'not_configured' => 'لم يتم تكوين خادم الترخيص',
+      'not_configured_note' => 'الرجاء إضافة متغيرات البيئة التالية إلى ملف .env الخاص بك:',
+      'limit_exceeded' => 'تم تجاوز حد المستخدم',
+      'limit_exceeded_note' => 'لديك :current من المستخدمين النشطين ولكن ترخيصك يسمح فقط بـ :max من المستخدمين.',
+      'limit_warning' => 'تحذير بشأن حدود المستخدم',
+      'limit_warning_note' => 'أنت تقترب من حد المستخدم الخاص بك. حاليًا :current من :max من المستخدمين.',
+      'license_key' => 'مفتاح الترخيص',
+      'status' => 'الحالة',
+      'license_type' => 'نوع الترخيص',
+      'licensed_to' => 'مرخص ل',
+      'licensee_email' => 'البريد الإلكتروني للمرخص له',
+      'max_users' => 'ماكس المستخدمين',
+      'active_users' => 'المستخدمون النشطون',
+      'remaining_users' => 'المستخدمون المتبقيون',
+      'unlimited' => 'غير محدود',
+      'expiry_date' => 'تاريخ انتهاء الصلاحية',
+      'support_until' => 'الدعم صالح حتى',
+      'last_validated' => 'آخر التحقق من صحتها',
+      'expired' => 'انتهت صلاحيتها',
+      'never' => 'أبدا',
+      'user_usage' => 'استخدام المستخدم',
+      'users' => 'المستخدمين',
+      'no_license' => 'لا يوجد ترخيص مفعل',
+      'no_license_note' => 'أدخل مفتاح الترخيص الخاص بك أدناه لتنشيط الترخيص الخاص بك. يرجى الاتصال بـ <a href="mailto:info@tadreeblms.com">support@tadreeblms.com</a> لشراء ترخيص جديد.',
+      'validate_now' => 'التحقق من صحة الآن',
+      'remove_license' => 'إزالة الترخيص',
+      'update_license' => 'تحديث الترخيص',
+      'activate_license' => 'تفعيل الترخيص',
+      'enter_license_key' => 'أدخل مفتاح الترخيص',
+      'license_key_placeholder' => 'أدخل مفتاح الترخيص الخاص بك هنا...',
+      'license_key_note' => 'تم توفير مفتاح الترخيص الخاص بك عند شراء البرنامج.',
+      'activate' => 'تفعيل',
+      'activating' => 'جارٍ التنشيط...',
+      'activation_failed' => 'فشل تنشيط الترخيص.',
+      'validation_failed' => 'فشل التحقق من صحة الترخيص.',
+      'remove_confirm' => 'هل أنت متأكد أنك تريد إزالة هذا الترخيص؟',
+      'remove_failed' => 'فشل في إزالة الترخيص.',
+      'license_notice' => 'تجاوز الحد',
+      'view_license' => 'مراجعة الترخيص',
+      'remove_license_title' => 'إزالة الترخيص',
+      'removing' => 'جارٍ الإزالة...',
+    ),
+    'smtp_settings' => array(
+      'title' => 'إعدادات البريد الإلكتروني (SMTP)',
+      'error' => 'خطأ',
+      'mail_mailer' => 'بريد ميلر',
+      'mail_mailer_note' => 'اختر برنامج تشغيل/مرسل البريد لاستخدامه في إرسال رسائل البريد الإلكتروني (يوصى باستخدام SMTP للإنتاج).',
+      'mail_host' => 'مضيف SMTP',
+      'mail_host_note' => 'أدخل عنوان خادم SMTP (على سبيل المثال، smtp.gmail.com، smtp.office365.com).',
+      'mail_port' => 'منفذ SMTP',
+      'mail_port_note' => 'المنافذ المشتركة: 587 (TLS)، 465 (SSL)، 25 (غير آمن). استخدم 587 لمعظم خوادم SMTP.',
+      'mail_username' => 'اسم مستخدم SMTP',
+      'mail_username_note' => 'أدخل اسم مستخدم SMTP (عادةً عنوان بريدك الإلكتروني).',
+      'mail_password' => 'كلمة مرور SMTP',
+      'mail_password_placeholder' => 'أدخل كلمة المرور الجديدة',
+      'mail_password_note' => 'أدخل كلمة مرور SMTP أو كلمة مرور التطبيق. اتركه فارغًا للاحتفاظ بكلمة المرور الحالية.',
+      'password_exists' => 'تم تكوين كلمة المرور حاليًا. اتركه فارغًا للاحتفاظ بكلمة المرور الحالية.',
+      'mail_encryption' => 'التشفير',
+      'mail_encryption_note' => 'يوصى باستخدام TLS للمنفذ 587. استخدم SSL للمنفذ 465. اختر لا شيء فقط إذا كان الخادم لا يدعم التشفير.',
+      'mail_from_address' => 'من العنوان',
+      'mail_from_address_note' => 'سيظهر هذا العنوان كمرسل لجميع رسائل البريد الإلكتروني الصادرة.',
+      'mail_from_name' => 'من الاسم',
+      'mail_from_name_note' => 'سيظهر هذا الاسم كاسم المرسل لجميع رسائل البريد الإلكتروني الصادرة.',
+      'save_success' => 'تم حفظ إعدادات SMTP بنجاح.',
+      'save_error' => 'فشل في حفظ إعدادات SMTP',
+      'test_email_title' => 'اختبار تكوين البريد الإلكتروني',
+      'test_email_info' => 'أرسل بريدًا إلكترونيًا تجريبيًا للتحقق من أن تكوين SMTP يعمل بشكل صحيح. تأكد من حفظ الإعدادات قبل الاختبار.',
+      'test_email_address' => 'اختبار عنوان البريد الإلكتروني',
+      'test_email_note' => 'أدخل عنوان البريد الإلكتروني الذي تريد تلقي البريد الإلكتروني التجريبي فيه.',
+      'send_test_email' => 'إرسال البريد الإلكتروني للاختبار',
+      'test_email_success' => 'تم إرسال البريد الإلكتروني التجريبي بنجاح! يرجى التحقق من البريد الوارد الخاص بك.',
+      'test_email_error' => 'فشل في إرسال البريد الإلكتروني التجريبي',
+      'test_email_subject' => 'اختبار البريد الإلكتروني - تكوين SMTP',
+      'test_email_body' => 'هذه رسالة بريد إلكتروني اختبارية للتحقق من أن تكوين SMTP الخاص بك يعمل بشكل صحيح. إذا تلقيت هذا البريد الإلكتروني، فهذا يعني أن إعدادات SMTP قد تم تكوينها بشكل صحيح.',
+      'saving' => 'جارٍ الحفظ...',
+      'sending' => 'جارٍ الإرسال...',
+      'smtp_enabled' => 'تمكين SMTP',
+      'smtp_enabled_note' => 'قم بالتبديل لتمكين أو تعطيل إرسال البريد الإلكتروني عبر SMTP. عند التعطيل، لن يتم إرسال أي رسائل بريد إلكتروني من النظام.',
+      'smtp_disabled_warning' => 'SMTP معطل حاليا. لن يتم إرسال أي رسائل بريد إلكتروني من النظام حتى يتم تمكين SMTP.',
+      'smtp_disabled_save_success' => 'تم تعطيل SMTP. لن يتم إرسال أي رسائل بريد إلكتروني من النظام.',
+    ),
   ),
-  'lang' =>
-  array(
+  'lang' => array(
     'sp' => 'الأسبانية',
     'fr' => 'الفرنسية',
     'en' => 'الإنجليزية',
     'ar' => 'عربى',
   ),
-  'general' =>
-  array(
+  'general' => array(
     'score_label' => 'النتيجة',
     'yes' => 'نعم فعلا',
     'trash' => 'المهملات',
@@ -1161,8 +1339,7 @@ return array(
     'active' => 'نشيط',
     'all' => 'الكل',
     'back' => 'الى الخلف',
-    'buttons' =>
-    array(
+    'buttons' => array(
       'cancel' => 'إلغاء',
       'save' => 'حفظ',
       'update' => 'تحديث',
@@ -1175,11 +1352,11 @@ return array(
     'edit' => 'تصحيح',
     'hide' => 'إخفاء',
     'inactive' => 'غير نشط',
+    'score_new' => 'النتيجة',
+    'id' => 'معرف',
   ),
-  'frontend' =>
-  array(
-    'auth' =>
-    array(
+  'frontend' => array(
+    'auth' => array(
       'login_box_title' => 'تسجيل الدخول',
       'login_button' => 'تسجيل الدخول',
       'login_with' => 'تسجيل الدخول مع :social_media',
@@ -1187,12 +1364,10 @@ return array(
       'register_button' => 'تسجيل',
       'remember_me' => 'تذكرنى',
     ),
-    'badges' =>
-    array(
+    'badges' => array(
       'trending' => 'الدورات الحديثة',
     ),
-    'blog' =>
-    array(
+    'blog' => array(
       'add_comment' => 'أضف تعليق',
       'blog_categories' => 'فئات المدونة',
       'by' => 'بواسطة',
@@ -1207,8 +1382,7 @@ return array(
       'title' => 'مدونة',
       'write_a_comment' => 'أكتب تعليقا',
     ),
-    'cart' =>
-    array(
+    'cart' => array(
       'card_number' => 'رقم البطاقة',
       'card_number_placeholder' => 'أدخل رقم بطاقتك',
       'cart' => 'عربة التسوق',
@@ -1221,7 +1395,7 @@ return array(
       'empty_cart' => 'عربة التسوق فارغة',
       'expiration_date' => 'تاريخ إنتهاء الصلاحية',
       'go_back_to_cart' => 'العودة إلى السلة',
-      'mm' => 'MM',
+      'mm' => 'مم',
       'name_on_card' => 'الاسم على البطاقة',
       'name_on_card_placeholder' => 'أدخل الاسم المكتوب على بطاقتك',
       'no_payment_method' => 'لا توجد طريقة دفع متاحة في هذه اللحظة',
@@ -1243,7 +1417,7 @@ return array(
       'total' => 'مجموع',
       'your_payment_status' => '<span> حالة الدفع الخاصة بك. </span>',
       'your_shopping_cart' => 'سلة التسوق الخاصة بك',
-      'yy' => 'YY',
+      'yy' => 'ص',
       'product_name' => 'اسم المنتج',
       'product_type' => 'نوع المنتج',
       'connection_timeout' => 'انتهى وقت محاولة الاتصال',
@@ -1264,9 +1438,21 @@ return array(
       'price' => 'السعر',
       'sub_total' => 'المجموع الفرعي',
       'total_payable' => 'مجموع المستحق',
+      'instamojo' => 'إنستاموجو',
+      'pay_securely_instamojo' => 'ادفع بأمان مع Instamojo',
+      'razorpay' => 'RazorPay',
+      'pay_securely_razorpay' => 'ادفع بشكل آمن مع RazorPay',
+      'cashfree' => 'كاش فري',
+      'pay_securely_cashfree' => 'ادفع بأمان مع CashFree',
+      'user_email' => 'البريد الإلكتروني',
+      'user_phone' => 'الهاتف',
+      'user_name' => 'الاسم',
+      'payu' => 'PayUMoney',
+      'pay_securely_payu' => 'ادفع بشكل آمن مع PayUMoney',
+      'flutter' => 'رفرفة',
+      'pay_securely_flutter' => 'ادفع بأمان مع Flutter',
     ),
-    'contact' =>
-    array(
+    'contact' => array(
       'box_title' => 'اتصل بنا',
       'button' => 'إرسال المعلومات',
       'keep_in_touch' => 'تابعنا',
@@ -1279,15 +1465,14 @@ return array(
       'your_email' => 'بريدك الالكتروني',
       'your_name' => 'اسمك',
     ),
-    'course' =>
-    array(
+    'course' => array(
       'start_assesment' => 'ابدأ التقييم',
       're_attempt_assesment' => 'إعادة محاولة التقييم',
       'assesment_completed' => 'تم الانتهاء من التقييم',
       'give_feedback' => 'تقديم الملاحظات',
       'download_certificate' => 'تحميل الشهادة',
       'your_score' => 'Your النتيجة',
-      'your_result' => 'Your Result',
+      'your_result' => 'النتيجة الخاصة بك',
       'add_review_now' => 'إضافة مراجعة الآن',
       'add_reviews' => 'أضف <span> مراجعات. </span>',
       'add_to_cart' => 'أضف إلى السلة',
@@ -1319,7 +1504,7 @@ return array(
       'full_text' => 'نص كامل',
       'give_test_again' => 'إعطاء اختبار مرة أخرى',
       'go' => 'اذهب',
-      'mb' => 'MB',
+      'mb' => 'ميغابايت',
       'message' => 'رسالة',
       'next' => 'التالى',
       'no_reviews_yet' => 'لا توجد تعليقات حتى الآن.',
@@ -1355,16 +1540,27 @@ return array(
       'not_attempted' => 'لم تحاول',
       'find_your_bundle' => '<span> ابحث عن </span> الحزمة الخاصة بك',
       'select_category' => 'اختر الفئة',
+      'live_lesson' => 'دروس حية',
+      'slot' => 'فتحة',
+      'available_slots' => 'الفتحات المتاحة',
+      'date' => 'التاريخ',
+      'live_lesson_join_url' => 'الانضمام إلى URL',
+      'live_lesson_meeting_password' => 'كلمة المرور',
+      'live_lesson_meeting_date' => 'تاريخ الاجتماع',
+      'live_lesson_meeting_id' => 'معرف الاجتماع',
+      'live_lesson_meeting_duration' => 'الفترات',
+      'book_slot' => 'حجز فتحة',
+      'full_slot' => 'الفتحة ممتلئة',
+      'subscribe' => 'اشترك',
+      'original_price' => 'السعر الأصلي',
     ),
-    'faq' =>
-    array(
+    'faq' => array(
       'contact_us' => 'اتصل بنا',
       'find' => 'ابحث عن <span> أسئلتك وإجاباتك. </span>',
       'make_question' => 'كون سؤالا',
       'title' => 'بشكل متكرر <span> الأسئلة المتداولة </span>',
     ),
-    'home' =>
-    array(
+    'home' => array(
       'all_teachers' => 'جميع المعلمين',
       'learn_new_skills' => 'تعلم مهارات جديدة',
       'online_available_courses' => 'الدورات المتاحة على الانترنت',
@@ -1379,10 +1575,8 @@ return array(
       'what_they_say_about_us' => 'ماذا يقولون عنا',
       'no_data_available' => 'لا تتوافر بيانات',
     ),
-    'layouts' =>
-    array(
-      'partials' =>
-      array(
+    'layouts' => array(
+      'partials' => array(
         'advantages' => 'مزايا',
         'browse_course_by_category' => 'استعرض الدورات <span> حسب الفئة. </span>',
         'browse_featured_course' => 'تصفح دوراتنا المميزة',
@@ -1425,8 +1619,7 @@ return array(
         'offers' => 'عروض',
       ),
     ),
-    'modal' =>
-    array(
+    'modal' => array(
       'already_user_note' => 'بالفعل مستخدم؟ تسجيل الدخول هنا',
       'login_now' => 'تسجيل الدخول الآن',
       'login_register' => '<a href="#" class="font-weight-bold go-login px-0">تسجيل الدخول</a>إلى موقعنا ، أو<a href="#" class="font-weight-bold go-register px-0" id="">تسجيل</a>',
@@ -1435,8 +1628,7 @@ return array(
       'register_now' => 'سجل الان',
       'registration_message' => 'تم التسجيل بنجاح الرجاء تسجيل الدخول',
     ),
-    'passwords' =>
-    array(
+    'passwords' => array(
       'expired_password_box_title' => 'انتهت كلمة المرور الخاصة بك.',
       'forgot_password' => 'نسيت رقمك السري؟',
       'reset_password_box_title' => 'إعادة تعيين كلمة المرور',
@@ -1444,8 +1636,7 @@ return array(
       'send_password_reset_link_button' => 'إرسال رابط إعادة تعيين كلمة المرور',
       'update_password_button' => 'إرسال رابط إعادة تعيين كلمة المرور',
     ),
-    'search_result' =>
-    array(
+    'search_result' => array(
       'blog' => 'مدونة',
       'course_detail' => 'بالطبع التفاصيل',
       'course_name' => 'اسم الدورة التدريبية',
@@ -1459,22 +1650,18 @@ return array(
       'students' => 'الطلاب',
       'trending' => 'الدورات الحديثة',
     ),
-    'teacher' =>
-    array(
+    'teacher' => array(
       'course_detail' => 'بالطبع التفاصيل',
       'courses_by_teacher' => 'الدورات <span> حسب المعلم. </span>',
       'send_now' => 'ارسل الان',
       'students' => 'الطلاب',
       'title' => 'معلمون',
     ),
-    'user' =>
-    array(
-      'passwords' =>
-      array(
+    'user' => array(
+      'passwords' => array(
         'change' => 'غير كلمة السر',
       ),
-      'profile' =>
-      array(
+      'profile' => array(
         'avatar' => 'الصورة الرمزية',
         'created_at' => 'أنشئت في',
         'edit_information' => 'تعديل المعلومات',
@@ -1486,24 +1673,21 @@ return array(
         'update_information' => 'تحديث المعلومات',
       ),
     ),
-    'certificate_verification' =>
-    array(
+    'certificate_verification' => array(
       'date_on_certificate' => 'تاريخ الشهادة. السابق. 2018-11-25',
       'name_on_certificate' => 'الاسم في الشهادة. السابق. يوحنا',
       'not_found' => 'لم يتم العثور على شهادة للمعلومات المقدمة.',
       'title' => 'التحقق من الشهادة',
       'verify_now' => 'تحقق الآن',
     ),
-    'footer' =>
-    array(
+    'footer' => array(
       'featured_courses' => 'دورات مميزة',
       'popular_categories' => 'فئات شعبية',
       'popular_courses' => 'دورات شعبية',
       'trending_courses' => 'تتجه الدورات',
       'useful_links' => 'روابط مفيدة',
     ),
-    'offers' =>
-    array(
+    'offers' => array(
       'minimum_order_amount' => 'الحد الأدنى للطلب',
       'no_offers' => 'لا عروض',
       'per_user' => 'لكل مستخدم',
@@ -1552,8 +1736,7 @@ return array(
       'smtp_disabled_save_success' => 'تم تعطيل SMTP. لن يتم إرسال أي رسائل بريد إلكتروني من النظام.',
     ),
   ),
-  'teacher' =>
-  array(
+  'teacher' => array(
     'teacher_register' => 'سجل كمعلم؟ انقر هنا',
     'teacher_register_box_title' => 'سجل المعلم',
     'facebook_link' => 'فيسبوك لينك',
@@ -1563,8 +1746,7 @@ return array(
     'bank' => 'بنك',
     'paypal' => 'باي بال',
     'paypal_email' => 'بريد باي بال',
-    'bank_details' =>
-    array(
+    'bank_details' => array(
       'name' => 'اسم البنك',
       'ifsc_code' => 'كود IFSC',
       'account' => 'رقم حساب',
@@ -1574,20 +1756,20 @@ return array(
     ),
     'description' => 'وصف',
   ),
-  'notifications' => [
+  'notifications' => array(
     'title' => 'الإشعارات',
     'mark_all_as_read' => 'تحديد الكل كمقروء',
     'mark_as_read' => 'تحديد كمقروء',
     'no_notifications_found' => 'لا توجد إشعارات',
-    'settings' => [
+    'settings' => array(
       'title' => 'إعدادات الإشعارات',
       'global_channel_controls' => 'التحكم العام بالقنوات',
       'email_notifications' => 'إشعارات البريد الإلكتروني',
       'view_audit_log' => 'عرض سجل التدقيق',
       'failed_to_update' => 'فشل في تحديث الإعداد',
       'failed_to_update_channel' => 'فشل في تحديث إعدادات القناة',
-    ],
-    'audit_log' => [
+    ),
+    'audit_log' => array(
       'title' => 'سجل تدقيق إعدادات الإشعارات',
       'back_to_settings' => 'العودة إلى الإعدادات',
       'date_time' => 'التاريخ/الوقت',
@@ -1602,6 +1784,39 @@ return array(
       'enabled' => 'مفعّل',
       'disabled' => 'معطّل',
       'no_logs_found' => 'لا توجد سجلات تدقيق',
-    ],
-  ],
+    ),
+  ),
+  'subscription' => array(
+    'title' => 'خطة الاشتراك',
+    'quantity' => '{0} وصول غير محدود|[1,*] إجمالي :quantity وصول الكمية',
+    'course' => '{0} وصول غير محدود إلى الدورات التدريبية|{99} الدورة التدريبية غير متاحة|[1,1]:quantity الدورة التدريبية|[2,*]:quantity الدورات التدريبية',
+    'bundle' => '{0} وصول غير محدود إلى الحزم|{99} الحزمة غير متوفرة|[1,1]:quantity الحزمة|[2,*]:quantity الحزم',
+    'button' => 'اشترك',
+    'plan' => 'خطة',
+    'price' => 'السعر',
+    'trial_period' => 'الفترة التجريبية :days يوم',
+    'payment_status' => 'حالة دفع الاشتراك',
+    'already_subscribe' => 'اشترك بالفعل',
+    'your_subscription_status' => '<span>حالة الاشتراك.</span>',
+    'go_to_home' => 'الصفحة الرئيسية',
+    'go_to_plan' => 'انتقل إلى الخطط',
+    'done' => 'تم الإشتراك بنجاح!',
+    'update' => 'تم تحديث الاشتراك بنجاح!',
+    'failed' => 'خطأ! فشل الاشتراك!',
+    'cancel' => 'تم إلغاء الاشتراك!',
+    'resume' => 'استئناف الاشتراك!',
+    'form' => array(
+      'name' => 'الاسم',
+      'email' => 'البريد الإلكتروني',
+      'address' => 'العنوان',
+      'city' => 'المدينة',
+      'state' => 'الدولة',
+      'zip' => 'الرمز البريدي',
+      'card' => 'بطاقة',
+      'country_code' => 'رمز البلد',
+    ),
+  ),
+  'course_feedback_questions' => array(
+    'title' => 'أسئلة التغذية الراجعة للدورة',
+  ),
 );
