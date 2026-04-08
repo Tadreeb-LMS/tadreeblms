@@ -19,6 +19,7 @@ class LocaleSeeder extends Seeder
                 'short_name' => 'en',
                 'display_type' => 'ltr',
                 'is_default' => 1,
+                'is_enabled' => 1,
             ],
 
             [
@@ -26,6 +27,7 @@ class LocaleSeeder extends Seeder
                 'short_name' => 'es',
                 'display_type' => 'ltr',
                 'is_default' => 0,
+                'is_enabled' => 1,
 
             ],
 
@@ -34,6 +36,7 @@ class LocaleSeeder extends Seeder
                 'short_name' => 'fr',
                 'display_type' => 'ltr',
                 'is_default' => 0,
+                'is_enabled' => 1,
 
             ],
             [
@@ -41,6 +44,7 @@ class LocaleSeeder extends Seeder
                 'short_name' => 'it',
                 'display_type' => 'ltr',
                 'is_default' => 0,
+                'is_enabled' => 1,
 
             ],
             [
@@ -48,6 +52,7 @@ class LocaleSeeder extends Seeder
                 'short_name' => 'ar',
                 'display_type' => 'rtl',
                 'is_default' => 0,
+                'is_enabled' => 1,
 
             ],
         ];
@@ -57,7 +62,9 @@ class LocaleSeeder extends Seeder
                 'name' => $item['name'],
                 'short_name' => $item['short_name'],
                 'display_type' => $item['display_type'],
-                'is_default' => $item['is_default']]);
+                'is_default' => $item['is_default'],
+                'is_enabled' => $item['is_enabled'],
+            ]);
         }
 
 

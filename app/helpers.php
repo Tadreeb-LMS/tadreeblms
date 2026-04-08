@@ -56,9 +56,9 @@ if (!function_exists('locale_label')) {
     function locale_label($locale)
     {
         $normalizedLocale = strtolower(trim((string) $locale));
-        $translatedLabel = trans('menus.language-picker.langs.' . $normalizedLocale, [], 'en');
+        $translatedLabel = trans('menus.language_picker.langs.' . $normalizedLocale, [], 'en');
         $fallbackLabel = strtoupper($normalizedLocale);
-        $label = $translatedLabel === 'menus.language-picker.langs.' . $normalizedLocale
+        $label = $translatedLabel === 'menus.language_picker.langs.' . $normalizedLocale
             ? $fallbackLabel
             : $translatedLabel;
 

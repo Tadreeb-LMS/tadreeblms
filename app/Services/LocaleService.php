@@ -14,7 +14,13 @@ class LocaleService
         $locales = [];
 
         if (Schema::hasTable('locales')) {
-            $locales = Locale::query()
+            $query = Locale::query();
+
+            if (Schema::hasColumn('locales', 'is_enabled')) {
+                $query->where('is_enabled', 1);
+            }
+
+            $locales = $query
                 ->pluck('short_name')
                 ->filter()
                 ->map(function ($locale) {

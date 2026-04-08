@@ -189,7 +189,11 @@ if (
             $appCurrency = getCurrency(config('app.currency'));
 
             if (Schema::hasTable('locales')) {
-                $locales = Locale::pluck('short_name as locale')->toArray();
+                $localeQuery = Locale::query();
+                if (Schema::hasColumn('locales', 'is_enabled')) {
+                    $localeQuery->where('is_enabled', 1);
+                }
+                $locales = $localeQuery->pluck('short_name as locale')->toArray();
             }
             //            $view->with(compact('locales', 'appCurrency'));
 

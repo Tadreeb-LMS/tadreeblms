@@ -66,6 +66,61 @@
             height: auto;
             width: 100%;
         }
+
+        .language-workflow .btn {
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .language-action-group {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .language-action-group .btn {
+            min-width: 110px;
+        }
+
+        .workflow-publish-controls {
+            width: 100%;
+        }
+
+        .workflow-publish-controls .form-control,
+        .workflow-publish-controls .btn {
+            height: 38px;
+            border-radius: 6px;
+        }
+
+        .workflow-publish-controls .btn {
+            white-space: nowrap;
+        }
+
+        .review-action-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .review-action-stack .btn {
+            width: 100%;
+        }
+
+        @media screen and (max-width: 768px) {
+            .workflow-publish-controls .btn {
+                width: 100%;
+            }
+
+            .language-action-group {
+                width: 100%;
+            }
+
+            .language-action-group .btn {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+        }
     </style>
 @endpush
 @section('content')
@@ -104,7 +159,7 @@
                             </a>
                         </li>
                         <li class="nav-item"><a data-toggle="tab" class="nav-link" href="#language_settings">
-                                {{ __('labels.backend.general_settings.language_settings.default_language') }}
+                                Translations
                             </a>
                         </li>
                        
@@ -232,7 +287,9 @@
                                 </label>
                                 <div class="col-md-10">
                                     <select class="form-control" id="theme_layout" name="theme_layout">
-                                        @php($themeLayouts = (array) config('theme_layouts.layouts', []))
+                                        @php
+                                            $themeLayouts = (array) config('theme_layouts.layouts', []);
+                                        @endphp
                                         @foreach($themeLayouts as $layoutId => $layoutMeta)
                                             <option value="{{ $layoutId }}" {{ theme_layout_id(config('theme_layout')) === (string) $layoutId ? 'selected' : '' }}>
                                                 {{ __('labels.backend.general_settings.layout_label') }} {{ $layoutId }} ({{ $layoutMeta['name'] ?? ucfirst($layoutMeta['slug'] ?? $layoutId) }})
@@ -481,9 +538,20 @@
     </div>
 </div>
 
-<div id="language_settings" class="tab-pane container fade">
+<div id="language_settings" class="tab-pane container fade language-workflow">
     <div class="row mt-4 mb-4">
         <div class="col">
+
+            <div class="alert alert-primary d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4" role="alert">
+                <div class="mb-2 mb-md-0 mr-md-3">
+                    <strong>Language Marketplace Manual</strong><br>
+                    <span class="small">Download the full English guide for contributor flow, approval rules, and GitHub sync policy.</span>
+                </div>
+                <a class="btn btn-primary btn-lg"
+                   href="{{ route('admin.settings.language-marketplace.manual.download') }}">
+                    Download Manual (PDF)
+                </a>
+            </div>
 
             <div class="form-group row">
                 <label class="col-md-2 form-control-label" for="default_language">
@@ -515,6 +583,329 @@
                             @lang('labels.backend.general_settings.language_settings.right_to_left')
                         </option>
                     </select>
+                </div>
+            </div>
+
+            <hr>
+
+            <h5 class="mb-3">Language Library Management</h5>
+            <p class="text-muted">
+                Upload translated strings for a language, enable it for frontend selection, and download existing language packs.
+            </p>
+
+            <div class="form-group row">
+                <label class="col-md-2 form-control-label" for="language_target_locale">Target language</label>
+                <div class="col-md-10">
+                    <select class="form-control" id="language_target_locale" name="language_target_locale">
+                        @foreach ($app_locales as $lang)
+                            <option value="{{ $lang->short_name }}">{{ locale_label($lang->short_name) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-2 form-control-label" for="language_payload_file">Upload JSON file</label>
+                <div class="col-md-10">
+                    <input type="file" class="form-control" id="language_payload_file" name="language_payload_file" accept=".json,.txt">
+                    <small class="form-text text-muted">Supported formats: {"modules": {"module_name": {...}}} or {"module": "module_name", "translations": {...}}</small>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-2 form-control-label" for="language_payload_json">Or paste JSON</label>
+                <div class="col-md-10">
+                    <textarea class="form-control" id="language_payload_json" name="language_payload_json" rows="5" placeholder='{"modules": {"messages": {"welcome": "Bienvenue"}}}'></textarea>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-10 offset-md-2">
+                    <button type="submit" class="btn btn-info" name="language_action" value="upload">Upload language strings</button>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-4">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Code</th>
+                            <th>Status</th>
+                            <th>Last upload</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($app_locales as $lang)
+                            @php
+                                $isEnabled = isset($lang->is_enabled) ? (int) $lang->is_enabled : 1;
+                                $toggleTo = $isEnabled ? 0 : 1;
+                                $toggleLabel = $isEnabled ? 'Disable' : 'Enable';
+                                $isDefault = (int) $lang->is_default === 1;
+                            @endphp
+                            <tr>
+                                <td>{{ $lang->name ?: locale_label($lang->short_name) }}</td>
+                                <td>{{ $lang->short_name }}</td>
+                                <td>
+                                    @if ($isEnabled)
+                                        <span class="badge badge-success">Enabled</span>
+                                    @else
+                                        <span class="badge badge-secondary">Disabled</span>
+                                    @endif
+                                    @if ($isDefault)
+                                        <span class="badge badge-primary">Default</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    {{ $lang->library_uploaded_at ? $lang->library_uploaded_at->format('Y-m-d H:i') : 'Never' }}
+                                </td>
+                                <td>
+                                    <div class="language-action-group">
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           href="{{ route('admin.settings.language-library.download', ['locale' => $lang->short_name]) }}">
+                                            Download
+                                        </a>
+                                        <button type="submit"
+                                                class="btn btn-sm btn-{{ $isEnabled ? 'outline-warning' : 'success' }}"
+                                                name="language_action"
+                                                value="toggle:{{ $lang->short_name }}:{{ $toggleTo }}"
+                                                @if ($isDefault && $isEnabled) disabled @endif>
+                                            {{ $toggleLabel }}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="my-5">
+
+            <h5 class="mb-3">Language Marketplace Workflow</h5>
+            <p class="text-muted">
+                Publish a source package to docs, invite contributors, collect translated returns, review submissions, and publish approved language packs for download.
+            </p>
+
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-lg-8">
+                            <h6 class="mb-1">1. Publish source package</h6>
+                            <div class="text-muted small">
+                                Generates a canonical source JSON package for the selected locale, stores it in the internal marketplace, and writes a git-trackable docs copy under <strong>docs/language-library/&lt;locale&gt;.json</strong>.
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mt-3 mt-lg-0">
+                            <div class="form-row workflow-publish-controls">
+                                <div class="col-5">
+                                    <select class="form-control" name="source_locale">
+                                        @foreach ($app_locales as $lang)
+                                            <option value="{{ $lang->short_name }}" @if ($lang->short_name === 'en') selected @endif>
+                                                {{ strtoupper($lang->short_name) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-7">
+                                    <button type="submit"
+                                            class="btn btn-primary btn-block"
+                                            formaction="{{ route('admin.settings.language-marketplace.publish-source') }}"
+                                            formmethod="POST">
+                                        Publish source package
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if ($sourcePackage)
+                        <div class="small text-muted mt-3">
+                            Latest source package: version {{ $sourcePackage->version }} published {{ optional($sourcePackage->published_at)->format('Y-m-d H:i') }}
+                            <a href="{{ route('admin.settings.language-marketplace.packages.download', ['package' => $sourcePackage->id]) }}" class="ml-2">Download</a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">2. Invite contributor</h6>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="invite_locale_code">Target language</label>
+                            <select class="form-control" id="invite_locale_code" name="invite_locale_code">
+                                @foreach ($app_locales as $lang)
+                                    <option value="{{ $lang->short_name }}">{{ locale_label($lang->short_name) }}</option>
+                                @endforeach
+                                <option value="de">DE</option>
+                                <option value="pt">PT</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="contributor_name">Contributor name</label>
+                            <input type="text" class="form-control" id="contributor_name" name="contributor_name" placeholder="Translator name">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="contributor_email">Contributor email</label>
+                            <input type="email" class="form-control" id="contributor_email" name="contributor_email" placeholder="translator@example.com">
+                        </div>
+                        <div class="form-group col-md-2 d-flex align-items-end">
+                                <button type="submit"
+                                    class="btn btn-success btn-block"
+                                    formaction="{{ route('admin.settings.language-marketplace.invite') }}"
+                                    formmethod="POST">
+                                Create invite
+                            </button>
+                        </div>
+                    </div>
+                    @if ($sourcePackage)
+                        <input type="hidden" name="source_package_id" value="{{ $sourcePackage->id }}">
+                    @endif
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <h6 class="mb-3">3. Contributor invitations</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered bg-white">
+                            <thead>
+                                <tr>
+                                    <th>Locale</th>
+                                    <th>Contributor</th>
+                                    <th>Status</th>
+                                    <th>Invite link</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($translationInvitations as $invitation)
+                                    <tr>
+                                        <td>{{ strtoupper($invitation->locale_code) }}</td>
+                                        <td>
+                                            {{ $invitation->contributor_name ?: 'Contributor' }}<br>
+                                            <small class="text-muted">{{ $invitation->contributor_email }}</small>
+                                        </td>
+                                        <td>{{ ucfirst($invitation->status) }}</td>
+                                        <td>
+                                            <input type="text" readonly class="form-control form-control-sm"
+                                                   value="{{ route('language-marketplace.contribute', ['token' => $invitation->invite_token]) }}">
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-muted text-center">No contributor invitations yet.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <h6 class="mb-3">4. Published marketplace packages</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered bg-white">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Locale</th>
+                                    <th>Version</th>
+                                    <th>GitHub sync</th>
+                                    <th>Download</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($publishedLanguagePackages as $package)
+                                    <tr>
+                                        <td>{{ ucfirst($package->package_type) }}</td>
+                                        <td>{{ strtoupper($package->target_locale) }}</td>
+                                        <td>{{ $package->version }}</td>
+                                        <td>
+                                            @php
+                                                $syncStatus = $package->github_sync_status ?: 'not_synced';
+                                            @endphp
+                                            <span class="badge {{ $syncStatus === 'synced' ? 'badge-success' : ($syncStatus === 'failed' ? 'badge-danger' : 'badge-secondary') }}">
+                                                {{ str_replace('_', ' ', ucfirst($syncStatus)) }}
+                                            </span>
+                                            @if (!empty($package->github_sync_url))
+                                                <a href="{{ $package->github_sync_url }}" target="_blank" rel="noopener" class="d-block mt-1">View file</a>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="language-action-group">
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   href="{{ route('admin.settings.language-marketplace.packages.download', ['package' => $package->id]) }}">
+                                                    Download
+                                                </a>
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-dark"
+                                                        formaction="{{ route('admin.settings.language-marketplace.packages.sync-github', ['package' => $package->id]) }}"
+                                                        formmethod="POST">
+                                                    Sync GitHub
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-muted text-center">No published packages yet.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="mb-3">5. Review queue</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered bg-white">
+                        <thead>
+                            <tr>
+                                <th>Locale</th>
+                                <th>Submitted</th>
+                                <th>Package</th>
+                                <th>Reviewer notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($pendingLanguageSubmissions as $package)
+                                <tr>
+                                    <td>{{ strtoupper($package->target_locale) }}</td>
+                                    <td>{{ optional($package->submitted_at)->format('Y-m-d H:i') ?: '-' }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.settings.language-marketplace.packages.download', ['package' => $package->id]) }}">Download submission</a>
+                                    </td>
+                                    <td style="min-width:220px;">
+                                        <textarea class="form-control form-control-sm" rows="2" name="submission_review_notes[{{ $package->id }}]" placeholder="Optional rejection note"></textarea>
+                                    </td>
+                                    <td style="min-width:190px;">
+                                        <div class="review-action-stack">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success"
+                                                    formaction="{{ route('admin.settings.language-marketplace.submissions.approve', ['package' => $package->id]) }}"
+                                                    formmethod="POST">
+                                                Approve & publish
+                                            </button>
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    formaction="{{ route('admin.settings.language-marketplace.submissions.reject', ['package' => $package->id]) }}"
+                                                    formmethod="POST">
+                                                Reject
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-muted text-center">No pending translation submissions.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

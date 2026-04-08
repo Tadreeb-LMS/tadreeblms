@@ -4,17 +4,17 @@ return array(
   'backend' => array(
     'sidebar' => array(
       'roles_mgt' => 'Autorizzazioni dei ruoli',
-      'Invitations' => 'Inviti',
-      'Send-Email-Notification' => 'Invia notifica e-mail',
-      'notification-settings' => 'Impostazioni di notifica',
-      'My-Assignments' => 'I miei compiti',
-      'My-Courses' => 'I miei corsi',
-      'Employee-Requests' => 'Richieste dei dipendenti',
-      'Contact-Requests' => 'Richieste di contatto',
-      'Pathway-Assignments' => 'Assegnazioni del percorso',
-      'Learning-Pathways' => 'Percorsi di apprendimento',
-      'Learning-Pathways-Management' => 'Gestione dei percorsi di apprendimento',
-      'Manual-Assessment' => 'Valutazione manuale',
+      'invitations' => 'Inviti',
+      'send_email_notification' => 'Invia notifica e-mail',
+      'notification_settings' => 'Impostazioni di notifica',
+      'my_assignments' => 'I miei compiti',
+      'my_courses' => 'I miei corsi',
+      'employee_requests' => 'Richieste dei dipendenti',
+      'contact_requests' => 'Richieste di contatto',
+      'pathway_assignments' => 'Assegnazioni del percorso',
+      'learning_pathways' => 'Percorsi di apprendimento',
+      'learning_pathways_management' => 'Gestione dei percorsi di apprendimento',
+      'manual_assessment' => 'Valutazione manuale',
       'general' => 'Generale',
       'dashboard' => 'Cruscotto',
       'trainers' => 'Formatori',
@@ -28,7 +28,7 @@ return array(
       'course_questions' => 'Domande sul corso',
       'calendar' => 'Calendario',
       'department' => 'Gruppo utenti',
-      'Add User Group' => 'Aggiungi gruppo utenti',
+      'add_user_group' => 'Aggiungi gruppo utenti',
       'position' => 'Posizioni',
       'courses' => array(
         'management' => 'Gestione dei corsi',
@@ -54,17 +54,18 @@ return array(
       'assessment_accounts_manually' => 'Conti di valutazione manualmente',
       'courses_assignments' => 'Assegnazioni dei corsi',
       'latest_events' => 'Ultimi eventi',
-      'site-management' => array(
+      'site_management' => array(
         'title' => 'Gestione del sito',
       ),
-      'menu-manager' => array(
+      'menu_manager' => array(
         'title' => 'Gestore del Menù',
       ),
       'system' => 'Sistema',
       'settings' => array(
         'title' => 'Impostazioni',
         'general' => 'Generale',
-        'social-login' => 'Accesso sociale',
+        'language' => 'Traduzioni',
+        'social_login' => 'Accesso sociale',
         'zoom_setting' => 'Impostazione dello zoom',
         'landing_page_setting' => 'Impostazione della pagina di destinazione',
         'certificate_template' => 'Template certificato',
@@ -74,20 +75,20 @@ return array(
         'license' => 'Impostazioni della licenza',
         'smtp' => 'Impostazioni e-mail (SMTP)',
       ),
-      'debug-site' => array(
+      'debug_site' => array(
         'title' => 'Sito di debug',
       ),
       'history' => 'Storia',
       'lessons' => array(
         'title' => 'Lezioni',
       ),
-      'questions-options' => array(
+      'questions_options' => array(
         'title' => 'Opzioni domande',
       ),
       'tests' => array(
         'title' => 'Test',
       ),
-      'change-password' => array(
+      'change_password' => array(
         'title' => 'Cambia password',
       ),
       'account' => array(
@@ -105,7 +106,7 @@ return array(
       'teachers' => array(
         'title' => 'Formatori',
       ),
-      'hero-slider' => array(
+      'hero_slider' => array(
         'title' => 'Cursore dell\'eroe',
       ),
       'sponsors' => array(
@@ -129,7 +130,7 @@ return array(
       'footer' => array(
         'title' => 'Piè di pagina',
       ),
-      'newsletter-configuration' => array(
+      'newsletter_configuration' => array(
         'title' => 'Configurazione newsletter',
       ),
       'invoices' => array(
@@ -173,7 +174,7 @@ return array(
       'sitemap' => array(
         'title' => 'Mappa del sito',
       ),
-      'forums-category' => array(
+      'forums_category' => array(
         'title' => 'Categorie dei forum',
       ),
       'payments' => array(
@@ -209,13 +210,13 @@ return array(
         'deleted' => 'Utenti eliminati',
         'view' => 'Visualizza utente',
         'edit' => 'Modifica utente',
-        'change-password' => 'Cambia password',
+        'change_password' => 'Cambia password',
         'all' => 'Tutti gli utenti',
         'create' => 'Crea utente',
         'main' => 'Utenti',
       ),
     ),
-    'log-viewer' => array(
+    'log_viewer' => array(
       'dashboard' => 'Pannello di debug',
       'logs' => 'Registri',
       'main' => 'Visualizzatore registro',
@@ -225,7 +226,7 @@ return array(
       'plan' => 'Piani',
     ),
   ),
-  'language-picker' => array(
+  'language_picker' => array(
     'language' => 'Lingua',
     'langs' => array(
       'ar' => 'Arabo',

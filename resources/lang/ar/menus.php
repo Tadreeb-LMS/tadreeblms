@@ -13,7 +13,7 @@ return array(
       'title' => 'التمكن من',
       'users' => array(
         'all' => 'جميع المستخدمين',
-        'change-password' => 'غير كلمة السر',
+        'change_password' => 'غير كلمة السر',
         'create' => 'إنشاء مستخدم',
         'deactivated' => 'المستخدمين المعطلين',
         'deleted' => 'حذف المستخدمين',
@@ -22,24 +22,24 @@ return array(
         'view' => 'عرض المستخدم',
       ),
     ),
-    'log-viewer' => array(
+    'log_viewer' => array(
       'dashboard' => 'تصحيح لوحة القيادة',
       'logs' => 'سجلات',
       'main' => 'سجل المشاهد',
     ),
     'sidebar' => array(
       'roles_mgt' => 'إعدادات الأذونات',
-      'Invitations' => 'الدعوات',
-      'Send-Email-Notification' => 'إرسال إشعار البريد الإلكتروني',
-      'notification-settings' => 'إعدادات الإشعارات',
-      'My-Assignments' => 'مهامي',
-      'My-Courses' => 'دوراتي',
-      'Employee-Requests' => 'طلبات الموظفين',
-      'Contact-Requests' => 'طلبات الاتصال',
-      'Pathway-Assignments' => 'مهام المسار',
-      'Learning-Pathways' => 'مسارات التعلم',
-      'Learning-Pathways-Management' => 'إدارة مسارات التعلم',
-      'Manual-Assessment' => 'التقييم اليدوي',
+      'invitations' => 'الدعوات',
+      'send_email_notification' => 'إرسال إشعار البريد الإلكتروني',
+      'notification_settings' => 'إعدادات الإشعارات',
+      'my_assignments' => 'مهامي',
+      'my_courses' => 'دوراتي',
+      'employee_requests' => 'طلبات الموظفين',
+      'contact_requests' => 'طلبات الاتصال',
+      'pathway_assignments' => 'مهام المسار',
+      'learning_pathways' => 'مسارات التعلم',
+      'learning_pathways_management' => 'إدارة مسارات التعلم',
+      'manual_assessment' => 'التقييم اليدوي',
       'trainers' => 'المدربين',
       'trainees' => 'المتدربين',
       'internal' => 'داخلي',
@@ -90,7 +90,7 @@ return array(
       'categories' => array(
         'title' => 'الاقسام',
       ),
-      'change-password' => array(
+      'change_password' => array(
         'title' => 'غير كلمة السر',
       ),
       'contact' => array(
@@ -100,7 +100,7 @@ return array(
         'title' => 'يؤدي',
       ),
       'dashboard' => 'لوحة القيادة',
-      'debug-site' => array(
+      'debug_site' => array(
         'title' => 'تصحيح الموقع',
       ),
       'faqs' => array(
@@ -110,7 +110,7 @@ return array(
         'title' => 'تذييل',
       ),
       'general' => 'عام',
-      'hero-slider' => array(
+      'hero_slider' => array(
         'title' => 'بطل المتزلج',
       ),
       'history' => 'التاريخ',
@@ -120,13 +120,13 @@ return array(
       'lessons' => array(
         'title' => 'الدروس',
       ),
-      'menu-manager' => array(
+      'menu_manager' => array(
         'title' => 'مدير القائمة',
       ),
       'messages' => array(
         'title' => 'رسائل',
       ),
-      'newsletter-configuration' => array(
+      'newsletter_configuration' => array(
         'title' => 'تكوين النشرة الإخبارية',
       ),
       'orders' => array(
@@ -135,7 +135,7 @@ return array(
       'pages' => array(
         'title' => 'مدير الصفحات',
       ),
-      'questions-options' => array(
+      'questions_options' => array(
         'title' => 'خيارات الأسئلة',
       ),
       'reasons' => array(
@@ -146,7 +146,8 @@ return array(
       ),
       'settings' => array(
         'general' => 'عام',
-        'social-login' => 'تسجيل الدخول الاجتماعي',
+        'language' => 'الترجمات',
+        'social_login' => 'تسجيل الدخول الاجتماعي',
         'title' => 'الإعدادات',
         'landing_page_setting' => 'إعدادات الصفحة المقصودة',
         'certificate_template' => 'قالب الشهادة',
@@ -157,7 +158,7 @@ return array(
         'license' => 'إعدادات الترخيص',
         'smtp' => 'إعدادات البريد الإلكتروني (SMTP)',
       ),
-      'site-management' => array(
+      'site_management' => array(
         'title' => 'إدارة الموقع',
       ),
       'sponsors' => array(
@@ -199,7 +200,7 @@ return array(
       'tax' => array(
         'title' => 'ضريبة',
       ),
-      'forums-category' => array(
+      'forums_category' => array(
         'title' => 'فئات المنتديات',
       ),
       'payments' => array(
@@ -208,7 +209,7 @@ return array(
       'payments_requests' => array(
         'title' => 'طلب الدفع',
       ),
-      'Add User Group' => 'إضافة مجموعة مستخدمين',
+      'add_user_group' => 'إضافة مجموعة مستخدمين',
       'user_feedback_answers' => 'إجابات تعليقات المستخدم',
       'live_lessons' => array(
         'title' => 'دروس حية',
@@ -225,7 +226,7 @@ return array(
       'plan' => 'الخطط',
     ),
   ),
-  'language-picker' => array(
+  'language_picker' => array(
     'langs' => array(
       'ar' => 'عربى',
       'en' => 'الإنجليزية',

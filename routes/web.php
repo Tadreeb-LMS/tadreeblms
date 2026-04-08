@@ -84,6 +84,13 @@ Route::get('lang/{lang}', [LanguageController::class, 'swap'])
     ->where('lang', '[A-Za-z_-]+')
     ->name('locale.swap');
 
+Route::get('language-marketplace/contribute/{token}', [\App\Http\Controllers\LanguageContributionController::class, 'show'])
+    ->name('language-marketplace.contribute');
+Route::post('language-marketplace/contribute/{token}', [\App\Http\Controllers\LanguageContributionController::class, 'submit'])
+    ->name('language-marketplace.contribute.submit');
+Route::get('language-marketplace/packages/{package}/download', [\App\Http\Controllers\LanguageContributionController::class, 'downloadPublishedPackage'])
+    ->name('language-marketplace.packages.download');
+
 
 Route::get('/sitemap-' . \Illuminate\Support\Str::slug(config('app.name')) . '/{file?}', 'SitemapController@index');
 
@@ -137,13 +144,6 @@ Route::middleware(['auth'])->group(function () {
  */
 
 Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
-
-Route::post('course-feedback/add-questions', [CourseFeedbackController::class, 'addQuestionsToCourse'])
-    ->name('course-feedback.add-questions');
-
-Route::delete('/admin/course-feedback/delete/{id}', [CourseFeedbackController::class, 'deleteQuestion'])
-    ->name('admin.course-feedback.delete');
-
 Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
     ->name('course-feedback-questions.edit');
 

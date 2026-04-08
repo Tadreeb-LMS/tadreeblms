@@ -13,7 +13,7 @@ return array(
       ),
       'users' => array(
         'all' => 'Todos los usuarios',
-        'change-password' => 'Cambia la contraseña',
+        'change_password' => 'Cambia la contraseña',
         'create' => 'Crear usuario',
         'deactivated' => 'Usuarios desactivados',
         'deleted' => 'Usuarios eliminados',
@@ -22,7 +22,7 @@ return array(
         'view' => 'Ver Usuario',
       ),
     ),
-    'log-viewer' => array(
+    'log_viewer' => array(
       'main' => 'Visor de registro',
       'dashboard' => 'Panel de depuración',
       'logs' => 'Troncos',
@@ -44,7 +44,7 @@ return array(
       'categories' => array(
         'title' => 'Las categorías',
       ),
-      'change-password' => array(
+      'change_password' => array(
         'title' => 'Cambia la contraseña',
       ),
       'contact' => array(
@@ -58,7 +58,7 @@ return array(
         'management' => 'Gestión de cursos',
         'title' => 'Los cursos',
       ),
-      'debug-site' => array(
+      'debug_site' => array(
         'title' => 'Depurar el sitio',
       ),
       'faqs' => array(
@@ -67,7 +67,7 @@ return array(
       'footer' => array(
         'title' => 'Pie de página',
       ),
-      'hero-slider' => array(
+      'hero_slider' => array(
         'title' => 'Control deslizante de héroe',
       ),
       'invoices' => array(
@@ -76,13 +76,13 @@ return array(
       'lessons' => array(
         'title' => 'Lecciones',
       ),
-      'menu-manager' => array(
+      'menu_manager' => array(
         'title' => 'Gestor de menú',
       ),
       'messages' => array(
         'title' => 'Mensajes',
       ),
-      'newsletter-configuration' => array(
+      'newsletter_configuration' => array(
         'title' => 'Configuración del boletín',
       ),
       'orders' => array(
@@ -91,7 +91,7 @@ return array(
       'pages' => array(
         'title' => 'Administrador de páginas',
       ),
-      'questions-options' => array(
+      'questions_options' => array(
         'title' => 'Preguntas Opciones',
       ),
       'questions' => array(
@@ -105,7 +105,8 @@ return array(
       ),
       'settings' => array(
         'general' => 'generales',
-        'social-login' => 'Inicio de sesión social',
+        'language' => 'Traducciones',
+        'social_login' => 'Inicio de sesión social',
         'title' => 'Ajustes',
         'zoom_setting' => 'Configuración de zoom',
         'landing_page_setting' => 'Configuración de la página de destino',
@@ -116,7 +117,7 @@ return array(
         'license' => 'Configuración de licencia',
         'smtp' => 'Configuración de correo electrónico (SMTP)',
       ),
-      'site-management' => array(
+      'site_management' => array(
         'title' => 'Manejo de sitio',
       ),
       'sponsors' => array(
@@ -157,7 +158,7 @@ return array(
       'tax' => array(
         'title' => 'Impuesto',
       ),
-      'forums-category' => array(
+      'forums_category' => array(
         'title' => 'Categorías de foros',
       ),
       'payments' => array(
@@ -167,17 +168,17 @@ return array(
         'title' => 'solicitud de pago',
       ),
       'roles_mgt' => 'Permisos de roles',
-      'Invitations' => 'Invitaciones',
-      'Send-Email-Notification' => 'Enviar notificación por correo electrónico',
-      'notification-settings' => 'Configuración de notificaciones',
-      'My-Assignments' => 'Mis tareas',
-      'My-Courses' => 'Mis cursos',
-      'Employee-Requests' => 'Solicitudes de empleados',
-      'Contact-Requests' => 'Solicitudes de contacto',
-      'Pathway-Assignments' => 'Asignaciones de ruta',
-      'Learning-Pathways' => 'Caminos de aprendizaje',
-      'Learning-Pathways-Management' => 'Gestión de rutas de aprendizaje',
-      'Manual-Assessment' => 'Evaluación manual',
+      'invitations' => 'Invitaciones',
+      'send_email_notification' => 'Enviar notificación por correo electrónico',
+      'notification_settings' => 'Configuración de notificaciones',
+      'my_assignments' => 'Mis tareas',
+      'my_courses' => 'Mis cursos',
+      'employee_requests' => 'Solicitudes de empleados',
+      'contact_requests' => 'Solicitudes de contacto',
+      'pathway_assignments' => 'Asignaciones de ruta',
+      'learning_pathways' => 'Caminos de aprendizaje',
+      'learning_pathways_management' => 'Gestión de rutas de aprendizaje',
+      'manual_assessment' => 'Evaluación manual',
       'trainers' => 'Entrenadores',
       'trainees' => 'Aprendices',
       'internal' => 'Interno',
@@ -186,7 +187,7 @@ return array(
       'course_questions' => 'Preguntas del curso',
       'calendar' => 'Calendario',
       'department' => 'Grupo de usuarios',
-      'Add User Group' => 'Agregar grupo de usuarios',
+      'add_user_group' => 'Agregar grupo de usuarios',
       'position' => 'Posiciones',
       'assessment_accounts' => 'Cuentas de evaluación',
       'course_assessment' => 'Evaluación del curso',
@@ -225,7 +226,7 @@ return array(
       'plan' => 'Planes',
     ),
   ),
-  'language-picker' => array(
+  'language_picker' => array(
     'language' => 'Idioma',
     'langs' => array(
       'ar' => 'Arábica',
