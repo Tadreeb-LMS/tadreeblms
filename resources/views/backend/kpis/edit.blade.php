@@ -68,6 +68,21 @@
 
                 <div class="row">
                     <div class="col-12 form-group">
+                        <label for="course_ids">Associated Courses</label>
+                        @php
+                            $selectedCourseIds = old('course_ids', $kpi->courses->pluck('id')->toArray());
+                        @endphp
+                        <select id="course_ids" name="course_ids[]" class="form-control" multiple>
+                            @foreach($courses as $course)
+                                <option value="{{ $course->id }}" {{ in_array($course->id, $selectedCourseIds, true) ? 'selected' : '' }}>
+                                    {{ $course->title }}{{ $course->course_code ? ' (' . $course->course_code . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Leave empty to apply this KPI to all courses. Use Ctrl/Cmd + click to select specific courses.</small>
+                    </div>
+
+                    <div class="col-12 form-group">
                         <label for="description">Description *</label>
                         <textarea id="description" name="description" rows="4" class="form-control" required>{{ old('description', $kpi->description) }}</textarea>
                     </div>

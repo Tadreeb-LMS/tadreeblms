@@ -45,6 +45,11 @@ class Kpi extends Model
         return $this->hasMany(KpiStatusHistory::class);
     }
 
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'kpi_course')->withTimestamps();
+    }
+
     public function getTypeLabelAttribute()
     {
         return config('kpi.types.' . $this->type . '.label', ucfirst($this->type));
