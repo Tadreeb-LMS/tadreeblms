@@ -188,7 +188,7 @@
                 <a class="nav-link {{ $request->segment(2) == 'manual-assessments' ? 'active' : '' }}"
                     href="{{ route('admin.manual-assessments.index') }}">
                     <i class="nav-icon fas fa-folder"></i>
-                    <span class="title">@lang('menus.backend.sidebar.Manual-Assessment')</span>
+                    <span class="title">@lang('menus.backend.sidebar.manual_assessment')</span>
                 </a>
             </li> --}}
             @endif
@@ -297,7 +297,7 @@
                     <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'course-invitation-list' ? 'active' : '' }}"
                             href="{{ route('admin.assessment_accounts.course-invitation-list') }}">
-                            <span class="title">@lang('menus.backend.sidebar.Invitations')</span>
+                            <span class="title">@lang('menus.backend.sidebar.invitations')</span>
                         </a>
                     </li>
                     @endcan
@@ -332,7 +332,7 @@
                         <i class="nav-icon fas fa-puzzle-piece" style="margin-top: 5px;"></i>
                         <div style="margin-left: 8px;">
     
-                            @lang('menus.backend.sidebar.Learning-Pathways-Management')
+                            @lang('menus.backend.sidebar.learning_pathways_management')
                          </div>
                     </div>
                     <i class="arrow-icon-new fa fa-chevron-down"></i>
@@ -341,13 +341,13 @@
                     <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'learning-pathways' ? 'active' : '' }}"
                             href="{{ url('/user/learning-pathways') }}">
-                            <span class="title">@lang('menus.backend.sidebar.Learning-Pathways')</span>
+                            <span class="title">@lang('menus.backend.sidebar.learning_pathways')</span>
                         </a>
                     </li>
                     <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'pathway-assignments' ? 'active' : '' }}"
                             href="{{ url('/user/pathway-assignments') }}">
-                            <span class="title">@lang('menus.backend.sidebar.Pathway-Assignments')</span>
+                            <span class="title">@lang('menus.backend.sidebar.pathway_assignments')</span>
                         </a>
                     </li>
                 </ul>
@@ -365,7 +365,7 @@
                 <a class="nav-link {{ $request->segment(2) == 'contact-requests' ? 'active' : '' }}"
                     href="{{ route('admin.contact-requests.index') }}">
                     <i class="nav-icon icon-puzzle"></i>
-                    <span class="title">@lang('menus.backend.sidebar.Contact-Requests')</span>
+                    <span class="title">@lang('menus.backend.sidebar.contact_requests')</span>
                 </a>
             </li>
             @endcan
@@ -374,7 +374,7 @@
                 <a class="nav-link {{ $request->segment(2) == 'subscription' ? 'active' : '' }}"
                     href="{{ route('admin.subscription.index') }}">
                     <i class="nav-icon icon-puzzle"></i>
-                    <span class="title">@lang('menus.backend.sidebar.Employee-Requests')</span>
+                    <span class="title">@lang('menus.backend.sidebar.employee_requests')</span>
                 </a>
             </li>
             @endcan
@@ -419,7 +419,7 @@
                     href="#">
                     <i class="nav-icon fas fa-folder mt-1 min-icon"></i> <span class="min-title" style="margin-left: 5px;">
 
-                        @lang('menus.backend.sidebar.site-management.title')
+                        @lang('menus.backend.sidebar.site_management.title')
                     </span>
                     <i class="arrow-icon-new fa fa-chevron-down ml-auto"></i>
                     
@@ -526,7 +526,7 @@
                 <li class="nav-item ">
                     <a class="nav-link {{ $request->segment(2) == 'mycourses' ? 'active' : '' }}"
                         href="{{ route('user.mycourses') }}">
-                      <i class="nav-icon fas fa-graduation-cap"></i> <span class="title">@lang('menus.backend.sidebar.My-Courses')</span>
+                      <i class="nav-icon fas fa-graduation-cap"></i> <span class="title">@lang('menus.backend.sidebar.my_courses')</span>
                     </a>
                 </li>
 
@@ -572,7 +572,7 @@
                     <a class="nav-link {{ $request->segment(1) == 'user.myassignment' ? 'active' : '' }}"
                         href="{{ route('user.myassignment') }}">
                         <i class="nav-icon fas fa-folder"></i>
-                        <span class="title">@lang('menus.backend.sidebar.My-Assignments')</span>
+                        <span class="title">@lang('menus.backend.sidebar.my_assignments')</span>
                     </a>
                 </li>
 
@@ -730,7 +730,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings/notifications*')) }}"
                             href="{{ route('admin.notification-settings') }}">
-                            <span class="title">@lang('menus.backend.sidebar.notification-settings')</span>
+                            <span class="title">@lang('menus.backend.sidebar.notification_settings')</span>
                         </a>
                     </li>
 
@@ -846,14 +846,14 @@
                     {{-- <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/menu-manager')) }}"
                             href="{{ route('admin.menu-manager') }}">
-                            {{ __('menus.backend.sidebar.menu-manager.title') }}</a>
+                            {{ __('menus.backend.sidebar.menu_manager.title') }}</a>
                     </li> --}}
 
 
                     {{-- <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/sliders*')) }}"
                             href="{{ route('admin.sliders.index') }}">
-                            <span class="title">@lang('menus.backend.sidebar.hero-slider.title')</span>
+                            <span class="title">@lang('menus.backend.sidebar.hero_slider.title')</span>
                         </a>
                     </li> --}}
 
@@ -868,7 +868,7 @@
                 <a class="d-flex nav-link {{ $request->segment(2) == 'send-email-notification' ? 'active' : '' }}"
                     href="{{ url('/user/send-email-notification') }}">
                     <i class="nav-icon fas fa-envelope min-icon" style="margin-top: 5px;"></i>
-                    <div class="title ml-1 min-title">@lang('menus.backend.sidebar.Send-Email-Notification')</div>
+                    <div class="title ml-1 min-title">@lang('menus.backend.sidebar.send_email_notification')</div>
                 </a>
             </li>
             @endcan
