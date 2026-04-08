@@ -163,42 +163,38 @@
         </div> --}}
 
         <div class="card-body">
-            @if (Auth::user()->isAdmin())
-
-
             <div class="row">
                 <div class="col-md-6 col-12 form-group frmbm10">
-                <div class="row">
-                    <div class="col-md-8 col-12 form-group">
-                        <div> 
-                            Teachers
+                    <div class="row">
+                        <div class="col-md-8 col-12 form-group">
+                            <div> Teachers </div>
+                                <div class="custom-select-wrapper mt-2">
+
+                                    <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single">
+                                        @foreach($teachers as $id => $teacher)
+                                            <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
+                                                {{ $teacher }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <span class="custom-select-icon">
+                                        <i class="fa fa-chevron-down"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-1 col-12 d-flex form-group flex-column">
+                                <span class="ortext">
+                                    OR
+                                </span>
+                            </div>
+                            <div class="col-md-3 col-12 d-flex form-group flex-column">
+                                <a target="_blank" class="btn btn-primary mt-auto"
+                                href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
+                            </div>
                         </div>
-                        <div class="custom-select-wrapper mt-2">
 
-    <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single">
-        @foreach($teachers as $id => $teacher)
-            <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
-                {{ $teacher }}
-            </option>
-        @endforeach
-    </select>
-    <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
-</div>
-                    </div>
-                    <div class="col-md-1 col-12 d-flex form-group flex-column"><span class="ortext">
-                        OR
-                       </span></div>
-                    <div class="col-md-3 col-12 d-flex form-group flex-column">
-                         <a target="_blank" class="btn btn-primary mt-auto"
-                            href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
-                    </div>
-                </div>
-            @endif
-
-            @if (Auth::user()->isAdmin())
-                {{-- <div class="row">
+                        {{-- <div class="row">
                         <div class="col-10 form-group">
                             <label for="internal_students" class="control-label">
                                 {{ trans('labels.backend.courses.fields.internal_students') }}
@@ -206,16 +202,14 @@
                             <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.internal_students') }}" name="internal_students" type="text" value="{{ old('internal_students') }}">
                         </div>
                     </div> --}}
-            @endif
+            
 
-            @if (Auth::user()->isAdmin())
                 {{-- <div class="row">
             <div class="col-10 form-group">
                {!! Form::label('external_students',trans('labels.backend.courses.fields.external_students'), ['class' => 'control-label']) !!}
                {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents'), ['class' => 'form-control select2 js-example-external-student-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
             </div>
         </div> --}}
-            @endif
 
             <div class="row">
                 <div class="col-md-8 col-12 form-group">
@@ -352,13 +346,23 @@
                            value="{{ old('start_date') }}">
                 </div>
 
-                @if (Auth::user()->isAdmin())
+                
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                        <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
-                        <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
+                        <label for="expire_at" class="control-label">
+                            {{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) *
+                        </label>
+                        <input 
+                            class="form-control 
+                            date" id="expire_at" 
+                            pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" 
+                            placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" 
+                            name="expire_at" 
+                            type="text" 
+                            value="{{ old('expire_at') }}"
+                            required>
 
                     </div>
-                @endif
+                
             </div>
 
             {{-- <div class="row">
