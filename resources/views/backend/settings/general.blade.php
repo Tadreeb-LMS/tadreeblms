@@ -191,10 +191,10 @@
 
                             <!-- Site Logo -->
                             <div class="form-group row">
-                                <label for="site_logo" class="col-md-2 form-control-label">Logo</label>
+                                <label for="site_logo" class="col-md-2 form-control-label">{{ __('labels.backend.general_settings.site_logo') }}</label>
                                 <div class="col-md-10">
                                     <label for="site_logo" class="control-label">
-                                        {{ 'Site Logo ' . trans('labels.backend.pages.max_file_size') }}
+                                        {{ __('labels.backend.general_settings.site_logo') . ' ' . trans('labels.backend.pages.max_file_size') }}
                                     </label>
                                     <input type="file" name="site_logo" class="form-control">
                                     <input type="hidden" name="site_logo_max_size" value="8">
@@ -246,7 +246,7 @@
 
                             <div class="text-end mt-3">
     <button type="submit" class="btn btn-primary">
-        Save Settings
+        {{ __('labels.backend.general_settings.save_settings') }}
     </button>
 </div>
 

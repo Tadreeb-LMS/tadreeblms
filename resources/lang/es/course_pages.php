@@ -41,6 +41,7 @@ return array(
     'open_quiz' => 'Abrir cuestionario de la lección',
     'course_title' => 'Curso:',
     'complete_pass_quiz_unlock_next' => 'Completa y aprueba el cuestionario de la lección para desbloquear la siguiente lección',
+    'assessment_failed_no_certificate' => 'Lo sentimos, no calificaste en la evaluación, por lo que no se pudo emitir el certificado.',
   ),
   'certificate' => array(
     'course_name' => 'Nombre del curso',

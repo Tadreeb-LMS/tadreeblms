@@ -1,6 +1,13 @@
 <?php
 
 return array(
+  'manual_assessment' => array(
+    'user_assessment_answers' => 'إجابات تقييم المستخدم',
+    'marks_obtained' => 'الدرجات المحصلة',
+    'correct_answer' => 'الإجابة الصحيحة',
+    'user_answer' => 'إجابة المستخدم',
+    'not_available' => 'غير متاح',
+  ),
   'pathway_assignments' => array(
     'title' => 'تعيينات مسارات التعلم',
     'make_new_assignment' => 'إنشاء تعيين جديد',

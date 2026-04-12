@@ -149,7 +149,7 @@
                 <div class="nav-item px-3 dropdown">
                     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
                         aria-haspopup="true" aria-expanded="false">
-                        <span class="d-md-down-none">{{ trans('menus.language-picker.language', [], 'en') }} ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
+                        <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }} ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                     </a>
 
                     @include('includes.partials.lang')
@@ -263,7 +263,7 @@
                     @if (count($locales) > 1)
                         <!--li class="menu-item-has-children ul-li-block">
                                                 <a href="#">
-                                                    <span class="d-md-down-none">{{ trans('menus.language-picker.language', [], 'en') }}
+                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
                                                         ({{ strtoupper(app()->getLocale()) }})</span>
                                                 </a>
                                                 <ul class="sub-menu">
@@ -271,7 +271,7 @@
 @if ($lang != app()->getLocale())
 <li>
                                                                                      <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
-                                                                   class=""> {{ trans('menus.language-picker.langs.' . $lang, [], 'en') }}</a>
+                                                                   class=""> {{ trans('menus.language_picker.langs.' . $lang, [], 'en') }}</a>
                                                             </li>
 @endif
 @endforeach

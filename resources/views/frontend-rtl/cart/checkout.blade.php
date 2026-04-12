@@ -123,7 +123,7 @@
                                                         <span>{{class_basename($course)}}</span>
                                                     </div>
                                                 </td>
-                                                <td>{{($course->start_date != "") ? $course->start_date : 'N/A'}}</td>
+                                                <td>{{($course->start_date != "") ? $course->start_date : __('labels.general.not_available')}}</td>
                                             </tr>
                                         @endforeach
                                     @else

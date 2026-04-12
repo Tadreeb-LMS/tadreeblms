@@ -582,7 +582,7 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">@lang('strings.backend.dashboard.Recent-Courses')</h5>
-                <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-primary">View All</a>
+                <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-primary">@lang('labels.general.view_all')</a>
             </div>
             <div class="card-body p-0">
                 @if($recent_courses->isNotEmpty())

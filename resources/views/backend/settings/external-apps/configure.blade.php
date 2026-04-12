@@ -42,7 +42,7 @@
                         <h5><i class="fas fa-info-circle mr-2"></i>{{ __('external_apps.external_apps.module_info') }}</h5>
                         <table class="table table-sm mb-0">
                             <tr><td><strong>{{ __('external_apps.external_apps.name') }}:</strong></td><td>{{ $app->name }}</td></tr>
-                            <tr><td><strong>{{ __('external_apps.external_apps.version') }}:</strong></td><td>{{ $app->version ?? 'N/A' }}</td></tr>
+                            <tr><td><strong>{{ __('external_apps.external_apps.version') }}:</strong></td><td>{{ $app->version ?? __('labels.general.not_available') }}</td></tr>
                             <tr>
                                 <td><strong>{{ __('external_apps.external_apps.status') }}:</strong></td>
                                 <td><span class="badge badge-{{ $app->getStatusBadge() }}">{{ ucfirst($app->status) }}</span></td>

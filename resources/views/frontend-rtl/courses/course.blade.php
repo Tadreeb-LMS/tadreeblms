@@ -791,8 +791,8 @@ data-plyr-embed-id="{{$lesson1->mediavideo->file_name}}"></div>
                             </div>
 
                             <div class="col-sm-6 col-12"><div class="form-group">
-                            <label for="exampleInputEmail1">Classification number</label>
-                            <input type="text"  class="form-control" name="classification_no" id="classification_no" placeholder="Classification number" value="">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.classification') }}</label>
+                            <input type="text"  class="form-control" name="classification_no" id="classification_no" placeholder="{{ __('course_pages.registration.placeholder_classification') }}" value="">
                         </div></div>
                             <div class="col-sm-6 col-12">
                             <div class="form-group">

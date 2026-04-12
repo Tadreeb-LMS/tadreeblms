@@ -51,12 +51,12 @@
     @include('frontend.layouts.partials.slider')
  <div class="container">
         <div class="outcategory caterow">
-            <div> <h4>Our Category</h4> </div>
+            <div> <h4>@lang('labels.frontend.home.our_category')</h4> </div>
             <ul>
-                <li><img src="{{ asset('assets/img/icon1.png') }}" alt="Category">   Category 1 </li>
-                 <li><img src="{{ asset('assets/img/icon2.png') }}" alt="Category"> Category 2 </li>
-                  <li><img src="{{ asset('assets/img/icon3.png') }}" alt="Category"> Category 3 </li>
-                   <li><img src="{{ asset('assets/img/icon4.png') }}" alt="Category"> Category </li>
+                <li><img src="{{ asset('assets/img/icon1.png') }}" alt="@lang('labels.frontend.home.category_1')">   @lang('labels.frontend.home.category_1') </li>
+                 <li><img src="{{ asset('assets/img/icon2.png') }}" alt="@lang('labels.frontend.home.category_2')"> @lang('labels.frontend.home.category_2') </li>
+                  <li><img src="{{ asset('assets/img/icon3.png') }}" alt="@lang('labels.frontend.home.category_3')"> @lang('labels.frontend.home.category_3') </li>
+                   <li><img src="{{ asset('assets/img/icon4.png') }}" alt="@lang('labels.frontend.home.category_4')"> @lang('labels.frontend.home.category_4') </li>
             </ul>
         </div>
     </div>
@@ -167,7 +167,7 @@
                     <div class="w-100 d-flex justify-content-between section-title-3">
                         {{-- <h2>@lang('Latest') <strong>@lang('Events')</strong></h2> --}}
                         <h2><strong>@lang('Latest Events')</strong></h2>
-                        <a href="" class="btn border btn-all rounded-pill">@lang('View All')</a>
+                        <a href="" class="btn border btn-all rounded-pill">@lang('labels.general.view_all')</a>
                     </div>
                     @if (count($events) > 0)
                         @foreach ($events as $evet)
@@ -208,7 +208,7 @@
                     <div class="w-100 d-flex justify-content-between section-title-3">
                         {{-- <h2>@lang('Latest') <strong>@lang('Libraries')</strong></h2> --}}
                         <h2><strong>@lang('Latest Libraries')</strong></h2>
-                        <a href="" class="btn border btn-all rounded-pill">@lang('View All')</a>
+                        <a href="" class="btn border btn-all rounded-pill">@lang('labels.general.view_all')</a>
                     </div>
                     <div class="libraries">
                         <div class="row">
@@ -270,7 +270,7 @@
          <div class="container">
                 <div class="w-100 d-flex justify-content-between section-title-3">
                     <h2>Student's  <strong>Feedback</strong></h2>
-                    <a href="" class="btn border btn-all rounded-pill">View All</a>
+                    <a href="" class="btn border btn-all rounded-pill">@lang('labels.general.view_all')</a>
                 </div>
             <div class="row">
                 <div class="col-md-4">

@@ -41,6 +41,7 @@ return array(
     'open_quiz' => 'افتح اختبار الدرس',
     'course_title' => 'الدورة:',
     'complete_pass_quiz_unlock_next' => 'أكمل واجتز اختبار الدرس لفتح الدرس التالي',
+    'assessment_failed_no_certificate' => 'عذرا! لم تنجح في التقييم، لذلك لا يمكن إصدار الشهادة.',
   ),
   'certificate' => array(
     'course_name' => 'اسم المسار',

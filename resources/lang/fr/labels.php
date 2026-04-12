@@ -22,7 +22,9 @@ return array(
     'toolbar_btn_groups' => 'Barre d\'outils avec des groupes de boutons',
     'sr_no' => 'Sr Non.',
     'read_more' => 'Lire la suite',
+    'view_all' => 'Voir tout',
     'no_data_available' => 'Pas de données disponibles',
+    'not_available' => 'N/D',
     'more' => 'Plus',
     'edit' => 'modifier',
     'delete_selected' => 'Supprimer sélectionnée',
@@ -445,6 +447,8 @@ return array(
         'mail_port' => 'PORT de courrier',
         'mail_username' => 'Mail Nom d\'utilisateur',
         'mail_username_note' => 'Ajoutez votre identifiant de messagerie que vous souhaitez configurer pour l\'envoi d\'emails',
+        'site_logo' => 'Logo du site',
+        'save_settings' => 'Enregistrer les paramètres',
         'note' => '<b> Remarque importante </b>: SI vous utilisez <b> GMAIL </b> pour la configuration du courrier, assurez-vous d\'avoir terminé le processus suivant avant la mise à jour:
   <ul>
 <li> Accédez à <a target="_blank" href="https://myaccount.google.com/security"> Mon compte </a> à partir de votre compte Google que vous souhaitez configurer et vous connecter </li>.
@@ -499,6 +503,8 @@ return array(
       'mail_port' => 'Port de messagerie',
       'mail_username' => 'Mail Nom d\'utilisateur',
       'management' => 'réglages généraux',
+      'site_logo' => 'Logo du site',
+      'save_settings' => 'Enregistrer les paramètres',
       'newsletter' => array(
         'api_key' => 'Clave API',
         'api_key_note' => 'Genere <b> clave de API </b> a partir de su <a target="_blank" href="https://mailchimp.com/"> <b> cuenta de Mailchimp </b> </a> y péguela arriba. caja de texto.',
@@ -590,6 +596,7 @@ return array(
       'language_settings' => array(
         'default_language' => 'Langage par défaut',
         'display_type' => 'Type d\'affichage',
+        'download_base_language_file' => 'Télécharger le fichier de langue de base',
         'left_to_right' => 'De gauche à droite',
         'right_to_left' => 'De droite à gauche',
         'title' => 'Paramètres de langue',
@@ -1314,6 +1321,14 @@ return array(
       'view_license' => 'Examiner la licence',
       'remove_license_title' => 'Supprimer la licence',
       'removing' => 'Suppression...',
+      'toggle_key_visibility' => 'Afficher/Masquer',
+      'standard' => 'Standard',
+      'syncing' => 'Synchronisation des utilisateurs...',
+      'sync_failed' => 'Échec de la synchronisation des utilisateurs',
+      'total' => 'Total',
+      'created' => 'Créés',
+      'attached' => 'Liés',
+      'failed' => 'Échoués',
     ),
     'smtp_settings' => array(
       'title' => 'Paramètres de messagerie (SMTP)',
@@ -1619,6 +1634,11 @@ return array(
       'title' => 'Accueil',
       'what_they_say_about_us' => 'Ce qu\'ils disent de nous',
       'no_data_available' => 'Pas de données disponibles',
+      'our_category' => 'Nos categories',
+      'category_1' => 'Categorie 1',
+      'category_2' => 'Categorie 2',
+      'category_3' => 'Categorie 3',
+      'category_4' => 'Categorie 4',
     ),
     'layouts' => array(
       'partials' => array(

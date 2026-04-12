@@ -1,6 +1,13 @@
 <?php
 
 return array(
+  'manual_assessment' => array(
+    'user_assessment_answers' => 'User Assessment Answers',
+    'marks_obtained' => 'Marks obtained',
+    'correct_answer' => 'Correct Answer',
+    'user_answer' => 'User\'s Answer',
+    'not_available' => 'N/A',
+  ),
   'pathway_assignments' => array(
     'title' => 'Learning Pathway Assignments',
     'make_new_assignment' => 'Make New Assignment',

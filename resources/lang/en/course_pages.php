@@ -41,6 +41,7 @@ return array(
     'open_quiz' => 'Open Lesson Quiz',
     'course_title' => 'Course:',
     'complete_pass_quiz_unlock_next' => 'Complete and pass the lesson quiz to unlock the next lesson',
+    'assessment_failed_no_certificate' => 'Sorry! You did not qualify the assignment, so the certificate could not be issued.',
   ),
   'certificate' => array(
     'course_name' => 'Course Name',

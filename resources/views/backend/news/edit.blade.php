@@ -21,7 +21,7 @@
             <div class="card-header">
                 <h3 class="page-title d-inline">Update News</h3>
                 <div class="float-right">
-                    <a href="{{ route('admin.news.index') }}" class="btn btn-success">View All</a>
+                    <a href="{{ route('admin.news.index') }}" class="btn btn-success">@lang('labels.general.view_all')</a>
                 </div>
             </div>
             <div class="card-body">

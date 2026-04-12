@@ -1,6 +1,13 @@
 <?php
 
 return array(
+  'manual_assessment' => array(
+    'user_assessment_answers' => 'Reponses d\'evaluation utilisateur',
+    'marks_obtained' => 'Points obtenus',
+    'correct_answer' => 'Reponse correcte',
+    'user_answer' => 'Reponse utilisateur',
+    'not_available' => 'N/A',
+  ),
   'pathway_assignments' => array(
     'title' => 'Affectations de parcours d\'apprentissage',
     'make_new_assignment' => 'Créer une nouvelle affectation',

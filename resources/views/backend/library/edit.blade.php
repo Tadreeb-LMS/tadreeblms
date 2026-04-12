@@ -18,7 +18,7 @@
     <div class="pb-3 d-flex justify-content-between align-items-center">
         <h4>Update Library</h4>
         <div >
-            <a href="{{ route('admin.events.index') }}" class="add-btn">View All</a>
+            <a href="{{ route('admin.events.index') }}" class="add-btn">@lang('labels.general.view_all')</a>
         </div>
     </div>
     <div class="card">

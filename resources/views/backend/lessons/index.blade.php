@@ -211,7 +211,7 @@
                     @endif
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false, orderable: false },
                     { data: 'title', name: 'title' },
-                    { data: 'course', name: 'course.title', defaultContent: 'N/A' },
+                    { data: 'course', name: 'course.title', defaultContent: "{{ __('labels.general.not_available') }}" },
                     { data: 'lesson_start_date', name: 'lesson_start_date' },
                     { data: 'duration', name: 'duration' },
                     { data: 'attendance', name: 'attendance' },

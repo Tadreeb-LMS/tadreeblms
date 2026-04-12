@@ -41,6 +41,7 @@ return array(
     'open_quiz' => 'Apri il quiz della lezione',
     'course_title' => 'Corso:',
     'complete_pass_quiz_unlock_next' => 'Completa e supera il quiz della lezione per sbloccare la lezione successiva',
+    'assessment_failed_no_certificate' => 'Spiacente, non hai superato la valutazione, quindi il certificato non puo essere emesso.',
   ),
   'certificate' => array(
     'course_name' => 'Nome del corso',

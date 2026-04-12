@@ -425,6 +425,8 @@ return array(
         'mail_password_note' => 'Inserisci la password dell\'email che vuoi configurare per l\'invio dei messaggi',
         'mail_encryption' => 'Crittografia email',
         'mail_encryption_note' => 'Usa <b>tls</b> se il sito utilizza il protocollo <b>HTTP</b> e <b>ssl</b> se utilizza il protocollo <b>HTTPS</b>',
+        'site_logo' => 'Logo del sito',
+        'save_settings' => 'Salva impostazioni',
         'note' => '<b>Nota importante</b>: se stai usando <b>GMAIL</b> per la configurazione della posta, assicurati di aver completato il seguente processo prima di aggiornare:
       <ul>
       <li>Vai su <a target="_blank" href="https://myaccount.google.com/security">Il mio account</a> dall\'account Google che vuoi configurare ed effettua l\'accesso</li>
@@ -538,6 +540,8 @@ return array(
       'mail_password' => 'Password email',
       'enable_registration' => 'Abilita la registrazione',
       'change_email' => 'Cambia e-mail',
+      'site_logo' => 'Logo del sito',
+      'save_settings' => 'Salva impostazioni',
       'password_history' => 'Cronologia delle password',
       'password_expires_days' => 'La password scade giorni',
       'requires_approval' => 'Richiede l\'approvazione',
@@ -559,6 +563,7 @@ return array(
         'default_language' => 'Lingua predefinita',
         'right_to_left' => 'Da destra a sinistra',
         'left_to_right' => 'Da sinistra a destra',
+        'download_base_language_file' => 'Scarica il file di lingua base',
         'display_type' => 'Tipo di visualizzazione',
       ),
       'user_registration_settings' => array(
@@ -1270,6 +1275,14 @@ return array(
       'view_license' => 'Revisione licenza',
       'remove_license_title' => 'Rimuovi licenza',
       'removing' => 'Rimozione...',
+      'toggle_key_visibility' => 'Mostra/Nascondi',
+      'standard' => 'Standard',
+      'syncing' => 'Sincronizzazione utenti...',
+      'sync_failed' => 'Impossibile sincronizzare gli utenti',
+      'total' => 'Totale',
+      'created' => 'Creati',
+      'attached' => 'Associati',
+      'failed' => 'Non riusciti',
     ),
     'smtp_settings' => array(
       'title' => 'Impostazioni e-mail (SMTP)',
@@ -1333,6 +1346,7 @@ return array(
     'trash' => 'Cestino',
     'delete' => 'Elimina',
     'no_data_available' => 'Nessun dato disponibile',
+    'not_available' => 'N/D',
     'edit' => 'Modifica',
     'copyright' => 'Diritto d\'autore',
     'delete_selected' => 'Elimina selezionato',
@@ -1343,6 +1357,7 @@ return array(
     'toggle_navigation' => 'Attiva/disattiva navigazione',
     'sr_no' => 'Sig. No.',
     'read_more' => 'Leggi di più',
+    'view_all' => 'Visualizza tutto',
   ),
   'frontend' => array(
     'auth' => array(
@@ -1565,6 +1580,11 @@ return array(
       'all_teachers' => 'Tutti gli allenatori',
       'what_they_say_about_us' => 'Cosa dicono di noi',
       'no_data_available' => 'Nessun dato disponibile',
+      'our_category' => 'Le nostre categorie',
+      'category_1' => 'Categoria 1',
+      'category_2' => 'Categoria 2',
+      'category_3' => 'Categoria 3',
+      'category_4' => 'Categoria 4',
     ),
     'layouts' => array(
       'partials' => array(

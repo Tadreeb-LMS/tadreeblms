@@ -496,6 +496,8 @@ return array(
         'mail_port' => 'ميناء البريد',
         'mail_username' => 'البريد اسم المستخدم',
         'mail_username_note' => 'أضف معرف بريدك الإلكتروني الذي تريد تكوينه لإرسال رسائل البريد الإلكتروني',
+        'site_logo' => 'شعار الموقع',
+        'save_settings' => 'حفظ الإعدادات',
         'note' => '<b> ملاحظة مهمة </b>: إذا كنت تستخدم <b> GMAIL </b> لتكوين البريد ، فتأكد من إكمال العملية التالية قبل التحديث:
   <UL>
 <li> انتقل إلى <a target="_blank" href="https://myaccount.google.com/security"> حسابي </a> من حسابك في Google الذي تريد تكوينه وتسجيل الدخول </li>
@@ -540,6 +542,7 @@ return array(
       'language_settings' => array(
         'default_language' => 'اللغة الافتراضية',
         'display_type' => 'نوع العرض',
+        'download_base_language_file' => 'تنزيل ملف اللغة الأساسي',
         'left_to_right' => 'من اليسار إلى اليمين',
         'right_to_left' => 'من اليمين الى اليسار',
         'title' => 'اعدادات اللغة',
@@ -561,6 +564,8 @@ return array(
       'mail_port' => 'ميناء البريد',
       'mail_username' => 'البريد اسم المستخدم',
       'management' => 'الإعدادات العامة',
+      'site_logo' => 'شعار الموقع',
+      'save_settings' => 'حفظ الإعدادات',
       'newsletter' => array(
         'api_key' => 'مفتاح API',
         'api_key_note' => 'أنشئ <b> مفتاح API </b> من <a target="_blank" href="https://mailchimp.com/"> <b> حساب Mailchimp </b> </a> والصقه أعلاه مربع النوع.',
@@ -1275,6 +1280,14 @@ return array(
       'view_license' => 'مراجعة الترخيص',
       'remove_license_title' => 'إزالة الترخيص',
       'removing' => 'جارٍ الإزالة...',
+      'toggle_key_visibility' => 'إظهار/إخفاء',
+      'standard' => 'قياسي',
+      'syncing' => 'جارٍ مزامنة المستخدمين...',
+      'sync_failed' => 'فشلت مزامنة المستخدمين',
+      'total' => 'الإجمالي',
+      'created' => 'تم الإنشاء',
+      'attached' => 'تم الربط',
+      'failed' => 'فشل',
     ),
     'smtp_settings' => array(
       'title' => 'إعدادات البريد الإلكتروني (SMTP)',
@@ -1331,8 +1344,10 @@ return array(
     'sr_no' => 'الرقم المتسلسل',
     'show' => 'تبين',
     'read_more' => 'قراءة المزيد',
+    'view_all' => 'عرض الكل',
     'none' => 'لا شيء',
     'no_data_available' => 'لا تتوافر بيانات',
+    'not_available' => 'غير متاح',
     'no' => 'لا',
     'more' => 'أكثر من',
     'actions' => 'أفعال',
@@ -1374,8 +1389,8 @@ return array(
       'featured_course' => 'ظهرت <span> الدورة التدريبية. </span>',
       'login_to_post_comment' => 'تسجيل الدخول لنشر تعليق',
       'no_comments_yet' => 'لا تعليقات حتى الآن ، كن أول من يعلق.',
+      'post_comments' => 'نشر <span>التعليقات.</span>',
       'popular_tags' => '<span> العلامات الشائعة. </span>',
-      'post_comments' => 'نشر <span> تعليقات. </span>',
       'related_news' => '<span> ذات صلة </span> الأخبار',
       'search_blog' => 'ابحث عن مدونة',
       'share_this_news' => 'شارك هذا الخبر',
@@ -1574,6 +1589,11 @@ return array(
       'title' => 'الصفحة الرئيسية',
       'what_they_say_about_us' => 'ماذا يقولون عنا',
       'no_data_available' => 'لا تتوافر بيانات',
+      'our_category' => 'فئاتنا',
+      'category_1' => 'الفئة 1',
+      'category_2' => 'الفئة 2',
+      'category_3' => 'الفئة 3',
+      'category_4' => 'الفئة 4',
     ),
     'layouts' => array(
       'partials' => array(

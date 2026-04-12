@@ -1,6 +1,13 @@
 <?php
 
 return array(
+  'manual_assessment' => array(
+    'user_assessment_answers' => 'Respuestas de evaluacion del usuario',
+    'marks_obtained' => 'Puntuacion obtenida',
+    'correct_answer' => 'Respuesta correcta',
+    'user_answer' => 'Respuesta del usuario',
+    'not_available' => 'N/A',
+  ),
   'pathway_assignments' => array(
     'title' => 'Asignaciones de rutas de aprendizaje',
     'make_new_assignment' => 'Crear nueva asignacion',

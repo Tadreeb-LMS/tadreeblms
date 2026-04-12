@@ -224,7 +224,7 @@
                                     @if(count($locales) > 1)
                                         <li class="menu-item-has-children ul-li-block">
                                             <a href="#">
-                                                    <span class="d-md-down-none">{{ trans('menus.language-picker.language', [], 'en') }}
+                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
                                                         ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                                             </a>
                                             <ul class="sub-menu">
@@ -346,7 +346,7 @@
                                 <button class="menu-link" data-toggle="collapse"
                                         data-target="#collapseLang"
                                         aria-expanded="true" aria-controls="collapseLang">
-                                    {{ trans('menus.language-picker.language', [], 'en') }}
+                                    {{ trans('menus.language_picker.language', [], 'en') }}
                                     ({{ strtoupper(app()->getLocale()) }})
                                 </button>
                             </div>
@@ -357,7 +357,7 @@
                                     @if($lang != app()->getLocale())
                                         <li>
                                             <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
-                                               class=""> {{ trans('menus.language-picker.langs.' . $lang, [], 'en') }}</a>
+                                               class=""> {{ trans('menus.language_picker.langs.' . $lang, [], 'en') }}</a>
                                         </li>
                                     @endif
                                 @endforeach

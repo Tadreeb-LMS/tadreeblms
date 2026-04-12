@@ -47,7 +47,7 @@
                                 <tr>
                                     <td><strong>{{ __('external_apps.external_apps.installation_path') }}:</strong></td>
                                     <td>
-                                        <code class="text-muted" style="font-size: 0.85em;">{{ $app->installed_path ?? 'N/A' }}</code>
+                                        <code class="text-muted" style="font-size: 0.85em;">{{ $app->installed_path ?? __('labels.general.not_available') }}</code>
                                     </td>
                                 </tr>
                                 <tr>

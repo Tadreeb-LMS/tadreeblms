@@ -262,7 +262,7 @@ $('#bulk-edit-form').on('submit', function (e) {
                     {data: "department", name: "department", orderable: false, searchable: false},
                     {data: "confirmed_label", name: "confirmed_label"},
                     {data: "roles", name: "roles.name", render: function(data, type, row) {
-                        if (!data || data.length === 0) return 'N/A';
+                        if (!data || data.length === 0) return "{{ __('labels.general.not_available') }}";
                         var mapped = data.map(function(r) {
                             if (r.id == 2) return 'Trainer';
                             if (r.id == 3) return 'Trainee';

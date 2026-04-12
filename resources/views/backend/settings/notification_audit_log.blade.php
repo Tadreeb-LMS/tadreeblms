@@ -38,7 +38,7 @@
                     @forelse($logs as $log)
                     <tr>
                         <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
-                        <td>{{ $log->user->full_name ?? 'N/A' }}</td>
+                        <td>{{ $log->user->full_name ?? __('labels.general.not_available') }}</td>
                         <td>
                             <span class="badge badge-{{ strpos($log->action, 'enabled') !== false ? 'success' : 'warning' }}">
                                 {{ $log->action_label }}
