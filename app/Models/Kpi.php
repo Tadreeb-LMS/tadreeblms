@@ -50,6 +50,16 @@ class Kpi extends Model
         return $this->belongsToMany(Course::class, 'kpi_course')->withTimestamps();
     }
 
+    public function snapshots()
+    {
+        return $this->hasMany(KpiSnapshot::class);
+    }
+
+    public function currentSnapshot()
+    {
+        return $this->hasOne(KpiSnapshot::class)->where('is_current', true)->latest('id');
+    }
+
     public function getTypeLabelAttribute()
     {
         return config('kpi.types.' . $this->type . '.label', ucfirst($this->type));

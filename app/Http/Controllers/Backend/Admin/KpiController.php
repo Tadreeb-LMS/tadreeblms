@@ -7,18 +7,18 @@ use App\Http\Requests\Admin\StoreKpiRequest;
 use App\Http\Requests\Admin\UpdateKpiRequest;
 use App\Models\Course;
 use App\Models\Kpi;
-use App\Services\KpiCalculationService;
+use App\Services\Kpi\KpiSnapshotService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class KpiController extends Controller
 {
-    protected $calculationService;
+    protected $snapshotService;
 
-    public function __construct(KpiCalculationService $calculationService)
+    public function __construct(KpiSnapshotService $snapshotService)
     {
-        $this->calculationService = $calculationService;
+        $this->snapshotService = $snapshotService;
     }
 
     public function index(Request $request)
@@ -42,10 +42,7 @@ class KpiController extends Controller
         $allKpis = $query->get();
         $totalActiveWeight = (float) Kpi::query()->where('is_active', true)->sum('weight');
 
-        $calculatedKpis = $allKpis->map(function ($kpi) use ($totalActiveWeight) {
-            $kpi->calculation = $this->calculationService->calculateForKpi($kpi, $totalActiveWeight);
-            return $kpi;
-        });
+        $calculatedKpis = $this->snapshotService->attachCalculations($allKpis, $totalActiveWeight);
 
         $sorted = $calculatedKpis->sort(function ($left, $right) use ($sorts) {
             foreach ($sorts as $sort) {
