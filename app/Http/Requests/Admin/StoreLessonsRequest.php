@@ -2,6 +2,8 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Course;
+
 
 class StoreLessonsRequest extends FormRequest
 {
@@ -27,6 +29,9 @@ class StoreLessonsRequest extends FormRequest
             'title' => 'required|array|min:1',
             'title.*' => 'required|string|max:255',
             'published' => 'nullable|boolean',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+
         ];
     }
 
@@ -36,4 +41,27 @@ class StoreLessonsRequest extends FormRequest
             'published' => (int) $this->boolean('published'),
         ]);
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $course = Course::find($this->course_id);
+
+            if (!$course) {
+                return;
+            }
+
+            $lessonStart = $this->start_date;
+            $lessonEnd   = $this->end_date ?? $lessonStart;
+
+            if ($lessonStart < $course->start_date || $lessonStart > $course->end_date) {
+                $validator->errors()->add('start_date', 'Lesson start date must be within course duration.');
+            }
+
+            if ($lessonEnd < $course->start_date || $lessonEnd > $course->end_date) {
+                $validator->errors()->add('end_date', 'Lesson end date must be within course duration.');
+            }
+        });
+    }
+
 }

@@ -196,7 +196,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="downloadable_files_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i>Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -210,7 +210,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="add_pdf_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -224,7 +224,7 @@
                                     <div class="custom-file-upload-wrapper">
                                         <input type="file" name="add_audio_1[]" class="custom-file-input">
                                         <label class="custom-file-label">
-                                            <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_lessons_create.choose_file') }}
+                                            <i class="fa fa-upload mr-1"></i> Choose a file
                                         </label>
                                     </div>
                                 </div>
@@ -234,19 +234,19 @@
                         <div class="row addvideocol">
                             <div class="col-md-4 form-group parent_group mt-2">
                                 <div class="videos-section">
-                                    <h5>{{ __('course_pages.admin_lessons_create.lesson_videos') }}</h5>
+                                    <h5>Lesson Videos</h5>
 
                                     <div class="videos-wrapper"></div>
 
                                     <button type="button" class="btn btn-primary mt-2 addVideo">
-                                        {{ __('course_pages.admin_lessons_create.add_video') }}
+                                        Add Video
                                     </button>
                                 </div>
 
                                 <div class="video-template d-none">
                                     <div class="video-item card p-3 mb-3">
                                         <label>{{ __('course_pages.admin_lessons_create.video_title') }}</label>
-                                        <input type="text" name="videos[INDEX][title]" class="form-control" disabled>
+                                        <input type="text" name="videos[LESSON_INDEX][INDEX][title]"  class="form-control" disabled>
 
                                         <label>{{ __('course_pages.admin_lessons_create.type') }}</label>
                                         <select name="videos[INDEX][type]" class="form-control video-type" disabled>
@@ -287,18 +287,17 @@
 
                         <div class="form-group row">
                             <div class="col-md-4 col-sm-12">
-                                <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.duration') }}</div>
+                                <div for="duration" class="form-control-label mb-2">Duration</div>
                                 <div>
                                     <input type="text" name="duration[]" class="form-control"
-                                        placeholder="{{ __('course_pages.admin_lessons_create.duration_minutes') }}">
+                                        placeholder="Duration[Minutes]">
                                 </div>
                             </div>
 
                             <div class="col-md-4 col-sm-12 start_date">
-                                <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.lesson_start_date') }}</div>
+                                <div for="duration" class="form-control-label mb-2">Lesson Start Date</div>
                                 <div>
-                                    <input class="form-control" type="date" name="lesson_start_date[]"
-                                        id="lesson_start_date">
+                                    <input class="form-control lesson-date" type="date" name="lesson_start_date[]">
                                 </div>
                             </div>
 
@@ -323,11 +322,11 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <button type="button" name="addmorebtn" id="addmorebtn"
-                                class="btn btn-outline-info">{{ __('course_pages.admin_lessons_create.add_more_lesson') }}</button>
+                                class="btn btn-outline-info">Add More Lesson</button>
                         </div>
                         <div>
                             <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
-                                {{ __('course_pages.admin_lessons_create.save_as_draft') }}
+                                Save as Draft
                             </button>
                             <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
                                 Next
@@ -353,6 +352,57 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script>
+    let courseStart = "{{ optional($course)->start_date ?? '' }}";
+    let courseEnd = "{{ optional($course)->end_date ?? '' }}";
+function toDate(str) {
+    return new Date(str + 'T00:00:00');
+}
+    function applyDateLimits($input, start, end) {
+
+    $input.datetimepicker({
+        format: 'Y-m-d',
+        timepicker: false,
+        minDate: start || false,
+        maxDate: end || false,
+
+        onShow: function (ct) {
+            this.setOptions({
+                minDate: start || false,
+                maxDate: end || false
+            });
+        },
+
+        onChangeDateTime: function (dp, $input) {
+            let selected = $input.val();
+
+            if (start && toDate(selected) < toDate(start)) {
+                alert('Date cannot be before course start date');
+                $input.val('');
+            }
+
+            if (end && toDate(selected) > toDate(end)) {
+                alert('Date cannot be after course end date');
+                $input.val('');
+            }
+
+        }
+    });
+
+    // 🔴 Prevent manual invalid typing
+    $input.on('blur', function () {
+        let val = $(this).val();
+
+        if (start && val < start) {
+            alert('Invalid date (before start)');
+            $(this).val('');
+        }
+        if (end && toDate(val) > toDate(end)) {
+            alert('Invalid date (after end)');
+            $(this).val('');
+        }
+    });
+}
+
     function generateEditorId() {
         return 'editor_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
     }
@@ -379,6 +429,32 @@
             $textarea.data('ckeditorInitialized', true);
         });
     }
+
+    $(document).on('change', '.course_id', function () {
+    const $currentLesson = $(this).closest('.lesson-box');
+
+    $.ajax({
+        url: "{{ route('lessons.course.check') }}",
+        data: { id: $(this).val() },
+        success: function (data) {
+
+            if (data.success && data.category == 'Internal') {
+                $currentLesson.find('.start_date').hide();
+            } else {
+                $currentLesson.find('.start_date').show();
+            }
+
+            // ✅ IMPORTANT: Apply date restriction here
+            let $dateInput = $currentLesson.find('.lesson-date');
+
+            applyDateLimits(
+                $dateInput,
+                data.start_date,
+                data.end_date
+            );
+        }
+    });
+});
 
     function toggleVideoFields($videoItem) {
         const type = ($videoItem.find('.video-type').val() || '').toLowerCase();
@@ -425,8 +501,9 @@
         $(document).on('click', '.addVideo', function () {
             const $parent = $(this).closest('.parent_group');
             let template = $parent.find('.video-template').first().html();
+            let lessonIndex = $('.lesson-box').index($(this).closest('.lesson-box'));
 
-            template = template.replace(/INDEX/g, videoIndex);
+            template = template.replace(/INDEX/g, videoIndex).replace(/LESSON_INDEX/g, lessonIndex);
 
             const $newVideo = $(template);
             $newVideo.find('input, select, textarea').prop('disabled', false);
@@ -465,30 +542,35 @@
             });
         });
 
-        $(document).on('change', '.course_id', function () {
-            const $currentSelect = $(this);
-            const $currentLesson = $currentSelect.closest('.lesson-box');
-
-            $.ajax({
-                url: "{{ route('lessons.course.check') }}",
-                method: "GET",
-                data: {
-                    id: $currentSelect.val()
-                },
-                dataType: "json",
-                success: function (data) {
-                    if (data.success && data.category == 'Internal') {
-                        $currentLesson.find('.start_date').hide();
-                    } else {
-                        $currentLesson.find('.start_date').show();
-                    }
-                }
-            });
-        });
-
         $('.videos-wrapper .video-item').each(function () {
             toggleVideoFields($(this));
         });
+
+        $('.lesson-box').each(function () {
+            let $lesson = $(this);
+            let courseId = $lesson.find('.course_id').val();
+
+            if (courseId) {
+                $.ajax({
+                    url: "{{ route('lessons.course.check') }}",
+                    data: { id: courseId },
+                    success: function (data) {
+                        if (data.success && data.category == 'Internal') {
+                            $lesson.find('.start_date').hide();
+                        } else {
+                            $lesson.find('.start_date').show();
+                        }
+
+                        applyDateLimits(
+                            $lesson.find('.lesson-date'),
+                            data.start_date,
+                            data.end_date
+                        );
+                    }
+                });
+            }
+        });
+
     });
 
     $('.frm_submit').on('click', function () {
@@ -663,6 +745,9 @@
 
         initEditors(clone);
         renumberLessonFileInputs();
+
+        let $newDateInput = clone.find('.lesson-date');
+        applyDateLimits($newDateInput, courseStart, courseEnd);
     });
 
     function removeLesslug(el) {

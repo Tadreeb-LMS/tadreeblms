@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Admin;
 use App\Models\Course;
 use App\Models\CourseTimeline;
 use App\Models\Lesson;
+use Carbon\Carbon;
 use App\Models\Media;
 use App\Models\Test;
 use App\Helpers\CustomHelper;
@@ -56,8 +57,8 @@ class LessonsController extends Controller
         $has_delete = false;
         $has_edit = false;
         $lessons = Lesson::with(['attendance_list', 'course'])
-    ->where('live_lesson', '=', 0)
-    ->whereIn('course_id', Course::pluck('id'));
+        ->where('live_lesson', '=', 0)
+        ->whereIn('course_id', Course::pluck('id'));
 
         if ($request->show_deleted == 1) {
             if (!Gate::allows('lesson_delete')) {
@@ -121,7 +122,7 @@ class LessonsController extends Controller
             //     return $view;
             // })
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-    if ($request->show_deleted == 1) {
+        if ($request->show_deleted == 1) {
         return view('backend.datatable.action-trashed')->with([
             'route_label' => 'admin.lessons',
             'label' => 'id',
@@ -130,7 +131,7 @@ class LessonsController extends Controller
     }
 
     
-    $actions = '<div class="action-pill">';
+      $actions = '<div class="action-pill">';
 
     if ($has_view) {
         $actions .= '<a class="" href="' . route('admin.lessons.show', ['lesson' => $q->id]) . '">
@@ -251,14 +252,21 @@ class LessonsController extends Controller
         if (!Gate::allows('lesson_create')) {
             return abort(401);
         }
-       
+        $course = null;
+        if ($request->course_id) {
+            $course = Course::find($request->course_id);
+
+            if (!$course) {
+                abort(404, 'Course not found');
+            }
+        }
 
         //dd( $course); 
 
         $courses = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
-         $courses_all = null;
-    $temp_id = uniqid();
-        return view('backend.lessons.create', compact('courses' ,   'courses_all','temp_id'));
+        $courses_all = null;
+        $temp_id = uniqid();
+        return view('backend.lessons.create', compact('courses' , 'courses_all','temp_id' , 'course'));
     }
 
     /**
@@ -274,7 +282,10 @@ class LessonsController extends Controller
 
     return response()->json([
         'success' => true,
-        'category' => $course->category->name ?? null
+        'category' => $course->category->name ?? null,
+        'start_date' => $course->start_date,
+        'end_date' => $course->end_date
+
     ]);
 }
 

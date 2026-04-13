@@ -119,14 +119,9 @@ Route::get('/refresh-captcha', [\App\Http\Controllers\Frontend\Auth\LoginControl
     ->name('refresh.captcha');
 
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
-    Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
-    Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
+Route::group(['middleware' => 'auth', 'prefix' => 'user'], function () {
+    Route::get('lessons/create', [\App\Http\Controllers\Backend\Admin\LessonsController::class, 'create'])
+        ->name('admin.lessons.create');
 });
 
 /*
@@ -237,7 +232,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('lesson/progress', 'LessonsController@courseProgress')->name('update.course.progress');
     Route::post('video/progress/update', 'LessonsController@videoProgressUpdates')->name('video.progress.update');
     Route::post('lesson/book-slot', 'LessonsController@bookSlot')->name('lessons.course.book-slot');
-    Route::get('lesson/check-course', 'Backend\Admin\LessonsController@create')->name('lessons.course.check');
     Route::get('/record-attendance/{slug}', 'Backend\Admin\CoursesController@recordAttendance')->name('recordAttendance');
 });
 
