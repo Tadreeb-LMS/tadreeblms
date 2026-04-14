@@ -59,6 +59,10 @@ class KpiCalculationService
 
     protected function resolveKpiCourseIds($kpi)
     {
+        if (method_exists($kpi, 'resolveScopedCourseIds')) {
+            return $kpi->resolveScopedCourseIds();
+        }
+
         if (method_exists($kpi, 'relationLoaded') && $kpi->relationLoaded('courses')) {
             return $kpi->courses->pluck('id')->map(function ($id) {
                 return (int) $id;

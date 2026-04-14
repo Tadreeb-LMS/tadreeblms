@@ -38,6 +38,8 @@ class UpdateKpiRequest extends FormRequest
             'type' => ['required', Rule::in(array_keys(config('kpi.types', [])))],
             'weight' => 'required|numeric|min:0|max:' . config('kpi.max_weight', 100),
             'description' => 'required|string|max:5000',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'integer|exists:categories,id',
             'course_ids' => 'nullable|array',
             'course_ids.*' => 'integer|exists:courses,id',
         ];

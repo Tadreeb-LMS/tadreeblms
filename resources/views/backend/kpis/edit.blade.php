@@ -68,7 +68,22 @@
 
                 <div class="row">
                     <div class="col-12 form-group">
-                        <label for="course_ids">Associated Courses</label>
+                        <label for="category_ids">Mapped Course Categories *</label>
+                        @php
+                            $selectedCategoryIds = old('category_ids', $kpi->categories->pluck('id')->toArray());
+                        @endphp
+                        <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ in_array($category->id, $selectedCategoryIds, true) ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">KPI calculations include only courses in selected categories where KPI inclusion is enabled.</small>
+                    </div>
+
+                    <div class="col-12 form-group">
+                        <label for="course_ids">Legacy Explicit Courses (Optional)</label>
                         @php
                             $selectedCourseIds = old('course_ids', $kpi->courses->pluck('id')->toArray());
                         @endphp
@@ -79,7 +94,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Leave empty to apply this KPI to all courses. Use Ctrl/Cmd + click to select specific courses.</small>
+                        <small class="form-text text-muted">Only used for backward compatibility. Category mapping is the primary KPI scope.</small>
                     </div>
 
                     <div class="col-12 form-group">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreKpiRequest;
 use App\Http\Requests\Admin\UpdateKpiRequest;
+use App\Models\Category;
 use App\Models\Course;
 use App\Models\Kpi;
 use App\Services\Kpi\KpiSnapshotService;
@@ -27,7 +28,7 @@ class KpiController extends Controller
             return abort(401);
         }
 
-        $query = Kpi::query()->with('courses:id');
+        $query = Kpi::query()->with('courses:id', 'categories:id');
 
         if ($request->filled('search')) {
             $search = trim($request->search);
@@ -171,9 +172,10 @@ class KpiController extends Controller
         $kpiTypes = config('kpi.types', []);
         $maxWeight = config('kpi.max_weight', 100);
         $defaultWeight = config('kpi.default_weight', 1);
+        $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $courses = Course::query()->orderBy('title')->select('id', 'title', 'course_code')->get();
 
-        return view('backend.kpis.create', compact('kpiTypes', 'maxWeight', 'defaultWeight', 'courses'));
+        return view('backend.kpis.create', compact('kpiTypes', 'maxWeight', 'defaultWeight', 'categories', 'courses'));
     }
 
     public function store(StoreKpiRequest $request)
@@ -193,6 +195,7 @@ class KpiController extends Controller
             'updated_by' => \Auth::id(),
         ]);
 
+        $kpi->categories()->sync($request->input('category_ids', []));
         $kpi->courses()->sync($request->input('course_ids', []));
 
         $created = Kpi::query()->where('code', strtoupper(trim($request->code)))->first();
@@ -205,6 +208,7 @@ class KpiController extends Controller
                 'meta' => [
                     'type' => $created->type,
                     'weight' => $created->weight,
+                    'category_ids' => $created->categories()->pluck('categories.id')->toArray(),
                     'course_ids' => $created->courses()->pluck('courses.id')->toArray(),
                 ],
             ]);
@@ -219,13 +223,14 @@ class KpiController extends Controller
             return abort(401);
         }
 
-        $kpi = Kpi::with('courses')->findOrFail($kpi);
+        $kpi = Kpi::with('courses', 'categories')->findOrFail($kpi);
 
         $kpiTypes = config('kpi.types', []);
         $maxWeight = config('kpi.max_weight', 100);
+        $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $courses = Course::query()->orderBy('title')->select('id', 'title', 'course_code')->get();
 
-        return view('backend.kpis.edit', compact('kpi', 'kpiTypes', 'maxWeight', 'courses'));
+        return view('backend.kpis.edit', compact('kpi', 'kpiTypes', 'maxWeight', 'categories', 'courses'));
     }
 
     public function update(UpdateKpiRequest $request, $kpi)
@@ -245,6 +250,7 @@ class KpiController extends Controller
         $kpiModel->weight = $request->weight;
         $kpiModel->updated_by = \Auth::id();
         $kpiModel->save();
+        $kpiModel->categories()->sync($request->input('category_ids', []));
         $kpiModel->courses()->sync($request->input('course_ids', []));
 
         $typeChanged = $oldType !== $kpiModel->type;
@@ -260,6 +266,7 @@ class KpiController extends Controller
                     'new_type' => $kpiModel->type,
                     'old_weight' => $oldWeight,
                     'new_weight' => $kpiModel->weight,
+                    'category_ids' => $kpiModel->categories()->pluck('categories.id')->toArray(),
                     'course_ids' => $kpiModel->courses()->pluck('courses.id')->toArray(),
                 ],
             ]);

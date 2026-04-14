@@ -177,17 +177,25 @@ class IncrementalKpiProcessingService
         $count      = $cursor->event_count;
         $checkpoint = $cursor->checkpoint_data;
         $maxEventId = $cursor->last_event_id ?? 0;
+        $scopedCourseLookup = $this->buildScopedCourseLookup($kpi);
+        $hasCategoryMapping = $this->kpiHasCategoryMapping($kpi);
+        $processed = 0;
 
         foreach ($events as $event) {
             $payload = is_string($event->payload)
                 ? (json_decode($event->payload, true) ?? [])
                 : (array) ($event->payload ?? []);
 
+            if (!$this->eventBelongsToKpiScope($payload, $scopedCourseLookup, $hasCategoryMapping)) {
+                continue;
+            }
+
             $result     = $this->applier->apply($kpi->type, $event->event_type, $payload, $value, $count, $checkpoint);
             $value      = $result['value'];
             $count      = $result['count'];
             $checkpoint = $result['checkpoint'];
             $maxEventId = (int) $event->id;
+            $processed++;
         }
 
         try {
@@ -220,7 +228,7 @@ class IncrementalKpiProcessingService
         $cursor->refresh();
 
         return [
-            'processed' => $events->count(),
+            'processed' => $processed,
             'value'     => $cursor->getEffectiveValue(),
             'was_dirty' => false,
             'cursor_id' => $cursor->id,
@@ -238,6 +246,8 @@ class IncrementalKpiProcessingService
         $checkpoint = [];
         $maxEventId = 0;
         $processed  = 0;
+        $scopedCourseLookup = $this->buildScopedCourseLookup($kpi);
+        $hasCategoryMapping = $this->kpiHasCategoryMapping($kpi);
 
         // Stream events in chunks to avoid loading the entire table into memory.
         DB::table('lms_kpi_events')
@@ -245,12 +255,16 @@ class IncrementalKpiProcessingService
             ->whereIn('event_type', $relevantTypes)
             ->orderBy('id')
             ->chunkById(self::BATCH_SIZE, function ($chunk) use (
-                $kpi, &$value, &$count, &$checkpoint, &$maxEventId, &$processed
+                $kpi, $scopedCourseLookup, $hasCategoryMapping, &$value, &$count, &$checkpoint, &$maxEventId, &$processed
             ) {
                 foreach ($chunk as $event) {
                     $payload = is_string($event->payload)
                         ? (json_decode($event->payload, true) ?? [])
                         : (array) ($event->payload ?? []);
+
+                    if (!$this->eventBelongsToKpiScope($payload, $scopedCourseLookup, $hasCategoryMapping)) {
+                        continue;
+                    }
 
                     $result     = $this->applier->apply($kpi->type, $event->event_type, $payload, $value, $count, $checkpoint);
                     $value      = $result['value'];
@@ -359,6 +373,45 @@ class IncrementalKpiProcessingService
             'was_dirty' => false,
             'cursor_id' => $cursor->id,
         ];
+    }
+
+    /**
+     * @return array<int, true>
+     */
+    private function buildScopedCourseLookup(Kpi $kpi): array
+    {
+        if (!method_exists($kpi, 'resolveScopedCourseIds')) {
+            return [];
+        }
+
+        return collect($kpi->resolveScopedCourseIds())
+            ->mapWithKeys(function ($id) {
+                return [(int) $id => true];
+            })
+            ->toArray();
+    }
+
+    private function eventBelongsToKpiScope(array $payload, array $scopedCourseLookup, bool $hasCategoryMapping): bool
+    {
+        if (empty($scopedCourseLookup) && !$hasCategoryMapping) {
+            return true;
+        }
+
+        $courseId = isset($payload['course_id']) ? (int) $payload['course_id'] : 0;
+        if ($courseId <= 0) {
+            return false;
+        }
+
+        return isset($scopedCourseLookup[$courseId]);
+    }
+
+    private function kpiHasCategoryMapping(Kpi $kpi): bool
+    {
+        if (method_exists($kpi, 'relationLoaded') && $kpi->relationLoaded('categories')) {
+            return $kpi->categories->isNotEmpty();
+        }
+
+        return method_exists($kpi, 'categories') && $kpi->categories()->exists();
     }
 
     private function log(string $level, string $message, array $context = []): void

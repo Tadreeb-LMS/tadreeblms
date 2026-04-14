@@ -219,7 +219,7 @@
                 <div class="col-md-8 col-12 form-group">
                     <div>{{ __('course_pages.admin_create.category') }}</div>
                    <div class="custom-select-wrapper mt-2">
-    <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single">
+    <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single" required>
         <option value="">{{ __('course_pages.admin_create.select_category') }}</option>
         @foreach($categories as $id => $category)
             <option value="{{ $id }}" @if(old('category_id') == $id) selected @endif>
@@ -239,6 +239,17 @@
                 <div class="col-md-3 col-12 d-flex form-group flex-column">
                      <a target="_blank" class="btn btn-primary mt-auto"
                         href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <input type="hidden" name="include_in_kpi" value="0">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="include_in_kpi" name="include_in_kpi" value="1" {{ old('include_in_kpi', 1) ? 'checked' : '' }}>
+                        <label class="custom-control-label" for="include_in_kpi">Include this course in KPI calculations</label>
+                    </div>
+                    <small class="form-text text-muted">Turn off to exclude this course from KPI computations even when its category is mapped to a KPI.</small>
                 </div>
             </div>
 
