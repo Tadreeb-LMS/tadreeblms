@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Kpi;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -53,14 +54,40 @@ class UpdateKpiRequest extends FormRequest
                 return;
             }
 
-            $kpi = \App\Models\Kpi::find($kpiId);
+            $kpi = Kpi::query()->find($kpiId);
             if (!$kpi) {
                 return;
             }
 
+            $proposedWeight = max(0.0, (float) $this->input('weight', 0));
             $typeChanged = $kpi->type !== $this->input('type');
-            if ($typeChanged && $kpi->is_active && (float) $this->input('weight', 0) <= 0) {
+            if ($typeChanged && $kpi->is_active && $proposedWeight <= 0) {
                 $validator->errors()->add('weight', 'Weight must be greater than 0 when changing KPI type for an active KPI.');
+            }
+
+            if (!config('kpi.total_weight_validation.enabled', false) || !$kpi->is_active) {
+                return;
+            }
+
+            $otherActiveTotal = (float) Kpi::query()
+                ->where('is_active', true)
+                ->where('id', '!=', $kpi->id)
+                ->sum('weight');
+            $projectedTotal = $otherActiveTotal + $proposedWeight;
+
+            $target = (float) config('kpi.total_weight_validation.target', 100);
+            $tolerance = max(0.0, (float) config('kpi.total_weight_validation.tolerance', 0.01));
+
+            if (abs($projectedTotal - $target) > $tolerance) {
+                $validator->errors()->add(
+                    'weight',
+                    sprintf(
+                        'Projected active KPI total weight (%.2f) must be within %.2f of target %.2f.',
+                        $projectedTotal,
+                        $tolerance,
+                        $target
+                    )
+                );
             }
         });
     }

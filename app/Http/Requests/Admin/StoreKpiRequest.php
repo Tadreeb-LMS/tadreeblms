@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Kpi;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,6 +36,34 @@ class StoreKpiRequest extends FormRequest
             'course_ids' => 'nullable|array',
             'course_ids.*' => 'integer|exists:courses,id',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (!config('kpi.total_weight_validation.enabled', false)) {
+                return;
+            }
+
+            $proposedWeight = max(0.0, (float) $this->input('weight', 0));
+            $currentActiveTotal = (float) Kpi::query()->where('is_active', true)->sum('weight');
+            $projectedTotal = $currentActiveTotal + $proposedWeight;
+
+            $target = (float) config('kpi.total_weight_validation.target', 100);
+            $tolerance = max(0.0, (float) config('kpi.total_weight_validation.tolerance', 0.01));
+
+            if (abs($projectedTotal - $target) > $tolerance) {
+                $validator->errors()->add(
+                    'weight',
+                    sprintf(
+                        'Projected active KPI total weight (%.2f) must be within %.2f of target %.2f.',
+                        $projectedTotal,
+                        $tolerance,
+                        $target
+                    )
+                );
+            }
+        });
     }
 
     public function messages()

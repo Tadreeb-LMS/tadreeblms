@@ -12,6 +12,24 @@
         Active KPI total weight: <strong id="kpi-active-total-weight">{{ number_format($totalActiveWeight, 2) }}</strong>
     </div>
 
+    @if($weightInsights['zero_weight_count'] > 0)
+        <div class="alert alert-warning">
+            {{ $weightInsights['zero_weight_count'] }} active KPI(s) currently have zero weight and will contribute 0 to weighted scoring.
+        </div>
+    @endif
+
+    @if($weightInsights['extreme_weight_count'] > 0)
+        <div class="alert alert-warning">
+            {{ $weightInsights['extreme_weight_count'] }} active KPI(s) are at or above the extreme-weight threshold. Review distribution to avoid over-concentration.
+        </div>
+    @endif
+
+    @if(!$weightInsights['validation_enabled'] && !$weightInsights['is_total_on_target'])
+        <div class="alert alert-secondary">
+            Optional guidance: active total weight differs from target {{ number_format($weightInsights['target'], 2) }}. Enable strict total-weight validation in KPI config if required.
+        </div>
+    @endif
+
     <p class="text-muted small">Click a sortable header to cycle through ascending, descending, and off. Multiple active sorts are applied automatically.</p>
 
     <div class="card">

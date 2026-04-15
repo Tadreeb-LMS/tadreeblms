@@ -62,6 +62,12 @@
                             required
                         >
                         <small class="form-text text-muted">Set relative importance. Allowed range: 0 to {{ $maxWeight }}.</small>
+                        <div class="mt-2 small text-muted">
+                            Current active total: <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
+                            <br>
+                            Projected active total after save: <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
+                        </div>
+                        <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
                     </div>
                 </div>
 
@@ -111,4 +117,61 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var weightInput = document.getElementById('weight');
+            var projectedTotalEl = document.getElementById('kpi-projected-active-total');
+            var warningEl = document.getElementById('kpi-weight-warning');
+
+            if (!weightInput || !projectedTotalEl || !warningEl) {
+                return;
+            }
+
+            var baseActiveTotal = {{ (float) $activeTotalWeight }};
+            var extremeThreshold = {{ (float) $extremeWeightThreshold }};
+            var validationEnabled = {{ !empty($totalWeightValidation['enabled']) ? 'true' : 'false' }};
+            var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+
+            function roundTwo(value) {
+                return Math.round(value * 100) / 100;
+            }
+
+            function updateWeightSummary() {
+                var weight = parseFloat(weightInput.value);
+                if (isNaN(weight) || weight < 0) {
+                    weight = 0;
+                }
+
+                var projectedTotal = roundTwo(baseActiveTotal + weight);
+                projectedTotalEl.textContent = projectedTotal.toFixed(2);
+
+                var warnings = [];
+                if (weight >= extremeThreshold) {
+                    warnings.push('This weight is in the extreme range and may dominate final KPI scoring.');
+                }
+
+                if (!validationEnabled && projectedTotal <= 0) {
+                    warnings.push('Projected active total is 0, so weighted scores will all be 0.');
+                }
+
+                if (validationEnabled && Math.abs(projectedTotal - validationTarget) > validationTolerance) {
+                    warnings.push('Projected total is outside the strict validation target range.');
+                }
+
+                if (warnings.length === 0) {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    return;
+                }
+
+                warningEl.style.display = 'block';
+                warningEl.textContent = warnings.join(' ');
+            }
+
+            weightInput.addEventListener('input', updateWeightSummary);
+            updateWeightSummary();
+        })();
+    </script>
 @endsection
