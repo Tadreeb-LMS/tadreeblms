@@ -304,13 +304,13 @@ class KpiController extends Controller
         $kpiModel->delete();
 
         $kpiModel->statusHistories()->create([
-            'action' => 'deleted',
+            'action' => 'archived',
             'previous_is_active' => $previousStatus,
             'new_is_active' => $previousStatus,
             'changed_by' => \Auth::id(),
             'meta' => ['soft_deleted' => true],
         ]);
 
-        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI deleted successfully.');
+        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI archived successfully.');
     }
 }
