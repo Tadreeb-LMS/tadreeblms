@@ -119,10 +119,10 @@
                             </button>
                         </form>
 
-                        <form method="POST" action="{{ route('admin.kpis.destroy', $kpi->id) }}" class="d-inline-block" onsubmit="return confirm('Delete this KPI? It will be soft-deleted and historical records stay intact.');">
+                        <form method="POST" action="{{ route('admin.kpis.destroy', $kpi->id) }}" class="d-inline-block" onsubmit="return confirm('Archive this KPI? It will be soft-deleted and historical records stay intact.');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Archive</button>
                         </form>
                     </td>
                 </tr>
