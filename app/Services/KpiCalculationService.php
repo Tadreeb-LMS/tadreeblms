@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Services\Kpi\KpiMetricDataProvider;
 use App\Services\Kpi\KpiProcessingEngine;
+use App\Services\Kpi\KpiRoleConfigResolver;
 
 class KpiCalculationService
 {
@@ -11,12 +12,18 @@ class KpiCalculationService
 
     protected $metricDataProvider;
 
+    protected $roleConfigResolver;
+
     protected $typeValueCache = [];
 
-    public function __construct(KpiProcessingEngine $engine, KpiMetricDataProvider $metricDataProvider)
-    {
+    public function __construct(
+        KpiProcessingEngine $engine,
+        KpiMetricDataProvider $metricDataProvider,
+        KpiRoleConfigResolver $roleConfigResolver
+    ) {
         $this->engine = $engine;
         $this->metricDataProvider = $metricDataProvider;
+        $this->roleConfigResolver = $roleConfigResolver;
     }
 
     public function getSupportedTypeKeys()
@@ -24,18 +31,16 @@ class KpiCalculationService
         return array_keys(config('kpi.types', []));
     }
 
-    public function calculateForKpi($kpi, $totalActiveWeight)
+    public function calculateForKpi($kpi, $totalActiveWeight, ?int $roleId = null)
     {
-        $kpiCourseIds = $this->resolveKpiCourseIds($kpi);
-        $value = $this->calculateTypeValueForCourses($kpi->type, $kpiCourseIds);
+        $kpiConfig = $roleId !== null
+            ? $this->roleConfigResolver->resolve($kpi, $roleId)
+            : ['type' => $kpi->type, 'weight' => (float) $kpi->weight, 'is_active' => (bool) $kpi->is_active];
 
-        return $this->engine->calculate([
-            'type' => $kpi->type,
-            'weight' => $kpi->weight,
-            'is_active' => (bool) $kpi->is_active,
-        ], [
-            'value' => $value,
-        ], (float) $totalActiveWeight);
+        $kpiCourseIds = $this->resolveKpiCourseIds($kpi);
+        $value = $this->calculateTypeValueForCourses($kpiConfig['type'], $kpiCourseIds);
+
+        return $this->engine->calculate($kpiConfig, ['value' => $value], (float) $totalActiveWeight);
     }
 
     public function calculateTypeValue($type)

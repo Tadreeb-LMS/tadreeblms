@@ -173,12 +173,28 @@
                 </a>
             </li>
             @if($logged_in_user->isAdmin())
-            <li class="nav-item ">
-                <a class="nav-link {{ $request->segment(2) == 'kpis' ? 'active' : '' }}"
-                    href="{{ route('admin.kpis.index') }}">
-                    <i class="nav-icon fa fa-bullseye"></i>
-                    <span class="title">KPI Management</span>
+            <li class="nav-item nav-dropdown {{ in_array($request->segment(2), ['kpis', 'kpi-role-configs']) ? 'open' : '' }}">
+                <a class="nav-link nav-dropdown-toggle d-flex align-items-center" href="#">
+                    <div>
+                        <i class="nav-icon fa fa-bullseye"></i>
+                        <span class="title">KPI Management</span>
+                    </div>
+                    <i class="arrow-icon-new fa fa-chevron-down ml-auto"></i>
                 </a>
+                <ul class="nav-dropdown-items">
+                    <li class="nav-item">
+                        <a class="nav-link {{ $request->segment(2) == 'kpis' ? 'active' : '' }}"
+                           href="{{ route('admin.kpis.index') }}">
+                            <span class="title">All KPIs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $request->segment(2) == 'kpi-role-configs' ? 'active' : '' }}"
+                           href="{{ route('admin.kpi-role-configs.index') }}">
+                            <span class="title">Role Configurations</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
             @endif
             @endif
