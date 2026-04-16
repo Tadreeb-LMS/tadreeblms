@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Auth\User;
+use App\Services\Kpi\KpiTypeCatalog;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -68,7 +69,7 @@ class Kpi extends Model
 
     public function getTypeLabelAttribute()
     {
-        return config('kpi.types.' . $this->type . '.label', ucfirst($this->type));
+        return app(KpiTypeCatalog::class)->getLabelForType((string) $this->type);
     }
 
     /**

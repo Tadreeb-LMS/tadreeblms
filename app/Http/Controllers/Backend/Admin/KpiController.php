@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Kpi;
 use App\Services\Kpi\KpiSnapshotService;
+use App\Services\Kpi\KpiTypeCatalog;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -42,6 +43,7 @@ class KpiController extends Controller
         $sorts = $this->normalizeSorts($request);
         $allKpis = $query->get();
         $totalActiveWeight = (float) Kpi::query()->where('is_active', true)->sum('weight');
+        $weightInsights = $this->buildWeightInsights($totalActiveWeight);
 
         $calculatedKpis = $this->snapshotService->attachCalculations($allKpis, $totalActiveWeight);
 
@@ -70,7 +72,7 @@ class KpiController extends Controller
 
         $kpis->appends($request->query());
 
-        $kpiTypes = config('kpi.types', []);
+        $kpiTypes = $this->getSupportedKpiTypes();
 
         if ($request->ajax()) {
             return response()->json([
@@ -79,7 +81,7 @@ class KpiController extends Controller
             ]);
         }
 
-        return view('backend.kpis.index', compact('kpis', 'kpiTypes', 'totalActiveWeight'));
+        return view('backend.kpis.index', compact('kpis', 'kpiTypes', 'totalActiveWeight', 'weightInsights'));
     }
 
     protected function normalizeSorts(Request $request)
@@ -169,13 +171,16 @@ class KpiController extends Controller
             return abort(401);
         }
 
-        $kpiTypes = config('kpi.types', []);
+        $kpiTypes = $this->getSupportedKpiTypes();
         $maxWeight = config('kpi.max_weight', 100);
         $defaultWeight = config('kpi.default_weight', 1);
+        $activeTotalWeight = (float) Kpi::query()->where('is_active', true)->sum('weight');
+        $extremeWeightThreshold = (float) config('kpi.extreme_weight_warning_threshold', 70);
+        $totalWeightValidation = config('kpi.total_weight_validation', []);
         $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $courses = Course::query()->orderBy('title')->select('id', 'title', 'course_code')->get();
 
-        return view('backend.kpis.create', compact('kpiTypes', 'maxWeight', 'defaultWeight', 'categories', 'courses'));
+        return view('backend.kpis.create', compact('kpiTypes', 'maxWeight', 'defaultWeight', 'categories', 'courses', 'activeTotalWeight', 'extremeWeightThreshold', 'totalWeightValidation'));
     }
 
     public function store(StoreKpiRequest $request)
@@ -214,7 +219,14 @@ class KpiController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI created successfully.');
+        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess('KPI created successfully.');
+
+        $warnings = $this->buildPostSaveWeightWarnings($kpi);
+        if (!empty($warnings)) {
+            $redirect->with('flash_warning', implode(' ', $warnings));
+        }
+
+        return $redirect;
     }
 
     public function edit($kpi)
@@ -225,12 +237,15 @@ class KpiController extends Controller
 
         $kpi = Kpi::with('courses', 'categories')->findOrFail($kpi);
 
-        $kpiTypes = config('kpi.types', []);
+        $kpiTypes = $this->getSupportedKpiTypes();
         $maxWeight = config('kpi.max_weight', 100);
+        $activeTotalWeight = (float) Kpi::query()->where('is_active', true)->sum('weight');
+        $extremeWeightThreshold = (float) config('kpi.extreme_weight_warning_threshold', 70);
+        $totalWeightValidation = config('kpi.total_weight_validation', []);
         $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $courses = Course::query()->orderBy('title')->select('id', 'title', 'course_code')->get();
 
-        return view('backend.kpis.edit', compact('kpi', 'kpiTypes', 'maxWeight', 'categories', 'courses'));
+        return view('backend.kpis.edit', compact('kpi', 'kpiTypes', 'maxWeight', 'categories', 'courses', 'activeTotalWeight', 'extremeWeightThreshold', 'totalWeightValidation'));
     }
 
     public function update(UpdateKpiRequest $request, $kpi)
@@ -272,7 +287,14 @@ class KpiController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI updated successfully.');
+        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess('KPI updated successfully.');
+
+        $warnings = $this->buildPostSaveWeightWarnings($kpiModel);
+        if (!empty($warnings)) {
+            $redirect->with('flash_warning', implode(' ', $warnings));
+        }
+
+        return $redirect;
     }
 
     public function toggleStatus($kpi)
@@ -311,13 +333,75 @@ class KpiController extends Controller
         $kpiModel->delete();
 
         $kpiModel->statusHistories()->create([
-            'action' => 'deleted',
+            'action' => 'archived',
             'previous_is_active' => $previousStatus,
             'new_is_active' => $previousStatus,
             'changed_by' => \Auth::id(),
             'meta' => ['soft_deleted' => true],
         ]);
 
-        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI deleted successfully.');
+        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI archived successfully.');
+    }
+
+    protected function buildWeightInsights(float $totalActiveWeight)
+    {
+        $target = (float) config('kpi.total_weight_validation.target', 100);
+        $tolerance = max(0.0, (float) config('kpi.total_weight_validation.tolerance', 0.01));
+        $extremeThreshold = (float) config('kpi.extreme_weight_warning_threshold', 70);
+
+        $activeKpis = Kpi::query()->where('is_active', true)->get(['id', 'name', 'weight']);
+
+        return [
+            'target' => $target,
+            'tolerance' => $tolerance,
+            'validation_enabled' => (bool) config('kpi.total_weight_validation.enabled', false),
+            'zero_weight_count' => $activeKpis->filter(function ($kpi) {
+                return (float) $kpi->weight <= 0;
+            })->count(),
+            'extreme_weight_count' => $activeKpis->filter(function ($kpi) use ($extremeThreshold) {
+                return (float) $kpi->weight >= $extremeThreshold;
+            })->count(),
+            'is_total_on_target' => abs($totalActiveWeight - $target) <= $tolerance,
+        ];
+    }
+
+    protected function buildPostSaveWeightWarnings(Kpi $kpi)
+    {
+        $warnings = [];
+        $totalActiveWeight = (float) Kpi::query()->where('is_active', true)->sum('weight');
+        $target = (float) config('kpi.total_weight_validation.target', 100);
+        $tolerance = max(0.0, (float) config('kpi.total_weight_validation.tolerance', 0.01));
+        $extremeThreshold = (float) config('kpi.extreme_weight_warning_threshold', 70);
+
+        if ($kpi->is_active && (float) $kpi->weight >= $extremeThreshold) {
+            $warnings[] = sprintf(
+                'Warning: %s has weight %.2f, which is above the extreme configuration threshold (%.2f).',
+                $kpi->name,
+                (float) $kpi->weight,
+                $extremeThreshold
+            );
+        }
+
+        if ($totalActiveWeight <= 0) {
+            $warnings[] = 'Warning: active KPI total weight is 0. Weighted scores will remain 0 until active weights are increased.';
+        }
+
+        if (!config('kpi.total_weight_validation.enabled', false) && abs($totalActiveWeight - $target) > $tolerance) {
+            $warnings[] = sprintf(
+                'Warning: active KPI total weight is %.2f (target %.2f). Consider rebalancing weights for more predictable distribution.',
+                $totalActiveWeight,
+                $target
+            );
+        }
+
+        return $warnings;
+    }
+
+    /**
+     * @return array<string, array>
+     */
+    protected function getSupportedKpiTypes(): array
+    {
+        return app(KpiTypeCatalog::class)->getSupportedOptions();
     }
 }

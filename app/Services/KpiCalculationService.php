@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Services\Kpi\KpiMetricDataProvider;
 use App\Services\Kpi\KpiProcessingEngine;
+use App\Services\Kpi\KpiTypeCatalog;
 
 class KpiCalculationService
 {
@@ -11,17 +12,20 @@ class KpiCalculationService
 
     protected $metricDataProvider;
 
+    protected $kpiTypeCatalog;
+
     protected $typeValueCache = [];
 
-    public function __construct(KpiProcessingEngine $engine, KpiMetricDataProvider $metricDataProvider)
+    public function __construct(KpiProcessingEngine $engine, KpiMetricDataProvider $metricDataProvider, KpiTypeCatalog $kpiTypeCatalog)
     {
         $this->engine = $engine;
         $this->metricDataProvider = $metricDataProvider;
+        $this->kpiTypeCatalog = $kpiTypeCatalog;
     }
 
-    public function getSupportedTypeKeys()
+    public function getSupportedTypeKeys(): array
     {
-        return array_keys(config('kpi.types', []));
+        return $this->kpiTypeCatalog->getSupportedKeys();
     }
 
     public function calculateForKpi($kpi, $totalActiveWeight)
@@ -38,12 +42,12 @@ class KpiCalculationService
         ], (float) $totalActiveWeight);
     }
 
-    public function calculateTypeValue($type)
+    public function calculateTypeValue($type): float
     {
         return $this->calculateTypeValueForCourses($type, []);
     }
 
-    protected function calculateTypeValueForCourses($type, array $courseIds)
+    protected function calculateTypeValueForCourses($type, array $courseIds): float
     {
         $cacheKey = sprintf('%s|%s', (string) $type, implode(',', $courseIds));
         if (array_key_exists($cacheKey, $this->typeValueCache)) {
