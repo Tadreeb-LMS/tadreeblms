@@ -706,11 +706,19 @@
                 <ul class="nav-dropdown-items">
                     <li class="nav-item">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/settings')) }}"
-                            href="{{ route('admin.general-settings') }}">
-                            @lang('menus.backend.sidebar.settings.general')
-                        </a>
-                    </li>
+                        href="{{ route('admin.general-settings') }}">
+                        @lang('menus.backend.sidebar.settings.general')
+                    </a>
+                </li>
 
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/languages') ? 'active' : '' }}"
+                        href="{{ route('admin.languages.index') }}"
+                        id="language-menu">
+                        <span class="title">Language Settings</span>
+                    </a>
+                </li>
+                
                     <li class="nav-item ">
                         <a class="nav-link {{ active_class(Active::checkUriPattern('admin/landing-page-setting')) }}"
                             href="{{ route('admin.landing-page-setting') }}">
@@ -878,7 +886,16 @@
 </div>
 @push('after-scripts')
 <script>
-   
+   $(document).ready(function () {
+        if (window.location.pathname.includes('/admin/languages')) {
+            // Remove active from all sidebar links
+            $('.sidebar .nav-link').removeClass('active');
+
+            // Add active ONLY to language menu
+            $('#language-menu').addClass('active');
+        }
+    });
+
     $(document).ready(function() {
         $('.sidebar .nav-link').css({
             'color': '#333',

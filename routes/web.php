@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\DepartmentController;
 use App\Http\Controllers\Backend\SubscriptionController;
@@ -20,8 +19,18 @@ use App\Http\Controllers\Backend\Admin\AssessmentAccountsController ;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
+use App\Http\Controllers\Backend\Admin\LanguageController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
+
+Route::prefix('admin')->group(function () {
+    Route::get('/languages', [LanguageController::class, 'index'])->name('admin.languages.index');
+    Route::post('/languages', [LanguageController::class, 'store'])->name('admin.languages.store');
+    Route::get('/languages/toggle/{id}', [LanguageController::class, 'toggle'])->name('admin.languages.toggle');
+});
+Route::post('/admin/languages/upload', [LanguageController::class, 'upload'])->name('admin.languages.upload');
+Route::get('/admin/languages/download/{code}', [LanguageController::class, 'download'])->name('admin.languages.download');
+
 Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
 ->name('admin.course.assign');
 Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);

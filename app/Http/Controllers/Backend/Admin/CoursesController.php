@@ -590,7 +590,7 @@ class CoursesController extends Controller
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
+        if (in_array($request->course_type, ['Offline', 'Live-Online']) && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
 
             // Validate based on schedule type
             if ($request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
@@ -716,8 +716,16 @@ class CoursesController extends Controller
                 ]);
             }
 
-            $course = Course::create($request->all());
-
+$course = Course::create([
+    'title' => $request->title,
+    'category_id' => $request->category_id,
+    'start_date' => $request->start_date,
+    'expire_at' => $request->expire_at,
+    'course_type' => $request->course_type,
+    'course_payment_type' => $request->course_payment_type,
+    'price' => $request->price,
+    'teacher_id' => $request->teacher_id,
+]);
             $course->slug = $uniqueId . '-' . $slug;
             $course->department_id = $request->department_id;
             $course->cms = $request->cms;
@@ -918,7 +926,7 @@ $teachers = [$teacherId];
                 $redirect_url = route('admin.test_questions.create') . '?course_id=' . $course->id;
             }
 
-            if ($request->meeting_provider && $request->course_type === 'Offline') {
+            if ($request->meeting_provider && in_array($request->course_type, ['Offline', 'Live-Online'])) {
                 // Generate live sessions if schedule_type is set
                 if ($request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
                     $course->schedule_type = $request->schedule_type;
@@ -1076,14 +1084,14 @@ $teachers = [$teacherId];
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
+        if (in_array($request->course_type, ['Offline', 'Live-Online']) && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
 
             // For update, the request might contain teachers -> fallback to auth user if admin
             $teacherId = \Auth::user()->isAdmin()
-    ? $request->input('teacher_id')
-    : \Auth::user()->id;
+            ? $request->input('teacher_id')
+        : \Auth::user()->id;
 
-$teachers = [$teacherId];
+            $teachers = [$teacherId];
 
             // If empty (teachers not passed in request), try to grab existing teachers
             if(empty($teacherId)){
@@ -1226,8 +1234,8 @@ $teachers = [$teacherId];
 
         //dd( $course, $request->all());
 
-        if ($request->course_type !== 'Offline') {
-            $request->merge([
+                if (!in_array($request->course_type, ['Offline', 'Live-Online'])) {
+                $request->merge([
                 'meeting_provider' => null,
                 'meeting_id'       => null,
                 'meeting_join_url' => null,
@@ -1245,7 +1253,7 @@ $teachers = [$teacherId];
         $course->is_online = $request->course_type ?? 'Online';
 
         // Handle live session scheduling on update
-        if ($request->course_type === 'Offline' && $request->meeting_provider && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+        if (in_array($request->course_type, ['Offline', 'Live-Online']) && $request->meeting_provider && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
             $course->schedule_type = $request->schedule_type;
             if ($request->schedule_type === 'weekly') {
                 $course->schedule_days = $request->weekly_days;

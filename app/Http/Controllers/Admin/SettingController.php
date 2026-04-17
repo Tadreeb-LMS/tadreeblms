@@ -11,6 +11,7 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $settings = $request->except('_token');
+        
         foreach ($settings as $key => $value) {
             Setting::updateOrCreate(['key' => $key], ['value' => $value]);
         }
