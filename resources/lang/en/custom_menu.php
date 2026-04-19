@@ -1,9 +1,9 @@
 <?php return array (
-  'nav-menu' => 
+  'nav_menu' => 
   array (
     'blog' => 'Blog',
     'courses' => 'Courses',
     'contact' => 'Contact',
-    'about-us' => 'About Us',
+    'about_us' => 'About Us',
   ),
 );

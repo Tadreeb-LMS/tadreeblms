@@ -3,17 +3,17 @@
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between">
-        <h5>Roles</h5>
-        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">Add Role</a>
+        <h5>{{ __('admin_pages.roles.title') }}</h5>
+        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">{{ __('admin_pages.roles.add_role') }}</a>
     </div>
 
     <div class="card-body">
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th width="60%">Name</th>
+                <th width="60%">{{ __('admin_pages.roles.name') }}</th>
                 {{-- <th>Permissions</th> --}}
-                <th width="40%">Actions</th>
+                <th width="40%">{{ __('strings.backend.general.actions') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -27,12 +27,12 @@
                     </td> --}}
                     <td>
                         @if($role->system_role != 1)
-                            <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn btn-sm btn-primary">{{ __('admin_pages.roles.edit') }}</a>
                             <form action="{{ route('admin.roles.destroy', $role->id) }}"
                                 method="POST" class="d-inline">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Delete role?')">Delete</button>
+                                    onclick="return confirm('{{ __('admin_pages.roles.delete_role_confirm') }}')">{{ __('admin_pages.roles.delete') }}</button>
                             </form>
                         @endif
                     </td>

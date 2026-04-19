@@ -28,7 +28,8 @@ class MyImportManager extends Manager
             foreach ( $this->files->allfiles( $langPath ) as $file ) {
                 $info  = pathinfo( $file );
                 $group = $info[ 'filename' ];
-                if($group == 'custom-menu'){
+                if ( in_array($group, ['custom-menu', 'custom_menu'], true) ) {
+                    $group = 'custom_menu';
                     if ( in_array( $group, $this->config[ 'exclude_groups' ] ) ) {
                         continue;
                     }

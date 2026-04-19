@@ -149,7 +149,7 @@
                 <div class="nav-item px-3 dropdown">
                     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
                         aria-haspopup="true" aria-expanded="false">
-                        <span class="d-md-down-none">@lang('menus.language-picker.language') ({{ strtoupper(app()->getLocale()) }})</span>
+                        <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }} ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                     </a>
 
                     @include('includes.partials.lang')
@@ -263,15 +263,15 @@
                     @if (count($locales) > 1)
                         <!--li class="menu-item-has-children ul-li-block">
                                                 <a href="#">
-                                                    <span class="d-md-down-none">@lang('menus.language-picker.language')
+                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
                                                         ({{ strtoupper(app()->getLocale()) }})</span>
                                                 </a>
                                                 <ul class="sub-menu">
                                                     @foreach ($locales as $lang)
 @if ($lang != app()->getLocale())
 <li>
-                                                                <a href="{{ '/lang/' . $lang }}"
-                                                                   class=""> @lang('menus.language-picker.langs.' . $lang)</a>
+                                                                                     <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
+                                                                   class=""> {{ trans('menus.language_picker.langs.' . $lang, [], 'en') }}</a>
                                                             </li>
 @endif
 @endforeach
@@ -294,7 +294,9 @@
 
 
         @yield('content')
-        @include('cookieConsent::index')
+        @if(view()->exists('cookieConsent::index'))
+            @include('cookieConsent::index')
+        @endif
 
 
         @include('frontend.layouts.partials.footer')

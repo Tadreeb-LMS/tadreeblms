@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', __('Course Assignments') . ' | ' . app_name())
+@section('title', __('assessment_accounts_pages.course_invitation_list.title') . ' | ' . app_name())
 @push('after-styles')
     <link rel="stylesheet" href="{{ asset('assets/css/colors/switch.css') }}">
       <style>
@@ -13,12 +13,12 @@
 @section('content')
 
 <div class="pb-3 d-flex justify-content-between alig-itens-center">
-    <h4 >@lang('Course Invitation Assignment')</h4>
+    <h4>{{ __('assessment_accounts_pages.course_invitation_list.title') }}</h4>
     @can('course_create')
         <div class="">
-            <a href="{{ route('admin.add_asmnt_invitation') }}" class="btn add-btn">+ @lang('Make New Assignment')</a>
+            <a href="{{ route('admin.add_asmnt_invitation') }}" class="btn add-btn">+ {{ __('assessment_accounts_pages.course_invitation_list.make_new_assignment') }}</a>
         
-            <a href="{{ route('admin.add_asmnt_invitation',['reschudule'=>true]) }}" class="btn add-btn rechedule">+ @lang('Reschedule Assignment')</a>
+            <a href="{{ route('admin.add_asmnt_invitation',['reschudule'=>true]) }}" class="btn add-btn rechedule">+ {{ __('assessment_accounts_pages.course_invitation_list.reschedule_assignment') }}</a>
         </div>
     @endcan
 </div>
@@ -31,10 +31,10 @@
 
                             
                             <div class="col-lg-4 col-sm-6 col-xs-12 mt-3" id="email-block">
-                                Select Employee By Email 
+                                {{ __('assessment_accounts_pages.course_invitation_list.select_employee_by_email') }}
                                 <div class="custom-select-wrapper mt-2">
                                 <select class="form-control custom-select-box select2 js-example-placeholder-single" name="user" id="user" >
-                                    <option value="">Select</option>
+                                    <option value="">{{ __('assessment_accounts_pages.course_invitation_list.select') }}</option>
                                     @if($internal_users)
                                         @foreach($internal_users as $user)
                                             <option @if($user->id == request()->user) selected @endif value="{{ $user->id }}">{{ $user->email }}</option>
@@ -51,10 +51,10 @@
                             
                             <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
 
-                                Select Course
+                                {{ __('assessment_accounts_pages.course_invitation_list.select_course') }}
                                 <div class="custom-select-wrapper mt-2">
                                     <select name="course_id" id="course_id" class="select2 form-control custom-select-box">
-                                        <option value="">Select</option>
+                                        <option value="">{{ __('assessment_accounts_pages.course_invitation_list.select') }}</option>
                                         @if($published_courses)
                                         @foreach($published_courses as $row)
                                         <option @if($row->id == request()->course_id) selected @endif value="{{ $row->id }}">{{ $row->title }}</option>
@@ -76,10 +76,10 @@
 
                             <div class="d-flex justify-content-between mt-3">
                                 <div>
-                                    <button class="btn btn-primary" id="advance-search-btn" type="submit">Advance Search</button>
+                                    <button class="btn btn-primary" id="advance-search-btn" type="submit">{{ __('assessment_accounts_pages.course_invitation_list.advance_search') }}</button>
                                 </div>
                                 <div>
-                                    <button class="btn btn-danger ml-3" id="reset" type="button">Reset</button>
+                                    <button class="btn btn-danger ml-3" id="reset" type="button">{{ __('assessment_accounts_pages.course_invitation_list.reset') }}</button>
 
                                 </div>
                                 
@@ -93,15 +93,15 @@
                             <thead>
                                 <tr>
                                     {{-- <th style="width: 80px;">@lang('Assign title')</th> --}}
-                                    <th style="width: 80px;">@lang('Course Code')</th>
-                                    <th style="width: 80px;">@lang('Course Name')</th>
-                                    <th style="width: 80px;">@lang('Course Category')</th>
-                                    <th style="width: 80px;">@lang('Assign. By')</th>
-                                    <th style="width: 80px;">@lang('Assign. Date')</th>
-                                    <th style="width: 100px;">@lang('Assign. to Department')</th>
-                                    <th style="width: 110px;">@lang('Assign. to Specific User')</th>
-                                    <th style="width: 80px;">@lang('Due Date')</th>
-                                    <th style="width: 80px;">@lang('Meeting End DateTime')</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.course_code') }}</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.course_name') }}</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.course_category') }}</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.assign_by') }}</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.assign_date') }}</th>
+                                    <th style="width: 100px;">{{ __('assessment_accounts_pages.course_invitation_list.assign_to_department') }}</th>
+                                    <th style="width: 110px;">{{ __('assessment_accounts_pages.course_invitation_list.assign_to_specific_user') }}</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.due_date') }}</th>
+                                    <th style="width: 80px;">{{ __('assessment_accounts_pages.course_invitation_list.meeting_end_datetime') }}</th>
                                     {{-- <th>@lang('Action')</th> --}}
                                 </tr>
                             </thead>
@@ -218,7 +218,8 @@
                 "paginate": true,
                 "sort": true,
                 "language": {
-                    "emptyTable": "No Data Is Available.",
+                    "emptyTable": "{{ __('assessment_accounts_pages.course_invitation_list.no_data_available') }}",
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
                     search:"",
              },
                 "order": [
@@ -281,6 +282,7 @@
         buttons: [
             {
                         extend: 'csv',
+                        text: '{{ trans("datatable.csv") }}',
                         action: function(e, dt, button, config) {
 
                             $.ajax({
@@ -315,14 +317,14 @@
                     },
             {
                 extend: 'pdf',
-                text: 'PDF',
+                text: '{{ trans("datatable.pdf") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             }
         ]
     },
-      {extend: 'colvis',
+            {extend: 'colvis',
     text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>',
     className: ''},
 ],

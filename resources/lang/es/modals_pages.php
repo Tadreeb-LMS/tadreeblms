@@ -1,0 +1,37 @@
+<?php
+
+return array(
+  'login_modal' => array(
+    'login_title' => 'Iniciar sesión',
+    'register_title' => 'Registrarse ahora',
+    'email' => 'Correo electrónico',
+    'placeholder_email' => 'Ingrese correo electrónico',
+    'password' => 'Contraseña',
+    'placeholder_password' => 'Ingrese contraseña',
+    'password_confirm' => 'Confirmar contraseña',
+    'placeholder_confirm' => 'Ingrese contraseña de confirmación',
+    'name' => 'Nombre',
+    'placeholder_name' => 'Ingrese nombre',
+    'gender' => 'Género',
+    'male' => 'Masculino',
+    'female' => 'Femenino',
+    'other' => 'Otro',
+    'phone' => 'Número de teléfono',
+    'placeholder_phone' => 'Ingrese teléfono',
+    'remember_me' => 'Recuérdame',
+    'forgot_password' => '¿Olvidó su contraseña?',
+    'login_button' => 'Iniciar sesión',
+    'signup_button' => 'Registrarse',
+    'have_account' => '¿Ya tiene una cuenta?',
+    'no_account' => '¿No tiene una cuenta?',
+  ),
+  'assignment_modal' => array(
+    'title' => 'Asignar curso',
+    'select_user' => 'Seleccionar usuario / Grupo de usuarios',
+    'select_course' => 'Seleccionar curso',
+    'cancel' => 'Cancelar',
+    'assign_button' => 'Asignar',
+    'success_message' => '¡Curso asignado correctamente!',
+    'error_message' => 'Error al asignar el curso',
+  ),
+);

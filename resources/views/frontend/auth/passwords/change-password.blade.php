@@ -25,7 +25,7 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label class="label">Password</label>
+                                        <label class="label">{{ __('course_pages.registration.password') }}</label>
                                         <input type="password" class="form-control" name="password">
                                     </div><!--form-group-->
                                 </div><!--col-->
@@ -33,7 +33,7 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label class="label">Confirm Password</label>
+                                        <label class="label">{{ __('course_pages.registration.confirm_password') }}</label>
                                         <input type="password" class="form-control" name="password_confirmation">
                                     </div><!--form-group-->
                                 </div><!--col-->
@@ -44,7 +44,7 @@
                                     <div class="form-group mb-0 clearfix">
                                         <div class="text-center  text-capitalize">
                                             <button type="submit" class="cpwd nws-button btn-info btn "
-                                                value="Submit">{{ __('Change Password') }}</button>
+                                                value="{{ __('auth_pages.change_password.submit') }}">{{ __('auth_pages.change_password.submit') }}</button>
                                         </div>
                                     </div><!--form-group-->
                                 </div><!--col-->
