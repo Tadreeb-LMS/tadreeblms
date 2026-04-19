@@ -225,6 +225,9 @@ class LessonsController extends Controller
                 $lesson_data = $request->except('downloadable_files', 'lesson_image', 'slug', 'title', 'arabic_title', 'short_text', 'full_text', 'duration', 'lesson_start_date', 'videos', 'published')
                 + ['position' => Lesson::where('course_id', $request->course_id)->max('position') + 1];
 
+                // Checkbox fields can be omitted by some clients; enforce a DB-safe value.
+                $lesson_data['published'] = (int) $request->boolean('published');
+
                 //dd($lesson_data);
                 
                 $lesson = Lesson::create($lesson_data);

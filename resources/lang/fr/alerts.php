@@ -1,16 +1,13 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'roles' => 
-    array (
+return array(
+  'backend' => array(
+    'roles' => array(
       'created' => 'Le rôle a été créé avec succès.',
       'deleted' => 'Le rôle a été supprimé avec succès.',
       'updated' => 'Le rôle a été mis à jour avec succès.',
     ),
-    'users' => 
-    array (
+    'users' => array(
       'cant_resend_confirmation' => 'L\'application est actuellement configurée pour approuver manuellement les utilisateurs.',
       'confirmation_email' => 'Un nouvel e-mail de confirmation a été envoyé à l\'adresse enregistrée.',
       'confirmed' => 'L\'utilisateur a été confirmé avec succès.',
@@ -24,8 +21,7 @@ return array (
       'updated' => 'L\'utilisateur a été mis à jour avec succès.',
       'updated_password' => 'Le mot de passe de l\'utilisateur a été mis à jour avec succès.',
     ),
-    'general' => 
-    array (
+    'general' => array(
       'backup_warning' => 'S\'il vous plaît remplir les détails nécessaires pour la sauvegarde',
       'cancelled' => 'Mise à jour annulée.',
       'created' => 'Créé avec succès.',
@@ -38,19 +34,39 @@ return array (
       'delete_warning_bundle' => 'Vous ne pouvez pas supprimer Bundle. Les étudiants sont déjà inscrits. Annuler la publication du paquet',
       'slug_exist' => 'L\'enregistrement avec le même slug existe, veuillez mettre à jour le slug.',
       'teacher_delete_warning' => 'Vous ne pouvez pas supprimer l\'enseignant. Les cours sont déjà ajoutés. Modifiez le statut à la place',
+      'mark_attendance' => 'Votre présence est notée avec succès.',
+      'couse_not_subscribed' => 'Vous n\'êtes pas abonné à ce cours.',
+      'already_mark_present' => 'Vous avez déjà marqué présent',
+      'you_are_late_for_this_lesson' => 'Vous êtes en retard pour cette leçon',
+      'not_yet_started_lesson' => 'Pas encore commencé la leçon.',
+    ),
+    'stripe_plan' => array(
+      'stripe_credentials' => 'Identifiants Stripe non disponibles',
     ),
   ),
-  'frontend' => 
-  array (
-    'contact' => 
-    array (
+  'frontend' => array(
+    'contact' => array(
       'sent' => 'Vos informations ont été envoyées avec succès. Nous répondrons à l\'e-mail fourni dès que possible.',
     ),
-    'course' => 
-    array (
+    'course' => array(
       'completed' => 'Toutes nos félicitations! Vous avez terminé le cours avec succès. Commander votre certificat dans le tableau de bord',
+      'certificate_issued' => 'Le certificat a été généré avec succès.',
+      'slot_booking' => 'Réservation réussie de créneaux de cours en direct',
+      'subscription_plan_expired' => 'Votre plan d\'abonnement a expiré',
+      'subscription_plan_cancelled' => 'Votre plan d\'abonnement annulé',
+      'sub_course_limit_over' => 'Limite de cours de votre plan d\'abonnement dépassée',
+      'sub_bundle_limit_over' => 'Limite de votre forfait d\'abonnement supérieure à',
+      'sub_course_success' => 'Abonnez-vous au cours avec succès',
+      'sub_bundle_success' => 'Abonnez-vous au forfait avec succès',
+      'sub_course_not_access' => 'Votre plan d\'abonnement, pas d\'accès aux cours',
+      'sub_bundle_not_access' => 'Votre plan d\'abonnement, pas d\'accès groupé',
     ),
     'duplicate_course' => 'est déjà acheté.',
     'duplicate_bundle' => 'est déjà acheté en bundle.',
+    'wishlist' => array(
+      'exist' => 'Ce cours déjà dans la liste de souhaits',
+      'added' => 'Cours ajouté avec succès dans la liste de souhaits',
+    ),
   ),
+  'processing' => 'Traitement',
 );

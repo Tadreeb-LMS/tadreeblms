@@ -14,7 +14,7 @@
                     <table class="table table-bordered table-striped">
                         <tr>
                             <th>@lang('labels.backend.tests.fields.course')</th>
-                            <td>{{ ($test->course) ? $test->course->title : 'N/A' }}</td>
+                            <td>{{ ($test->course) ? $test->course->title : __('labels.general.not_available') }}</td>
                         </tr>
 
                         <tr>

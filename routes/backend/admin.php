@@ -20,8 +20,6 @@ Route::get('fix-attendance-data', [DashboardController::class, 'fix_attendance_d
 Route::get('fix_assign_courses_data', [DashboardController::class, 'fix_assign_courses_data']);
 Route::get('fix_assign_test_ans_data', [DashboardController::class, 'fix_assign_test_ans_data']);
 
-
-
 //===== General Routes Here =====//
 Route::redirect('/', '/user/dashboard', 301);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -30,6 +28,8 @@ Route::get('setvaluesession/{type}', [DashboardController::class, 'setvaluesessi
 
 Route::group(['middleware' => ['role:administrator']], function () {
     Route::resource('roles', 'Admin\RolesController');
+    Route::resource('kpis', 'Admin\KpiController')->except(['show']);
+    Route::post('kpis/{kpi}/toggle-status', 'Admin\KpiController@toggleStatus')->name('kpis.toggle-status');
 });
 
 Route::group(['middleware' => 'role:teacher|administrator'], function () {
@@ -140,6 +140,24 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::get('settings/general', ['uses' => 'Admin\ConfigController@getGeneralSettings', 'as' => 'general-settings']);
 
     Route::post('settings/general', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-settings');
+    Route::get('settings/language-library/{locale}/download', ['uses' => 'Admin\ConfigController@downloadLanguageLibrary'])
+        ->name('settings.language-library.download');
+    Route::post('settings/language-marketplace/publish-source', ['uses' => 'Admin\LanguageMarketplaceController@publishEnglishSource'])
+        ->name('settings.language-marketplace.publish-source');
+    Route::post('settings/language-marketplace/invite', ['uses' => 'Admin\LanguageMarketplaceController@inviteContributor'])
+        ->name('settings.language-marketplace.invite');
+    Route::get('settings/language-marketplace/packages/{package}/download', ['uses' => 'Admin\LanguageMarketplaceController@downloadPackage'])
+        ->name('settings.language-marketplace.packages.download');
+    Route::get('settings/language-marketplace/manual/download', ['uses' => 'Admin\LanguageMarketplaceController@downloadManual'])
+        ->name('settings.language-marketplace.manual.download');
+    Route::post('settings/language-marketplace/submissions/{package}/approve', ['uses' => 'Admin\LanguageMarketplaceController@approveSubmission'])
+        ->name('settings.language-marketplace.submissions.approve');
+    Route::post('settings/language-marketplace/submissions/{package}/reject', ['uses' => 'Admin\LanguageMarketplaceController@rejectSubmission'])
+        ->name('settings.language-marketplace.submissions.reject');
+    Route::post('settings/language-marketplace/packages/{package}/sync-github', ['uses' => 'Admin\LanguageMarketplaceController@syncPackageToGithub'])
+        ->name('settings.language-marketplace.packages.sync-github');
+
+    Route::get('settings/language/download-base', ['uses' => 'Admin\ConfigController@downloadBaseLanguageFile', 'as' => 'settings.language.download-base']);
 
     
     Route::post('settings/landing-general-setting', ['uses' => 'Admin\ConfigController@saveLandingPageGeneralSettings'])->name('landing-general-settings');

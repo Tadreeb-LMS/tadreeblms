@@ -1,12 +1,9 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'users' => 
-      array (
+return array(
+  'backend' => array(
+    'access' => array(
+      'users' => array(
         'activate' => 'Activar',
         'change_password' => 'Cambia la contraseña',
         'clear_session' => 'Sesión clara',
@@ -21,20 +18,16 @@ return array (
       ),
     ),
   ),
-  'emails' => 
-  array (
-    'auth' => 
-    array (
+  'emails' => array(
+    'auth' => array(
       'confirm_account' => 'Confirmar cuenta',
       'reset_password' => 'Restablecer la contraseña',
     ),
   ),
-  'general' => 
-  array (
+  'general' => array(
     'cancel' => 'Cancelar',
     'continue' => 'Continuar',
-    'crud' => 
-    array (
+    'crud' => array(
       'create' => 'Crear',
       'delete' => 'Borrar',
       'edit' => 'Editar',
@@ -45,4 +38,6 @@ return array (
     'save' => 'Salvar',
     'view' => 'Ver',
   ),
+  'Attend-Course' => 'Asistir al curso',
+  'admin-will-add-lesson-later' => '*Esta lección del curso se realizó mediante enlace, el administrador agregará lecciones pronto',
 );

@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use CustomHelper;
 use Exception;
 use App\Notifications\Backend\AssessmentNotification;
+use App\Services\LmsEventRecorder;
 use App\Services\NotificationSettingsService;
 
 class AssessmentController extends Controller
@@ -114,48 +115,61 @@ class AssessmentController extends Controller
 
             //dd($assignment->test_id);
             foreach ($test_questions as $key => $value) {
+                $questionType = (int) $value->question_type;
 
-                if (in_array($value->question_type, [1, 2])) {
-                    //  echo '<pre>'; print_r($test_questions);die;
+                // Legacy/seeded data may contain non-numeric types (e.g. "mcq")
+                // which are coerced to 0 in DB. Treat them as single-choice.
+                if (!in_array($questionType, [1, 2, 3], true)) {
+                    $questionType = 1;
+                }
+                $value->question_type = $questionType;
+
+                if (in_array($questionType, [1, 2], true)) {
                     $options = DB::table('test_question_options')
-                    ->select('test_question_options.*')
-                    ->where('test_question_options.question_id', $value->id)
-                    ->get();
-                    //dd($options);
+                        ->select('test_question_options.*')
+                        ->where('test_question_options.question_id', $value->id)
+                        ->get();
 
-                    if(!empty($value->option_json)) {
-                        $decoded_string = html_entity_decode($value->option_json);
-                        preg_match('/<p>(\[\[.*?\]\])<\/p>/', $decoded_string, $matches);
-                        if (isset($matches[1])) {
-                            
-                            $dataArray = json_decode($matches[1], true);
-                            if( count($dataArray) ) {
-                                
-                                foreach ($dataArray as $this_op) {
-                                    
-                                    // DB::table('test_question_options')->insert([
-                                    //     'question_id' => $value->id,
-                                    //     'option_text' => $this_op[0],
-                                    //     'is_right' => $this_op[1]
-                                    // ]);
+                    // Rebuild missing options from option_json for legacy/seeded records.
+                    if ($options->count() === 0 && !empty($value->option_json)) {
+                        $decoded = html_entity_decode($value->option_json);
+                        $decodedArray = json_decode($decoded, true);
 
-                                    TestQuestionOption::updateOrInsert(
-                                        ['question_id' => $value->id, 'option_text' => $this_op[0]],
-                                        [
-                                            'question_id' => $value->id, 
-                                            'option_text' =>$this_op[0], 
-                                            'is_right' =>  $this_op[1]
-                                        ]
-                                    );
+                        if (!is_array($decodedArray)) {
+                            preg_match('/<p>(\[\[.*?\]\])<\/p>/', $decoded, $matches);
+                            $decodedArray = isset($matches[1]) ? json_decode($matches[1], true) : [];
+                        }
+
+                        if (is_array($decodedArray) && count($decodedArray)) {
+                            foreach ($decodedArray as $this_op) {
+                                $optionText = is_array($this_op)
+                                    ? ($this_op['option'] ?? $this_op[0] ?? null)
+                                    : null;
+                                $isRight = is_array($this_op)
+                                    ? ($this_op['is_correct'] ?? $this_op[1] ?? 0)
+                                    : 0;
+
+                                if ($optionText === null || $optionText === '') {
+                                    continue;
                                 }
 
-                                $options = DB::table('test_question_options')->select('test_question_options.*')->where('test_question_options.question_id', $value->id)->get();
-
-                                
+                                TestQuestionOption::updateOrInsert(
+                                    ['question_id' => $value->id, 'option_text' => $optionText],
+                                    [
+                                        'question_id' => $value->id,
+                                        'option_text' => $optionText,
+                                        'is_right' => (int) ((bool) $isRight),
+                                    ]
+                                );
                             }
-                        } 
+
+                            $options = DB::table('test_question_options')
+                                ->select('test_question_options.*')
+                                ->where('test_question_options.question_id', $value->id)
+                                ->get();
+                        }
                     }
- 
+
                     $value->options = $options;
                 }
             }
@@ -207,28 +221,50 @@ class AssessmentController extends Controller
             ->get();
 
         foreach ($test_questions as $key => $value) {
+            $questionType = (int) $value->question_type;
+            if (!in_array($questionType, [1, 2, 3], true)) {
+                $questionType = 1;
+            }
+            $value->question_type = $questionType;
 
-            if (in_array($value->question_type, [1, 2])) {
-                //  echo '<pre>'; print_r($test_questions);die;
-                $options = DB::table('test_question_options')->select('test_question_options.*')->where('test_question_options.question_id', $value->id)->get();
-                if ((count($options) == 0) && (!empty($value->option_json))) {
-                    foreach (json_decode($value->option_json) as $this_op) {
-                        // DB::table('test_question_options')->insert([
-                        //     'question_id' => $value->id,
-                        //     'option_text' => $this_op[0],
-                        //     'is_right' => $this_op[1]
-                        // ]);
-                        TestQuestionOption::updateOrInsert(
-                            ['question_id' => $value->id, 'option_text' => $this_op[0]],
-                            [
-                                'question_id' => $value->id, 
-                                'option_text' =>$this_op[0], 
-                                'is_right' =>  $this_op[1]
-                            ]
-                        );
+            if (in_array($questionType, [1, 2], true)) {
+                $options = DB::table('test_question_options')
+                    ->select('test_question_options.*')
+                    ->where('test_question_options.question_id', $value->id)
+                    ->get();
+
+                if ($options->count() === 0 && !empty($value->option_json)) {
+                    $decodedArray = json_decode(html_entity_decode($value->option_json), true);
+                    if (is_array($decodedArray)) {
+                        foreach ($decodedArray as $this_op) {
+                            $optionText = is_array($this_op)
+                                ? ($this_op['option'] ?? $this_op[0] ?? null)
+                                : null;
+                            $isRight = is_array($this_op)
+                                ? ($this_op['is_correct'] ?? $this_op[1] ?? 0)
+                                : 0;
+
+                            if ($optionText === null || $optionText === '') {
+                                continue;
+                            }
+
+                            TestQuestionOption::updateOrInsert(
+                                ['question_id' => $value->id, 'option_text' => $optionText],
+                                [
+                                    'question_id' => $value->id,
+                                    'option_text' => $optionText,
+                                    'is_right' => (int) ((bool) $isRight),
+                                ]
+                            );
+                        }
+
+                        $options = DB::table('test_question_options')
+                            ->select('test_question_options.*')
+                            ->where('test_question_options.question_id', $value->id)
+                            ->get();
                     }
-                    $options = DB::table('test_question_options')->select('test_question_options.*')->where('test_question_options.question_id', $value->id)->get();
                 }
+
                 $value->options = $options;
             }
         }
@@ -463,6 +499,17 @@ class AssessmentController extends Controller
                 
 
                 $progressdata = CustomHelper::updateUserProgress($user_id, $course_id);
+
+                app(LmsEventRecorder::class)->record(
+                    $user_id,
+                    LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+                    [
+                        'course_id' => (int) $course_id,
+                        'assessment_id' => (int) $assessment_test_id,
+                        'attempt_scope' => 'assessment',
+                        'source' => 'web',
+                    ]
+                );
 
                 // Assessment Submitted + Graded notifications
                 try {

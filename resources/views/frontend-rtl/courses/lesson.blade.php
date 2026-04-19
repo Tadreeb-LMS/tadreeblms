@@ -460,21 +460,21 @@
                         @if(!$test_exists && isset($lesson_quiz) && $lesson_quiz)
                             @if($lesson->isCompleted())
                                 <div class="alert alert-info mt-4 mb-0">
-                                    This lesson has a quiz in the next section.
+                                    {{ __('course_pages.course_detail.quiz_status') }}
                                     @if($lesson_quiz_pass === 'Pass')
-                                        <span class="ml-2 text-success font-weight-bold">Quiz passed</span>
+                                        <span class="ml-2 text-success font-weight-bold">{{ __('course_pages.course_detail.quiz_passed') }}</span>
                                     @elseif($lesson_quiz_pass === 'Failed')
-                                        <span class="ml-2 text-danger font-weight-bold">Quiz not passed yet</span>
+                                        <span class="ml-2 text-danger font-weight-bold">{{ __('course_pages.course_detail.quiz_not_passed') }}</span>
                                     @endif
                                     @if(!empty($lesson_quiz_url))
                                         <a class="btn btn-sm btn-info text-white ml-2" href="{{ $lesson_quiz_url }}">
-                                            Open Lesson Quiz
+                                            {{ __('course_pages.course_detail.open_quiz') }}
                                         </a>
                                     @endif
                                 </div>
                             @else
                                 <div class="alert alert-warning mt-4 mb-0">
-                                    Complete this lesson first to unlock its quiz section.
+                                    {{ __('course_pages.course_detail.unlock_lesson') }}
                                 </div>
                             @endif
                         @endif
@@ -535,16 +535,16 @@
                                     @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
                                         <a class="btn btn-block bg-danger font-weight-bold text-white"
                                            href="javascript:void(0)">
-                                            Complete and pass the lesson quiz to unlock the next lesson
+                                            {{ __('course_pages.course_detail.complete_pass_quiz_unlock_next') }}
                                         </a>
                                         @if($lesson->isCompleted() && !empty($lesson_quiz_url))
                                             <a class="btn btn-block btn-info font-weight-bold text-white mt-2"
                                                href="{{ $lesson_quiz_url }}">
-                                                Open Lesson Quiz
+                                                {{ __('course_pages.course_detail.open_quiz') }}
                                             </a>
                                         @elseif(!$lesson->isCompleted())
                                             <a class="btn btn-block btn-warning font-weight-bold text-white mt-2" href="javascript:void(0)">
-                                                Complete this lesson first to unlock its quiz section
+                                                {{ __('course_pages.course_detail.unlock_lesson') }}
                                             </a>
                                         @endif
                                     @else
@@ -562,7 +562,7 @@
                                 @elseif($lesson->isCompleted() && !empty($lesson_quiz_url))
                                     <a class="btn btn-block btn-info font-weight-bold text-white"
                                        href="{{ $lesson_quiz_url }}">
-                                        Open Lesson Quiz
+                                        {{ __('course_pages.course_detail.open_quiz') }}
                                     </a>
                                 @endif
 
@@ -574,13 +574,13 @@
                             @endif
 
                             @if ($nextTasks['reattempt_assesment'])
-                                <p class="text text-danger">@lang("Sorry! you didn't qualify the assignment. So certificate could not be issued.")</p>
+                                <p class="text text-danger">{{ __('course_pages.course_detail.assessment_failed_no_certificate') }}</p>
                                 <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
                                     target="_blank" href="{{ htmlspecialchars_decode($assessment_link) }}">@lang('labels.frontend.course.re_attempt_assesment')</a>
                             @endif
 
                             @if($nextTasks['failed_in_assesment_all_attempts'])
-                                <p class="text text-danger">@lang("Sorry! you didn't qualify the assignment. So certificate could not be issued.")</p>
+                                <p class="text text-danger">{{ __('course_pages.course_detail.assessment_failed_no_certificate') }}</p>
                                 <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
                                     href="javascript:void(0)">@lang('labels.frontend.course.assesment_completed')</a>
                             @endif
@@ -852,8 +852,7 @@
                         alert(counter)
                         // Display a next button box
                         $('#nextButton').html(
-                            "<a class='btn btn-block bg-danger font-weight-bold text-white' href='#'>@lang('labels.frontend.course.next') (in " +
-                            counter + " seconds)</a>")
+                            "<a class='btn btn-block bg-danger font-weight-bold text-white' href='#'>@lang('labels.frontend.course.next') ({{ __('lesson.time_left_next_lesson', ['attribute' => '" + counter + "']) }})</a>")
                         Cookies.set("duration_" + "{{ auth()->user()->id }}" + "_" + "{{ $lesson->id }}" +
                             "_" + "{{ $lesson->course->id }}", counter);
 
@@ -871,8 +870,8 @@
                             @if ($next_lesson && empty($nextTasks['open_assesment']) && empty($nextTasks['reattempt_assesment']))
                                 @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
                                     $('#nextButton').html(
-                                        "<a class='btn btn-block bg-danger font-weight-bold text-white' href='javascript:void(0)'>Complete and pass the lesson quiz to unlock the next lesson</a>" +
-                                        "@if(!empty($lesson_quiz_url))<a class='btn btn-block btn-info font-weight-bold text-white mt-2' href='{{ $lesson_quiz_url }}'>Open Lesson Quiz</a>@endif"
+                                        "<a class='btn btn-block bg-danger font-weight-bold text-white' href='javascript:void(0)'>{{ __('course_pages.course_detail.complete_pass_quiz_unlock_next') }}</a>" +
+                                        "@if(!empty($lesson_quiz_url))<a class='btn btn-block btn-info font-weight-bold text-white mt-2' href='{{ $lesson_quiz_url }}'>{{ __('course_pages.course_detail.open_quiz') }}</a>@endif"
                                     );
                                 @else
                                     $('#nextButton').html(

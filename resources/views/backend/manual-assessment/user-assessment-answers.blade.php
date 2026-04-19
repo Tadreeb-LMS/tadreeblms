@@ -1,11 +1,11 @@
 @extends('backend.layouts.app')
-@section('title', 'User Assessement Answers' . ' | ' . app_name())
+@section('title', __('admin_pages.manual_assessment.user_assessment_answers') . ' | ' . app_name())
 
 @section('content')
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-8 offset-md-2 card mb-3 p-4">
-                <h4>Marks obtained: {{ $marks }}</h4>
+                <h4>{{ __('admin_pages.manual_assessment.marks_obtained') }}: {{ $marks }}</h4>
                 @php
                     $i = 1;
                 @endphp
@@ -22,16 +22,16 @@
                         <div class="card-header bg-primary text-white" data-id="{{ $question->id }}"
                             data-ans="{{ @$user_answer['is_correct'] }}">
                             {{ $i++ }}. {!! $question->question_text !!}
-                            </br><span> Marks: {{ $question->marks }}</span>
+                            </br><span> {{ __('course_pages.admin_test_questions_index.marks') }}: {{ $question->marks }}</span>
                         </div>
                         <div class="card-body">
                             {{-- <h5 class="card-title">What is the capital of France?</h5> --}}
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                                    <strong>Correct Answer:</br></strong> {!! $question->test_solutions !!}
+                                    <strong>{{ __('admin_pages.manual_assessment.correct_answer') }}:</br></strong> {!! $question->test_solutions !!}
                                 </li>
                                 <li class="list-group-item">
-                                    <strong>User's Answer:</br></strong> {!! $user_answer['answer'] ?? 'N/A' !!}
+                                    <strong>{{ __('admin_pages.manual_assessment.user_answer') }}:</br></strong> {!! $user_answer['answer'] ?? __('admin_pages.manual_assessment.not_available') !!}
                                     @if ($user_answer)
                                         <span @class([
                                             'badge',

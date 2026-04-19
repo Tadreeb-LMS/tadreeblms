@@ -53,12 +53,12 @@
                 <div class="col-md-6">
                     <h3 class="title">{{ $course_list->title }}</h3>
                     <p class="desc">{!! $course_list->short_text !!}</p>
-                    <h4 class="title">Course:{{ $course_list->title }}</h4>
-                    {{-- <p class="desc">Date: {{ date('d/m/Y h:i A',strtotime($course_list->lesson_start_date)) }}</p> --}}
-                    @if(!empty($course_list->price))<p class="desc">Price: {{ $course_list->price }}</p>@endif
+                    <h4 class="title">{{ __('course_pages.course_detail.course_title') }} {{ $course_list->title }}</h4>
+                    {{-- <p class="desc">{{ __('attendance_pages.attendance.date') }} {{ date('d/m/Y h:i A',strtotime($course_list->lesson_start_date)) }}</p> --}}
+                    @if(!empty($course_list->price))<p class="desc">{{ __('course_pages.course_detail.price_label') }} {{ $course_list->price }}</p>@endif
                     @if(isset($course_list->publishedLessons) && count($course_list->publishedLessons))
                     {{-- {{ dd($course_list->publishedLessons) }} --}}
-                    <span>Lessons Included</span>
+                    <span>{{ __('attendance_pages.attendance.lessons_included') }}</span>
                     <ul class="course-lesson-list">
                         @foreach($course_list->publishedLessons as $lesson)
                             <li>{{ $lesson->title }}</li>
@@ -83,74 +83,74 @@
                         </div>
                     @endif
                     <div class="login_heading">
-                        If you already a user <a href="http://academy.delta-medlab.com?openModal">Login here</a>
+                        {{ __('delta_academy_pages.register.already_user') }} <a href="http://academy.delta-medlab.com?openModal">{{ __('delta_academy_pages.register.login_here') }}</a>
                     </div>
                     <form action="{{ route('register.save.register.course') }}" method="post">
                         @csrf
                         <input type="hidden" name="course_id" value="{{ $course_list->id }}" />
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Enter Your Email address</label>
-                            <input type="email"  class="form-control" name="email" id="email" placeholder="Enter email">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.enter_email') }}</label>
+                            <input type="email"  class="form-control" name="email" id="email" placeholder="{{ __('course_pages.registration.placeholder_email') }}">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">First Name</label>
-                            <input type="text"  class="form-control" name="first_name" id="first_name" placeholder="Enter first name">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.first_name') }}</label>
+                            <input type="text"  class="form-control" name="first_name" id="first_name" placeholder="{{ __('course_pages.registration.placeholder_first') }}">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Last name</label>
-                            <input type="text"  class="form-control" name="last_name" id="last_name" placeholder="Enter last name">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.last_name') }}</label>
+                            <input type="text"  class="form-control" name="last_name" id="last_name" placeholder="{{ __('course_pages.registration.placeholder_last') }}">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Phone</label>
-                            <input type="text"  class="form-control" name="phone" id="phone" placeholder="Enter phone">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.phone') }}</label>
+                            <input type="text"  class="form-control" name="phone" id="phone" placeholder="{{ __('course_pages.registration.placeholder_phone') }}">
 
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">ID number</label>
-                            <input type="text"  class="form-control" name="id_no" id="id_no" placeholder="Enter ID No">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.id_number') }}</label>
+                            <input type="text"  class="form-control" name="id_no" id="id_no" placeholder="{{ __('course_pages.registration.placeholder_id') }}">
 
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Classification number</label>
-                            <input type="text"  class="form-control" name="classification_no" id="classification_no" placeholder="Classification number">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.classification') }}</label>
+                            <input type="text"  class="form-control" name="classification_no" id="classification_no" placeholder="{{ __('course_pages.registration.placeholder_classification') }}">
 
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Specialization</label>
-                            <input type="text"  class="form-control" name="specialization" id="specialization" placeholder="specialization" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.specialization') }}</label>
+                            <input type="text"  class="form-control" name="specialization" id="specialization" placeholder="{{ __('course_pages.registration.placeholder_specialization') }}" value="" required>
 
                         </div>
 
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Nationality</label>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.nationality') }}</label>
                             <select name="nationality" class="form-control">
-                                <option>Select Country</option>
+                                <option>{{ __('course_pages.registration.select_country') }}</option>
                                 @foreach($countries as $country)
                                 <option value="{{ $country->id }}">{{ $country->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Gender</label>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.gender') }}</label>
                             {{-- <input type="radio" class="form-control" name="gender" value="male"> Male
                             <input type="radio" class="form-control" name="gender" value="female"> Female --}}
                             <select name="gender" class="form-control">
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
+                                <option value="male">{{ __('course_pages.registration.male') }}</option>
+                                <option value="female">{{ __('course_pages.registration.female') }}</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Password</label>
-                            <input type="password"  class="form-control" name="password" id="password" placeholder="Enter password">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.password') }}</label>
+                            <input type="password"  class="form-control" name="password" id="password" placeholder="{{ __('course_pages.registration.placeholder_password') }}">
 
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Confirm Password</label>
-                            <input type="password"  class="form-control" name="confirm_password" id="confirm_password" placeholder="Enter Confirm Password">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.confirm_password') }}</label>
+                            <input type="password"  class="form-control" name="confirm_password" id="confirm_password" placeholder="{{ __('course_pages.registration.placeholder_confirm') }}">
 
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Register on course</button>
+                        <button type="submit" class="btn btn-primary">{{ __('course_pages.registration.register_button') }}</button>
                     </form>
                 </div>
 

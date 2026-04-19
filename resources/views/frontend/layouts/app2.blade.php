@@ -180,15 +180,15 @@
                                             @if(count($locales) > 1)
                                                 <li class="menu-item-has-children ul-li-block">
                                                     <a href="#">
-                                                    <span class="d-md-down-none">@lang('menus.language-picker.language')
-                                                        ({{ strtoupper(app()->getLocale()) }})</span>
+                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
+                                                        ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                                                     </a>
                                                     <ul class="sub-menu">
                                                         @foreach($locales as $lang)
                                                             @if($lang != app()->getLocale())
                                                                 <li>
-                                                                    <a href="{{ '/lang/'.$lang }}"
-                                                                       class=""> @lang('menus.language-picker.langs.'.$lang)</a>
+                                                                    <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
+                                                                       class=""> {{ locale_label($lang) }}</a>
                                                                 </li>
                                                             @endif
                                                         @endforeach
@@ -261,15 +261,15 @@
                                             @if(count($locales) > 1)
                                                 <li class="menu-item-has-children ul-li-block">
                                                     <a href="#">
-                                                    <span class="d-md-down-none">@lang('menus.language-picker.language')
-                                                        ({{ strtoupper(app()->getLocale()) }})</span>
+                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
+                                                        ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                                                     </a>
                                                     <ul class="">
                                                         @foreach($locales as $lang)
                                                             @if($lang != app()->getLocale())
                                                                 <li>
-                                                                    <a href="{{ '/lang/'.$lang }}"
-                                                                       class=""> @lang('menus.language-picker.langs.'.$lang)</a>
+                                                                    <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
+                                                                       class=""> {{ locale_label($lang) }}</a>
                                                                 </li>
                                                             @endif
                                                         @endforeach
@@ -290,7 +290,9 @@
 
 
         @yield('content')
-        @include('cookieConsent::index')
+        @if(view()->exists('cookieConsent::index'))
+            @include('cookieConsent::index')
+        @endif
         @if(!isset($no_footer))
             @include('frontend.layouts.partials.footer')
         @endif

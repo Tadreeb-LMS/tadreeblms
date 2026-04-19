@@ -58,7 +58,7 @@ class MenuController extends Controller
         } else {
             foreach ($menus as $item) {
                 if (Str::slug($menu_name) == Str::slug($item->name)) {
-                    return back()->withFlashDanger(__('alerts.backend.menu-manager.exist'));
+                    return back()->withFlashDanger(__('alerts.backend.menu_manager.exist'));
                 } else {
                     $new_menu_data = json_encode(['menu_name' => $menu_name]);
                     $new_menu = new Config();
@@ -75,7 +75,7 @@ class MenuController extends Controller
         $menu_list->value = json_encode($menus);
         $menu_list->save();
 
-        return redirect(route('admin.menu-manager') . '?menu=' . $new_menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu-manager.created'));
+        return redirect(route('admin.menu-manager') . '?menu=' . $new_menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu_manager.created'));
     }
 
     public function update(Request $request)
@@ -90,9 +90,9 @@ class MenuController extends Controller
                 $menu_data->menu_name = Str::slug($request->menu_name);
                 $menu->value = json_encode($menu_data);
                 $menu->save();
-                return redirect(route('admin.menu-manager') . '?menu=' . $menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu-manager.updated'));
+                return redirect(route('admin.menu-manager') . '?menu=' . $menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu_manager.updated'));
             } else {
-                return redirect(route('admin.menu-manager') . '?menu=' . $menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu-manager.exist'));
+                return redirect(route('admin.menu-manager') . '?menu=' . $menu->id)->with('')->withFlashSuccess(__('alerts.backend.menu_manager.exist'));
             }
         }
     }
@@ -115,7 +115,7 @@ class MenuController extends Controller
         }
         $menu_list->save();
         $menu->delete();
-        return redirect(route('admin.menu-manager'))->withFlashSuccess(__('alerts.backend.menu-manager.deleted'));
+        return redirect(route('admin.menu-manager'))->withFlashSuccess(__('alerts.backend.menu_manager.deleted'));
 
     }
 
@@ -241,7 +241,7 @@ class MenuController extends Controller
                         $allMenu[Str::slug($item['label'])] = $item['label'];
                     }
                     $main[Str::slug($menu->name)] = $allMenu;
-                    $file = fopen(public_path('../resources/lang/en/custom-menu.php'), 'w');
+                    $file = fopen(public_path('../resources/lang/en/custom_menu.php'), 'w');
                     if ($file !== false) {
                         ftruncate($file, 0);
                     }

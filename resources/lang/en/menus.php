@@ -6,17 +6,17 @@ return array(
     'sidebar' =>
     array(
       'roles_mgt' => 'Roles Permissions',
-      'Invitations' => 'Invitations',
-      'Send-Email-Notification' => 'Send Email Notification',
-      'notification-settings' => 'Notification Settings',
-      'My-Assignments' => 'My Assignments',
-      'My-Courses' => 'My Courses',
-      'Employee-Requests' => 'Employee Requests',
-      'Contact-Requests' => 'Contact Requests',
-      'Pathway-Assignments' => 'Pathway Assignments',
-      'Learning-Pathways' => 'Learning Pathways',
-      'Learning-Pathways-Management' => 'Learning Pathways Management',
-      'Manual-Assessment' => 'Manual Assessment', 
+      'invitations' => 'Invitations',
+      'send_email_notification' => 'Send Email Notification',
+      'notification_settings' => 'Notification Settings',
+      'my_assignments' => 'My Assignments',
+      'my_courses' => 'My Courses',
+      'employee_requests' => 'Employee Requests',
+      'contact_requests' => 'Contact Requests',
+      'pathway_assignments' => 'Pathway Assignments',
+      'learning_pathways' => 'Learning Pathways',
+      'learning_pathways_management' => 'Learning Pathways Management',
+      'manual_assessment' => 'Manual Assessment', 
       'general' => 'General',
       'dashboard' => 'Dashboard',
       'trainers' => 'Trainers',
@@ -28,7 +28,7 @@ return array(
       'course_questions' => 'Course Questions',
       'calendar' => 'Calendar',
       'department' => 'User Group',
-      'Add User Group' => 'Add User Group',
+      'add_user_group' => 'Add User Group',
       'position' => 'Positions',
       'courses' => 'Courses',
       'assessment_accounts' => 'Assessment Accounts',
@@ -47,7 +47,7 @@ return array(
       'news_n_update' => 'News & Update',
       'latest_libraries' => 'Latest Libraries',
       'announcement' => 'Announcement',
-      'calendar' => 'Calender',
+      'calendar' => 'Calendar',
       'assessment_accounts_manually' => 'Assessment Accounts Manually',
       'courses_assignments' => 'Courses Assignments',
       'latest_events' => 'Latest Events',
@@ -57,11 +57,11 @@ return array(
         'title' => 'Courses',
         'manage' => 'Manage Courses',
       ),
-      'site-management' =>
+      'site_management' =>
       array(
         'title' => 'Site Management',
       ),
-      'menu-manager' =>
+      'menu_manager' =>
       array(
         'title' => 'Menu Manager',
       ),
@@ -70,13 +70,18 @@ return array(
       array(
         'title' => 'Settings',
         'general' => 'General',
-        'social-login' => 'Social Login',
+        'language' => 'Translations',
+        'social_login' => 'Social Login',
         'zoom_setting' => 'Zoom Setting',
         'landing_page_setting' => 'Landing Page Setting',
+        'certificate_template' => 'Certificate Template',
+        'zoom_configuration' => 'Zoom Configuration',
+        'google_meet_configuration' => 'Google Meet Configuration',
+        's3_storage_settings' => 'S3 Storage Settings',
         'license' => 'License Settings',
         'smtp' => 'Email Settings (SMTP)',
       ),
-      'debug-site' =>
+      'debug_site' =>
       array(
         'title' => 'Debug Site',
       ),
@@ -89,7 +94,7 @@ return array(
       array(
         'title' => 'Questions',
       ),
-      'questions-options' =>
+      'questions_options' =>
       array(
         'title' => 'Questions Options',
       ),
@@ -97,7 +102,7 @@ return array(
       array(
         'title' => 'Tests',
       ),
-      'change-password' =>
+      'change_password' =>
       array(
         'title' => 'Change Password',
       ),
@@ -121,7 +126,7 @@ return array(
       array(
         'title' => 'Trainers',
       ),
-      'hero-slider' =>
+      'hero_slider' =>
       array(
         'title' => 'Hero Slider',
       ),
@@ -153,7 +158,7 @@ return array(
       array(
         'title' => 'Footer',
       ),
-      'newsletter-configuration' =>
+      'newsletter_configuration' =>
       array(
         'title' => 'Newsletter Configuration',
       ),
@@ -211,7 +216,7 @@ return array(
       array(
         'title' => 'Sitemap',
       ),
-      'forums-category' =>
+      'forums_category' =>
       array(
         'title' => 'Forums Categories',
       ),
@@ -257,13 +262,13 @@ return array(
         'deleted' => 'Deleted Users',
         'view' => 'View User',
         'edit' => 'Edit User',
-        'change-password' => 'Change Password',
+        'change_password' => 'Change Password',
         'all' => 'All Users',
         'create' => 'Create User',
         'main' => 'Users',
       ),
     ),
-    'log-viewer' =>
+    'log_viewer' =>
     array(
       'dashboard' => 'Debug dashboard',
       'logs' => 'Logs',
@@ -275,7 +280,7 @@ return array(
       'plan' => 'Plans',
     ),
   ),
-  'language-picker' =>
+  'language_picker' =>
   array(
     'language' => 'Language',
     'langs' =>

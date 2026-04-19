@@ -113,22 +113,39 @@
 }
 
 .dashboard-widget-tabs {
-    border-bottom: 1px solid #e3e7ed;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: -1px; /* overlap the card top border so tabs look attached */
 }
 .dashboard-widget-tabs .nav-link {
     color: #2f3e74;
     font-weight: 600;
     border: 1px solid transparent;
     border-radius: 6px 6px 0 0;
-    padding: 8px 16px;
+    padding: 8px 20px;
+    white-space: nowrap;
 }
 .dashboard-widget-tabs .nav-link.active {
     background: #ffffff;
-    border-color: #e3e7ed #e3e7ed #ffffff;
+    border-color: #dee2e6 #dee2e6 #ffffff;
     color: #1d2b57;
 }
-.dashboard-widget-tabs .nav-link:hover {
+.dashboard-widget-tabs .nav-link:hover:not(.active) {
     color: #1d2b57;
+    border-color: #e9ecef #e9ecef transparent;
+    background: #f8f9fa;
+}
+/* On small screens stack the tabs to full width */
+@media (max-width: 575.98px) {
+    .dashboard-widget-tabs {
+        flex-wrap: wrap;
+    }
+    .dashboard-widget-tabs .nav-item {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+    .dashboard-widget-tabs .nav-link {
+        width: 100%;
+    }
 }
 
 
@@ -144,24 +161,6 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
 
 
 @if(auth()->user()->hasRole('administrator') || !auth()->user()->hasRole('student'))
-@if($show_dashboard_widget_tabs)
-<div class="row mb-2">
-    <div class="col-12">
-        <ul class="nav nav-tabs dashboard-widget-tabs" role="tablist">
-            <li class="nav-item">
-                <button type="button" class="nav-link active" data-dashboard-tab="latest">
-                    @lang('strings.backend.dashboard.Latest-Course-Assignments')
-                </button>
-            </li>
-            <li class="nav-item">
-                <button type="button" class="nav-link" data-dashboard-tab="recent">
-                    @lang('strings.backend.dashboard.Recent-Courses')
-                </button>
-            </li>
-        </ul>
-    </div>
-</div>
-@endif
 <div class="row">
 
     <div class="col-12 mb-3">
@@ -256,7 +255,7 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
 
 
         </div>
-        <div class="col-lg-2 dash-card mb-3 ml-3 leftBorder4">
+        <a href="{{ route('admin.certificates.manage.index') }}" class="col-lg-2 dash-card mb-3 ml-3 leftBorder4" style="text-decoration: none; color: inherit;">
             <div class="d-flex justify-content-center">
                 <h5>
                     {{ $total_certificate_issued }}
@@ -276,7 +275,7 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
             </div>
 
 
-        </div>
+        </a>
     </div>
 
 </div>
@@ -498,41 +497,63 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
         </div>
     </div>
 
-    {{-- Latest Course Assignments card (admin/teacher only) --}}
-    @if(isset($latest_course_assignments) && (auth()->user()->hasRole('administrator') || auth()->user()->hasRole('teacher')))
-    <div class="col-lg-4 col-md-12 col-sm-12" id="dashboard-latest-assignments" data-dashboard-panel="latest">
-        <div class="avg-card leftBorder3">
-            <div class="avg-card-head d-flex justify-content-between align-items-center flex-wrap">
-                <h5 class="mb-0">
+</div>
+@endif
+
+{{-- Course data toggle: positioned directly above the panels it controls --}}
+@if($show_dashboard_widget_tabs)
+<div class="row mt-4 mb-0">
+    <div class="col-12">
+        <ul class="nav nav-tabs dashboard-widget-tabs" role="tablist">
+            <li class="nav-item">
+                <button type="button" class="nav-link active" data-dashboard-tab="latest">
                     @lang('strings.backend.dashboard.Latest-Course-Assignments')
-                </h5>
-                <a href="{{ route('admin.assessment_accounts.course-assign-list') }}" class="btn btn-sm btn-outline-primary">
+                </button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link" data-dashboard-tab="recent">
+                    @lang('strings.backend.dashboard.Recent-Courses')
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+@endif
+
+{{-- Latest Course Assignments — full-width, consistent with Recent Courses layout --}}
+@if(isset($latest_course_assignments) && (auth()->user()->hasRole('administrator') || auth()->user()->hasRole('teacher')))
+<div class="row mt-0" id="dashboard-latest-assignments" data-dashboard-panel="latest">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <h5 class="mb-0">@lang('strings.backend.dashboard.Latest-Course-Assignments')</h5>
+                <a href="{{ route('admin.assessment_accounts.course-assign-list') }}" class="btn btn-sm btn-primary">
                     @lang('strings.backend.dashboard.View-All')
                 </a>
             </div>
-            <div class="mt-3">
+            <div class="card-body p-0">
                 @if($latest_course_assignments->count() > 0)
-                <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
-                    <table class="table table-sm table-hover mb-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th class="border-0">@lang('strings.backend.dashboard.Course-Name')</th>
-                                <th class="border-0">@lang('strings.backend.dashboard.Assigned-To')</th>
-                                <th class="border-0">@lang('strings.backend.dashboard.Assigned-By')</th>
-                                <th class="border-0">@lang('strings.backend.dashboard.Due-Date')</th>
-                                <th class="border-0">@lang('strings.backend.dashboard.Assigned-Date')</th>
+                                <th>@lang('strings.backend.dashboard.Course-Name')</th>
+                                <th>@lang('strings.backend.dashboard.Assigned-To')</th>
+                                <th>@lang('strings.backend.dashboard.Assigned-By')</th>
+                                <th>@lang('strings.backend.dashboard.Due-Date')</th>
+                                <th>@lang('strings.backend.dashboard.Assigned-Date')</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($latest_course_assignments->take(8) as $ca)
                             <tr>
-                                <td class="text-wrapper" style="max-width: 120px;" title="{{ optional($ca->course)->title ?? '-' }}">
+                                <td title="{{ optional($ca->course)->title ?? '-' }}">
                                     {{ optional($ca->course)->title ?? '-' }}
                                     @can('course_edit')
                                     <a href="{{ route('admin.assessment_accounts.course_assign_edit', $ca->id) }}" class="ml-1" title="@lang('strings.backend.dashboard.Quick-View')"><i class="fa fa-external-link-alt fa-xs"></i></a>
                                     @endcan
                                 </td>
-                                <td class="text-wrapper" style="max-width: 100px;" title="{{ $ca->department_id && $ca->department ? $ca->department->title : ($ca->assigned_user_names ?? '-') }}">
+                                <td title="{{ $ca->department_id && $ca->department ? $ca->department->title : ($ca->assigned_user_names ?? '-') }}">
                                     {{ $ca->department_id && $ca->department ? $ca->department->title : ($ca->assigned_user_names ?? '-') }}
                                 </td>
                                 <td>{{ $ca->assignedBy ? trim($ca->assignedBy->first_name . ' ' . $ca->assignedBy->last_name) : '-' }}</td>
@@ -544,23 +565,24 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
                     </table>
                 </div>
                 @else
-                <p class="text-muted mb-0">@lang('strings.backend.dashboard.No-assignments-yet')</p>
+                <div class="p-3">
+                    <p class="text-muted mb-0">@lang('strings.backend.dashboard.No-assignments-yet')</p>
+                </div>
                 @endif
             </div>
         </div>
     </div>
-    @endif
 </div>
 @endif
 
 {{-- Recent Courses (Last 10 Created) - Admin only --}}
 @if(auth()->user()->hasRole('administrator') && isset($recent_courses))
-<div class="row mt-4" id="dashboard-recent-courses" data-dashboard-panel="recent" style="{{ $show_dashboard_widget_tabs ? 'display:none;' : '' }}">
+<div class="row mt-0" id="dashboard-recent-courses" data-dashboard-panel="recent" style="{{ $show_dashboard_widget_tabs ? 'display:none;' : '' }}">
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">@lang('strings.backend.dashboard.Recent-Courses')</h5>
-                <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-primary">View All</a>
+                <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-primary">@lang('labels.general.view_all')</a>
             </div>
             <div class="card-body p-0">
                 @if($recent_courses->isNotEmpty())
