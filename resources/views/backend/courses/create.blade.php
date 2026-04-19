@@ -242,7 +242,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row d-none">
                 <div class="col-md-12 form-group">
                     <input type="hidden" name="include_in_kpi" value="0">
                     <div class="custom-control custom-switch">
