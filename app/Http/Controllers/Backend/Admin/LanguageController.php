@@ -32,16 +32,19 @@ class LanguageController extends Controller
 
     public function toggle($id)
     {
-        $language = Language::findOrFail($id);
+       
 
-        if ($language->is_default && $language->is_enabled) {
-            return back()->with('error', 'Default language cannot be disabled');
-        }
-        
-        $language->is_enabled = !$language->is_enabled;
-        $language->save();
+         $language = Language::findOrFail($id);
 
-        return back();
+    // ❌ Prevent disabling default language
+    if ($language->is_default) {
+        return back()->with('error', 'Default language cannot be disabled');
+    }
+
+    $language->is_enabled = !$language->is_enabled;
+    $language->save();
+
+    return back()->with('success', 'Language status updated');
     }
 
     public function upload(Request $request)
