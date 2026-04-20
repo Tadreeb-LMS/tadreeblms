@@ -11,6 +11,7 @@ use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
 use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
+use App\Services\LmsEventRecorder;
 use Auth;
 use DB;
 use Carbon\Carbon;
@@ -639,6 +640,13 @@ class CustomHelper
                             ]
                         );
 
+                    app(LmsEventRecorder::class)->record(
+                        $user_id,
+                        LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                        ['course_id' => (int) $course_id, 'source' => 'assignment_progress'],
+                        Carbon::now()
+                    );
+
                     // Send course completed notification
                     try {
                         $notificationSettings = app(\App\Services\NotificationSettingsService::class);
@@ -662,9 +670,8 @@ class CustomHelper
         return $total_plus;
     }
 
-    public static function courseProgress($course_id, $user_id = 0)
+        public static function courseProgress($course_id, $user_id = 0)
     {
-
         if ($user_id == 0) {
             $user_id = Auth::user()->id;
         }
@@ -672,6 +679,7 @@ class CustomHelper
         $total_lessons = Lesson::where('course_id', $course_id)->where('published', 1)->pluck('id');
         $total_lessons_count = count($total_lessons);
         $total_lessons_completes = 0;
+
         foreach ($total_lessons as $lesson) {
             $lessonStatusEmployee = self::lessonStatusEmployee(0, $lesson, $course_id, $user_id);
             if ($lessonStatusEmployee == 'Completed') {
@@ -687,6 +695,7 @@ class CustomHelper
         $courseController = new LessonsController;
         $hasAssessmentLink = $courseController->hasAssessmentLink($course_id, $user_id);
         $courseFeedbackLink = $courseController->courseFeedbackLink($course_id);
+
         if (!$hasAssessmentLink && !$courseFeedbackLink && $total_lessons_count == 0) {
             $total_plus = 100;
         }
@@ -696,8 +705,42 @@ class CustomHelper
         }
 
         if ($total_plus == 100) {
-            DB::table('subscribe_courses')->where('course_id', $course_id)
-                ->where('user_id', $user_id)->update(['is_completed' => 1]);
+            $subscription = SubscribeCourse::where('course_id', $course_id)
+                ->where('user_id', $user_id)
+                ->first();
+
+            if ($subscription) {
+                $wasCompleted = (int) $subscription->is_completed === 1;
+                $now = Carbon::now();
+
+                $updateData = [
+                    'course_progress_status' => 2,
+                    'assignment_progress' => 100,
+                ];
+
+                if (! $wasCompleted) {
+                    $updateData['is_completed'] = 1;
+                    $updateData['completed_at'] = $now->format('Y-m-d H:i:s');
+                }
+
+                DB::table('subscribe_courses')
+                    ->where('course_id', $course_id)
+                    ->where('user_id', $user_id)
+                    ->update($updateData);
+
+                self::updateGrantCertificate($course_id, $user_id);
+
+                $subscription->refresh();
+
+                if (! $wasCompleted && (int) $subscription->is_completed === 1) {
+                    app(LmsEventRecorder::class)->record(
+                        $user_id,
+                        LmsEventRecorder::TYPE_COURSE_COMPLETED,
+                        ['course_id' => (int) $course_id, 'source' => 'lesson_progress'],
+                        $now
+                    );
+                }
+            }
         }
 
         return $total_plus;
@@ -864,7 +907,7 @@ class CustomHelper
         return $data;
     }
 
-    public static function isLessonTimeCompleted($duration = 0, $lesson_id, $course_id, $employee_id)
+    public static function isLessonTimeCompleted($duration, $lesson_id, $course_id, $employee_id)
     {
         //dd($lesson_id);
         $data = CustomHelper::getLessonDetail($lesson_id, $course_id, $employee_id);
@@ -888,7 +931,7 @@ class CustomHelper
         }
     }
 
-    public static function nextLessonActiveTime($duration = 0, $lesson_id, $course_id, $employee_id)
+    public static function nextLessonActiveTime($duration, $lesson_id, $course_id, $employee_id)
     {
         $data = CustomHelper::getLessonDetail($lesson_id, $course_id, $employee_id);
         if (isset($data)) {
@@ -934,7 +977,7 @@ class CustomHelper
             ->count();
     }
 
-    public static function lessonStatusEmployee($duration = 0, $lesson_id, $course_id, $employee_id)
+    public static function lessonStatusEmployee($duration, $lesson_id, $course_id, $employee_id)
     {
 
         $completed_lessons = ChapterStudent::query()
@@ -1537,9 +1580,20 @@ class CustomHelper
         }
 
         $download_certificate = $sc->grant_certificate ?? false;
-        $completed_assesment = $sc->assignment_status == 'Passed' && $sc->assesment_taken ? true : false;
+        $has_assessment_requirement = $helper->hasAvailableAssessment($sc, $course_id);
+        $assessment_taken = (int) ($sc->assesment_taken ?? $sc->assessment_taken ?? 0);
+        $feedback_given = (bool) ($sc->feedback_given ?? false);
 
-        $reattempt_assesment_count = $helper->getAttemptToAssesment($sc, $course_id);
+        // Mark assessment as completed only when a real final assessment exists and is passed.
+        $completed_assesment = $has_assessment_requirement
+            && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
+
+        // Only open assessment CTA when a real final assessment exists.
+        $open_assesment = $has_assessment_requirement && !$completed_assesment;
+
+        $reattempt_assesment_count = $has_assessment_requirement
+            ? $helper->getAttemptToAssesment($sc, $course_id)
+            : 0;
 
         if ($reattempt_assesment_count > 0) {
             $open_assesment = false;
@@ -1551,7 +1605,8 @@ class CustomHelper
         }
 
         if ($reattempt_assesment_count > 1) {
-            $completed_assesment = $sc->assignment_status == 'Passed' && $sc->assesment_taken ? true : false;
+            $completed_assesment = $has_assessment_requirement
+                && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
             if ($completed_assesment) {
                 $reattempt_assesment = false;
             }
@@ -1568,7 +1623,7 @@ class CustomHelper
             'completed_assesment' => $completed_assesment,
             'download_certificate' => $download_certificate,
             'open_assesment' => $open_assesment,
-            'open_feedback' => $open_feedback,
+            'open_feedback' => $open_feedback && !$feedback_given,
         ];
     }
 
@@ -1581,23 +1636,30 @@ class CustomHelper
         $reattempt_assesment = false;
         $download_certificate = $sc->grant_certificate ?? false;
 
-        $completed_assesment = $sc->assignment_status == 'Passed' && $sc->assesment_taken ? true : false;
+        $has_assessment_requirement = $helper->hasAvailableAssessment($sc, $course_id);
+        $assessment_taken = (int) ($sc->assesment_taken ?? $sc->assessment_taken ?? 0);
+        $feedback_given = (bool) ($sc->feedback_given ?? false);
 
-        $open_assesment = $sc->has_assesment ? true : false;
+        // Mark assessment as completed only when a real final assessment exists and is passed.
+        $completed_assesment = $has_assessment_requirement
+            && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
 
+        $open_assesment = $has_assessment_requirement && !$completed_assesment;
 
-
-        if ($sc->has_assesment) {
-            if ($sc->assesment_taken && $sc->assignment_status == 'Passed') {
-                $open_feedback = $sc->has_feedback ? true : false;
+        if ($has_assessment_requirement) {
+            if ($completed_assesment) {
+                $open_feedback = $sc->has_feedback && !$feedback_given ? true : false;
             }
-        } else { // No Assesment
-            $open_feedback = $sc->has_feedback ? true : false;
+        } else {
+            // No final assessment configured for this learner/course.
+            $open_feedback = $sc->has_feedback && !$feedback_given ? true : false;
         }
 
         //dd($open_assesment, $open_feedback);
 
-        $reattempt_assesment_count = $helper->getAttemptToAssesment($sc, $course_id);
+        $reattempt_assesment_count = $has_assessment_requirement
+            ? $helper->getAttemptToAssesment($sc, $course_id)
+            : 0;
         //dd($reattempt_assesment_count);
 
         if ($reattempt_assesment_count > 0) {
@@ -1610,7 +1672,8 @@ class CustomHelper
         }
 
         if ($reattempt_assesment_count > 1) {
-            $completed_assesment = $sc->assignment_status == 'Passed' && $sc->assesment_taken ? true : false;
+            $completed_assesment = $has_assessment_requirement
+                && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
             if ($completed_assesment) {
                 $reattempt_assesment = false;
             }
@@ -1623,7 +1686,7 @@ class CustomHelper
 
 
 
-        if ($sc->assignment_progress == 90 && $sc->has_feedback && $download_certificate == 0) {
+        if ($sc->assignment_progress == 90 && $sc->has_feedback && !$feedback_given && $download_certificate == 0) {
             $open_feedback = true;
         }
 
@@ -1658,7 +1721,7 @@ class CustomHelper
 
             if (!empty($employee_profile) && !empty($logged_in_department_id)) {
 
-                $assignment = CourseAssignment::with(['assessment', 'assessment.course'])
+                $assignment = courseAssignment::with(['assessment', 'assessment.course'])
                     ->whereRaw('FIND_IN_SET(?, assign_to) > 0', $logged_in_user_id)
                     ->where('course_assignment.course_id', $course_id)
                     ->whereNotNull('course_id')
@@ -1670,7 +1733,7 @@ class CustomHelper
 
 
             if (!isset($assignment)) {
-                $assignment = CourseAssignment::with(['assessment', 'assessment.course'])
+                $assignment = courseAssignment::with(['assessment', 'assessment.course'])
                     ->where('assign_to', $logged_in_user_id)
                     ->where('course_assignment.course_id', $course_id)
                     ->latest('course_assignment.id')
@@ -1679,7 +1742,7 @@ class CustomHelper
 
             //dd( $assignment);        
 
-            if ($assignment && $assignment->assessment && $assignment->assessment->id) {
+            if ($assignment && $this->isValidFinalAssessment($assignment, (int) $course_id)) {
                 $test_taken = CustomHelper::assignmentAttempts($assignment->assessment->id, $sc->user_id);
                 return $test_taken;
             }
@@ -1688,6 +1751,69 @@ class CustomHelper
         } else {
             return 0;
         }
+    }
+
+    public function hasAvailableAssessment($sc, $course_id)
+    {
+        $logged_in_user_id = $sc->user_id ?? auth()->id();
+        if (empty($logged_in_user_id)) {
+            return false;
+        }
+
+        $employee_profile = EmployeeProfile::where('user_id', $logged_in_user_id)->first();
+        $logged_in_department_id = $employee_profile ? $employee_profile->department : null;
+
+        if (!empty($employee_profile) && !empty($logged_in_department_id)) {
+            $assignment = courseAssignment::with(['assessment', 'assessment.course'])
+                ->whereRaw('FIND_IN_SET(?, assign_to) > 0', $logged_in_user_id)
+                ->where('course_assignment.course_id', $course_id)
+                ->whereNotNull('course_id')
+                ->latest('course_assignment.id')
+                ->first();
+        }
+
+        if (!isset($assignment)) {
+            $assignment = courseAssignment::with(['assessment', 'assessment.course'])
+                ->where('assign_to', $logged_in_user_id)
+                ->where('course_assignment.course_id', $course_id)
+                ->latest('course_assignment.id')
+                ->first();
+        }
+
+        return (bool) ($assignment && $this->isValidFinalAssessment($assignment, (int) $course_id));
+    }
+
+    private function isValidFinalAssessment($assignment, int $course_id): bool
+    {
+        if (!$assignment || !$assignment->assessment) {
+            return false;
+        }
+
+        $test_id = $assignment->assessment->test_id ?? null;
+        if (empty($test_id)) {
+            return false;
+        }
+
+        // Final assessments are course-level tests (lesson_id null or 0).
+        $final_test = Test::query()
+            ->where('id', $test_id)
+            ->where('course_id', $course_id)
+            ->where(function ($q) {
+                $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+            })
+            ->first();
+
+        if (!$final_test) {
+            return false;
+        }
+
+        $question_count = TestQuestion::query()
+            ->where('test_id', $final_test->id)
+            ->where('is_deleted', 0)
+            ->whereNull('deleted_at')
+            ->count();
+
+        return $question_count > 0;
     }
 
     public function getIsAllLessonsCompleted($sc, $course_id)

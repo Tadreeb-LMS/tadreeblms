@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', 'External Apps')
+@section('title', __('external_apps.external_apps.title'))
 
 @section('content')
 
@@ -9,13 +9,13 @@
         <div class="col-12 d-flex align-items-center">
             <div style="flex: 1;"></div>
             <div class="alert alert-info mb-0 py-2 px-3" style="font-size: 0.95rem;">
-                You can download the external applications from the Marketplace:
+                {{ __('external_apps.external_apps.marketplace_notice') }}
                 <a href="https://tadreeblms.com/marketplaces" target="_blank" rel="noopener noreferrer" class="font-weight-bold">https://tadreeblms.com/marketplaces</a>
             </div>
             <div style="flex: 1;" class="d-flex justify-content-end">
                 @if (count($apps) > 0)
                 <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus mr-1"></i>Upload New Module
+                    <i class="fas fa-plus mr-1"></i>{{ __('external_apps.external_apps.upload_new_module') }}
                 </a>
                 @endif
             </div>
@@ -47,9 +47,9 @@
                         <table class="table table-bordered align-middle mb-0">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>Name</th>
-                                    <th class="text-center">Enable/Disable</th>
-                                    <th class="text-center">Action</th>
+                                    <th>{{ __('external_apps.external_apps.name') }}</th>
+                                    <th class="text-center">{{ __('external_apps.external_apps.enable_disable') }}</th>
+                                    <th class="text-center">{{ __('external_apps.external_apps.action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -67,7 +67,7 @@
                                     <td class="text-center">
                                         @if(!$app->is_enabled)
                                         <button type="button" class="btn btn-outline-danger btn-sm delete-app" data-slug="{{ $app->slug }}" data-name="{{ $app->name }}">
-                                            <i class="fas fa-trash mr-1"></i>Uninstall
+                                            <i class="fas fa-trash mr-1"></i>{{ __('external_apps.external_apps.uninstall') }}
                                         </button>
                                         @endif
                                     </td>
@@ -79,9 +79,9 @@
                     @else
                     <div class="text-center py-5">
                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No external modules installed yet.</p>
+                        <p class="text-muted">{{ __('external_apps.external_apps.no_modules_installed') }}</p>
                         <a href="{{ route('admin.external-apps.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus mr-1"></i>Upload First Module
+                            <i class="fas fa-plus mr-1"></i>{{ __('external_apps.external_apps.upload_first_module') }}
                         </a>
                     </div>
                     @endif
@@ -97,7 +97,7 @@
         <div class="modal-content">
             <div class="modal-header" id="syncInfoModalHeader">
                 <h5 class="modal-title" id="syncInfoModalLabel">
-                    <i class="fas fa-sync-alt mr-2"></i><span id="syncInfoModalTitle">Sync Started</span>
+                    <i class="fas fa-sync-alt mr-2"></i><span id="syncInfoModalTitle">{{ __('external_apps.external_apps.sync_started') }}</span>
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -109,7 +109,7 @@
                 <p id="syncInfoDetail" class="text-muted small mb-0"></p>
             </div>
             <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-primary px-4" data-dismiss="modal">OK</button>
+                <button type="button" class="btn btn-primary px-4" data-dismiss="modal">{{ __('external_apps.external_apps.ok') }}</button>
             </div>
         </div>
     </div>
@@ -120,18 +120,18 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Uninstall</h5>
+                <h5 class="modal-title" id="deleteModalLabel">{{ __('external_apps.external_apps.confirm_uninstall') }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to uninstall <strong id="appNameDisplay"></strong>?</p>
-                <p class="text-warning"><small>This action cannot be undone.</small></p>
+                <p>{{ __('external_apps.external_apps.sure_uninstall_generic') }} <strong id="appNameDisplay"></strong>?</p>
+                <p class="text-warning"><small>{{ __('external_apps.external_apps.this_action_cannot_be_undone') }}</small></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmUninstallBtn">Uninstall</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('external_apps.external_apps.cancel') }}</button>
+                <button type="button" class="btn btn-danger" id="confirmUninstallBtn">{{ __('external_apps.external_apps.uninstall') }}</button>
             </div>
         </div>
     </div>
@@ -192,16 +192,16 @@ $(document).ready(function() {
                     if (sync) {
                         if (sync.direction === 'local_to_s3') {
                             $('#syncInfoModalHeader').removeClass('bg-danger bg-warning text-white text-dark').addClass('bg-success text-white');
-                            $('#syncInfoModalTitle').text('Module Enabled — Syncing to S3');
+                            $('#syncInfoModalTitle').text('{{ __('external_apps.external_apps.module_enabled_syncing_to_s3') }}');
                             $('#syncInfoIcon').html('<i class="fas fa-cloud-upload-alt text-success"></i>');
-                            $('#syncInfoMessage').html('<strong>' + sync.file_count + ' file(s)</strong> queued for upload to S3.');
+                            $('#syncInfoMessage').html('<strong>' + sync.file_count + ' {{ __('external_apps.external_apps.files') }}</strong> {{ __('external_apps.external_apps.queued_for_upload_to_s3') }}');
                         } else {
                             $('#syncInfoModalHeader').removeClass('bg-success bg-danger text-white').addClass('bg-warning text-dark');
-                            $('#syncInfoModalTitle').text('Module Disabled — Syncing from S3');
+                            $('#syncInfoModalTitle').text('{{ __('external_apps.external_apps.module_disabled_syncing_from_s3') }}');
                             $('#syncInfoIcon').html('<i class="fas fa-cloud-download-alt text-warning"></i>');
-                            $('#syncInfoMessage').html('<strong>' + sync.file_count + ' file(s)</strong> queued for download from S3.');
+                            $('#syncInfoMessage').html('<strong>' + sync.file_count + ' {{ __('external_apps.external_apps.files') }}</strong> {{ __('external_apps.external_apps.queued_for_download_from_s3') }}');
                         }
-                        $('#syncInfoDetail').text('Sync runs in the background. Page will reload when you close this dialog.');
+                        $('#syncInfoDetail').text('{{ __('external_apps.external_apps.sync_background_reload') }}');
                         $('#syncInfoModal').off('hidden.bs.modal').one('hidden.bs.modal', function () {
                             location.reload();
                         });
@@ -218,7 +218,7 @@ $(document).ready(function() {
             error: function(xhr) {
                 toggleInFlight[slug] = false;
                 const response = xhr.responseJSON || {};
-                showAlert(response.message || 'An error occurred', 'error');
+                showAlert(response.message || '{{ __('external_apps.external_apps.an_error_occurred') }}', 'error');
                 $toggle.prop('checked', !enabled);
             }
         });
@@ -238,7 +238,7 @@ $(document).ready(function() {
         if (!pendingDeleteSlug) return;
 
         var $btn = $(this);
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Uninstalling...');
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>{{ __('external_apps.external_apps.uninstalling') }}');
 
         $.ajax({
             url: '/user/external-apps/' + pendingDeleteSlug,
@@ -256,14 +256,14 @@ $(document).ready(function() {
                     }, 2500);
                 } else {
                     showAlert(response.message, 'error');
-                    $btn.prop('disabled', false).html('Uninstall');
+                    $btn.prop('disabled', false).html('{{ __('external_apps.external_apps.uninstall') }}');
                 }
             },
             error: function(xhr) {
                 $('#deleteModal').modal('hide');
                 const response = xhr.responseJSON || {};
-                showAlert(response.message || 'An error occurred', 'error');
-                $btn.prop('disabled', false).html('Uninstall');
+                showAlert(response.message || '{{ __('external_apps.external_apps.an_error_occurred') }}', 'error');
+                $btn.prop('disabled', false).html('{{ __('external_apps.external_apps.uninstall') }}');
             }
         });
     });

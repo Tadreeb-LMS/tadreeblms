@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Bundle;
 use App\Models\Category;
-use App\Models\{EmployeeProfile, Course, courseAssignment, CourseAssignmentToUser, LearningPathwayCourse, LiveSession, LiveSessionAttendance};
+use App\Models\{EmployeeProfile, Course, Lesson, courseAssignment, CourseAssignmentToUser, LearningPathwayCourse, LiveSession, LiveSessionAttendance};
 use App\Models\Auth\{User};
 use App\Models\Review;
 use App\Models\Stripe\SubscribeCourse;
@@ -41,6 +41,12 @@ class CoursesController extends Controller
             $path = 'frontend-rtl';
         }
         $this->path = $path;
+    }
+
+    private function courseLessonTimelineQuery(Course $course)
+    {
+        return $course->courseTimeline()
+            ->where('model_type', Lesson::class);
     }
 
     /**
@@ -245,13 +251,13 @@ class CoursesController extends Controller
             $course_lessons = $course->lessons->pluck('id')->toArray();
             //dd($course_lessons);
 
-            $continue_course = $course->courseTimeline()
+            $continue_course = $this->courseLessonTimelineQuery($course)
                 ->whereIn('model_id', $course_lessons)
                 ->orderby('sequence', 'asc')
                 ->whereNotIn('model_id', $completed_lessons)
                 ->first();
             if ($continue_course == null) {
-                $continue_course = $course->courseTimeline()
+                $continue_course = $this->courseLessonTimelineQuery($course)
                     ->whereIn('model_id', $course_lessons)
                     ->orderby('sequence', 'asc')->first();
             }
@@ -267,9 +273,9 @@ class CoursesController extends Controller
             $total_ratings = $course->reviews()->where('rating', '!=', "")->get()->count();
         }
         if (!empty($course_lessons)) {
-            $lessons = $course->courseTimeline()->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
         } else {
-            $lessons = $course->courseTimeline()->orderby('id', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->orderby('id', 'asc')->get();
         }
         $checkSubcribePlan = [];
 
@@ -327,6 +333,15 @@ class CoursesController extends Controller
     ->where('course_id', $course_id)
     ->first();
 
+        $nextTasks = $subscribe_data ? CustomHelper::getNextTask($subscribe_data, $course_id) : [
+            'download_certificate' => false,
+            'open_assesment' => false,
+            'open_feedback' => false,
+            'reattempt_assesment' => false,
+            'completed_assesment' => false,
+            'failed_in_assesment_all_attempts' => false,
+        ];
+
 // E-Learning courses do not depend on assignment due dates.
 if (!$this->isLiveCourse($course) && $subscribe_data) {
     $subscribe_data->due_date = null;
@@ -341,6 +356,11 @@ $hasAssessmentLink = $subscribe_data ? ($subscribe_data->has_assesment ?? 0) : 0
 $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
             $courseFeedbackLink = '';
             $lessonController = new LessonsController;
+            $assessment_link = '';
+
+            if ($hasAssessmentLink) {
+                $assessment_link = $lessonController->assessmentLink($logged_in_user_id, $course_id);
+            }
 
             $isGrantCertificate = $subscribe_data ? ($subscribe_data->grant_certificate ?? false) : false;
 
@@ -481,13 +501,13 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
                 $course_lessons = $course->lessons->pluck('id')->toArray();
                 //dd($course_lessons);
 
-                $continue_course = $course->courseTimeline()
+                $continue_course = $this->courseLessonTimelineQuery($course)
                     ->whereIn('model_id', $course_lessons)
                     ->orderby('sequence', 'asc')
                     ->whereNotIn('model_id', $completed_lessons)
                     ->first();
                 if ($continue_course == null) {
-                    $continue_course = $course->courseTimeline()
+                    $continue_course = $this->courseLessonTimelineQuery($course)
                         ->whereIn('model_id', $course_lessons)
                         ->orderby('sequence', 'asc')->first();
                 }
@@ -513,9 +533,9 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
                     $total_ratings = $course->reviews()->where('rating', '!=', "")->get()->count();
                 }
                 if (!empty($course_lessons)) {
-                    $lessons = $course->courseTimeline()->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
+                    $lessons = $this->courseLessonTimelineQuery($course)->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
                 } else {
-                    $lessons = $course->courseTimeline()->orderby('id', 'asc')->get();
+                    $lessons = $this->courseLessonTimelineQuery($course)->orderby('id', 'asc')->get();
                 }
                 $checkSubcribePlan = [];
 
@@ -537,7 +557,7 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
 
                 $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
 
-                return view($this->path . '.courses.course', compact('nextTasks','has_subscribtion','isGrantCertificate','hasFeedBack','feedback_given','is_course_started','is_course_completed','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
+                return view($this->path . '.courses.course', compact('assessment_link','nextTasks','has_subscribtion','isGrantCertificate','hasFeedBack','feedback_given','is_course_started','is_course_completed','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
 
             }
             
@@ -624,13 +644,13 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             $course_lessons = $course->lessons->pluck('id')->toArray();
             //dd($course_lessons);
 
-            $continue_course = $course->courseTimeline()
+            $continue_course = $this->courseLessonTimelineQuery($course)
                 ->whereIn('model_id', $course_lessons)
                 ->orderby('sequence', 'asc')
                 ->whereNotIn('model_id', $completed_lessons)
                 ->first();
             if ($continue_course == null) {
-                $continue_course = $course->courseTimeline()
+                $continue_course = $this->courseLessonTimelineQuery($course)
                     ->whereIn('model_id', $course_lessons)
                     ->orderby('sequence', 'asc')->first();
             }
@@ -646,9 +666,9 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             $total_ratings = $course->reviews()->where('rating', '!=', "")->get()->count();
         }
         if (!empty($course_lessons)) {
-            $lessons = $course->courseTimeline()->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
         } else {
-            $lessons = $course->courseTimeline()->orderby('id', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->orderby('id', 'asc')->get();
         }
         $checkSubcribePlan = [];
 
@@ -671,7 +691,7 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
 
         $isHostRole = \Auth::check() && (\Auth::user()->isAdmin() || \Auth::user()->hasRole('teacher'));
 
-        return view($this->path . '.courses.course', compact('hasFeedBack','feedback_given','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
+        return view($this->path . '.courses.course', compact('assessment_link','nextTasks','hasFeedBack','feedback_given','end_meeting_attend_time','lessonCount', 'course', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons', 'total_ratings', 'is_reviewed', 'lessons', 'continue_course', 'checkSubcribePlan', 'courseInPlan', 'countries', 'liveSessions', 'isHostRole'));
     }
 
     public function coursePreview($course_slug)
@@ -946,9 +966,9 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             $total_ratings = $course->reviews()->where('rating', '!=', "")->get()->count();
         }
         if (!empty($course_lessons)) {
-            $lessons = $course->courseTimeline()->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->whereIn('model_id', $course_lessons)->orderby('id', 'asc')->get();
         } else {
-            $lessons = $course->courseTimeline()->orderby('id', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->orderby('id', 'asc')->get();
         }
         $checkSubcribePlan = [];
 
@@ -1098,7 +1118,7 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             $purchased_course = \Auth::check() && $course->students()->where('user_id', \Auth::id())->count() > 0;
             $course_rating = 0;
             $total_ratings = 0;
-            $lessons = $course->courseTimeline()->orderby('sequence', 'asc')->get();
+            $lessons = $this->courseLessonTimelineQuery($course)->orderby('sequence', 'asc')->get();
 
             if ($course->reviews->count() > 0) {
                 $course_rating = $course->reviews->avg('rating');

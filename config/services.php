@@ -141,4 +141,18 @@ return [
         'scopes'        => [],
         'with'          => [],
     ],
+
+    'github_docs' => [
+        'enabled' => env('GITHUB_DOCS_SYNC_ENABLED', false),
+        'auto_sync_approved' => env('GITHUB_DOCS_AUTO_SYNC_APPROVED', false),
+        'use_pull_requests' => env('GITHUB_DOCS_USE_PULL_REQUESTS', true),
+        'token' => env('GITHUB_DOCS_TOKEN'),
+        'owner' => env('GITHUB_DOCS_OWNER'),
+        'repo' => env('GITHUB_DOCS_REPO'),
+        'branch' => env('GITHUB_DOCS_BRANCH', 'main'),
+        'path_prefix' => env('GITHUB_DOCS_PATH_PREFIX', 'docs/language-library'),
+        'pull_request_title_prefix' => env('GITHUB_DOCS_PR_TITLE_PREFIX', 'chore(i18n)'),
+        'committer_name' => env('GITHUB_DOCS_COMMITTER_NAME', 'TadreebLMS Bot'),
+        'committer_email' => env('GITHUB_DOCS_COMMITTER_EMAIL', 'noreply@tadreeblms.com'),
+    ],
 ];

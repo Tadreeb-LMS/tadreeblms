@@ -216,6 +216,17 @@
                 </div>
             </div>
 
+            <div class="row d-none">
+                <div class="col-md-12 form-group">
+                    <input type="hidden" name="include_in_kpi" value="0">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="include_in_kpi" name="include_in_kpi" value="1" {{ old('include_in_kpi', $course->include_in_kpi ? 1 : 0) ? 'checked' : '' }}>
+                        <label class="custom-control-label" for="include_in_kpi">Include this course in KPI calculations</label>
+                    </div>
+                    <small class="form-text text-muted">Disable to exclude this course from KPI calculations, even if its category is mapped to a KPI.</small>
+                </div>
+            </div>
+
                 <div class="form-group">
                     <label for="course_code" class="control-label">Course Code *</label>
                     <input class="form-control" placeholder="Course code" name="course_code" type="text" value="{{ old('course_code', $course->course_code) }}">
@@ -611,7 +622,7 @@
 
     <div class="col-md-6 d-none" id="price_field">
 
-        <label for="price" class="font-weight-bold">Course Price</label>
+        <label for="price" class="font-weight-bold">{{ __('labels.backend.courses.fields.price') }}</label>
 
         <div class="input-group price-box">
             <div class="input-group-prepend">

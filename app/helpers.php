@@ -20,6 +20,103 @@ if (!function_exists('app_name')) {
     }
 }
 
+if (!function_exists('locale_flag_emoji')) {
+    /**
+     * Return a representative flag emoji for a locale.
+     */
+    function locale_flag_emoji($locale)
+    {
+        $language = strtolower(trim((string) $locale));
+        $language = preg_split('/[-_]/', $language)[0] ?? $language;
+
+        $flags = [
+            'ar' => '🇸🇦',
+            'de' => '🇩🇪',
+            'en' => '🇬🇧',
+            'es' => '🇪🇸',
+            'fr' => '🇫🇷',
+            'it' => '🇮🇹',
+            'ja' => '🇯🇵',
+            'ko' => '🇰🇷',
+            'nl' => '🇳🇱',
+            'pt' => '🇵🇹',
+            'ru' => '🇷🇺',
+            'tr' => '🇹🇷',
+            'zh' => '🇨🇳',
+        ];
+
+        return $flags[$language] ?? '🏳';
+    }
+}
+
+if (!function_exists('locale_label')) {
+    /**
+     * Return the translated locale name with a flag prefix.
+     */
+    function locale_label($locale)
+    {
+        $normalizedLocale = strtolower(trim((string) $locale));
+        $translatedLabel = trans('menus.language_picker.langs.' . $normalizedLocale, [], 'en');
+        $fallbackLabel = strtoupper($normalizedLocale);
+        $label = $translatedLabel === 'menus.language_picker.langs.' . $normalizedLocale
+            ? $fallbackLabel
+            : $translatedLabel;
+
+        return trim(locale_flag_emoji($normalizedLocale) . ' ' . $label);
+    }
+}
+
+if (!function_exists('theme_layout_id')) {
+    /**
+     * Resolve any theme layout value (id, appN, slug) to canonical numeric id.
+     */
+    function theme_layout_id($value = null)
+    {
+        $layouts = (array) config('theme_layouts.layouts', []);
+        $aliases = (array) config('theme_layouts.aliases', []);
+        $default = (string) config('theme_layouts.default', '1');
+
+        if ($value === null || $value === '') {
+            $value = config('theme_layout', $default);
+        }
+
+        $value = strtolower(trim((string) $value));
+        $id = $aliases[$value] ?? null;
+
+        if ($id === null && array_key_exists($value, $layouts)) {
+            $id = $value;
+        }
+
+        if ($id === null || !array_key_exists((string) $id, $layouts)) {
+            $id = $default;
+        }
+
+        return (string) $id;
+    }
+}
+
+if (!function_exists('theme_layout_slug')) {
+    /**
+     * Return semantic slug of current/selected theme layout.
+     */
+    function theme_layout_slug($value = null)
+    {
+        $id = theme_layout_id($value);
+        return (string) data_get(config('theme_layouts.layouts'), $id . '.slug', 'classic');
+    }
+}
+
+if (!function_exists('theme_layout_name')) {
+    /**
+     * Return display name of current/selected theme layout.
+     */
+    function theme_layout_name($value = null)
+    {
+        $id = theme_layout_id($value);
+        return (string) data_get(config('theme_layouts.layouts'), $id . '.name', 'Classic');
+    }
+}
+
 if (!function_exists('gravatar')) {
     /**
      * Access the gravatar helper.

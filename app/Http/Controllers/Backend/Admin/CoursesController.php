@@ -699,10 +699,9 @@ class CoursesController extends Controller
 
             $uniqueId = uniqid();
 
-            if (!$request->category_id) {
-                $defaultCategory = Category::first();   // get any existing category
-                $request->merge(['category_id' => $defaultCategory->id]);
-            }
+            $request->merge([
+                'include_in_kpi' => $request->boolean('include_in_kpi', true),
+            ]);
 
             if ($request->course_type !== 'Offline') {
                 $request->merge([
@@ -1235,6 +1234,11 @@ $teachers = [$teacherId];
                 'meeting_start_at' => null,
                 'meeting_duration' => null,
                 'meeting_timezone' => null,
+                'include_in_kpi' => $request->boolean('include_in_kpi', true),
+            ]);
+        } else {
+            $request->merge([
+                'include_in_kpi' => $request->boolean('include_in_kpi', true),
             ]);
         }
         

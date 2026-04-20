@@ -170,9 +170,7 @@
                 <div class="col-md-6 col-12 form-group frmbm10">
                 <div class="row">
                     <div class="col-md-8 col-12 form-group">
-                        <div> 
-                            Teachers
-                        </div>
+                        <div>{{ __('course_pages.admin_create.teachers') }}</div>
                         <div class="custom-select-wrapper mt-2">
 
     <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single">
@@ -219,10 +217,10 @@
 
             <div class="row">
                 <div class="col-md-8 col-12 form-group">
-                    <div>Category</div>
+                    <div>{{ __('course_pages.admin_create.category') }}</div>
                    <div class="custom-select-wrapper mt-2">
-    <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single">
-        <option value="">Select Category</option>
+    <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single" required>
+        <option value="">{{ __('course_pages.admin_create.select_category') }}</option>
         @foreach($categories as $id => $category)
             <option value="{{ $id }}" @if(old('category_id') == $id) selected @endif>
                 {{ $category }}
@@ -244,21 +242,32 @@
                 </div>
             </div>
 
+            <div class="row d-none">
+                <div class="col-md-12 form-group">
+                    <input type="hidden" name="include_in_kpi" value="0">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="include_in_kpi" name="include_in_kpi" value="1" {{ old('include_in_kpi', 1) ? 'checked' : '' }}>
+                        <label class="custom-control-label" for="include_in_kpi">Include this course in KPI calculations</label>
+                    </div>
+                    <small class="form-text text-muted">Turn off to exclude this course from KPI computations even when its category is mapped to a KPI.</small>
+                </div>
+            </div>
+
             <div class="row">
 
                 <div class="col-sm-12 col-lg-12 col-md-12 form-group">
-                    <label for="course_code" class="control-label">Course Code *</label>
-                    <input class="form-control" placeholder="Course code" name="course_code" type="text" value="{{ old('course_code') }}">
+                    <label for="course_code" class="control-label">{{ __('course_pages.admin_create.course_code') }} *</label>
+                    <input class="form-control" placeholder="{{ __('course_pages.admin_create.course_code_placeholder') }}" name="course_code" type="text" value="{{ old('course_code') }}">
                 </div>
                 <div class="col-md-12 col-lg-12 form-group">
                     <div>
-                        <label for="slug" class="control-label">{{ trans('Course Language') }}</label>
+                        <label for="slug" class="control-label">{{ __('course_pages.admin_index.course_language') }}</label>
                     </div>
                     <div class="custom-select-wrapper">
 
                         <select name="course_lang" class="form-control custom-select-box">
-                            <option value="english">English</option>
-                            <option value="arabic">Arabic</option>
+                            <option value="english">{{ __('course_pages.admin_create.english') }}</option>
+                            <option value="arabic">{{ __('course_pages.admin_create.arabic') }}</option>
                         </select>
                         <span class="custom-select-icon">
                             <i class="fa fa-chevron-down"></i>
@@ -328,13 +337,13 @@
                             </div> --}}
                 <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                     <div style="margin-bottom: 8px;">
-                        Course Image
+                        {{ __('course_pages.admin_create.course_image') }}
                     </div>
 
                    <div class="custom-file-upload-wrapper">
     <input type="file" name="course_image" id="customFileInput" class="custom-file-input">
     <label for="customFileInput" class="custom-file-label">
-        <i class="fa fa-upload mr-1"></i> Choose a file
+        <i class="fa fa-upload mr-1"></i> {{ __('course_pages.admin_create.choose_file') }}
     </label>
 </div>
 
@@ -376,26 +385,26 @@
 
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <input class="course-type mr-2 " type="radio" checked name="course_type" value="Online" /> E-Learning
-                    <input class="course-type ml-2 mr-2" type="radio" name="course_type" value="Offline" /> Live-Online
-                    <input class="course-type ml-2 mr-2" type="radio" name="course_type" value="Live-Classroom" /> Live-Classroom
+                    <input class="course-type mr-2 " type="radio" checked name="course_type" value="Online" /> {{ __('course_pages.admin_create.course_type_e_learning') }}
+                    <input class="course-type ml-2 mr-2" type="radio" name="course_type" value="Offline" /> {{ __('course_pages.admin_create.course_type_live_online') }}
+                    <input class="course-type ml-2 mr-2" type="radio" name="course_type" value="Live-Classroom" /> {{ __('course_pages.admin_create.course_type_live_classroom') }}
                 </div>
                 <span class="course-type-desc">
                     <span id="e-learning">
-                        E-Learning type course is a course which can be taken online.
+                        {{ __('course_pages.admin_create.e_learning_desc') }}
                     </span>
                     <span id="live-online" style="display: none;">
-                        Live-Online type course is a course can be done on goole meet/Zoom link.
+                        {{ __('course_pages.admin_create.live_online_desc') }}
                         @if(count($enabledMeetingProviders ?? []))
                             {{-- Meeting Provider & Timezone (always visible for Live-Online) --}}
                             <div class="card mt-3" id="meeting-provider-section">
                                 <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
+                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> {{ __('course_pages.admin_create.meeting_configuration') }}</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 form-group">
-                                            <label for="meeting_provider">Meeting Provider *</label>
+                                            <label for="meeting_provider">{{ __('course_pages.admin_create.meeting_provider') }} *</label>
                                             <select name="meeting_provider" id="meeting_provider" class="form-control">
                                                 @foreach($enabledMeetingProviders as $key => $label)
                                                     <option value="{{ $key }}">{{ $label }}</option>
@@ -403,22 +412,22 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label for="meeting_timezone">Timezone</label>
+                                            <label for="meeting_timezone">{{ __('course_pages.admin_create.timezone') }}</label>
                                             <input type="text" name="meeting_timezone" id="meeting_timezone" class="form-control" value="Asia/Riyadh">
                                         </div>
                                     </div>
                                     {{-- Single meeting fields hidden — only for backward compat if needed --}}
                                     <div class="row" id="single-meeting-fields" style="display:none;">
                                         <div class="col-md-4 form-group">
-                                            <label for="meeting_start_date">Start Date *</label>
+                                            <label for="meeting_start_date">{{ __('course_pages.admin_create.start_date') }} *</label>
                                             <input type="date" name="meeting_start_date" id="meeting_start_date" class="form-control" min="{{ date('Y-m-d') }}">
                                         </div>
                                         <div class="col-md-4 form-group">
-                                            <label for="meeting_start_time">Start Time *</label>
+                                            <label for="meeting_start_time">{{ __('course_pages.admin_create.start_time') }} *</label>
                                             <input type="time" name="meeting_start_time" id="meeting_start_time" class="form-control">
                                         </div>
                                         <div class="col-md-4 form-group">
-                                            <label for="meeting_duration">Duration (mins) *</label>
+                                            <label for="meeting_duration">{{ __('course_pages.admin_create.duration_mins') }} *</label>
                                             <input type="number" name="meeting_duration" id="meeting_duration" class="form-control" value="60">
                                             <input type="hidden" name="meeting_start_at" id="meeting_start_at">
                                         </div>
@@ -523,7 +532,7 @@
                         </div>
                     </span>
                     <span id="live-classroom" style="display: none;">
-                        Live-Classroom type course is a course can be happen on a specific classroom location.
+                        {{ __('course_pages.admin_create.live_classroom_desc') }}
                     </span>
                 </span>
 
@@ -534,20 +543,20 @@
 <div class="row mt-3">
     <div class="col-md-6">
 
-        <label class="font-weight-bold mb-2">Course Payment Type</label>
+        <label class="font-weight-bold mb-2">{{ __('course_pages.admin_create.course_payment_type') }}</label>
 
         <div class="payment-options">
 
             <label class="payment-card free-option">
                 <input type="radio" name="course_payment_type" value="Free" checked>
-                <span class="payment-title">Free</span>
-                <small class="payment-desc">Students can access this course for free</small>
+                <span class="payment-title">{{ __('course_pages.admin_create.free') }}</span>
+                <small class="payment-desc">{{ __('course_pages.admin_create.free_desc') }}</small>
             </label>
 
             <label class="payment-card paid-option">
                 <input type="radio" name="course_payment_type" value="Paid">
-                <span class="payment-title">Paid</span>
-                <small class="payment-desc">Students must pay to enroll</small>
+                <span class="payment-title">{{ __('course_pages.admin_create.paid') }}</span>
+                <small class="payment-desc">{{ __('course_pages.admin_create.paid_desc') }}</small>
             </label>
 
         </div>
@@ -556,7 +565,7 @@
 
     <div class="col-md-6 d-none" id="price_field">
 
-        <label for="price" class="font-weight-bold">Course Price</label>
+        <label for="price" class="font-weight-bold">{{ __('labels.backend.courses.fields.price') }}</label>
 
         <div class="input-group price-box">
             <div class="input-group-prepend">
@@ -567,7 +576,7 @@
                    name="price"
                    id="price"
                    class="form-control"
-                   placeholder="Enter course price"
+                     placeholder="{{ __('course_pages.admin_create.enter_course_price') }}"
                    min="1"
                    step="0.01">
         </div>
@@ -624,10 +633,10 @@
                                 {!! Form::submit(trans('strings.backend.general.app_save'), ['class' => 'btn btn-lg btn-danger']) !!}
                             </div> --}}
                             <div class="">
-                                <input class="btn add-btn frm_submit" id="doneBtn" type="submit" value="{{ trans('Save As Draft') }}">
+                                <input class="btn add-btn frm_submit" id="doneBtn" type="submit" value="{{ __('course_pages.admin_create.save_as_draft') }}">
                             </div>
                             <div class="">
-                                <input class="btn cancel-btn frm_submit" id="nextBtn" type="submit" value="{{ trans('Next') }}">
+                                <input class="btn cancel-btn frm_submit" id="nextBtn" type="submit" value="{{ __('course_pages.admin_create.next') }}">
                             </div>
     
                 </div>
@@ -678,7 +687,7 @@ function validateWeightage() {
 
     if (total > 100) {
         toastr.remove();
-        toastr.error('Total module weightage cannot exceed 100%.');
+        toastr.error('{{ __('course_pages.admin_create.weightage_limit_error') }}');
         return false;
     }
     return true;
@@ -693,7 +702,7 @@ document.querySelectorAll('.sm-input').forEach(function(input) {
         if (total > 100) {
             input.value = '';
             toastr.remove();
-            toastr.error('Total module weightage cannot exceed 100%');
+            toastr.error('{{ __('course_pages.admin_create.weightage_limit_error') }}');
         }
     });
 });
@@ -758,7 +767,7 @@ $('#expire_at').datepicker({
             var selectedTime = $(this).val();
             var minTime = $(this).attr('min');
             if (selectedTime && minTime && selectedTime < minTime) {
-                alert('Meeting start time cannot be in the past for today.');
+                alert('{{ __('course_pages.admin_create.meeting_time_past_error') }}');
                 $(this).val('');
             }
         }
@@ -875,7 +884,7 @@ $(document).ready(function () {
     <script>
         var nxt_url_val = '';
         $('.frm_submit').on('click', function() {
-            nxt_url_val = $(this).val();
+            nxt_url_val = $(this).attr('id');
         });
         $('#addCourse').on('submit', function(e) {
             e.preventDefault();
@@ -918,24 +927,24 @@ $(document).ready(function () {
 
         if (courseType !== 'Online') {
     if (!startDateVal || !expireDateVal) {
-        alert('Start Date and Expire Date are required.');
+        alert('{{ __('course_pages.admin_create.start_expire_required') }}');
         return false;
     }
 
             if (startDateVal && expireDateVal && expireDateVal < startDateVal) {
-                showInlineError('#expire_at', 'Expire Date cannot be earlier than Start Date.');
+                showInlineError('#expire_at', '{{ __('course_pages.admin_create.expire_before_start_error') }}');
                 hasError = true;
             }
 
             var today = new Date().toISOString().slice(0, 10);
 
 if (!startDateVal || !expireDateVal) {
-    alert('Start Date and Expire Date are required.');
+    alert('{{ __('course_pages.admin_create.start_expire_required') }}');
     return false;
 }
 
 if (expireDateVal < startDateVal) {
-    alert('Expire Date cannot be earlier than Start Date.');
+    alert('{{ __('course_pages.admin_create.expire_before_start_error') }}');
     return false;
 }
 
@@ -943,7 +952,7 @@ if (expireDateVal < startDateVal) {
 var today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
 
 if (startDateVal < today) {
-    alert('Start Date cannot be earlier than today.');
+    alert('{{ __('course_pages.admin_create.start_before_today_error') }}');
         return false;
     }
 }
@@ -986,11 +995,11 @@ if (startDateVal < today) {
                         redirect_url = res.redirect_url;
 
                         if (last_part == null || last_part == undefined || last_part == '') {
-                            if (nxt_url_val == 'Next') {
+                            if (nxt_url_val == 'nextBtn') {
                                 window.location.href = redirect_url + '&uuid=' + res.temp_id;
                                 return;
                             }
-                            if (nxt_url_val == 'Done') {
+                            if (nxt_url_val == 'doneBtn') {
                                 window.location.href = redirect_url_course;
                                 return;
                             } else {
@@ -999,7 +1008,7 @@ if (startDateVal < today) {
                             }
                         }
 
-                        if (nxt_url_val == 'Done' && last_part == 'course_new') {
+                        if (nxt_url_val == 'doneBtn' && last_part == 'course_new') {
                             window.location.href = redirect_url_assi;
                             return;
                         } else {
@@ -1024,7 +1033,7 @@ if (startDateVal < today) {
     document.querySelectorAll('.custom-file-input').forEach(function(input) {
         input.addEventListener('change', function(e) {
             const label = input.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
+            const fileName = e.target.files.length > 0 ? e.target.files[0].name : '{{ __('course_pages.admin_create.choose_file') }}';
             label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
         });
     });
