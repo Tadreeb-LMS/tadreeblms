@@ -36,7 +36,7 @@ class KpiSnapshotService
             return $this->attachLiveCalculations($kpis, $totalActiveWeight);
         }
 
-        $kpis->loadMissing('currentSnapshot', 'courses:id');
+        $kpis->loadMissing('currentSnapshot', 'courses:id', 'categories:id');
 
         $globalContext = $this->buildGlobalContext($totalActiveWeight);
         $globalContext['course_scope_signature'] = $this->buildCourseScopeSignatures($kpis);
@@ -223,16 +223,18 @@ class KpiSnapshotService
         $signatures = [];
 
         foreach ($kpis as $kpi) {
-            $courseIds = $kpi->courses
-                ->pluck('id')
-                ->map(function ($id) {
-                    return (int) $id;
-                })
-                ->filter()
-                ->unique()
-                ->sort()
-                ->values()
-                ->toArray();
+            $courseIds = method_exists($kpi, 'resolveScopedCourseIds')
+                ? collect($kpi->resolveScopedCourseIds())->sort()->values()->toArray()
+                : $kpi->courses
+                    ->pluck('id')
+                    ->map(function ($id) {
+                        return (int) $id;
+                    })
+                    ->filter()
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->toArray();
 
             $signatures[$kpi->id] = sha1(implode(',', $courseIds));
         }

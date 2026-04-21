@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CommissionRateSeeder::class);
         $this->call(EventsSeeder::class);
         $this->call(NewsSeeder::class);
+        $this->call(KpiTypeSeeder::class);
         $this->call(KpiSeeder::class);
         $this->call(KpiLifecycleSeeder::class);
         $this->call(LmsEventCaptureSeeder::class);

@@ -7,7 +7,7 @@ use App\Http\Controllers\LessonsController;
 use App\Models\Auth\User;
 use App\Models\Course;
 use App\Models\Category;
-use App\Models\CourseAssignment;
+use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
 use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
@@ -842,7 +842,7 @@ class CustomHelper
     {
 
         if (Auth::user()) {
-            $is_course_assigned = CourseAssignment::where('course_id', $course_id)->whereRaw("FIND_IN_SET(?, assign_to)", [Auth::user()->id])->count();
+            $is_course_assigned = courseAssignment::where('course_id', $course_id)->whereRaw("FIND_IN_SET(?, assign_to)", [Auth::user()->id])->count();
             //dd($is_course_assigned);
             if ($is_course_assigned > 0) {
                 return 1;
@@ -1086,7 +1086,7 @@ class CustomHelper
 
     public static function syncCourseAssignmentAndSubscribeCourseData()
     {
-        $cas = CourseAssignment::get();
+        $cas = courseAssignment::get();
 
         foreach ($cas as $ca) {
             if (strpos($ca->assign_to, ',') !== false) {
@@ -1721,7 +1721,7 @@ class CustomHelper
 
             if (!empty($employee_profile) && !empty($logged_in_department_id)) {
 
-                $assignment = CourseAssignment::with(['assessment', 'assessment.course'])
+                $assignment = courseAssignment::with(['assessment', 'assessment.course'])
                     ->whereRaw('FIND_IN_SET(?, assign_to) > 0', $logged_in_user_id)
                     ->where('course_assignment.course_id', $course_id)
                     ->whereNotNull('course_id')
@@ -1733,7 +1733,7 @@ class CustomHelper
 
 
             if (!isset($assignment)) {
-                $assignment = CourseAssignment::with(['assessment', 'assessment.course'])
+                $assignment = courseAssignment::with(['assessment', 'assessment.course'])
                     ->where('assign_to', $logged_in_user_id)
                     ->where('course_assignment.course_id', $course_id)
                     ->latest('course_assignment.id')
@@ -1764,7 +1764,7 @@ class CustomHelper
         $logged_in_department_id = $employee_profile ? $employee_profile->department : null;
 
         if (!empty($employee_profile) && !empty($logged_in_department_id)) {
-            $assignment = CourseAssignment::with(['assessment', 'assessment.course'])
+            $assignment = courseAssignment::with(['assessment', 'assessment.course'])
                 ->whereRaw('FIND_IN_SET(?, assign_to) > 0', $logged_in_user_id)
                 ->where('course_assignment.course_id', $course_id)
                 ->whereNotNull('course_id')
@@ -1773,7 +1773,7 @@ class CustomHelper
         }
 
         if (!isset($assignment)) {
-            $assignment = CourseAssignment::with(['assessment', 'assessment.course'])
+            $assignment = courseAssignment::with(['assessment', 'assessment.course'])
                 ->where('assign_to', $logged_in_user_id)
                 ->where('course_assignment.course_id', $course_id)
                 ->latest('course_assignment.id')

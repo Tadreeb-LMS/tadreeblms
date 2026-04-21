@@ -108,4 +108,28 @@ class KpiProcessingEngineTest extends TestCase
         $this->assertSame(0.0, $zeroTotalWeight['weighted_score']);
         $this->assertFalse($zeroTotalWeight['excluded']);
     }
+
+    #[Test]
+    public function it_safely_handles_null_and_negative_weights()
+    {
+        $engine = new KpiProcessingEngine();
+
+        $nullWeight = $engine->calculate([
+            'type' => 'completion',
+            'weight' => null,
+            'is_active' => true,
+        ], ['value' => 80], 100.0);
+
+        $negativeWeight = $engine->calculate([
+            'type' => 'completion',
+            'weight' => -15,
+            'is_active' => true,
+        ], ['value' => 80], 100.0);
+
+        $this->assertSame(80.0, $nullWeight['value']);
+        $this->assertSame(0.0, $nullWeight['weighted_score']);
+
+        $this->assertSame(80.0, $negativeWeight['value']);
+        $this->assertSame(0.0, $negativeWeight['weighted_score']);
+    }
 }

@@ -41,7 +41,11 @@
                         <select id="type" name="type" class="form-control" required>
                             <option value="">Select a KPI type</option>
                             @foreach($kpiTypes as $typeKey => $typeConfig)
-                                <option value="{{ $typeKey }}" {{ old('type', $kpi->type) === $typeKey ? 'selected' : '' }}>
+                                <option
+                                    value="{{ $typeKey }}"
+                                    title="{{ $typeConfig['description'] ?? '' }}"
+                                    {{ old('type', $kpi->type) === $typeKey ? 'selected' : '' }}
+                                >
                                     {{ $typeConfig['label'] }}
                                 </option>
                             @endforeach
@@ -63,12 +67,33 @@
                             required
                         >
                         <small class="form-text text-muted">Allowed range: 0 to {{ $maxWeight }}.</small>
+                        <div class="mt-2 small text-muted">
+                            Current active total: <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
+                            <br>
+                            Projected active total after save: <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight - ($kpi->is_active ? (float) $kpi->weight : 0) + (float) old('weight', $kpi->weight), 2) }}</strong>
+                        </div>
+                        <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-12 form-group">
-                        <label for="course_ids">Associated Courses</label>
+                        <label for="category_ids">Mapped Course Categories *</label>
+                        @php
+                            $selectedCategoryIds = old('category_ids', $kpi->categories->pluck('id')->toArray());
+                        @endphp
+                        <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ in_array($category->id, $selectedCategoryIds, true) ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">KPI calculations include only courses in selected categories where KPI inclusion is enabled.</small>
+                    </div>
+
+                    <div class="col-12 form-group">
+                        <label for="course_ids">Legacy Explicit Courses (Optional)</label>
                         @php
                             $selectedCourseIds = old('course_ids', $kpi->courses->pluck('id')->toArray());
                         @endphp
@@ -79,7 +104,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Leave empty to apply this KPI to all courses. Use Ctrl/Cmd + click to select specific courses.</small>
+                        <small class="form-text text-muted">Only used for backward compatibility. Category mapping is the primary KPI scope.</small>
                     </div>
 
                     <div class="col-12 form-group">
@@ -103,4 +128,64 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var weightInput = document.getElementById('weight');
+            var projectedTotalEl = document.getElementById('kpi-projected-active-total');
+            var warningEl = document.getElementById('kpi-weight-warning');
+
+            if (!weightInput || !projectedTotalEl || !warningEl) {
+                return;
+            }
+
+            var activeTotal = {{ (float) $activeTotalWeight }};
+            var isCurrentKpiActive = {{ $kpi->is_active ? 'true' : 'false' }};
+            var currentWeight = {{ (float) $kpi->weight }};
+            var baseActiveTotal = isCurrentKpiActive ? (activeTotal - currentWeight) : activeTotal;
+            var extremeThreshold = {{ (float) $extremeWeightThreshold }};
+            var validationEnabled = {{ !empty($totalWeightValidation['enabled']) ? 'true' : 'false' }};
+            var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+
+            function roundTwo(value) {
+                return Math.round(value * 100) / 100;
+            }
+
+            function updateWeightSummary() {
+                var weight = parseFloat(weightInput.value);
+                if (isNaN(weight) || weight < 0) {
+                    weight = 0;
+                }
+
+                var projectedTotal = roundTwo(baseActiveTotal + (isCurrentKpiActive ? weight : 0));
+                projectedTotalEl.textContent = projectedTotal.toFixed(2);
+
+                var warnings = [];
+                if (weight >= extremeThreshold) {
+                    warnings.push('This weight is in the extreme range and may dominate final KPI scoring.');
+                }
+
+                if (!validationEnabled && projectedTotal <= 0) {
+                    warnings.push('Projected active total is 0, so weighted scores will all be 0.');
+                }
+
+                if (validationEnabled && isCurrentKpiActive && Math.abs(projectedTotal - validationTarget) > validationTolerance) {
+                    warnings.push('Projected total is outside the strict validation target range.');
+                }
+
+                if (warnings.length === 0) {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    return;
+                }
+
+                warningEl.style.display = 'block';
+                warningEl.textContent = warnings.join(' ');
+            }
+
+            weightInput.addEventListener('input', updateWeightSummary);
+            updateWeightSummary();
+        })();
+    </script>
 @endsection

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Auth\User;
+use App\Services\Kpi\KpiTypeCatalog;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -50,6 +52,11 @@ class Kpi extends Model
         return $this->belongsToMany(Course::class, 'kpi_course')->withTimestamps();
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'kpi_category')->withTimestamps();
+    }
+
     public function snapshots()
     {
         return $this->hasMany(KpiSnapshot::class);
@@ -62,6 +69,108 @@ class Kpi extends Model
 
     public function getTypeLabelAttribute()
     {
-        return config('kpi.types.' . $this->type . '.label', ucfirst($this->type));
+        return app(KpiTypeCatalog::class)->getLabelForType((string) $this->type);
+    }
+
+    /**
+     * Resolve all course IDs that should be included for this KPI.
+     * Priority: category-mapped + include_in_kpi=true, then legacy explicit course mapping.
+     *
+     * @return int[]
+     */
+    public function resolveScopedCourseIds(): array
+    {
+        $categoryIds = $this->relationLoaded('categories')
+            ? $this->categories->pluck('id')->toArray()
+            : $this->categories()->pluck('categories.id')->toArray();
+
+        $categoryIds = collect($categoryIds)
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (!empty($categoryIds) && Schema::hasTable('courses')) {
+            $query = Course::query()->whereIn('category_id', $categoryIds);
+
+            if (Schema::hasColumn('courses', 'include_in_kpi')) {
+                $query->where('include_in_kpi', true);
+            }
+
+            if (Schema::hasColumn('courses', 'deleted_at')) {
+                $query->whereNull('deleted_at');
+            }
+
+            return $query->pluck('id')->map(function ($id) {
+                return (int) $id;
+            })->values()->toArray();
+        }
+
+        $legacyCourseIds = $this->relationLoaded('courses')
+            ? $this->courses->pluck('id')->toArray()
+            : $this->courses()->pluck('courses.id')->toArray();
+
+        return collect($legacyCourseIds)
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Resolve all course IDs that should be included for this KPI.
+     * Priority: category-mapped + include_in_kpi=true, then legacy explicit course mapping.
+     *
+     * @return int[]
+     */
+    public function resolveScopedCourseIds(): array
+    {
+        $categoryIds = $this->relationLoaded('categories')
+            ? $this->categories->pluck('id')->toArray()
+            : $this->categories()->pluck('categories.id')->toArray();
+
+        $categoryIds = collect($categoryIds)
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (!empty($categoryIds) && Schema::hasTable('courses')) {
+            $query = Course::query()->whereIn('category_id', $categoryIds);
+
+            if (Schema::hasColumn('courses', 'include_in_kpi')) {
+                $query->where('include_in_kpi', true);
+            }
+
+            if (Schema::hasColumn('courses', 'deleted_at')) {
+                $query->whereNull('deleted_at');
+            }
+
+            return $query->pluck('id')->map(function ($id) {
+                return (int) $id;
+            })->values()->toArray();
+        }
+
+        $legacyCourseIds = $this->relationLoaded('courses')
+            ? $this->courses->pluck('id')->toArray()
+            : $this->courses()->pluck('courses.id')->toArray();
+
+        return collect($legacyCourseIds)
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
     }
 }

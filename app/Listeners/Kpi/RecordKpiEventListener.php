@@ -3,7 +3,12 @@
 namespace App\Listeners\Kpi;
 
 use App\Events\Kpi\KpiEvent;
+use App\Jobs\Kpi\ProcessUserKpiJob;
+use App\Models\Kpi;
+use App\Services\Kpi\KpiEventIncrementalApplier;
 use App\Services\LmsEventRecorder;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -26,8 +31,16 @@ use Illuminate\Support\Facades\Log;
  *
  * Never throws exceptions (following LmsEventRecorder's fail-safe design).
  */
-class RecordKpiEventListener
+class RecordKpiEventListener implements ShouldQueue
 {
+    use InteractsWithQueue;
+
+    public $tries = 3;
+
+    public $backoff = [10, 30, 120];
+
+    public $queue = 'kpi';
+
     /**
      * LMS event recorder service.
      *
@@ -70,6 +83,46 @@ class RecordKpiEventListener
                 'event_type' => $eventType,
                 'user_id' => $userId,
             ]);
+
+            return;
         }
+
+        if (!$userId) {
+            return;
+        }
+
+        $kpiIds = $this->resolveTargetKpiIds($eventType);
+        foreach ($kpiIds as $kpiId) {
+            ProcessUserKpiJob::dispatch((int) $userId, (int) $kpiId);
+        }
+    }
+
+    /**
+     * @param string $eventType
+     * @return int[]
+     */
+    protected function resolveTargetKpiIds(string $eventType): array
+    {
+        $kpiTypes = collect(KpiEventIncrementalApplier::EVENT_TYPE_MAP)
+            ->filter(function (array $eventTypes) use ($eventType) {
+                return in_array($eventType, $eventTypes, true);
+            })
+            ->keys()
+            ->values()
+            ->toArray();
+
+        if (empty($kpiTypes)) {
+            return [];
+        }
+
+        return Kpi::query()
+            ->where('is_active', true)
+            ->whereIn('type', $kpiTypes)
+            ->pluck('id')
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->values()
+            ->toArray();
     }
 }
