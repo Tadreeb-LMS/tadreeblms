@@ -1,14 +1,17 @@
-import {shallow} from '@vue/test-utils';
-import Example from '../../resources/js/frontend/components/ExampleComponent.vue';
-
-describe('Example', () => {
-    let wrapper;
-
+describe('bootstrap', () => {
     beforeEach(() => {
-        wrapper = shallow(Example);
+        jest.resetModules();
+        document.head.innerHTML = '<meta name="csrf-token" content="test-token">';
     });
 
-    it('should say it is an example component', function () {
-        expect(wrapper.html()).toContain("I'm an example Vue component!");
+    it('registers the shared frontend globals', () => {
+        require('../../resources/js/bootstrap');
+
+        expect(window.$).toBeDefined();
+        expect(window.jQuery).toBe(window.$);
+        expect(window._).toBeDefined();
+        expect(window.swal).toBeDefined();
+        expect(window.axios.defaults.headers.common['X-Requested-With']).toBe('XMLHttpRequest');
+        expect(window.axios.defaults.headers.common['X-CSRF-TOKEN']).toBe('test-token');
     });
 });

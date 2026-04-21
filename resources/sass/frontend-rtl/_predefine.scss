@@ -44,7 +44,7 @@ div#preloader {
 	height: 100%;
 	overflow: visible;
 	background-color: #fff;
-	background: #fff url('../img/preloader.gif') no-repeat center center;
+	background: #fff url('img/preloader.gif') no-repeat center center;
 }
 a {
 	text-decoration:none;
@@ -174,25 +174,28 @@ h1,h2,h3,h4,h5,h6 {
 .bold-font {
 	font-weight: 700;
 }
+%section-title-subtitle-marker {
+	content: ".";
+	font-size: 70px;
+	left: -45px;
+	pointer-events: none;
+	position: absolute;
+	text-shadow: rgba(0, 0, 0, 0) 0px 0px;
+	top: -10px;
+	line-height: 0;
+	color: $base-color-2;
+	text-shadow: 15px 0 $base-color-2;
+}
 .section-title {
 	.subtitle {
 		color: #cccccc;
 		letter-spacing: 7px;
 		position: relative;
 		&:before {
-			content: ".";
-			font-size: 70px;
-			left: -45px;
-			pointer-events: none;
-			position: absolute;
-			text-shadow: rgba(0, 0, 0, 0) 0px 0px;
-			top: -10px;
-			line-height: 0;
-			color: $base-color-2;
-			text-shadow: 15px 0 $base-color-2;
+			@extend %section-title-subtitle-marker;
 		}
 		&:after {
-			@extend .subtitle:before;
+			@extend %section-title-subtitle-marker;
 			right: -28px;
 			left: inherit
 		}

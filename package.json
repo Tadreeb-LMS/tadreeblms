@@ -1,59 +1,66 @@
 {
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "npm run development",
-    "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "watch": "npm run development -- --watch",
-    "watch-poll": "npm run watch -- --watch-poll",
-    "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "development": "mix",
+    "watch": "mix watch",
+    "watch-poll": "mix watch -- --watch-poll",
+    "hot": "mix watch --hot",
     "prod": "npm run production",
-    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "production": "mix --production",
     "test": "cross-env NODE_ENV=test jest",
     "tdd": "npm run test -- --watch --notify"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@coreui/coreui": "^2.0.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.2",
     "@fortawesome/free-brands-svg-icons": "^5.2.0",
     "@fortawesome/free-regular-svg-icons": "^5.2.0",
     "@fortawesome/free-solid-svg-icons": "^5.2.0",
-    "@vue/test-utils": "^1.0.0-beta.10",
-    "axios": "^0.18",
-    "babel-jest": "^22.1.0",
+    "axios": "^1.6",
+    "babel-jest": "^29.7.0",
     "bootstrap": "^4.0.0",
-    "cross-env": "^5.1",
+    "cross-env": "^7.0",
     "font-awesome": "^4.7.0",
-    "jest": "^22.1.4",
-    "jest-vue-preprocessor": "^1.3.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jquery": "^3.2",
-    "laravel-mix": "^2.0",
+    "laravel-mix": "^6.0",
     "lodash": "^4.17.5",
     "pace": "github:HubSpot/pace#v1.0.2",
     "perfect-scrollbar": "^1.4.0",
     "popper.js": "^1.12.4",
+    "resolve-url-loader": "^5.0.0",
+    "sass": "^1.0.0",
+    "sass-loader": "^12.0.0",
     "simple-line-icons": "^2.4.1",
     "sweetalert2": "^7.0.7",
-    "vue": "^2.5.17"
+    "webpack-cli": "^4.9.2"
   },
   "jest": {
-    "testURL": "http://localhost",
+    "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "url": "http://localhost"
+    },
     "roots": [
       "<rootDir>/tests/Javascript/"
     ],
-    "moduleNameMapper": {
-      "^vue$": "vue/dist/vue.common.js"
-    },
     "moduleFileExtensions": [
-      "js",
-      "vue"
+      "js"
     ],
     "transform": {
-      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
-      ".*\\.(vue)$": "<rootDir>/node_modules/jest-vue-preprocessor"
+      "^.+\\.js$": "babel-jest"
     }
   },
   "dependencies": {
-    "jquery-ui-dist": "^1.12.1",
-    "npm": "^6.6.0"
+    "jquery-ui-dist": "^1.12.1"
+  },
+  "overrides": {
+    "webpackbar": "6.0.1"
   }
 }
