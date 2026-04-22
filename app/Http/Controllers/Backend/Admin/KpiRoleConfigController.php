@@ -18,7 +18,7 @@ class KpiRoleConfigController extends Controller
      */
     public function index()
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_role_config_access')) {
             return abort(401);
         }
 
@@ -30,7 +30,9 @@ class KpiRoleConfigController extends Controller
             return $rows->keyBy('kpi_id');
         });
 
-        return view('backend.kpis.role_configs.index', compact('kpis', 'roles', 'overrides'));
+        $canManage = Gate::allows('kpi_role_config_edit');
+
+        return view('backend.kpis.role_configs.index', compact('kpis', 'roles', 'overrides', 'canManage'));
     }
 
     /**
@@ -39,7 +41,7 @@ class KpiRoleConfigController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_role_config_edit')) {
             return abort(401);
         }
 
@@ -73,7 +75,7 @@ class KpiRoleConfigController extends Controller
      */
     public function destroy(KpiRoleConfig $kpiRoleConfig)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_role_config_edit')) {
             return abort(401);
         }
 

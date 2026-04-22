@@ -5,8 +5,16 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
         <h4 class="mb-0">KPI Management</h4>
-        <a href="{{ route('admin.kpis.create') }}" class="add-btn">Add KPI</a>
+        @can('kpi_create')
+            <a href="{{ route('admin.kpis.create') }}" class="add-btn">Add KPI</a>
+        @endcan
     </div>
+
+    @cannot('kpi_edit')
+        <div class="alert alert-secondary">
+            Read-only mode: you can view KPI data, but only authorized users can create, edit, activate, or archive KPIs.
+        </div>
+    @endcannot
 
     <div class="alert alert-info">
         Active KPI total weight: <strong id="kpi-active-total-weight">{{ number_format($totalActiveWeight, 2) }}</strong>

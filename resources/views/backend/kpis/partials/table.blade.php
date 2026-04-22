@@ -110,20 +110,28 @@
                     </td>
                     <td>{{ optional($kpi->updated_at)->diffForHumans() }}</td>
                     <td class="text-center">
-                        <a href="{{ route('admin.kpis.edit', $kpi->id) }}" class="btn btn-sm btn-info">Edit</a>
+                        @can('kpi_edit')
+                            <a href="{{ route('admin.kpis.edit', $kpi->id) }}" class="btn btn-sm btn-info">Edit</a>
 
-                        <form method="POST" action="{{ route('admin.kpis.toggle-status', $kpi->id) }}" class="d-inline-block">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-warning">
-                                {{ $kpi->is_active ? 'Deactivate' : 'Activate' }}
-                            </button>
-                        </form>
+                            <form method="POST" action="{{ route('admin.kpis.toggle-status', $kpi->id) }}" class="d-inline-block">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    {{ $kpi->is_active ? 'Deactivate' : 'Activate' }}
+                                </button>
+                            </form>
+                        @endcan
 
-                        <form method="POST" action="{{ route('admin.kpis.destroy', $kpi->id) }}" class="d-inline-block" onsubmit="return confirm('Archive this KPI? It will be soft-deleted and historical records stay intact.');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">Archive</button>
-                        </form>
+                        @can('kpi_delete')
+                            <form method="POST" action="{{ route('admin.kpis.destroy', $kpi->id) }}" class="d-inline-block" onsubmit="return confirm('Archive this KPI? It will be soft-deleted and historical records stay intact.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">Archive</button>
+                            </form>
+                        @endcan
+
+                        @cannot('kpi_edit')
+                            <span class="text-muted small">Read-only</span>
+                        @endcannot
                     </td>
                 </tr>
             @empty

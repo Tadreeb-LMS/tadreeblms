@@ -17,7 +17,11 @@ class KpiRoleConfigTest extends TestCase
     {
         parent::setUp();
 
-        Gate::define('category_access', function () {
+        Gate::define('kpi_role_config_access', function () {
+            return true;
+        });
+
+        Gate::define('kpi_role_config_edit', function () {
             return true;
         });
     }
@@ -227,6 +231,53 @@ class KpiRoleConfigTest extends TestCase
 
         $response->assertSessionHasErrors('weight_override');
         $this->assertDatabaseMissing('kpi_role_configs', ['kpi_id' => $kpi->id]);
+    }
+
+    #[Test]
+    public function unauthorized_user_cannot_store_role_override(): void
+    {
+        Gate::define('kpi_role_config_edit', function () {
+            return false;
+        });
+
+        $this->loginAsAdmin();
+        $kpi = $this->makeKpi();
+        $role = $this->makeRole();
+
+        $response = $this->post(route('admin.kpi-role-configs.store'), [
+            'role_id' => $role->id,
+            'kpi_id' => $kpi->id,
+            'weight_override' => 1.0,
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseMissing('kpi_role_configs', [
+            'role_id' => $role->id,
+            'kpi_id' => $kpi->id,
+        ]);
+    }
+
+    #[Test]
+    public function unauthorized_user_cannot_delete_role_override(): void
+    {
+        Gate::define('kpi_role_config_edit', function () {
+            return false;
+        });
+
+        $this->loginAsAdmin();
+        $kpi = $this->makeKpi();
+        $role = $this->makeRole();
+
+        $override = KpiRoleConfig::query()->create([
+            'role_id' => $role->id,
+            'kpi_id' => $kpi->id,
+            'weight_override' => 2.0,
+        ]);
+
+        $response = $this->delete(route('admin.kpi-role-configs.destroy', $override->id));
+
+        $response->assertStatus(401);
+        $this->assertDatabaseHas('kpi_role_configs', ['id' => $override->id]);
     }
 
     // ——— KpiCalculationService integration test ———————————————————

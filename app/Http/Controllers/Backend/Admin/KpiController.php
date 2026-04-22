@@ -25,7 +25,7 @@ class KpiController extends Controller
 
     public function index(Request $request)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_access')) {
             return abort(401);
         }
 
@@ -167,7 +167,7 @@ class KpiController extends Controller
 
     public function create()
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_create')) {
             return abort(401);
         }
 
@@ -185,7 +185,7 @@ class KpiController extends Controller
 
     public function store(StoreKpiRequest $request)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_create')) {
             return abort(401);
         }
 
@@ -231,7 +231,7 @@ class KpiController extends Controller
 
     public function edit($kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
 
@@ -250,7 +250,7 @@ class KpiController extends Controller
 
     public function update(UpdateKpiRequest $request, $kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
 
@@ -299,7 +299,7 @@ class KpiController extends Controller
 
     public function toggleStatus($kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
 
@@ -322,7 +322,7 @@ class KpiController extends Controller
 
     public function destroy($kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_delete')) {
             return abort(401);
         }
 

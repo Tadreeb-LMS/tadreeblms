@@ -28,6 +28,9 @@ Route::get('setvaluesession/{type}', [DashboardController::class, 'setvaluesessi
 
 Route::group(['middleware' => ['role:administrator']], function () {
     Route::resource('roles', 'Admin\RolesController');
+});
+
+Route::group(['middleware' => ['role:teacher|administrator']], function () {
     Route::resource('kpis', 'Admin\KpiController')->except(['show']);
     Route::post('kpis/{kpi}/toggle-status', 'Admin\KpiController@toggleStatus')->name('kpis.toggle-status');
     Route::get('kpi-role-configs', 'Admin\KpiRoleConfigController@index')->name('kpi-role-configs.index');
