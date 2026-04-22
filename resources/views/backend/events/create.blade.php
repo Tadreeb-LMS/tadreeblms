@@ -9,7 +9,7 @@
 <div class="pb-3 d-flex justify-content-between align-items-center">
     <h4>Add Events</h4>
     <div >
-        <a href="{{ route('admin.events.index') }}" class="add-btn">View All</a>
+        <a href="{{ route('admin.events.index') }}" class="add-btn">@lang('labels.general.view_all')</a>
 
     </div>
 </div>
@@ -20,8 +20,8 @@
 
             <div class="col-md-3 mb-4 pl-0 mt-2 custom-select-wrapper">
                 <select name="lang" id="change-lang" class="form-control custom-select-box">
-                    <option value="en" @if (request()->lang == 'en') selected @endif>English</option>
-                    <option value="ar" @if (request()->lang == 'ar') selected @endif>Arabic</option>
+                    <option value="en" @if (request()->lang == 'en') selected @endif>{{ locale_label('en') }}</option>
+                    <option value="ar" @if (request()->lang == 'ar') selected @endif>{{ locale_label('ar') }}</option>
                 </select>
                 <span class="custom-select-icon" style="right: 23px;">
         <i class="fa fa-chevron-down"></i>

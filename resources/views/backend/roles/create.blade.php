@@ -3,8 +3,8 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h5>{{ isset($role) ? 'Edit Role' : 'Add Role' }}</h5>
-        <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary float-end">Back</a>
+        <h5>{{ isset($role) ? __('admin_pages.roles.edit_role') : __('admin_pages.roles.add_role') }}</h5>
+        <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary float-end">{{ __('admin_pages.roles.back') }}</a>
     </div>
 
     <div class="card-body">
@@ -15,17 +15,17 @@
             @endif
 
             <div class="mb-3">
-                <label for="name" class="form-label">Role Name</label>
+                <label for="name" class="form-label">{{ __('admin_pages.roles.role_name') }}</label>
                 <input type="text" name="name" id="name" class="form-control" value="{{ $role->name ?? old('name') }}" required>
             </div>
 
             <div class="mb-3">
-                <h6>Permissions</h6>
+                <h6>{{ __('admin_pages.roles.permissions') }}</h6>
 
                 <div class="form-check mb-2">
     <input type="checkbox" class="form-check-input" id="select_all_permissions">
     <label class="form-check-label fw-bold" for="select_all_permissions">
-        Select / Unselect All Permissions
+        {{ __('admin_pages.roles.select_unselect_all_permissions') }}
     </label>
 </div>
 
@@ -36,7 +36,7 @@
                         <strong>{{ ucfirst($module) }}</strong>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input select-all" data-module="{{ $module }}" id="select_all_{{ $module }}">
-                            <label class="form-check-label" for="select_all_{{ $module }}">Select All</label>
+                            <label class="form-check-label" for="select_all_{{ $module }}">{{ __('admin_pages.roles.select_all') }}</label>
                         </div>
 
                         @foreach($modulePermissions as $permission)
@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success">{{ isset($role) ? 'Update Role' : 'Create Role' }}</button>
+            <button type="submit" class="btn btn-success">{{ isset($role) ? __('admin_pages.roles.update_role') : __('admin_pages.roles.create_role') }}</button>
         </form>
     </div>
 </div>

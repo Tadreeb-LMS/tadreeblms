@@ -1,12 +1,9 @@
 <?php
 
 return array(
-  'backend' =>
-  array(
-    'access' =>
-    array(
-      'roles' =>
-      array(
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
         'all' => 'كل الأدوار',
         'create' => 'خلق دور',
         'edit' => 'تحرير الدور',
@@ -14,10 +11,9 @@ return array(
         'management' => 'إدارة الدور',
       ),
       'title' => 'التمكن من',
-      'users' =>
-      array(
+      'users' => array(
         'all' => 'جميع المستخدمين',
-        'change-password' => 'غير كلمة السر',
+        'change_password' => 'غير كلمة السر',
         'create' => 'إنشاء مستخدم',
         'deactivated' => 'المستخدمين المعطلين',
         'deleted' => 'حذف المستخدمين',
@@ -26,44 +22,47 @@ return array(
         'view' => 'عرض المستخدم',
       ),
     ),
-    'log-viewer' =>
-    array(
+    'log_viewer' => array(
       'dashboard' => 'تصحيح لوحة القيادة',
       'logs' => 'سجلات',
       'main' => 'سجل المشاهد',
     ),
-    'sidebar' =>
-    array(
+    'sidebar' => array(
       'roles_mgt' => 'إعدادات الأذونات',
-      'Invitations' => 'الدعوات',
-      'Send-Email-Notification' => 'إرسال إشعار البريد الإلكتروني',
-      'notification-settings' => 'إعدادات الإشعارات',
-      'My-Assignments' => 'مهامي',
-      'My-Courses' => 'دوراتي',
-      'Employee-Requests' => 'طلبات الموظفين',
-      'Contact-Requests' => 'طلبات الاتصال',
-      'Pathway-Assignments' => 'مهام المسار',
-      'Learning-Pathways' => 'مسارات التعلم',
-      'Learning-Pathways-Management' => 'إدارة مسارات التعلم',
-      'Manual-Assessment' => 'التقييم اليدوي',
+      'invitations' => 'الدعوات',
+      'send_email_notification' => 'إرسال إشعار البريد الإلكتروني',
+      'notification_settings' => 'إعدادات الإشعارات',
+      'my_assignments' => 'مهامي',
+      'my_courses' => 'دوراتي',
+      'employee_requests' => 'طلبات الموظفين',
+      'contact_requests' => 'طلبات الاتصال',
+      'pathway_assignments' => 'مهام المسار',
+      'learning_pathways' => 'مسارات التعلم',
+      'learning_pathways_management' => 'إدارة مسارات التعلم',
+      'manual_assessment' => 'التقييم اليدوي',
       'trainers' => 'المدربين',
       'trainees' => 'المتدربين',
       'internal' => 'داخلي',
       'external' => 'خارجي',
       'feedback' => 'التغذية الراجعة',
-      'questions' => 'الأسئلة',
+      'questions' => array(
+        'title' => 'الأسئلة',
+      ),
       'course_questions' => 'أسئلة الدورة',
       'calendar' => 'التقويم',
       'department' => 'القسم',
       'position' => 'موضع',
-      'courses' => 'الدورات',
+      'courses' => array(
+        'manage' => 'إدارة الدورات',
+        'management' => 'إدارة الدورات',
+        'title' => 'الدورات',
+      ),
       'assessment_accounts' => 'حسابات التقييم',
       'course_assessment' => 'تقييم الدورة',
       'user_assignments' => 'تعيينات المستخدم',
       'courses_assessments' => 'تقييمات الدورات',
       'course_feedback_questions' => 'أسئلة تقييم الدورات',
       'all_reports' => 'جميع التقارير',
-      'internal_trainee_info' => 'معلومات المتدربين الداخلية',
       'internal_trainee_info' => 'التقارير النهائية',
       'internal_attendance_reports' => 'تقارير الحضور الداخلية',
       'external_trainee_info' => 'معلومات المتدربين الخارجية',
@@ -73,191 +72,162 @@ return array(
       'news_n_update' => 'الأخبار والتحديثات',
       'latest_libraries' => 'أحدث المكتبات',
       'announcement' => 'الإعلان',
-      'calendar' => 'التقويم',
       'assessment_accounts_manually' => 'حسابات التقييم يدويًا',
       'courses_assignments' => 'تعيينات الدورات',
       'latest_events' => 'أحدث الأحداث',
-      'subscription' =>
-      array(
-        'title' => 'الاشتراك'
+      'subscription' => array(
+        'title' => 'الاشتراك',
       ),
-      'account' =>
-      array(
+      'account' => array(
         'title' => 'الحساب',
       ),
-      'backup' =>
-      array(
+      'backup' => array(
         'title' => 'دعم',
       ),
-      'blogs' =>
-      array(
+      'blogs' => array(
         'title' => 'مدونة',
       ),
-      'categories' =>
-      array(
+      'categories' => array(
         'title' => 'الاقسام',
       ),
-      'change-password' =>
-      array(
+      'change_password' => array(
         'title' => 'غير كلمة السر',
       ),
-      'contact' =>
-      array(
+      'contact' => array(
         'title' => 'اتصل',
       ),
-      'contacts' =>
-      array(
+      'contacts' => array(
         'title' => 'يؤدي',
       ),
-      'courses' =>
-      array(
-        'manage' => 'إدارة الدورات',
-        'management' => 'إدارة الدورات',
-        'title' => 'الدورات',
-      ),
       'dashboard' => 'لوحة القيادة',
-      'debug-site' =>
-      array(
+      'debug_site' => array(
         'title' => 'تصحيح الموقع',
       ),
-      'faqs' =>
-      array(
+      'faqs' => array(
         'title' => 'أسئلة وأجوبة',
       ),
-      'footer' =>
-      array(
+      'footer' => array(
         'title' => 'تذييل',
       ),
       'general' => 'عام',
-      'hero-slider' =>
-      array(
+      'hero_slider' => array(
         'title' => 'بطل المتزلج',
       ),
       'history' => 'التاريخ',
-      'invoices' =>
-      array(
+      'invoices' => array(
         'title' => 'الفواتير',
       ),
-      'lessons' =>
-      array(
+      'lessons' => array(
         'title' => 'الدروس',
       ),
-      'menu-manager' =>
-      array(
+      'menu_manager' => array(
         'title' => 'مدير القائمة',
       ),
-      'messages' =>
-      array(
+      'messages' => array(
         'title' => 'رسائل',
       ),
-      'newsletter-configuration' =>
-      array(
+      'newsletter_configuration' => array(
         'title' => 'تكوين النشرة الإخبارية',
       ),
-      'orders' =>
-      array(
+      'orders' => array(
         'title' => 'أوامر',
       ),
-      'pages' =>
-      array(
+      'pages' => array(
         'title' => 'مدير الصفحات',
       ),
-      'questions-options' =>
-      array(
+      'questions_options' => array(
         'title' => 'خيارات الأسئلة',
       ),
-      'questions' =>
-      array(
-        'title' => 'الأسئلة',
-      ),
-      'reasons' =>
-      array(
+      'reasons' => array(
         'title' => 'أسباب',
       ),
-      'reviews' =>
-      array(
+      'reviews' => array(
         'title' => 'التعليقات',
       ),
-      'settings' =>
-      array(
+      'settings' => array(
         'general' => 'عام',
-        'social-login' => 'تسجيل الدخول الاجتماعي',
+        'language' => 'الترجمات',
+        'social_login' => 'تسجيل الدخول الاجتماعي',
         'title' => 'الإعدادات',
         'landing_page_setting' => 'إعدادات الصفحة المقصودة',
+        'certificate_template' => 'قالب الشهادة',
+        'zoom_setting' => 'إعداد التكبير',
+        'zoom_configuration' => 'إعدادات Zoom',
+        'google_meet_configuration' => 'إعدادات Google Meet',
+        's3_storage_settings' => 'إعدادات تخزين S3',
+        'license' => 'إعدادات الترخيص',
+        'smtp' => 'إعدادات البريد الإلكتروني (SMTP)',
       ),
-      'site-management' =>
-      array(
+      'site_management' => array(
         'title' => 'إدارة الموقع',
       ),
-      'sponsors' =>
-      array(
+      'sponsors' => array(
         'title' => 'الرعاة',
       ),
       'system' => 'النظام',
-      'teachers' =>
-      array(
+      'teachers' => array(
         'title' => 'معلمون',
       ),
-      'testimonials' =>
-      array(
+      'testimonials' => array(
         'title' => 'الشهادات - التوصيات',
       ),
-      'tests' =>
-      array(
+      'tests' => array(
         'title' => 'اختبارات',
       ),
-      'translations' =>
-      array(
+      'translations' => array(
         'title' => 'مدير الترجمة',
       ),
-      'update' =>
-      array(
+      'update' => array(
         'title' => 'تحديث',
       ),
-      'certificates' =>
-      array(
+      'certificates' => array(
         'title' => 'شهادات',
       ),
-      'bundles' =>
-      array(
+      'bundles' => array(
         'title' => 'بال',
       ),
-      'reports' =>
-      array(
+      'reports' => array(
         'sales' => 'مبيعات',
         'students' => 'الطلاب',
         'title' => 'تقارير',
       ),
-      'coupons' =>
-      array(
+      'coupons' => array(
         'title' => 'كوبونات',
       ),
-      'sitemap' =>
-      array(
+      'sitemap' => array(
         'title' => 'خريطة الموقع',
       ),
-      'tax' =>
-      array(
+      'tax' => array(
         'title' => 'ضريبة',
       ),
-      'forums-category' =>
-      array(
+      'forums_category' => array(
         'title' => 'فئات المنتديات',
       ),
-      'payments' =>
-      array(
+      'payments' => array(
         'title' => 'المدفوعات',
       ),
-      'payments_requests' =>
-      array(
+      'payments_requests' => array(
         'title' => 'طلب الدفع',
       ),
+      'add_user_group' => 'إضافة مجموعة مستخدمين',
+      'user_feedback_answers' => 'إجابات تعليقات المستخدم',
+      'live_lessons' => array(
+        'title' => 'دروس حية',
+      ),
+      'live_lesson_slots' => array(
+        'title' => 'فتحات الدرس المباشر',
+      ),
+      'wishlist' => array(
+        'title' => 'قائمة الرغبات',
+      ),
+    ),
+    'stripe' => array(
+      'title' => 'شريط',
+      'plan' => 'الخطط',
     ),
   ),
-  'language-picker' =>
-  array(
-    'langs' =>
-    array(
+  'language_picker' => array(
+    'langs' => array(
       'ar' => 'عربى',
       'en' => 'الإنجليزية',
       'fr' => 'الفرنسية',
@@ -341,7 +311,7 @@ return array(
       'chr_US' => 'شيروكي (الولايات المتحدة)',
       'chr' => 'شيروكي',
       'cgg_UG' => 'شيغا (أوغندا)',
-      'cgg' => 'Chiga',
+      'cgg' => 'شيجا',
       'zh_Hans' => 'الصينية (هان المبسطة)',
       'zh_Hans_CN' => 'الصينية (هان المبسطة ، الصين)',
       'zh_Hans_HK' => 'الصينية (هان المبسطة ، هونغ كونغ ، الصين)',
@@ -452,7 +422,7 @@ return array(
       'gu_IN' => 'غوجاراتي (الهند)',
       'gu' => 'الغوجاراتية',
       'guz_KE' => 'جوسي (كينيا)',
-      'guz' => 'Gusii',
+      'guz' => 'جوسي',
       'ha_Latn' => 'الهوسا (اللاتينية)',
       'ha_Latn_GH' => 'الهوسا (اللاتينية ، غانا)',
       'ha_Latn_NE' => 'الهوسا (اللاتينية ، النيجر)',
@@ -476,7 +446,7 @@ return array(
       'it_CH' => 'الإيطالية (سويسرا)',
       'ja_JP' => 'اليابانية (اليابان)',
       'kea_CV' => 'كابوفيرديانو (الرأس الأخضر)',
-      'kea' => 'Kabuverdianu',
+      'kea' => 'كابوفيرديانو',
       'kab_DZ' => 'القبائل (الجزائر)',
       'kab' => 'القبائل',
       'kl_GL' => 'كالايسوت (جرينلاند)',
@@ -505,7 +475,7 @@ return array(
       'ses_ML' => 'كويرابورو سيني (مالي)',
       'ses' => 'كويرابورو سيني',
       'lag_TZ' => 'لانجي (تنزانيا)',
-      'lag' => 'Langi',
+      'lag' => 'لانجي',
       'lv_LV' => 'لاتفيا (لاتفيا)',
       'lv' => 'اللاتفية',
       'lt_LT' => 'الليتوانية (ليتوانيا)',
@@ -513,11 +483,11 @@ return array(
       'luo_KE' => 'لوه (كينيا)',
       'luo' => 'لوه',
       'luy_KE' => 'لوييا (كينيا)',
-      'luy' => 'Luyia',
+      'luy' => 'لويا',
       'mk_MK' => 'المقدونية (مقدونيا)',
       'mk' => 'المقدونية',
       'jmc_TZ' => 'ماتشامي (تنزانيا)',
-      'jmc' => 'Machame',
+      'jmc' => 'مشامي',
       'kde_TZ' => 'ماكوندي (تنزانيا)',
       'kde' => 'ماكوندي',
       'mg_MG' => 'مدغشقر (مدغشقر)',
@@ -539,7 +509,7 @@ return array(
       'mer_KE' => 'ميرو (كينيا)',
       'mer' => 'ميرو',
       'mfe_MU' => 'موريسين (موريشيوس)',
-      'mfe' => 'Morisyen',
+      'mfe' => 'موريسين',
       'naq_NA' => 'ناما (ناميبيا)',
       'naq' => 'ناما',
       'ne_IN' => 'النيبالية (الهند)',
@@ -686,7 +656,7 @@ return array(
       'vi_VN' => 'الفيتنامية (فيتنام)',
       'vi' => 'الفيتنامية',
       'vun_TZ' => 'فونجو (تنزانيا)',
-      'vun' => 'Vunjo',
+      'vun' => 'فونجو',
       'cy_GB' => 'الويلزية (المملكة المتحدة)',
       'cy' => 'تهرب من دفع الرهان',
       'yo_NG' => 'يوروبا (نيجيريا)',

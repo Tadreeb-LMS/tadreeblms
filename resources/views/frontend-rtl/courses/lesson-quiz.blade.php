@@ -21,7 +21,7 @@
             <div class="page-breadcrumb-content text-center">
                 <div class="page-breadcrumb-title">
                     <h2 class="breadcrumb-head black bold">
-                        <span>{{ $lesson->course->title }}</span><br> {{ $lesson->title }} - Quiz
+                        <span>{{ $lesson->course->title }}</span><br> {{ $lesson->title }} - {{ __('lesson_quiz_pages.quiz') }}
                     </h2>
                 </div>
             </div>
@@ -45,11 +45,11 @@
                         <div class="course-single-text">
                             <div class="course-title mt10 headline relative-position">
                                 <h3>
-                                    <b><i class="fa fa-question-circle mr-1"></i> Lesson Quiz: {{ $lesson->title }}</b>
+                                    <b><i class="fa fa-question-circle mr-1"></i> {{ __('lesson_quiz_pages.lesson_quiz') }}: {{ $lesson->title }}</b>
                                 </h3>
                             </div>
                             <div class="course-details-content">
-                                <p>Complete this quiz to unlock the next lesson.</p>
+                                <p>{{ __('lesson_quiz_pages.complete_quiz_unlock_next') }}</p>
                             </div>
                         </div>
 
@@ -57,10 +57,10 @@
 
                         @if($lesson_quiz_result)
                             <div class="alert alert-info">
-                                Your score: {{ number_format($lesson_quiz_percentage, 0) }}%
+                                {{ __('lesson_quiz_pages.your_score') }} {{ number_format($lesson_quiz_percentage, 0) }}%
                                 ({{ $lesson_quiz_result->test_result }} / {{ $lesson_quiz_questions->count() }})
                                 <br>
-                                Result:
+                                {{ __('lesson_quiz_pages.result') }}
                                 <strong class="{{ $lesson_quiz_pass === 'Pass' ? 'text-success' : 'text-danger' }}">
                                     {{ $lesson_quiz_pass }}
                                 </strong>
@@ -68,7 +68,7 @@
 
                             @if($next_lesson && !$can_access_next_lesson)
                                 <div class="alert alert-warning">
-                                    You must pass this quiz to continue to the next lesson.
+                                    {{ __('lesson_quiz_pages.pass_quiz_to_continue') }}
                                 </div>
                             @endif
 
@@ -121,7 +121,7 @@
                             <p>
                                 <a class="btn btn-block gradient-bg font-weight-bold text-white"
                                    href="{{ route('lessons.show', [$course_id, $lesson->slug]) }}">
-                                    <i class="fa fa-angle-double-left"></i> Back To Lesson
+                                    <i class="fa fa-angle-double-left"></i> {{ __('lesson_quiz_pages.back_to_lesson') }}
                                 </a>
                             </p>
 
@@ -130,13 +130,13 @@
                                     <p>
                                         <a class="btn btn-block gradient-bg font-weight-bold text-white"
                                            href="{{ route('lessons.show', [$next_lesson->course_id, $next_lesson->model->slug]) }}">
-                                            Next Lesson <i class="fa fa-angle-double-right"></i>
+                                            {{ __('lesson_quiz_pages.next_lesson') }} <i class="fa fa-angle-double-right"></i>
                                         </a>
                                     </p>
                                 @else
                                     <p>
                                         <a class="btn btn-block bg-danger font-weight-bold text-white" href="javascript:void(0)">
-                                            Pass this quiz to unlock the next lesson
+                                            {{ __('lesson_quiz_pages.pass_quiz_to_unlock_next') }}
                                         </a>
                                     </p>
                                 @endif

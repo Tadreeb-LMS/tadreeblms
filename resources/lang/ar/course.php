@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return array(
   'give_feedback_to_download_certificate' => 'قم بإعطاء تعليقات لتنزيل الشهادة.',
   'this_cousse_is_not_ready' => 'هذه الدورة ليست جاهزة بعد',
   'you_are_qualified_to_this_course' => 'لقد حصلت على شهادة لهذه الدورة',
@@ -13,13 +13,13 @@ return array (
   'sorry_you_failed_to_qualify_please_try_again' => 'لم يحالفك الحظ في المحاولة الأولى لاجتياز الاختبار. الرجاء المحاولة مرة أخرى.',
   'your_attendance_taken' => 'تم تسجيل حضورك في <b> :course </b>. الرجاء إكمال الاختبار/التقييم للحصول على الشهادة.
 ',
-  'btn' => [
+  'btn' => array(
     'start_assesment' => 'ابدأ الاختبار',
     'start_completed' => 'تم إنجاز الدورة التدريبية',
     'download_certificate' => 'تحميل الشهادة',
     're_attempt_assigment' => 'إعادة المحاولة مرة أخرى.',
-    'give_feedback' => 'أكمل التقييم'
-  ],
+    'give_feedback' => 'أكمل التقييم',
+  ),
   'duration' => 'مدة',
-  'total_lessons' => 'مجموع الدروس'
+  'total_lessons' => 'مجموع الدروس',
 );

@@ -1,0 +1,32 @@
+<?php
+
+return array(
+  'contribute' => array(
+    'page_title' => 'المساهمة اللغوية',
+    'title' => 'المساهمة اللغوية',
+    'subtitle' => 'أرسل حزمة JSON المترجمة للغة :locale.',
+    'invitation_details' => 'تفاصيل الدعوة',
+    'contributor' => 'المساهم',
+    'default_contributor' => 'المساهم',
+    'email' => 'البريد الإلكتروني',
+    'status' => 'الحالة',
+    'expires' => 'تنتهي في',
+    'no_expiry' => 'لا يوجد انتهاء',
+    'source_package' => 'حزمة المصدر (:locale)',
+    'source_package_help' => 'قم بتنزيل حزمة المصدر الحالية، ثم ترجمها، ثم ارفع ملف JSON المترجم أدناه.',
+    'download_source_package' => 'تنزيل حزمة المصدر',
+    'auto_detected_title' => 'عناصر غير مترجمة تم اكتشافها تلقائيًا',
+    'auto_detected_desc' => 'تم اكتشاف :count عنصرًا غير مترجم بمقارنة المصدر :source مع الهدف :target. املأ الحقول أدناه ثم أرسل مباشرة.',
+    'no_source_modules' => 'لم يتم العثور على وحدات مصدر للغة المصدر المحددة. انشر حزمة مصدر صالحة أولاً أو استخدم EN كمصدر.',
+    'module' => 'الوحدة',
+    'source' => 'المصدر',
+    'current' => 'الحالي',
+    'insert_translation' => 'أدخل الترجمة',
+    'no_untranslated_labels' => 'لم يتم اكتشاف عناصر غير مترجمة لهذا الزوج اللغوي.',
+    'upload_translated_json_file' => 'ارفع ملف JSON المترجم',
+    'or_paste_translated_json' => 'أو ألصق JSON المترجم',
+    'message_to_reviewer' => 'رسالة إلى المراجع',
+    'optional_note' => 'ملاحظة اختيارية لمراجع الإدارة',
+    'submit_translation' => 'إرسال الترجمة',
+  ),
+);

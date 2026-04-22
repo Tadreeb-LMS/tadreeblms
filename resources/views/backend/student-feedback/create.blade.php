@@ -11,7 +11,7 @@
             <h3 class="page-title d-inline">Add Feedback</h3>
             <div class="float-right">
                 <a href="{{ route('admin.events.index') }}"
-                   class="btn btn-success">View All</a>
+                   class="btn btn-success">@lang('labels.general.view_all')</a>
 
             </div>
         </div>

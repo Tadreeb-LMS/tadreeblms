@@ -23,7 +23,7 @@
         {{--@if(config('locale.status') && count(config('locale.languages')) > 1)--}}
             {{--<li class="nav-item px-3 dropdown">--}}
                 {{--<a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">--}}
-                    {{--<span class="d-md-down-none">@lang('menus.language-picker.language') ({{ strtoupper(app()->getLocale()) }})</span>--}}
+                    {{--<span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }} ({{ strtoupper(app()->getLocale()) }})</span>--}}
                 {{--</a>--}}
 
                 {{--@include('includes.partials.lang')--}}
@@ -33,7 +33,7 @@
 
             <li class="nav-item px-3 dropdown">
                 <a class="nav-link dropdown-toggle nav-link " data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                    <span class="d-md-down-none">@lang('menus.language-picker.language') ({{ strtoupper(app()->getLocale()) }})</span>
+                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }} ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                 </a>
 
                 @include('includes.partials.lang')
@@ -43,7 +43,7 @@
 
 //echo '<pre>';print_r(Auth::user());
 @endphp
-@if(Auth::user()->isAdmin() && ((string)Auth::user()->employee_type == ''))
+@if(Auth::user()->isAdmin())
 <li class="nav-item px-3 dropdown">
 <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
 <span class="d-md-down-none">

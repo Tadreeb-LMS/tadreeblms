@@ -23,6 +23,7 @@ use Yajra\DataTables\DataTables;
 use DB;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Services\LmsEventRecorder;
 
 
 class LessonsController extends Controller
@@ -792,6 +793,45 @@ class LessonsController extends Controller
 
         $course_lessons_arr = $course_lessons;
 
+        // Build ergonomic prev/next lesson navigation from canonical lesson ordering.
+        // This avoids timeline/model_id collisions and keeps navigation deterministic.
+        $effective_previous_lesson = null;
+        $effective_next_lesson = null;
+        if ($lesson instanceof Lesson) {
+            $ordered_lessons = collect($course_lessons_arr)
+                ->filter(function ($item) {
+                    return (int) ($item->published ?? 0) === 1;
+                })
+                ->sortBy(function ($item) {
+                    $position = $item->position;
+                    return [is_null($position) ? PHP_INT_MAX : (int) $position, (int) $item->id];
+                })
+                ->values();
+
+            $current_index = $ordered_lessons->search(function ($item) use ($lesson) {
+                return (int) $item->id === (int) $lesson->id;
+            });
+
+            if ($current_index !== false) {
+                if ($current_index > 0) {
+                    $effective_previous_lesson = $ordered_lessons->get($current_index - 1);
+                }
+
+                if ($current_index < ($ordered_lessons->count() - 1)) {
+                    $effective_next_lesson = $ordered_lessons->get($current_index + 1);
+                }
+            }
+        }
+
+        // Fallback to legacy timeline neighbors when needed.
+        if (!$effective_previous_lesson && !empty($previous_lesson) && !empty($previous_lesson->model)) {
+            $effective_previous_lesson = $previous_lesson->model;
+        }
+
+        if (!$effective_next_lesson && !empty($next_lesson) && !empty($next_lesson->model)) {
+            $effective_next_lesson = $next_lesson->model;
+        }
+
         //dd($has_assesment, $is_assesment_taken, $has_feedback, $is_feedback_taken,  $is_offline_course, $is_certificate_download, $is_course_completed);
 
         $is_certificate_download = $sc ? ($sc->grant_certificate ?? 0) : 0;
@@ -870,7 +910,9 @@ class LessonsController extends Controller
             'lesson_quiz_pass',
             'lesson_quiz_url',
             'requires_lesson_quiz_pass_for_next',
-            'can_access_next_lesson'
+            'can_access_next_lesson',
+            'effective_previous_lesson',
+            'effective_next_lesson'
         ));
     }
 
@@ -988,6 +1030,18 @@ class LessonsController extends Controller
             'test_result' => $correct,
         ]);
 
+        app(LmsEventRecorder::class)->record(
+            auth()->id(),
+            LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+            [
+                'course_id' => (int) $lesson->course_id,
+                'test_id' => (int) $lessonTest->id,
+                'attempt_scope' => 'lesson',
+                'score' => (float) $correct,
+                'total_questions' => count($submitted),
+            ]
+        );
+
         return back();
     }
 
@@ -1047,6 +1101,20 @@ class LessonsController extends Controller
                 'course_id' => $test->course->id
             ]);
         }
+
+        app(LmsEventRecorder::class)->record(
+            \Auth::id(),
+            LmsEventRecorder::TYPE_QUIZ_ATTEMPT,
+            [
+                'course_id' => (int) $test->course_id,
+                'test_id' => (int) $test->id,
+                'attempt_scope' => 'course',
+                'score' => (float) $test_score,
+                'total_questions' => (int) $total_questions,
+                'percentage' => round((float) $percentage, 2),
+                'passed' => $test_pass === 'Pass',
+            ]
+        );
 
         return back()->with([
             'message' => 'Test score: ' . $test_score,
@@ -1247,22 +1315,32 @@ class LessonsController extends Controller
 
     public function courseProgress(Request $request)
     {
-        //dd($request->all());
-        if (\Auth::check()) {
-            $lesson = Lesson::find($request->model_id);
-            if ($lesson != null) {
-                if ($lesson->chapterStudents()->where('user_id', \Auth::id())->get()->count() == 0) {
-                    $lesson->chapterStudents()->create([
-                        'model_type' => $request->model_type,
-                        'model_id' => $request->model_id,
-                        'user_id' => auth()->user()->id,
-                        'course_id' => $lesson->course->id
-                    ]);
-                    return true;
-                }
-            }
+        if (!\Auth::check()) {
+            return false;
         }
-        return false;
+
+        $lesson = Lesson::find($request->model_id);
+        if ($lesson == null) {
+            return false;
+        }
+
+        $alreadyCompleted = $lesson->chapterStudents()
+            ->where('user_id', \Auth::id())
+            ->exists();
+
+        if (!$alreadyCompleted) {
+            $lesson->chapterStudents()->create([
+                'model_type' => get_class($lesson),
+                'model_id' => $lesson->id,
+                'user_id' => auth()->user()->id,
+                'course_id' => $lesson->course->id,
+            ]);
+        }
+
+        // Always recalculate course progress after lesson completion updates.
+        CustomHelper::updateUserProgress(\Auth::id(), $lesson->course->id);
+
+        return true;
     }
 
     public function bookSlot(Request $request)

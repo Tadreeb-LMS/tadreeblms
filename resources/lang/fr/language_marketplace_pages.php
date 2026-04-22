@@ -1,0 +1,32 @@
+<?php
+
+return array(
+  'contribute' => array(
+    'page_title' => 'Contribution linguistique',
+    'title' => 'Contribution linguistique',
+    'subtitle' => 'Soumettez votre package JSON traduit pour :locale.',
+    'invitation_details' => 'Details de l\'invitation',
+    'contributor' => 'Contributeur',
+    'default_contributor' => 'Contributeur',
+    'email' => 'E-mail',
+    'status' => 'Statut',
+    'expires' => 'Expire le',
+    'no_expiry' => 'Pas d\'expiration',
+    'source_package' => 'Package source (:locale)',
+    'source_package_help' => 'Telechargez le package source actuel, traduisez-le, puis televersez le JSON traduit ci-dessous.',
+    'download_source_package' => 'Telecharger le package source',
+    'auto_detected_title' => 'Libelles non traduits detectes automatiquement',
+    'auto_detected_desc' => 'Nous avons detecte :count libelles non traduits en comparant la source :source avec la cible :target. Remplissez les champs ci-dessous puis envoyez.',
+    'no_source_modules' => 'Aucun module source n\'a ete trouve pour la langue source selectionnee. Publiez d\'abord un package source valide ou utilisez EN comme source.',
+    'module' => 'Module',
+    'source' => 'Source',
+    'current' => 'Actuel',
+    'insert_translation' => 'Inserer la traduction',
+    'no_untranslated_labels' => 'Aucun libelle non traduit detecte pour cette paire de langues.',
+    'upload_translated_json_file' => 'Televerser le fichier JSON traduit',
+    'or_paste_translated_json' => 'Ou coller le JSON traduit',
+    'message_to_reviewer' => 'Message au relecteur',
+    'optional_note' => 'Note facultative pour le relecteur administrateur',
+    'submit_translation' => 'Envoyer la traduction',
+  ),
+);

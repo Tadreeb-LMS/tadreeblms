@@ -96,59 +96,59 @@
                 </div>
             </div> -->
 
-                <!-- Change Password Toggle -->
-                <div class="form-group row">
-                    <div class="col-md-10 offset-md-2">
-                        <div class="form-check">
-                            <input class="form-check-input"
-                                type="checkbox"
-                                id="change_password"
-                                value="1"
-                                name="change_password"
-                                {{ old('change_password') ? 'checked' : '' }}
-                                onchange="togglePasswordFields()">
-                            <label class="form-check-label" for="change_password">
-                                Want to edit password?
-                            </label>
-                        </div>
-                        @error('change_password')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+            <!-- Change Password Toggle -->
+            <div class="form-group row">
+                <div class="col-md-10 offset-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input"
+                            type="checkbox"
+                            id="change_password"
+                            value="1"
+                            name="change_password"
+                            {{ old('change_password') ? 'checked' : '' }}
+                            onchange="togglePasswordFields()">
+                        <label class="form-check-label" for="change_password">
+                            Want to edit password?
+                        </label>
                     </div>
+                    @error('change_password')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
+            </div>
 
-                <!-- Password -->
-                <div class="form-group row {{ old('change_password') ? '' : 'd-none' }}" id="password-section">
-                    <label class="col-md-2 form-control-label">
-                        @lang('validation.attributes.backend.access.users.password')
-                    </label>
-                    <div class="col-md-10 position-relative">
-                        <input type="password"
-                            name="password"
-                            id="password-field"
-                            class="form-control @error('password') is-invalid @enderror"
-                            placeholder="Enter new password">
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+            <!-- Password -->
+            <div class="form-group row {{ old('change_password') ? '' : 'd-none' }}" id="password-section">
+                <label class="col-md-2 form-control-label">
+                    @lang('validation.attributes.backend.access.users.password')
+                </label>
+                <div class="col-md-10 position-relative">
+                    <input type="password"
+                        name="password"
+                        id="password-field"
+                        class="form-control @error('password') is-invalid @enderror"
+                        placeholder="Enter new password">
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+            </div>
 
-                <!-- Password Confirmation -->
-                <div class="form-group row {{ old('change_password') ? '' : 'd-none' }}" id="password-confirm-section">
-                    <label class="col-md-2 form-control-label">
-                        @lang('validation.attributes.backend.access.users.password_confirmation')
-                    </label>
-                    <div class="col-md-10">
-                        <input type="password"
-                            name="password_confirmation"
-                            class="form-control @error('password_confirmation') is-invalid @enderror"
-                            placeholder="Confirm new password">
-                        @error('password_confirmation')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+            <!-- Password Confirmation -->
+            <div class="form-group row {{ old('change_password') ? '' : 'd-none' }}" id="password-confirm-section">
+                <label class="col-md-2 form-control-label">
+                    @lang('validation.attributes.backend.access.users.password_confirmation')
+                </label>
+                <div class="col-md-10">
+                    <input type="password"
+                        name="password_confirmation"
+                        class="form-control @error('password_confirmation') is-invalid @enderror"
+                        placeholder="Confirm new password">
+                    @error('password_confirmation')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+            </div>
 
             {{-- Roles --}}
             <div class="form-group row">
@@ -221,11 +221,11 @@
             {{-- Department --}}
             <div class="form-group row">
                 <label for="department" class="col-md-2 form-control-label">
-                    @lang('Department')
+                    {{ __('admin_pages.auth_users.department') }}
                 </label>
                 <div class="col-md-10">
                     <select name="department" id="department" class="form-control @error('department') is-invalid @enderror">
-                        <option value="">@lang('Select Department')</option>
+                        <option value="">{{ __('admin_pages.auth_users.select_department') }}</option>
                         @if(isset($departments))
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id }}" {{ (string) old('department', optional(optional($user->employee)->department_details)->id) === (string) $dept->id ? 'selected' : '' }}>
@@ -305,7 +305,5 @@
     document.addEventListener('DOMContentLoaded', function () {
         togglePasswordFields();
     });
-
-
 </script>
 @endpush

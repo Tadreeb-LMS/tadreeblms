@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', __("CourseFeedback").' | '.app_name())
+@section('title', __('user_feedback.course_feedback.title') . ' | ' . app_name())
 
 @section('content')
 <style>
@@ -58,7 +58,7 @@
     ])
 @else
     <div class="alert alert-info mt-3">
-        Please select a course to manage feedback questions.
+        {{ __('user_feedback.course_feedback.select_course_notice') }}
     </div>
 @endif
 
@@ -68,7 +68,7 @@
 <div class="text-center">
     <div class="pb-3">
 <div class="grow">
-                <h4 class="text-20">Add Feedback Courses </h4>
+                                <h4 class="text-20">{{ __('user_feedback.course_feedback.title') }}</h4>
               </div>
     </div>
     <div class="card">
@@ -86,11 +86,11 @@
         @if (Auth::user()->isAdmin())
         <div class="row">  <div class="col-12 col-md-2"> </div>
         <div class="col-12 col-md-4">
-            <div class="form-control-div" for="first_name">Courses</div>
+            <div class="form-control-div" for="first_name">{{ __('user_feedback.course_feedback.courses') }}</div>
 
             <div class="custom-select-wrapper mt-2">
                 <select name="course_id" class="form-control custom-select-box select2">
-                    <option value=""> Select Course </option>
+                    <option value=""> {{ __('user_feedback.course_feedback.select_course') }} </option>
 
                     @foreach($courses as $row)
                     <option value="{{ $row->id }}" @if($courseId == $row->id) selected @endif>
@@ -109,13 +109,13 @@
         @if (Auth::user()->isAdmin())
         <div class="col-12 col-md-4">
     <div class="form-control-div" for="questions">
-        {{ trans('labels.backend.questions.fields.question') }}
+        {{ __('user_feedback.course_feedback.feedback_questions') }}
     </div>
 
     <div class="custom-select-wrapper mt-2">
         <select name="feedback_question_ids[]" class="form-control custom-select-box select2 js-example-questions-placeholder-multiple" multiple>
             @foreach($questions as $id => $question)
-                <option value="1" @if(in_array($id, old('questions', []))) selected @endif>{{ $question }}</option>
+                <option value="{{ $id }}" @if(in_array($id, old('feedback_question_ids', []))) selected @endif>{{ $question }}</option>
             @endforeach
         </select>
         <span class="custom-select-icon">
@@ -138,11 +138,11 @@
                             <div class="d-flex justify-content-between">
 
                                 <div>
-      <input class="btn  add-btn frm_submit" id="doneBtn" type="submit" value="{{ trans('Done') }}">
+      <input class="btn  add-btn frm_submit" id="doneBtn" type="submit" value="{{ __('user_feedback.course_feedback.done') }}">
                                 </div>
                                 <div class="">
     
-                                    <input class="btn  cancel-btn frm_submit" id="nextBtn" type="submit" value="{{ trans('Next') }}">
+                                    <input class="btn  cancel-btn frm_submit" id="nextBtn" type="submit" value="{{ __('user_feedback.course_feedback.next') }}">
                                 </div>
                             </div>
 
@@ -218,10 +218,10 @@
 </script>
 
 <script>
-    var nxt_url_val= '';
+    var nxt_url_val = '';
 
     $('.frm_submit').on('click', function (){
-        nxt_url_val = $(this).val();
+        nxt_url_val = $(this).attr('id');
     });
 $(document).on('submit', '#addFeedbackQue', function (e) {
     e.preventDefault();
@@ -240,11 +240,11 @@ $(document).on('submit', '#addFeedbackQue', function (e) {
             success: function (res) {
             console.log(res)
 
-                if(nxt_url_val == 'Next'){
+                if(nxt_url_val == 'nextBtn'){
                     window.location.href = redirect_url;
                     return;
                 }
-                if(nxt_url_val == 'Done'){
+                if(nxt_url_val == 'doneBtn'){
                     window.location.href = redirect_url_course;
                     return;
                 }
