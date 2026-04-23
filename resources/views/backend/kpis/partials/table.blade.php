@@ -75,6 +75,8 @@
                     </button>
                     <i class="fa fa-question-circle text-muted ml-1" title="KPI contribution after applying its weight relative to total active weight."></i>
                 </th>
+                <th>Target</th>
+                <th>Deviation</th>
                 <th>Updated</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -108,6 +110,35 @@
                             {{ number_format((float) $kpi->calculation['weighted_score'], 2) }}
                         @endif
                     </td>
+                    <td>
+                        @if(($kpi->calculation['target'] ?? null) === null)
+                            <span class="text-muted">Not set</span>
+                        @else
+                            {{ number_format((float) $kpi->calculation['target'], 2) }}
+                            <br>
+                            <small class="text-muted">{{ str_replace('_', ' ', $kpi->calculation['target_scope'] ?? 'global') }}</small>
+                        @endif
+                    </td>
+                    <td>
+                        @if(($kpi->calculation['deviation_direction'] ?? null) === null)
+                            <span class="text-muted">N/A</span>
+                        @else
+                            @if($kpi->calculation['deviation_direction'] === 'on_target')
+                                <span class="badge badge-success">On target</span>
+                            @elseif($kpi->calculation['deviation_direction'] === 'over')
+                                <span class="badge badge-info">Over</span>
+                            @else
+                                <span class="badge badge-warning">Under</span>
+                            @endif
+                            <br>
+                            <small>
+                                {{ number_format((float) ($kpi->calculation['deviation_value'] ?? 0), 2) }}
+                                @if(($kpi->calculation['deviation_percentage'] ?? null) !== null)
+                                    ({{ number_format((float) $kpi->calculation['deviation_percentage'], 2) }}%)
+                                @endif
+                            </small>
+                        @endif
+                    </td>
                     <td>{{ optional($kpi->updated_at)->diffForHumans() }}</td>
                     <td class="text-center">
                         @can('kpi_edit')
@@ -136,7 +167,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="text-center">No KPIs found.</td>
+                    <td colspan="12" class="text-center">No KPIs found.</td>
                 </tr>
             @endforelse
         </tbody>

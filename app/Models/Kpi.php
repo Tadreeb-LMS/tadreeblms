@@ -62,6 +62,11 @@ class Kpi extends Model
         return $this->hasMany(KpiSnapshot::class);
     }
 
+    public function targets()
+    {
+        return $this->hasMany(KpiTarget::class);
+    }
+
     public function currentSnapshot()
     {
         return $this->hasOne(KpiSnapshot::class)->where('is_current', true)->latest('id');

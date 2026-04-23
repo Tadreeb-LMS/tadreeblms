@@ -75,6 +75,7 @@ class PermissionRoleTableSeeder extends Seeder
             'certificate',
             'kpi',
             'kpi_role_config',
+            'kpi_target',
         ];
 
         $actions = ['access', 'create', 'edit', 'view', 'delete'];
@@ -134,6 +135,8 @@ class PermissionRoleTableSeeder extends Seeder
             'kpi_view',
             'kpi_role_config_access',
             'kpi_role_config_view',
+            'kpi_target_access',
+            'kpi_target_view',
         ]);
 
         // Student → backend view only

@@ -214,6 +214,15 @@
                                         </a>
                                     </li>
                                 @endif
+
+                                @if ($logged_in_user->isAdmin() || $logged_in_user->can('kpi_target_access'))
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $request->segment(2) == 'kpi-targets' ? 'active' : '' }}"
+                                            href="{{ route('admin.kpi-targets.index') }}">
+                                            <span class="title">Targets</span>
+                                        </a>
+                                    </li>
+                                @endif
                             </ul>
                         </li>
                     @endif

@@ -8,10 +8,6 @@
         <a href="{{ route('admin.kpis.index') }}" class="btn btn-secondary">← Back to KPIs</a>
     </div>
 
-    @if(session('flash_success'))
-        <div class="alert alert-success">{{ session('flash_success') }}</div>
-    @endif
-
     @if(!$canManage)
         <div class="alert alert-secondary">
             Read-only mode: only authorized users can save or remove role KPI overrides.
