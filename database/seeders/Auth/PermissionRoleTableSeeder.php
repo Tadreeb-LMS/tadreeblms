@@ -59,7 +59,6 @@ class PermissionRoleTableSeeder extends Seeder
             'feedback_questions',
             'course_assesment',
             'course_manual_assesment',
-            // Missing modules causing 401 errors
             'test',
             'page',
             'blog',
@@ -80,12 +79,9 @@ class PermissionRoleTableSeeder extends Seeder
 
         $actions = ['access', 'create', 'edit', 'view', 'delete'];
 
-        //truncate all permissions
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-
         DB::table('permissions')->truncate();
         DB::table('role_has_permissions')->truncate();
-        
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         foreach ($modules as $module) {
@@ -108,10 +104,8 @@ class PermissionRoleTableSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        // Admin → all permissions
         $admin->syncPermissions(Permission::all());
 
-        // Teacher → limited permissions
         $teacher->syncPermissions([
             'backend_view',
             'course_access',
@@ -139,7 +133,6 @@ class PermissionRoleTableSeeder extends Seeder
             'kpi_target_view',
         ]);
 
-        // Student → backend view only
         $student->syncPermissions([
             'backend_view',
         ]);
