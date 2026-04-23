@@ -39,6 +39,11 @@ Route::group(['middleware' => ['role:teacher|administrator']], function () {
     Route::get('kpi-targets', 'Admin\KpiTargetController@index')->name('kpi-targets.index');
     Route::post('kpi-targets', 'Admin\KpiTargetController@store')->name('kpi-targets.store');
     Route::delete('kpi-targets/{kpiTarget}', 'Admin\KpiTargetController@destroy')->name('kpi-targets.destroy');
+    Route::get('kpi-templates', 'Admin\KpiTemplateController@index')->name('kpi-templates.index');
+    Route::get('kpi-templates/create', 'Admin\KpiTemplateController@create')->name('kpi-templates.create');
+    Route::post('kpi-templates', 'Admin\KpiTemplateController@store')->name('kpi-templates.store');
+    Route::get('kpi-templates/{kpiTemplate}', 'Admin\KpiTemplateController@show')->name('kpi-templates.show');
+    Route::post('kpi-templates/{kpiTemplate}/apply', 'Admin\KpiTemplateController@apply')->name('kpi-templates.apply');
 });
 
 Route::group(['middleware' => 'role:teacher|administrator'], function () {

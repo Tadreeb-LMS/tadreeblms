@@ -190,7 +190,7 @@
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
                     )
                     @if ($logged_in_user->isAdmin() || $logged_in_user->can('kpi_access'))
-                        <li class="nav-item nav-dropdown {{ in_array($request->segment(2), ['kpis', 'kpi-role-configs']) ? 'open' : '' }}">
+                        <li class="nav-item nav-dropdown {{ in_array($request->segment(2), ['kpis', 'kpi-role-configs', 'kpi-targets', 'kpi-templates']) ? 'open' : '' }}">
                             <a class="nav-link nav-dropdown-toggle d-flex align-items-center" href="#">
                                 <div>
                                     <i class="nav-icon fa fa-bullseye"></i>
@@ -220,6 +220,15 @@
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-targets' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-targets.index') }}">
                                             <span class="title">Targets</span>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if ($logged_in_user->isAdmin() || $logged_in_user->can('kpi_template_access'))
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $request->segment(2) == 'kpi-templates' ? 'active' : '' }}"
+                                            href="{{ route('admin.kpi-templates.index') }}">
+                                            <span class="title">Templates</span>
                                         </a>
                                     </li>
                                 @endif
