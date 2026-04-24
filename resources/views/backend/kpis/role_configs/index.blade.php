@@ -8,8 +8,16 @@
         <a href="{{ route('admin.kpis.index') }}" class="btn btn-secondary">← Back to KPIs</a>
     </div>
 
-    @if(session('flash_success'))
-        <div class="alert alert-success">{{ session('flash_success') }}</div>
+    @if(!$canManage)
+        <div class="alert alert-secondary">
+            Read-only mode: only authorized users can save or remove role KPI overrides.
+        </div>
+    @endif
+
+    @if(!$canManage)
+        <div class="alert alert-secondary">
+            Read-only mode: only authorized users can save or remove role KPI overrides.
+        </div>
     @endif
 
     <div class="card mb-4">
@@ -60,49 +68,67 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.kpi-role-configs.store') }}">
-                                        @csrf
-                                        <input type="hidden" name="role_id" value="{{ $role->id }}">
-                                        <input type="hidden" name="kpi_id" value="{{ $kpi->id }}">
-                                        <input
-                                            type="number"
-                                            name="weight_override"
-                                            class="form-control form-control-sm"
-                                            min="0" max="100" step="0.01"
-                                            placeholder="(default: {{ $kpi->weight }})"
-                                            value="{{ $override?->weight_override }}"
-                                        >
+                                    @if($canManage)
+                                        <form method="POST" action="{{ route('admin.kpi-role-configs.store') }}">
+                                            @csrf
+                                            <input type="hidden" name="role_id" value="{{ $role->id }}">
+                                            <input type="hidden" name="kpi_id" value="{{ $kpi->id }}">
+                                            <input
+                                                type="number"
+                                                name="weight_override"
+                                                class="form-control form-control-sm"
+                                                min="0" max="100" step="0.01"
+                                                placeholder="(default: {{ $kpi->weight }})"
+                                                value="{{ $override?->weight_override }}"
+                                            >
+                                    @else
+                                        {{ $override?->weight_override !== null ? number_format((float) $override->weight_override, 2) : 'Inherit default' }}
+                                    @endif
                                 </td>
                                 <td>
-                                    <select name="is_active_override" class="form-control form-control-sm">
-                                        <option value="" @if($override === null || $override->is_active_override === null) selected @endif>
-                                            — inherit default —
-                                        </option>
-                                        <option value="1" @if($override !== null && $override->is_active_override === true) selected @endif>
+                                    @if($canManage)
+                                        <select name="is_active_override" class="form-control form-control-sm">
+                                            <option value="" @if($override === null || $override->is_active_override === null) selected @endif>
+                                                — inherit default —
+                                            </option>
+                                            <option value="1" @if($override !== null && $override->is_active_override === true) selected @endif>
+                                                Active
+                                            </option>
+                                            <option value="0" @if($override !== null && $override->is_active_override === false) selected @endif>
+                                                Inactive
+                                            </option>
+                                        </select>
+                                    @else
+                                        @if($override === null || $override->is_active_override === null)
+                                            Inherit default
+                                        @elseif($override->is_active_override)
                                             Active
-                                        </option>
-                                        <option value="0" @if($override !== null && $override->is_active_override === false) selected @endif>
+                                        @else
                                             Inactive
-                                        </option>
-                                    </select>
+                                        @endif
+                                    @endif
                                 </td>
                                 <td class="text-center align-middle">
-                                    <button type="submit" class="btn btn-sm btn-primary" title="Save override">
-                                        Save
-                                    </button>
-                                    </form>
-
-                                    @if($override)
-                                        <form method="POST"
-                                              action="{{ route('admin.kpi-role-configs.destroy', $override->id) }}"
-                                              style="display:inline-block;"
-                                              onsubmit="return confirm('Remove this override and revert to global default?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove override">
-                                                ✕
-                                            </button>
+                                    @if($canManage)
+                                        <button type="submit" class="btn btn-sm btn-primary" title="Save override">
+                                            Save
+                                        </button>
                                         </form>
+
+                                        @if($override)
+                                            <form method="POST"
+                                                  action="{{ route('admin.kpi-role-configs.destroy', $override->id) }}"
+                                                  style="display:inline-block;"
+                                                  onsubmit="return confirm('Remove this override and revert to global default?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove override">
+                                                    ✕
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <span class="text-muted small">Read-only</span>
                                     @endif
                                 </td>
                             </tr>

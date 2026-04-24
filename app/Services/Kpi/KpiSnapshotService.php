@@ -50,6 +50,11 @@ class KpiSnapshotService
                 'weighted_score' => $snapshot->weighted_score === null ? null : (float) $snapshot->weighted_score,
             ];
 
+            $kpi->calculation = array_merge(
+                $kpi->calculation,
+                $this->calculationService->calculateTargetComparison($kpi, $kpi->calculation['value'])
+            );
+
             return $kpi;
         });
     }
@@ -83,7 +88,7 @@ class KpiSnapshotService
             return $currentSnapshot;
         }
 
-        $calculation = $this->calculationService->calculateForKpi($kpi, $totalActiveWeight);
+        $calculation = $this->calculationService->calculateBaseForKpi($kpi, $totalActiveWeight);
 
         $snapshot = $this->storeSnapshot($kpi, $calculation, $expectedSignature, $globalContext, $currentSnapshot, $totalActiveWeight);
         $kpi->setRelation('currentSnapshot', $snapshot);

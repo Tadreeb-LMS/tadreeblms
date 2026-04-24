@@ -14,7 +14,11 @@ class KpiWeightValidationTest extends TestCase
     {
         parent::setUp();
 
-        Gate::define('category_access', function () {
+        Gate::define('kpi_create', function () {
+            return true;
+        });
+
+        Gate::define('kpi_edit', function () {
             return true;
         });
     }

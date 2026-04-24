@@ -88,7 +88,9 @@
                     <td>{{ $kpi->id }}</td>
                     <td>{{ $kpi->name }}</td>
                     <td><code>{{ $kpi->code }}</code></td>
-                    <td title="{{ $kpiTypes[$kpi->type]['description'] ?? '' }}">{{ $kpiTypes[$kpi->type]['label'] ?? ucfirst($kpi->type) }}</td>
+                    <td title="{{ $kpiTypes[$kpi->type]['description'] ?? '' }}">
+                        {{ $kpiTypes[$kpi->type]['label'] ?? ucfirst($kpi->type) }}
+                    </td>
                     <td>{{ number_format((float) $kpi->weight, 2) }}</td>
                     <td>
                         @if($kpi->is_active)
