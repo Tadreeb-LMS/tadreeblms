@@ -31,6 +31,7 @@
                 <strong>{{ ucfirst($role->name) }}</strong>
                 <span class="text-muted small">Role ID: {{ $role->id }}</span>
             </div>
+
             <div class="card-body p-0">
                 <table class="table table-bordered table-sm mb-0">
                     <thead class="thead-light">
@@ -44,14 +45,20 @@
                             <th></th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach($kpis as $kpi)
                             @php
                                 /** @var \App\Models\KpiRoleConfig|null $override */
                                 $override = $overrides->get($role->id)?->get($kpi->id) ?? null;
                             @endphp
+
                             <tr>
-                                <td>{{ $kpi->name }}<br><small class="text-muted">{{ $kpi->code }}</small></td>
+                                <td>
+                                    {{ $kpi->name }}
+                                    <br>
+                                    <small class="text-muted">{{ $kpi->code }}</small>
+                                </td>
                                 <td>{{ $kpi->type_label }}</td>
                                 <td>{{ $kpi->weight }}</td>
                                 <td>
@@ -71,7 +78,9 @@
                                                 type="number"
                                                 name="weight_override"
                                                 class="form-control form-control-sm"
-                                                min="0" max="100" step="0.01"
+                                                min="0"
+                                                max="100"
+                                                step="0.01"
                                                 placeholder="(default: {{ $kpi->weight }})"
                                                 value="{{ $override?->weight_override }}"
                                             >
@@ -110,10 +119,12 @@
                                         </form>
 
                                         @if($override)
-                                            <form method="POST"
-                                                  action="{{ route('admin.kpi-role-configs.destroy', $override->id) }}"
-                                                  style="display:inline-block;"
-                                                  onsubmit="return confirm('Remove this override and revert to global default?')">
+                                            <form
+                                                method="POST"
+                                                action="{{ route('admin.kpi-role-configs.destroy', $override->id) }}"
+                                                style="display:inline-block;"
+                                                onsubmit="return confirm('Remove this override and revert to global default?')"
+                                            >
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove override">

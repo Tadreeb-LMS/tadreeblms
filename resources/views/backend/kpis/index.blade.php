@@ -121,6 +121,7 @@
 
                     var response = JSON.parse(activeRequest.responseText);
                     resultsContainer.innerHTML = response.html;
+
                     if (totalWeightEl && response.totalActiveWeight) {
                         totalWeightEl.textContent = response.totalActiveWeight;
                     }
@@ -136,29 +137,36 @@
                 if (pageUrl) {
                     var parsed = new URL(pageUrl, window.location.origin);
                     var currentSearch = searchInput.value.trim();
+
                     if (currentSearch.length > 0) {
                         parsed.searchParams.set('search', currentSearch);
                     } else {
                         parsed.searchParams.delete('search');
                     }
+
                     parsed.searchParams.delete('sort_by[]');
                     parsed.searchParams.delete('sort_dir[]');
+
                     sorts.forEach(function (sort) {
                         parsed.searchParams.append('sort_by[]', sort.by);
                         parsed.searchParams.append('sort_dir[]', sort.dir);
                     });
+
                     return parsed.toString();
                 }
 
                 var url = new URL(form.action, window.location.origin);
                 var value = searchInput.value.trim();
+
                 if (value.length > 0) {
                     url.searchParams.set('search', value);
                 }
+
                 sorts.forEach(function (sort) {
                     url.searchParams.append('sort_by[]', sort.by);
                     url.searchParams.append('sort_dir[]', sort.dir);
                 });
+
                 return url.toString();
             }
 
@@ -194,8 +202,10 @@
 
             document.addEventListener('click', function (e) {
                 var link = e.target.closest('#kpi-results .pagination a');
+
                 if (!link) {
                     var sortButton = e.target.closest('#kpi-results .js-kpi-sort');
+
                     if (!sortButton) {
                         return;
                     }
