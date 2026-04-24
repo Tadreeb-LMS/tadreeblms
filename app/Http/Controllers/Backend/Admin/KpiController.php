@@ -11,6 +11,7 @@ use App\Models\Kpi;
 use App\Services\Kpi\KpiSnapshotService;
 use App\Services\Kpi\KpiTypeCatalog;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -25,11 +26,11 @@ class KpiController extends Controller
 
     public function index(Request $request)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_access')) {
             return abort(401);
         }
 
-        $query = Kpi::query()->with('courses:id', 'categories:id');
+        $query = Kpi::query()->with('courses:id', 'categories:id,name');
 
         if ($request->filled('search')) {
             $search = trim($request->search);
@@ -38,6 +39,15 @@ class KpiController extends Controller
                     ->orWhere('code', 'like', "%{$search}%")
                     ->orWhere('type', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->filled('category_id')) {
+            $categoryId = (int) $request->input('category_id');
+            if ($categoryId > 0) {
+                $query->whereHas('categories', function ($categoryQuery) use ($categoryId) {
+                    $categoryQuery->where('categories.id', $categoryId);
+                });
+            }
         }
 
         $sorts = $this->normalizeSorts($request);
@@ -73,15 +83,18 @@ class KpiController extends Controller
         $kpis->appends($request->query());
 
         $kpiTypes = $this->getSupportedKpiTypes();
+        $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
+        $kpiCategoryGroups = $this->buildCategoryGroups($calculatedKpis);
 
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('backend.kpis.partials.table', compact('kpis', 'kpiTypes'))->render(),
+                'groupedHtml' => view('backend.kpis.partials.category_groups', compact('kpiCategoryGroups'))->render(),
                 'totalActiveWeight' => number_format($totalActiveWeight, 2),
             ]);
         }
 
-        return view('backend.kpis.index', compact('kpis', 'kpiTypes', 'totalActiveWeight', 'weightInsights'));
+        return view('backend.kpis.index', compact('kpis', 'kpiTypes', 'totalActiveWeight', 'weightInsights', 'categories', 'kpiCategoryGroups'));
     }
 
     protected function normalizeSorts(Request $request)
@@ -167,7 +180,7 @@ class KpiController extends Controller
 
     public function create()
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_create')) {
             return abort(401);
         }
 
@@ -185,7 +198,7 @@ class KpiController extends Controller
 
     public function store(StoreKpiRequest $request)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_create')) {
             return abort(401);
         }
 
@@ -231,7 +244,7 @@ class KpiController extends Controller
 
     public function edit($kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
 
@@ -250,7 +263,7 @@ class KpiController extends Controller
 
     public function update(UpdateKpiRequest $request, $kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
 
@@ -299,7 +312,7 @@ class KpiController extends Controller
 
     public function toggleStatus($kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
 
@@ -322,7 +335,7 @@ class KpiController extends Controller
 
     public function destroy($kpi)
     {
-        if (!Gate::allows('category_access')) {
+        if (!Gate::allows('kpi_delete')) {
             return abort(401);
         }
 
@@ -395,6 +408,66 @@ class KpiController extends Controller
         }
 
         return $warnings;
+    }
+
+    protected function buildCategoryGroups(Collection $kpis): Collection
+    {
+        $groups = [];
+
+        foreach ($kpis as $kpi) {
+            $assignedCategories = $kpi->categories;
+            if ($assignedCategories->isEmpty()) {
+                $assignedCategories = collect([(object) ['id' => 0, 'name' => 'Uncategorized']]);
+            }
+
+            foreach ($assignedCategories as $category) {
+                $key = (string) $category->id;
+
+                if (!isset($groups[$key])) {
+                    $groups[$key] = [
+                        'id' => (int) $category->id,
+                        'name' => (string) $category->name,
+                        'kpi_count' => 0,
+                        'active_count' => 0,
+                        'sum_current_value' => 0.0,
+                        'sum_weighted_score' => 0.0,
+                        'included_metric_count' => 0,
+                    ];
+                }
+
+                $groups[$key]['kpi_count']++;
+
+                if ((bool) $kpi->is_active) {
+                    $groups[$key]['active_count']++;
+                }
+
+                if (!(bool) ($kpi->calculation['excluded'] ?? false)) {
+                    $groups[$key]['sum_current_value'] += (float) ($kpi->calculation['value'] ?? 0);
+                    $groups[$key]['sum_weighted_score'] += (float) ($kpi->calculation['weighted_score'] ?? 0);
+                    $groups[$key]['included_metric_count']++;
+                }
+            }
+        }
+
+        return collect($groups)
+            ->map(function (array $group) {
+                $metricCount = max(1, (int) $group['included_metric_count']);
+
+                return [
+                    'id' => $group['id'],
+                    'name' => $group['name'],
+                    'kpi_count' => $group['kpi_count'],
+                    'active_count' => $group['active_count'],
+                    'average_current_value' => $group['included_metric_count'] > 0
+                        ? $group['sum_current_value'] / $metricCount
+                        : null,
+                    'average_weighted_score' => $group['included_metric_count'] > 0
+                        ? $group['sum_weighted_score'] / $metricCount
+                        : null,
+                ];
+            })
+            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
     }
 
     /**
