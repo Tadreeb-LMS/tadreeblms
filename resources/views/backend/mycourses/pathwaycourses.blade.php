@@ -32,10 +32,6 @@
 
                 </div>
             @endcan
-            {{-- <div class="float-right">
-                <a href="{{ route('admin.courses.cms-course') }}" class="btn create_done">@lang('View CME Course')</a>
-
-            </div> --}}
         </div>
         <div class="card-body">
             <div class="table-responsive">

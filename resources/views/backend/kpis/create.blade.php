@@ -40,7 +40,11 @@
                         <select id="type" name="type" class="form-control" required>
                             <option value="">Select a KPI type</option>
                             @foreach($kpiTypes as $typeKey => $typeConfig)
-                                <option value="{{ $typeKey }}" {{ old('type') === $typeKey ? 'selected' : '' }}>
+                                <option
+                                    value="{{ $typeKey }}"
+                                    title="{{ $typeConfig['description'] ?? '' }}"
+                                    {{ old('type') === $typeKey ? 'selected' : '' }}
+                                >
                                     {{ $typeConfig['label'] }}
                                 </option>
                             @endforeach
