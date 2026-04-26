@@ -5,7 +5,12 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
         <h4 class="mb-0">KPI Management</h4>
+
         <div class="d-flex align-items-center">
+            @can('category_access')
+                <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary mr-2">Manage Categories</a>
+            @endcan
+
             @can('kpi_template_access')
                 <a href="{{ route('admin.kpi-templates.index') }}" class="btn btn-outline-secondary mr-2">Templates</a>
             @endcan
@@ -48,6 +53,10 @@
         </div>
     @endif
 
+    <div id="kpi-category-groups" class="mb-3">
+        @include('backend.kpis.partials.category_groups', ['kpiCategoryGroups' => $kpiCategoryGroups])
+    </div>
+
     <p class="text-muted small">Click a sortable header to cycle through ascending, descending, and off. Multiple active sorts are applied automatically.</p>
 
     <div class="card">
@@ -66,6 +75,17 @@
                         >
                         <small class="form-text text-muted">Instant search enabled</small>
                     </div>
+                    <div class="col-md-4">
+                        <select id="kpi-category-filter" name="category_id" class="form-control">
+                            <option value="">All mapped categories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ (string) request('category_id') === (string) $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Filter KPIs by mapped category</small>
+                    </div>
                 </div>
             </form>
 
@@ -79,7 +99,9 @@
         (function () {
             var form = document.querySelector('form[action="{{ route('admin.kpis.index') }}"]');
             var searchInput = document.getElementById('kpi-search');
+            var categoryInput = document.getElementById('kpi-category-filter');
             var resultsContainer = document.getElementById('kpi-results');
+            var groupsContainer = document.getElementById('kpi-category-groups');
             var totalWeightEl = document.getElementById('kpi-active-total-weight');
             var timer = null;
             var activeRequest = null;
@@ -123,6 +145,11 @@
 
                     var response = JSON.parse(activeRequest.responseText);
                     resultsContainer.innerHTML = response.html;
+
+                    if (groupsContainer && response.groupedHtml) {
+                        groupsContainer.innerHTML = response.groupedHtml;
+                    }
+
                     if (totalWeightEl && response.totalActiveWeight) {
                         totalWeightEl.textContent = response.totalActiveWeight;
                     }
@@ -138,29 +165,46 @@
                 if (pageUrl) {
                     var parsed = new URL(pageUrl, window.location.origin);
                     var currentSearch = searchInput.value.trim();
+
                     if (currentSearch.length > 0) {
                         parsed.searchParams.set('search', currentSearch);
                     } else {
                         parsed.searchParams.delete('search');
                     }
+
+                    if (categoryInput && categoryInput.value) {
+                        parsed.searchParams.set('category_id', categoryInput.value);
+                    } else {
+                        parsed.searchParams.delete('category_id');
+                    }
+
                     parsed.searchParams.delete('sort_by[]');
                     parsed.searchParams.delete('sort_dir[]');
+
                     sorts.forEach(function (sort) {
                         parsed.searchParams.append('sort_by[]', sort.by);
                         parsed.searchParams.append('sort_dir[]', sort.dir);
                     });
+
                     return parsed.toString();
                 }
 
                 var url = new URL(form.action, window.location.origin);
                 var value = searchInput.value.trim();
+
                 if (value.length > 0) {
                     url.searchParams.set('search', value);
                 }
+
+                if (categoryInput && categoryInput.value) {
+                    url.searchParams.set('category_id', categoryInput.value);
+                }
+
                 sorts.forEach(function (sort) {
                     url.searchParams.append('sort_by[]', sort.by);
                     url.searchParams.append('sort_dir[]', sort.dir);
                 });
+
                 return url.toString();
             }
 
@@ -194,10 +238,18 @@
                 }, 300);
             });
 
+            if (categoryInput) {
+                categoryInput.addEventListener('change', function () {
+                    requestAndRender(buildUrl());
+                });
+            }
+
             document.addEventListener('click', function (e) {
                 var link = e.target.closest('#kpi-results .pagination a');
+
                 if (!link) {
                     var sortButton = e.target.closest('#kpi-results .js-kpi-sort');
+
                     if (!sortButton) {
                         return;
                     }

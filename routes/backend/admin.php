@@ -623,21 +623,21 @@ Route::post('department_restore/{page}', ['uses' => 'Admin\DepartmentController@
 Route::delete('department_perma_del/{page}', ['uses' => 'Admin\DepartmentController@perma_del', 'as' => 'department.perma_del']);
 
 
-// Position
-Route::get('position', 'Admin\PositionController@index')->name('position.index');
-Route::get('position-create', 'Admin\PositionController@create')->name('position.create');
-Route::post('position-store', 'Admin\PositionController@store')->name('position.store');
-Route::get('position-view/{page}', 'Admin\PositionController@show')->name('position.show');
-Route::get('position-edit/{page}', 'Admin\PositionController@edit')->name('position.edit');
-Route::post('position-update/{page}', 'Admin\PositionController@update')->name('position.update');
-Route::delete('position-destroy/{page}', 'Admin\PositionController@destroy')->name('position.destroy');
+// Position module is intentionally disabled until it is mapped to active functionality.
+Route::get('position', 'Admin\PositionController@disabled')->name('position.index');
+Route::get('position-create', 'Admin\PositionController@disabled')->name('position.create');
+Route::post('position-store', 'Admin\PositionController@disabled')->name('position.store');
+Route::get('position-view/{page}', 'Admin\PositionController@disabled')->name('position.show');
+Route::get('position-edit/{page}', 'Admin\PositionController@disabled')->name('position.edit');
+Route::post('position-update/{page}', 'Admin\PositionController@disabled')->name('position.update');
+Route::delete('position-destroy/{page}', 'Admin\PositionController@disabled')->name('position.destroy');
 
-Route::post('position/import/', 'Admin\PositionController@import_exl')->name('position.add.import');
+Route::post('position/import/', 'Admin\PositionController@disabled')->name('position.add.import');
 
-Route::get('get-position-data', ['uses' => 'Admin\PositionController@getData', 'as' => 'position.get_data']);
-Route::post('position_mass_destroy', ['uses' => 'Admin\PositionController@massDestroy', 'as' => 'position.mass_destroy']);
-Route::post('position_restore/{page}', ['uses' => 'Admin\PositionController@restore', 'as' => 'position.restore']);
-Route::delete('position_perma_del/{page}', ['uses' => 'Admin\PositionController@perma_del', 'as' => 'position.perma_del']);
+Route::get('get-position-data', 'Admin\PositionController@disabled')->name('position.get_data');
+Route::post('position_mass_destroy', 'Admin\PositionController@disabled')->name('position.mass_destroy');
+Route::post('position_restore/{page}', 'Admin\PositionController@disabled')->name('position.restore');
+Route::delete('position_perma_del/{page}', 'Admin\PositionController@disabled')->name('position.perma_del');
 
 Route::get('subscription', 'Admin\SubscriptionController@index')->name('subscription.index');
 Route::get('subscription-create', 'Admin\SubscriptionController@create')->name('subscription.create');

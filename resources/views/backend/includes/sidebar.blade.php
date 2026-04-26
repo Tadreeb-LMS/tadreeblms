@@ -164,10 +164,11 @@
                     </li>
                 @endif
 
-                @if (
-                        null == Session::get('setvaluesession') ||
+                {{-- Temporarily disabled: Positions menu item hidden per issue #466 --}}
+                @if (false && (
+                    null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2]))
-                    )
+                ))
                     <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'position' ? 'active' : '' }}"
                             href="{{ route('admin.position.index') }}">
