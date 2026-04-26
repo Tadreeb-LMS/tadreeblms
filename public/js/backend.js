@@ -1,1299 +1,23 @@
-webpackJsonp([1],{
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["/js/backend"],{
 
-/***/ "./node_modules/@coreui/coreui/dist/js/coreui.js":
-/***/ (function(module, exports, __webpack_require__) {
+/***/ "./node_modules/@coreui/coreui/dist/js/coreui.js"
+/*!*******************************************************!*\
+  !*** ./node_modules/@coreui/coreui/dist/js/coreui.js ***!
+  \*******************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
 
 /*!
-  * CoreUI v2.1.5 (https://coreui.io)
-  * Copyright 2019 Łukasz Holeczek
+  * CoreUI v2.0.17 (https://coreui.io)
+  * Copyright 2018 Łukasz Holeczek
   * Licensed under MIT (https://coreui.io)
   */
 (function (global, factory) {
-   true ? factory(exports, __webpack_require__("./node_modules/jquery/dist/jquery.js"), __webpack_require__("./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js")) :
-  typeof define === 'function' && define.amd ? define(['exports', 'jquery', 'perfect-scrollbar'], factory) :
-  (global = global || self, factory(global.coreui = {}, global.jQuery, global.PerfectScrollbar));
-}(this, function (exports, $, PerfectScrollbar) { 'use strict';
+   true ? factory(exports, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"), __webpack_require__(/*! perfect-scrollbar */ "./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js")) :
+  0;
+}(this, (function (exports,$,PerfectScrollbar) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
   PerfectScrollbar = PerfectScrollbar && PerfectScrollbar.hasOwnProperty('default') ? PerfectScrollbar['default'] : PerfectScrollbar;
-
-  var _isObject = function (it) {
-    return typeof it === 'object' ? it !== null : typeof it === 'function';
-  };
-
-  var toString = {}.toString;
-
-  var _cof = function (it) {
-    return toString.call(it).slice(8, -1);
-  };
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var _core = createCommonjsModule(function (module) {
-  var core = module.exports = { version: '2.6.1' };
-  if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
-  });
-  var _core_1 = _core.version;
-
-  var _global = createCommonjsModule(function (module) {
-  // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-  var global = module.exports = typeof window != 'undefined' && window.Math == Math
-    ? window : typeof self != 'undefined' && self.Math == Math ? self
-    // eslint-disable-next-line no-new-func
-    : Function('return this')();
-  if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
-  });
-
-  var _library = false;
-
-  var _shared = createCommonjsModule(function (module) {
-  var SHARED = '__core-js_shared__';
-  var store = _global[SHARED] || (_global[SHARED] = {});
-
-  (module.exports = function (key, value) {
-    return store[key] || (store[key] = value !== undefined ? value : {});
-  })('versions', []).push({
-    version: _core.version,
-    mode: _library ? 'pure' : 'global',
-    copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
-  });
-  });
-
-  var id = 0;
-  var px = Math.random();
-  var _uid = function (key) {
-    return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-  };
-
-  var _wks = createCommonjsModule(function (module) {
-  var store = _shared('wks');
-
-  var Symbol = _global.Symbol;
-  var USE_SYMBOL = typeof Symbol == 'function';
-
-  var $exports = module.exports = function (name) {
-    return store[name] || (store[name] =
-      USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : _uid)('Symbol.' + name));
-  };
-
-  $exports.store = store;
-  });
-
-  // 7.2.8 IsRegExp(argument)
-
-
-  var MATCH = _wks('match');
-  var _isRegexp = function (it) {
-    var isRegExp;
-    return _isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : _cof(it) == 'RegExp');
-  };
-
-  var _anObject = function (it) {
-    if (!_isObject(it)) throw TypeError(it + ' is not an object!');
-    return it;
-  };
-
-  var _aFunction = function (it) {
-    if (typeof it != 'function') throw TypeError(it + ' is not a function!');
-    return it;
-  };
-
-  // 7.3.20 SpeciesConstructor(O, defaultConstructor)
-
-
-  var SPECIES = _wks('species');
-  var _speciesConstructor = function (O, D) {
-    var C = _anObject(O).constructor;
-    var S;
-    return C === undefined || (S = _anObject(C)[SPECIES]) == undefined ? D : _aFunction(S);
-  };
-
-  // 7.1.4 ToInteger
-  var ceil = Math.ceil;
-  var floor = Math.floor;
-  var _toInteger = function (it) {
-    return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-  };
-
-  // 7.2.1 RequireObjectCoercible(argument)
-  var _defined = function (it) {
-    if (it == undefined) throw TypeError("Can't call method on  " + it);
-    return it;
-  };
-
-  // true  -> String#at
-  // false -> String#codePointAt
-  var _stringAt = function (TO_STRING) {
-    return function (that, pos) {
-      var s = String(_defined(that));
-      var i = _toInteger(pos);
-      var l = s.length;
-      var a, b;
-      if (i < 0 || i >= l) return TO_STRING ? '' : undefined;
-      a = s.charCodeAt(i);
-      return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-        ? TO_STRING ? s.charAt(i) : a
-        : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
-    };
-  };
-
-  var at = _stringAt(true);
-
-   // `AdvanceStringIndex` abstract operation
-  // https://tc39.github.io/ecma262/#sec-advancestringindex
-  var _advanceStringIndex = function (S, index, unicode) {
-    return index + (unicode ? at(S, index).length : 1);
-  };
-
-  // 7.1.15 ToLength
-
-  var min = Math.min;
-  var _toLength = function (it) {
-    return it > 0 ? min(_toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-  };
-
-  // getting tag from 19.1.3.6 Object.prototype.toString()
-
-  var TAG = _wks('toStringTag');
-  // ES3 wrong here
-  var ARG = _cof(function () { return arguments; }()) == 'Arguments';
-
-  // fallback for IE11 Script Access Denied error
-  var tryGet = function (it, key) {
-    try {
-      return it[key];
-    } catch (e) { /* empty */ }
-  };
-
-  var _classof = function (it) {
-    var O, T, B;
-    return it === undefined ? 'Undefined' : it === null ? 'Null'
-      // @@toStringTag case
-      : typeof (T = tryGet(O = Object(it), TAG)) == 'string' ? T
-      // builtinTag case
-      : ARG ? _cof(O)
-      // ES3 arguments fallback
-      : (B = _cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
-  };
-
-  var builtinExec = RegExp.prototype.exec;
-
-   // `RegExpExec` abstract operation
-  // https://tc39.github.io/ecma262/#sec-regexpexec
-  var _regexpExecAbstract = function (R, S) {
-    var exec = R.exec;
-    if (typeof exec === 'function') {
-      var result = exec.call(R, S);
-      if (typeof result !== 'object') {
-        throw new TypeError('RegExp exec method returned something other than an Object or null');
-      }
-      return result;
-    }
-    if (_classof(R) !== 'RegExp') {
-      throw new TypeError('RegExp#exec called on incompatible receiver');
-    }
-    return builtinExec.call(R, S);
-  };
-
-  // 21.2.5.3 get RegExp.prototype.flags
-
-  var _flags = function () {
-    var that = _anObject(this);
-    var result = '';
-    if (that.global) result += 'g';
-    if (that.ignoreCase) result += 'i';
-    if (that.multiline) result += 'm';
-    if (that.unicode) result += 'u';
-    if (that.sticky) result += 'y';
-    return result;
-  };
-
-  var nativeExec = RegExp.prototype.exec;
-  // This always refers to the native implementation, because the
-  // String#replace polyfill uses ./fix-regexp-well-known-symbol-logic.js,
-  // which loads this file before patching the method.
-  var nativeReplace = String.prototype.replace;
-
-  var patchedExec = nativeExec;
-
-  var LAST_INDEX = 'lastIndex';
-
-  var UPDATES_LAST_INDEX_WRONG = (function () {
-    var re1 = /a/,
-        re2 = /b*/g;
-    nativeExec.call(re1, 'a');
-    nativeExec.call(re2, 'a');
-    return re1[LAST_INDEX] !== 0 || re2[LAST_INDEX] !== 0;
-  })();
-
-  // nonparticipating capturing group, copied from es5-shim's String#split patch.
-  var NPCG_INCLUDED = /()??/.exec('')[1] !== undefined;
-
-  var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED;
-
-  if (PATCH) {
-    patchedExec = function exec(str) {
-      var re = this;
-      var lastIndex, reCopy, match, i;
-
-      if (NPCG_INCLUDED) {
-        reCopy = new RegExp('^' + re.source + '$(?!\\s)', _flags.call(re));
-      }
-      if (UPDATES_LAST_INDEX_WRONG) lastIndex = re[LAST_INDEX];
-
-      match = nativeExec.call(re, str);
-
-      if (UPDATES_LAST_INDEX_WRONG && match) {
-        re[LAST_INDEX] = re.global ? match.index + match[0].length : lastIndex;
-      }
-      if (NPCG_INCLUDED && match && match.length > 1) {
-        // Fix browsers whose `exec` methods don't consistently return `undefined`
-        // for NPCG, like IE8. NOTE: This doesn' work for /(.?)?/
-        // eslint-disable-next-line no-loop-func
-        nativeReplace.call(match[0], reCopy, function () {
-          for (i = 1; i < arguments.length - 2; i++) {
-            if (arguments[i] === undefined) match[i] = undefined;
-          }
-        });
-      }
-
-      return match;
-    };
-  }
-
-  var _regexpExec = patchedExec;
-
-  var _fails = function (exec) {
-    try {
-      return !!exec();
-    } catch (e) {
-      return true;
-    }
-  };
-
-  // Thank's IE8 for his funny defineProperty
-  var _descriptors = !_fails(function () {
-    return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
-  });
-
-  var document$1 = _global.document;
-  // typeof document.createElement is 'object' in old IE
-  var is = _isObject(document$1) && _isObject(document$1.createElement);
-  var _domCreate = function (it) {
-    return is ? document$1.createElement(it) : {};
-  };
-
-  var _ie8DomDefine = !_descriptors && !_fails(function () {
-    return Object.defineProperty(_domCreate('div'), 'a', { get: function () { return 7; } }).a != 7;
-  });
-
-  // 7.1.1 ToPrimitive(input [, PreferredType])
-
-  // instead of the ES6 spec version, we didn't implement @@toPrimitive case
-  // and the second argument - flag - preferred type is a string
-  var _toPrimitive = function (it, S) {
-    if (!_isObject(it)) return it;
-    var fn, val;
-    if (S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
-    if (typeof (fn = it.valueOf) == 'function' && !_isObject(val = fn.call(it))) return val;
-    if (!S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
-    throw TypeError("Can't convert object to primitive value");
-  };
-
-  var dP = Object.defineProperty;
-
-  var f = _descriptors ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-    _anObject(O);
-    P = _toPrimitive(P, true);
-    _anObject(Attributes);
-    if (_ie8DomDefine) try {
-      return dP(O, P, Attributes);
-    } catch (e) { /* empty */ }
-    if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-    if ('value' in Attributes) O[P] = Attributes.value;
-    return O;
-  };
-
-  var _objectDp = {
-  	f: f
-  };
-
-  var _propertyDesc = function (bitmap, value) {
-    return {
-      enumerable: !(bitmap & 1),
-      configurable: !(bitmap & 2),
-      writable: !(bitmap & 4),
-      value: value
-    };
-  };
-
-  var _hide = _descriptors ? function (object, key, value) {
-    return _objectDp.f(object, key, _propertyDesc(1, value));
-  } : function (object, key, value) {
-    object[key] = value;
-    return object;
-  };
-
-  var hasOwnProperty = {}.hasOwnProperty;
-  var _has = function (it, key) {
-    return hasOwnProperty.call(it, key);
-  };
-
-  var _redefine = createCommonjsModule(function (module) {
-  var SRC = _uid('src');
-  var TO_STRING = 'toString';
-  var $toString = Function[TO_STRING];
-  var TPL = ('' + $toString).split(TO_STRING);
-
-  _core.inspectSource = function (it) {
-    return $toString.call(it);
-  };
-
-  (module.exports = function (O, key, val, safe) {
-    var isFunction = typeof val == 'function';
-    if (isFunction) _has(val, 'name') || _hide(val, 'name', key);
-    if (O[key] === val) return;
-    if (isFunction) _has(val, SRC) || _hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
-    if (O === _global) {
-      O[key] = val;
-    } else if (!safe) {
-      delete O[key];
-      _hide(O, key, val);
-    } else if (O[key]) {
-      O[key] = val;
-    } else {
-      _hide(O, key, val);
-    }
-  // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
-  })(Function.prototype, TO_STRING, function toString() {
-    return typeof this == 'function' && this[SRC] || $toString.call(this);
-  });
-  });
-
-  // optional / simple context binding
-
-  var _ctx = function (fn, that, length) {
-    _aFunction(fn);
-    if (that === undefined) return fn;
-    switch (length) {
-      case 1: return function (a) {
-        return fn.call(that, a);
-      };
-      case 2: return function (a, b) {
-        return fn.call(that, a, b);
-      };
-      case 3: return function (a, b, c) {
-        return fn.call(that, a, b, c);
-      };
-    }
-    return function (/* ...args */) {
-      return fn.apply(that, arguments);
-    };
-  };
-
-  var PROTOTYPE = 'prototype';
-
-  var $export = function (type, name, source) {
-    var IS_FORCED = type & $export.F;
-    var IS_GLOBAL = type & $export.G;
-    var IS_STATIC = type & $export.S;
-    var IS_PROTO = type & $export.P;
-    var IS_BIND = type & $export.B;
-    var target = IS_GLOBAL ? _global : IS_STATIC ? _global[name] || (_global[name] = {}) : (_global[name] || {})[PROTOTYPE];
-    var exports = IS_GLOBAL ? _core : _core[name] || (_core[name] = {});
-    var expProto = exports[PROTOTYPE] || (exports[PROTOTYPE] = {});
-    var key, own, out, exp;
-    if (IS_GLOBAL) source = name;
-    for (key in source) {
-      // contains in native
-      own = !IS_FORCED && target && target[key] !== undefined;
-      // export native or passed
-      out = (own ? target : source)[key];
-      // bind timers to global for call from export context
-      exp = IS_BIND && own ? _ctx(out, _global) : IS_PROTO && typeof out == 'function' ? _ctx(Function.call, out) : out;
-      // extend global
-      if (target) _redefine(target, key, out, type & $export.U);
-      // export
-      if (exports[key] != out) _hide(exports, key, exp);
-      if (IS_PROTO && expProto[key] != out) expProto[key] = out;
-    }
-  };
-  _global.core = _core;
-  // type bitmap
-  $export.F = 1;   // forced
-  $export.G = 2;   // global
-  $export.S = 4;   // static
-  $export.P = 8;   // proto
-  $export.B = 16;  // bind
-  $export.W = 32;  // wrap
-  $export.U = 64;  // safe
-  $export.R = 128; // real proto method for `library`
-  var _export = $export;
-
-  _export({
-    target: 'RegExp',
-    proto: true,
-    forced: _regexpExec !== /./.exec
-  }, {
-    exec: _regexpExec
-  });
-
-  var SPECIES$1 = _wks('species');
-
-  var REPLACE_SUPPORTS_NAMED_GROUPS = !_fails(function () {
-    // #replace needs built-in support for named groups.
-    // #match works fine because it just return the exec results, even if it has
-    // a "grops" property.
-    var re = /./;
-    re.exec = function () {
-      var result = [];
-      result.groups = { a: '7' };
-      return result;
-    };
-    return ''.replace(re, '$<a>') !== '7';
-  });
-
-  var SPLIT_WORKS_WITH_OVERWRITTEN_EXEC = (function () {
-    // Chrome 51 has a buggy "split" implementation when RegExp#exec !== nativeExec
-    var re = /(?:)/;
-    var originalExec = re.exec;
-    re.exec = function () { return originalExec.apply(this, arguments); };
-    var result = 'ab'.split(re);
-    return result.length === 2 && result[0] === 'a' && result[1] === 'b';
-  })();
-
-  var _fixReWks = function (KEY, length, exec) {
-    var SYMBOL = _wks(KEY);
-
-    var DELEGATES_TO_SYMBOL = !_fails(function () {
-      // String methods call symbol-named RegEp methods
-      var O = {};
-      O[SYMBOL] = function () { return 7; };
-      return ''[KEY](O) != 7;
-    });
-
-    var DELEGATES_TO_EXEC = DELEGATES_TO_SYMBOL ? !_fails(function () {
-      // Symbol-named RegExp methods call .exec
-      var execCalled = false;
-      var re = /a/;
-      re.exec = function () { execCalled = true; return null; };
-      if (KEY === 'split') {
-        // RegExp[@@split] doesn't call the regex's exec method, but first creates
-        // a new one. We need to return the patched regex when creating the new one.
-        re.constructor = {};
-        re.constructor[SPECIES$1] = function () { return re; };
-      }
-      re[SYMBOL]('');
-      return !execCalled;
-    }) : undefined;
-
-    if (
-      !DELEGATES_TO_SYMBOL ||
-      !DELEGATES_TO_EXEC ||
-      (KEY === 'replace' && !REPLACE_SUPPORTS_NAMED_GROUPS) ||
-      (KEY === 'split' && !SPLIT_WORKS_WITH_OVERWRITTEN_EXEC)
-    ) {
-      var nativeRegExpMethod = /./[SYMBOL];
-      var fns = exec(
-        _defined,
-        SYMBOL,
-        ''[KEY],
-        function maybeCallNative(nativeMethod, regexp, str, arg2, forceStringMethod) {
-          if (regexp.exec === _regexpExec) {
-            if (DELEGATES_TO_SYMBOL && !forceStringMethod) {
-              // The native String method already delegates to @@method (this
-              // polyfilled function), leasing to infinite recursion.
-              // We avoid it by directly calling the native @@method method.
-              return { done: true, value: nativeRegExpMethod.call(regexp, str, arg2) };
-            }
-            return { done: true, value: nativeMethod.call(str, regexp, arg2) };
-          }
-          return { done: false };
-        }
-      );
-      var strfn = fns[0];
-      var rxfn = fns[1];
-
-      _redefine(String.prototype, KEY, strfn);
-      _hide(RegExp.prototype, SYMBOL, length == 2
-        // 21.2.5.8 RegExp.prototype[@@replace](string, replaceValue)
-        // 21.2.5.11 RegExp.prototype[@@split](string, limit)
-        ? function (string, arg) { return rxfn.call(string, this, arg); }
-        // 21.2.5.6 RegExp.prototype[@@match](string)
-        // 21.2.5.9 RegExp.prototype[@@search](string)
-        : function (string) { return rxfn.call(string, this); }
-      );
-    }
-  };
-
-  var $min = Math.min;
-  var $push = [].push;
-  var $SPLIT = 'split';
-  var LENGTH = 'length';
-  var LAST_INDEX$1 = 'lastIndex';
-
-  // eslint-disable-next-line no-empty
-  var SUPPORTS_Y = !!(function () { try { return new RegExp('x', 'y'); } catch (e) {} })();
-
-  // @@split logic
-  _fixReWks('split', 2, function (defined, SPLIT, $split, maybeCallNative) {
-    var internalSplit;
-    if (
-      'abbc'[$SPLIT](/(b)*/)[1] == 'c' ||
-      'test'[$SPLIT](/(?:)/, -1)[LENGTH] != 4 ||
-      'ab'[$SPLIT](/(?:ab)*/)[LENGTH] != 2 ||
-      '.'[$SPLIT](/(.?)(.?)/)[LENGTH] != 4 ||
-      '.'[$SPLIT](/()()/)[LENGTH] > 1 ||
-      ''[$SPLIT](/.?/)[LENGTH]
-    ) {
-      // based on es5-shim implementation, need to rework it
-      internalSplit = function (separator, limit) {
-        var string = String(this);
-        if (separator === undefined && limit === 0) return [];
-        // If `separator` is not a regex, use native split
-        if (!_isRegexp(separator)) return $split.call(string, separator, limit);
-        var output = [];
-        var flags = (separator.ignoreCase ? 'i' : '') +
-                    (separator.multiline ? 'm' : '') +
-                    (separator.unicode ? 'u' : '') +
-                    (separator.sticky ? 'y' : '');
-        var lastLastIndex = 0;
-        var splitLimit = limit === undefined ? 4294967295 : limit >>> 0;
-        // Make `global` and avoid `lastIndex` issues by working with a copy
-        var separatorCopy = new RegExp(separator.source, flags + 'g');
-        var match, lastIndex, lastLength;
-        while (match = _regexpExec.call(separatorCopy, string)) {
-          lastIndex = separatorCopy[LAST_INDEX$1];
-          if (lastIndex > lastLastIndex) {
-            output.push(string.slice(lastLastIndex, match.index));
-            if (match[LENGTH] > 1 && match.index < string[LENGTH]) $push.apply(output, match.slice(1));
-            lastLength = match[0][LENGTH];
-            lastLastIndex = lastIndex;
-            if (output[LENGTH] >= splitLimit) break;
-          }
-          if (separatorCopy[LAST_INDEX$1] === match.index) separatorCopy[LAST_INDEX$1]++; // Avoid an infinite loop
-        }
-        if (lastLastIndex === string[LENGTH]) {
-          if (lastLength || !separatorCopy.test('')) output.push('');
-        } else output.push(string.slice(lastLastIndex));
-        return output[LENGTH] > splitLimit ? output.slice(0, splitLimit) : output;
-      };
-    // Chakra, V8
-    } else if ('0'[$SPLIT](undefined, 0)[LENGTH]) {
-      internalSplit = function (separator, limit) {
-        return separator === undefined && limit === 0 ? [] : $split.call(this, separator, limit);
-      };
-    } else {
-      internalSplit = $split;
-    }
-
-    return [
-      // `String.prototype.split` method
-      // https://tc39.github.io/ecma262/#sec-string.prototype.split
-      function split(separator, limit) {
-        var O = defined(this);
-        var splitter = separator == undefined ? undefined : separator[SPLIT];
-        return splitter !== undefined
-          ? splitter.call(separator, O, limit)
-          : internalSplit.call(String(O), separator, limit);
-      },
-      // `RegExp.prototype[@@split]` method
-      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@split
-      //
-      // NOTE: This cannot be properly polyfilled in engines that don't support
-      // the 'y' flag.
-      function (regexp, limit) {
-        var res = maybeCallNative(internalSplit, regexp, this, limit, internalSplit !== $split);
-        if (res.done) return res.value;
-
-        var rx = _anObject(regexp);
-        var S = String(this);
-        var C = _speciesConstructor(rx, RegExp);
-
-        var unicodeMatching = rx.unicode;
-        var flags = (rx.ignoreCase ? 'i' : '') +
-                      (rx.multiline ? 'm' : '') +
-                      (rx.unicode ? 'u' : '') +
-                      (SUPPORTS_Y ? 'y' : 'g');
-
-        // ^(? + rx + ) is needed, in combination with some S slicing, to
-        // simulate the 'y' flag.
-        var splitter = new C(SUPPORTS_Y ? rx : '^(?:' + rx.source + ')', flags);
-        var lim = limit === undefined ? 0xffffffff : limit >>> 0;
-        if (lim === 0) return [];
-        if (S.length === 0) return _regexpExecAbstract(splitter, S) === null ? [S] : [];
-        var p = 0;
-        var q = 0;
-        var A = [];
-        while (q < S.length) {
-          splitter.lastIndex = SUPPORTS_Y ? q : 0;
-          var z = _regexpExecAbstract(splitter, SUPPORTS_Y ? S : S.slice(q));
-          var e;
-          if (
-            z === null ||
-            (e = $min(_toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
-          ) {
-            q = _advanceStringIndex(S, q, unicodeMatching);
-          } else {
-            A.push(S.slice(p, q));
-            if (A.length === lim) return A;
-            for (var i = 1; i <= z.length - 1; i++) {
-              A.push(z[i]);
-              if (A.length === lim) return A;
-            }
-            q = p = e;
-          }
-        }
-        A.push(S.slice(p));
-        return A;
-      }
-    ];
-  });
-
-  // 22.1.3.31 Array.prototype[@@unscopables]
-  var UNSCOPABLES = _wks('unscopables');
-  var ArrayProto = Array.prototype;
-  if (ArrayProto[UNSCOPABLES] == undefined) _hide(ArrayProto, UNSCOPABLES, {});
-  var _addToUnscopables = function (key) {
-    ArrayProto[UNSCOPABLES][key] = true;
-  };
-
-  var _iterStep = function (done, value) {
-    return { value: value, done: !!done };
-  };
-
-  var _iterators = {};
-
-  // fallback for non-array-like ES3 and non-enumerable old V8 strings
-
-  // eslint-disable-next-line no-prototype-builtins
-  var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
-    return _cof(it) == 'String' ? it.split('') : Object(it);
-  };
-
-  // to indexed object, toObject with fallback for non-array-like ES3 strings
-
-
-  var _toIobject = function (it) {
-    return _iobject(_defined(it));
-  };
-
-  var max = Math.max;
-  var min$1 = Math.min;
-  var _toAbsoluteIndex = function (index, length) {
-    index = _toInteger(index);
-    return index < 0 ? max(index + length, 0) : min$1(index, length);
-  };
-
-  // false -> Array#indexOf
-  // true  -> Array#includes
-
-
-
-  var _arrayIncludes = function (IS_INCLUDES) {
-    return function ($this, el, fromIndex) {
-      var O = _toIobject($this);
-      var length = _toLength(O.length);
-      var index = _toAbsoluteIndex(fromIndex, length);
-      var value;
-      // Array#includes uses SameValueZero equality algorithm
-      // eslint-disable-next-line no-self-compare
-      if (IS_INCLUDES && el != el) while (length > index) {
-        value = O[index++];
-        // eslint-disable-next-line no-self-compare
-        if (value != value) return true;
-      // Array#indexOf ignores holes, Array#includes - not
-      } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
-        if (O[index] === el) return IS_INCLUDES || index || 0;
-      } return !IS_INCLUDES && -1;
-    };
-  };
-
-  var shared = _shared('keys');
-
-  var _sharedKey = function (key) {
-    return shared[key] || (shared[key] = _uid(key));
-  };
-
-  var arrayIndexOf = _arrayIncludes(false);
-  var IE_PROTO = _sharedKey('IE_PROTO');
-
-  var _objectKeysInternal = function (object, names) {
-    var O = _toIobject(object);
-    var i = 0;
-    var result = [];
-    var key;
-    for (key in O) if (key != IE_PROTO) _has(O, key) && result.push(key);
-    // Don't enum bug & hidden keys
-    while (names.length > i) if (_has(O, key = names[i++])) {
-      ~arrayIndexOf(result, key) || result.push(key);
-    }
-    return result;
-  };
-
-  // IE 8- don't enum bug keys
-  var _enumBugKeys = (
-    'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-  ).split(',');
-
-  // 19.1.2.14 / 15.2.3.14 Object.keys(O)
-
-
-
-  var _objectKeys = Object.keys || function keys(O) {
-    return _objectKeysInternal(O, _enumBugKeys);
-  };
-
-  var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
-    _anObject(O);
-    var keys = _objectKeys(Properties);
-    var length = keys.length;
-    var i = 0;
-    var P;
-    while (length > i) _objectDp.f(O, P = keys[i++], Properties[P]);
-    return O;
-  };
-
-  var document$2 = _global.document;
-  var _html = document$2 && document$2.documentElement;
-
-  // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-
-
-
-  var IE_PROTO$1 = _sharedKey('IE_PROTO');
-  var Empty = function () { /* empty */ };
-  var PROTOTYPE$1 = 'prototype';
-
-  // Create object with fake `null` prototype: use iframe Object with cleared prototype
-  var createDict = function () {
-    // Thrash, waste and sodomy: IE GC bug
-    var iframe = _domCreate('iframe');
-    var i = _enumBugKeys.length;
-    var lt = '<';
-    var gt = '>';
-    var iframeDocument;
-    iframe.style.display = 'none';
-    _html.appendChild(iframe);
-    iframe.src = 'javascript:'; // eslint-disable-line no-script-url
-    // createDict = iframe.contentWindow.Object;
-    // html.removeChild(iframe);
-    iframeDocument = iframe.contentWindow.document;
-    iframeDocument.open();
-    iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
-    iframeDocument.close();
-    createDict = iframeDocument.F;
-    while (i--) delete createDict[PROTOTYPE$1][_enumBugKeys[i]];
-    return createDict();
-  };
-
-  var _objectCreate = Object.create || function create(O, Properties) {
-    var result;
-    if (O !== null) {
-      Empty[PROTOTYPE$1] = _anObject(O);
-      result = new Empty();
-      Empty[PROTOTYPE$1] = null;
-      // add "__proto__" for Object.getPrototypeOf polyfill
-      result[IE_PROTO$1] = O;
-    } else result = createDict();
-    return Properties === undefined ? result : _objectDps(result, Properties);
-  };
-
-  var def = _objectDp.f;
-
-  var TAG$1 = _wks('toStringTag');
-
-  var _setToStringTag = function (it, tag, stat) {
-    if (it && !_has(it = stat ? it : it.prototype, TAG$1)) def(it, TAG$1, { configurable: true, value: tag });
-  };
-
-  var IteratorPrototype = {};
-
-  // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-  _hide(IteratorPrototype, _wks('iterator'), function () { return this; });
-
-  var _iterCreate = function (Constructor, NAME, next) {
-    Constructor.prototype = _objectCreate(IteratorPrototype, { next: _propertyDesc(1, next) });
-    _setToStringTag(Constructor, NAME + ' Iterator');
-  };
-
-  // 7.1.13 ToObject(argument)
-
-  var _toObject = function (it) {
-    return Object(_defined(it));
-  };
-
-  // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-
-
-  var IE_PROTO$2 = _sharedKey('IE_PROTO');
-  var ObjectProto = Object.prototype;
-
-  var _objectGpo = Object.getPrototypeOf || function (O) {
-    O = _toObject(O);
-    if (_has(O, IE_PROTO$2)) return O[IE_PROTO$2];
-    if (typeof O.constructor == 'function' && O instanceof O.constructor) {
-      return O.constructor.prototype;
-    } return O instanceof Object ? ObjectProto : null;
-  };
-
-  var ITERATOR = _wks('iterator');
-  var BUGGY = !([].keys && 'next' in [].keys()); // Safari has buggy iterators w/o `next`
-  var FF_ITERATOR = '@@iterator';
-  var KEYS = 'keys';
-  var VALUES = 'values';
-
-  var returnThis = function () { return this; };
-
-  var _iterDefine = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED) {
-    _iterCreate(Constructor, NAME, next);
-    var getMethod = function (kind) {
-      if (!BUGGY && kind in proto) return proto[kind];
-      switch (kind) {
-        case KEYS: return function keys() { return new Constructor(this, kind); };
-        case VALUES: return function values() { return new Constructor(this, kind); };
-      } return function entries() { return new Constructor(this, kind); };
-    };
-    var TAG = NAME + ' Iterator';
-    var DEF_VALUES = DEFAULT == VALUES;
-    var VALUES_BUG = false;
-    var proto = Base.prototype;
-    var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
-    var $default = $native || getMethod(DEFAULT);
-    var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
-    var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
-    var methods, key, IteratorPrototype;
-    // Fix native
-    if ($anyNative) {
-      IteratorPrototype = _objectGpo($anyNative.call(new Base()));
-      if (IteratorPrototype !== Object.prototype && IteratorPrototype.next) {
-        // Set @@toStringTag to native iterators
-        _setToStringTag(IteratorPrototype, TAG, true);
-        // fix for some old engines
-        if (!_library && typeof IteratorPrototype[ITERATOR] != 'function') _hide(IteratorPrototype, ITERATOR, returnThis);
-      }
-    }
-    // fix Array#{values, @@iterator}.name in V8 / FF
-    if (DEF_VALUES && $native && $native.name !== VALUES) {
-      VALUES_BUG = true;
-      $default = function values() { return $native.call(this); };
-    }
-    // Define iterator
-    if ((!_library || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])) {
-      _hide(proto, ITERATOR, $default);
-    }
-    // Plug for library
-    _iterators[NAME] = $default;
-    _iterators[TAG] = returnThis;
-    if (DEFAULT) {
-      methods = {
-        values: DEF_VALUES ? $default : getMethod(VALUES),
-        keys: IS_SET ? $default : getMethod(KEYS),
-        entries: $entries
-      };
-      if (FORCED) for (key in methods) {
-        if (!(key in proto)) _redefine(proto, key, methods[key]);
-      } else _export(_export.P + _export.F * (BUGGY || VALUES_BUG), NAME, methods);
-    }
-    return methods;
-  };
-
-  // 22.1.3.4 Array.prototype.entries()
-  // 22.1.3.13 Array.prototype.keys()
-  // 22.1.3.29 Array.prototype.values()
-  // 22.1.3.30 Array.prototype[@@iterator]()
-  var es6_array_iterator = _iterDefine(Array, 'Array', function (iterated, kind) {
-    this._t = _toIobject(iterated); // target
-    this._i = 0;                   // next index
-    this._k = kind;                // kind
-  // 22.1.5.2.1 %ArrayIteratorPrototype%.next()
-  }, function () {
-    var O = this._t;
-    var kind = this._k;
-    var index = this._i++;
-    if (!O || index >= O.length) {
-      this._t = undefined;
-      return _iterStep(1);
-    }
-    if (kind == 'keys') return _iterStep(0, index);
-    if (kind == 'values') return _iterStep(0, O[index]);
-    return _iterStep(0, [index, O[index]]);
-  }, 'values');
-
-  // argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
-  _iterators.Arguments = _iterators.Array;
-
-  _addToUnscopables('keys');
-  _addToUnscopables('values');
-  _addToUnscopables('entries');
-
-  var ITERATOR$1 = _wks('iterator');
-  var TO_STRING_TAG = _wks('toStringTag');
-  var ArrayValues = _iterators.Array;
-
-  var DOMIterables = {
-    CSSRuleList: true, // TODO: Not spec compliant, should be false.
-    CSSStyleDeclaration: false,
-    CSSValueList: false,
-    ClientRectList: false,
-    DOMRectList: false,
-    DOMStringList: false,
-    DOMTokenList: true,
-    DataTransferItemList: false,
-    FileList: false,
-    HTMLAllCollection: false,
-    HTMLCollection: false,
-    HTMLFormElement: false,
-    HTMLSelectElement: false,
-    MediaList: true, // TODO: Not spec compliant, should be false.
-    MimeTypeArray: false,
-    NamedNodeMap: false,
-    NodeList: true,
-    PaintRequestList: false,
-    Plugin: false,
-    PluginArray: false,
-    SVGLengthList: false,
-    SVGNumberList: false,
-    SVGPathSegList: false,
-    SVGPointList: false,
-    SVGStringList: false,
-    SVGTransformList: false,
-    SourceBufferList: false,
-    StyleSheetList: true, // TODO: Not spec compliant, should be false.
-    TextTrackCueList: false,
-    TextTrackList: false,
-    TouchList: false
-  };
-
-  for (var collections = _objectKeys(DOMIterables), i = 0; i < collections.length; i++) {
-    var NAME = collections[i];
-    var explicit = DOMIterables[NAME];
-    var Collection = _global[NAME];
-    var proto = Collection && Collection.prototype;
-    var key;
-    if (proto) {
-      if (!proto[ITERATOR$1]) _hide(proto, ITERATOR$1, ArrayValues);
-      if (!proto[TO_STRING_TAG]) _hide(proto, TO_STRING_TAG, NAME);
-      _iterators[NAME] = ArrayValues;
-      if (explicit) for (key in es6_array_iterator) if (!proto[key]) _redefine(proto, key, es6_array_iterator[key], true);
-    }
-  }
-
-  /*
-  * required polyfills
-  */
-  // eslint-disable-next-line consistent-return
-  (function () {
-    if (typeof NodeList.prototype.forEach === 'function') {
-      return false;
-    }
-
-    NodeList.prototype.forEach = Array.prototype.forEach;
-  })();
-  /** IE9, IE10 and IE11 requires all of the following polyfills. **/
-  // import 'core-js/es6/symbol'
-  // import 'core-js/es6/object'
-  // import 'core-js/es6/function'
-  // import 'core-js/es6/parse-int'
-  // import 'core-js/es6/parse-float'
-  // import 'core-js/es6/number'
-  // import 'core-js/es6/math'
-  // import 'core-js/es6/string'
-  // import 'core-js/es6/date'
-  // import 'core-js/es6/array'
-  // import 'core-js/es6/regexp'
-  // import 'core-js/es6/map'
-  // import 'core-js/es6/weak-map'
-  // import 'core-js/es6/set'
-  // import 'core-js/es7/object'
-
-  /** IE10 and IE11 requires the following for the Reflect API. */
-  // import 'core-js/es6/reflect'
-
-  /** Evergreen browsers require these. **/
-  // Used for reflect-metadata in JIT. If you use AOT (and only Angular decorators), you can remove.
-  // import 'core-js/es7/reflect'
-  // CustomEvent() constructor functionality in IE9, IE10, IE11
-  // (function () {
-  //
-  //   if ( typeof window.CustomEvent === "function" ) return false
-  //
-  //   function CustomEvent ( event, params ) {
-  //     params = params || { bubbles: false, cancelable: false, detail: undefined }
-  //     var evt = document.createEvent( 'CustomEvent' )
-  //     evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail )
-  //     return evt
-  //   }
-  //
-  //   CustomEvent.prototype = window.Event.prototype
-  //
-  //   window.CustomEvent = CustomEvent
-  // })()
-
-  var f$1 = Object.getOwnPropertySymbols;
-
-  var _objectGops = {
-  	f: f$1
-  };
-
-  var f$2 = {}.propertyIsEnumerable;
-
-  var _objectPie = {
-  	f: f$2
-  };
-
-  // 19.1.2.1 Object.assign(target, source, ...)
-
-
-
-
-
-  var $assign = Object.assign;
-
-  // should work with symbols and should have deterministic property order (V8 bug)
-  var _objectAssign = !$assign || _fails(function () {
-    var A = {};
-    var B = {};
-    // eslint-disable-next-line no-undef
-    var S = Symbol();
-    var K = 'abcdefghijklmnopqrst';
-    A[S] = 7;
-    K.split('').forEach(function (k) { B[k] = k; });
-    return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-  }) ? function assign(target, source) { // eslint-disable-line no-unused-vars
-    var T = _toObject(target);
-    var aLen = arguments.length;
-    var index = 1;
-    var getSymbols = _objectGops.f;
-    var isEnum = _objectPie.f;
-    while (aLen > index) {
-      var S = _iobject(arguments[index++]);
-      var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
-      var length = keys.length;
-      var j = 0;
-      var key;
-      while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
-    } return T;
-  } : $assign;
-
-  // 19.1.3.1 Object.assign(target, source)
-
-
-  _export(_export.S + _export.F, 'Object', { assign: _objectAssign });
-
-  var $at = _stringAt(true);
-
-  // 21.1.3.27 String.prototype[@@iterator]()
-  _iterDefine(String, 'String', function (iterated) {
-    this._t = String(iterated); // target
-    this._i = 0;                // next index
-  // 21.1.5.2.1 %StringIteratorPrototype%.next()
-  }, function () {
-    var O = this._t;
-    var index = this._i;
-    var point;
-    if (index >= O.length) return { value: undefined, done: true };
-    point = $at(O, index);
-    this._i += point.length;
-    return { value: point, done: false };
-  });
-
-  // call something on iterator step with safe closing on error
-
-  var _iterCall = function (iterator, fn, value, entries) {
-    try {
-      return entries ? fn(_anObject(value)[0], value[1]) : fn(value);
-    // 7.4.6 IteratorClose(iterator, completion)
-    } catch (e) {
-      var ret = iterator['return'];
-      if (ret !== undefined) _anObject(ret.call(iterator));
-      throw e;
-    }
-  };
-
-  // check on default Array iterator
-
-  var ITERATOR$2 = _wks('iterator');
-  var ArrayProto$1 = Array.prototype;
-
-  var _isArrayIter = function (it) {
-    return it !== undefined && (_iterators.Array === it || ArrayProto$1[ITERATOR$2] === it);
-  };
-
-  var _createProperty = function (object, index, value) {
-    if (index in object) _objectDp.f(object, index, _propertyDesc(0, value));
-    else object[index] = value;
-  };
-
-  var ITERATOR$3 = _wks('iterator');
-
-  var core_getIteratorMethod = _core.getIteratorMethod = function (it) {
-    if (it != undefined) return it[ITERATOR$3]
-      || it['@@iterator']
-      || _iterators[_classof(it)];
-  };
-
-  var ITERATOR$4 = _wks('iterator');
-  var SAFE_CLOSING = false;
-
-  try {
-    var riter = [7][ITERATOR$4]();
-    riter['return'] = function () { SAFE_CLOSING = true; };
-  } catch (e) { /* empty */ }
-
-  var _iterDetect = function (exec, skipClosing) {
-    if (!skipClosing && !SAFE_CLOSING) return false;
-    var safe = false;
-    try {
-      var arr = [7];
-      var iter = arr[ITERATOR$4]();
-      iter.next = function () { return { done: safe = true }; };
-      arr[ITERATOR$4] = function () { return iter; };
-      exec(arr);
-    } catch (e) { /* empty */ }
-    return safe;
-  };
-
-  _export(_export.S + _export.F * !_iterDetect(function (iter) { }), 'Array', {
-    // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
-    from: function from(arrayLike /* , mapfn = undefined, thisArg = undefined */) {
-      var O = _toObject(arrayLike);
-      var C = typeof this == 'function' ? this : Array;
-      var aLen = arguments.length;
-      var mapfn = aLen > 1 ? arguments[1] : undefined;
-      var mapping = mapfn !== undefined;
-      var index = 0;
-      var iterFn = core_getIteratorMethod(O);
-      var length, result, step, iterator;
-      if (mapping) mapfn = _ctx(mapfn, aLen > 2 ? arguments[2] : undefined, 2);
-      // if object isn't iterable or it's array with default iterator - use simple case
-      if (iterFn != undefined && !(C == Array && _isArrayIter(iterFn))) {
-        for (iterator = iterFn.call(O), result = new C(); !(step = iterator.next()).done; index++) {
-          _createProperty(result, index, mapping ? _iterCall(iterator, mapfn, [step.value, index], true) : step.value);
-        }
-      } else {
-        length = _toLength(O.length);
-        for (result = new C(length); length > index; index++) {
-          _createProperty(result, index, mapping ? mapfn(O[index], index) : O[index]);
-        }
-      }
-      result.length = index;
-      return result;
-    }
-  });
-
-  var max$1 = Math.max;
-  var min$2 = Math.min;
-  var floor$1 = Math.floor;
-  var SUBSTITUTION_SYMBOLS = /\$([$&`']|\d\d?|<[^>]*>)/g;
-  var SUBSTITUTION_SYMBOLS_NO_NAMED = /\$([$&`']|\d\d?)/g;
-
-  var maybeToString = function (it) {
-    return it === undefined ? it : String(it);
-  };
-
-  // @@replace logic
-  _fixReWks('replace', 2, function (defined, REPLACE, $replace, maybeCallNative) {
-    return [
-      // `String.prototype.replace` method
-      // https://tc39.github.io/ecma262/#sec-string.prototype.replace
-      function replace(searchValue, replaceValue) {
-        var O = defined(this);
-        var fn = searchValue == undefined ? undefined : searchValue[REPLACE];
-        return fn !== undefined
-          ? fn.call(searchValue, O, replaceValue)
-          : $replace.call(String(O), searchValue, replaceValue);
-      },
-      // `RegExp.prototype[@@replace]` method
-      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@replace
-      function (regexp, replaceValue) {
-        var res = maybeCallNative($replace, regexp, this, replaceValue);
-        if (res.done) return res.value;
-
-        var rx = _anObject(regexp);
-        var S = String(this);
-        var functionalReplace = typeof replaceValue === 'function';
-        if (!functionalReplace) replaceValue = String(replaceValue);
-        var global = rx.global;
-        if (global) {
-          var fullUnicode = rx.unicode;
-          rx.lastIndex = 0;
-        }
-        var results = [];
-        while (true) {
-          var result = _regexpExecAbstract(rx, S);
-          if (result === null) break;
-          results.push(result);
-          if (!global) break;
-          var matchStr = String(result[0]);
-          if (matchStr === '') rx.lastIndex = _advanceStringIndex(S, _toLength(rx.lastIndex), fullUnicode);
-        }
-        var accumulatedResult = '';
-        var nextSourcePosition = 0;
-        for (var i = 0; i < results.length; i++) {
-          result = results[i];
-          var matched = String(result[0]);
-          var position = max$1(min$2(_toInteger(result.index), S.length), 0);
-          var captures = [];
-          // NOTE: This is equivalent to
-          //   captures = result.slice(1).map(maybeToString)
-          // but for some reason `nativeSlice.call(result, 1, result.length)` (called in
-          // the slice polyfill when slicing native arrays) "doesn't work" in safari 9 and
-          // causes a crash (https://pastebin.com/N21QzeQA) when trying to debug it.
-          for (var j = 1; j < result.length; j++) captures.push(maybeToString(result[j]));
-          var namedCaptures = result.groups;
-          if (functionalReplace) {
-            var replacerArgs = [matched].concat(captures, position, S);
-            if (namedCaptures !== undefined) replacerArgs.push(namedCaptures);
-            var replacement = String(replaceValue.apply(undefined, replacerArgs));
-          } else {
-            replacement = getSubstitution(matched, S, position, captures, namedCaptures, replaceValue);
-          }
-          if (position >= nextSourcePosition) {
-            accumulatedResult += S.slice(nextSourcePosition, position) + replacement;
-            nextSourcePosition = position + matched.length;
-          }
-        }
-        return accumulatedResult + S.slice(nextSourcePosition);
-      }
-    ];
-
-      // https://tc39.github.io/ecma262/#sec-getsubstitution
-    function getSubstitution(matched, str, position, captures, namedCaptures, replacement) {
-      var tailPos = position + matched.length;
-      var m = captures.length;
-      var symbols = SUBSTITUTION_SYMBOLS_NO_NAMED;
-      if (namedCaptures !== undefined) {
-        namedCaptures = _toObject(namedCaptures);
-        symbols = SUBSTITUTION_SYMBOLS;
-      }
-      return $replace.call(replacement, symbols, function (match, ch) {
-        var capture;
-        switch (ch.charAt(0)) {
-          case '$': return '$';
-          case '&': return matched;
-          case '`': return str.slice(0, position);
-          case "'": return str.slice(tailPos);
-          case '<':
-            capture = namedCaptures[ch.slice(1, -1)];
-            break;
-          default: // \d\d?
-            var n = +ch;
-            if (n === 0) return ch;
-            if (n > m) {
-              var f = floor$1(n / 10);
-              if (f === 0) return ch;
-              if (f <= m) return captures[f - 1] === undefined ? ch.charAt(1) : captures[f - 1] + ch.charAt(1);
-              return ch;
-            }
-            capture = captures[n - 1];
-        }
-        return capture === undefined ? '' : capture;
-      });
-    }
-  });
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -1313,7 +37,7 @@ webpackJsonp([1],{
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.1.5): ajax-load.js
+   * CoreUI (v2.0.17): ajax-load.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -1325,7 +49,7 @@ webpackJsonp([1],{
      * ------------------------------------------------------------------------
      */
     var NAME = 'ajaxLoad';
-    var VERSION = '2.1.5';
+    var VERSION = '2.0.17';
     var DATA_KEY = 'coreui.ajaxLoad';
     var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
     var ClassName = {
@@ -1445,8 +169,8 @@ webpackJsonp([1],{
 
       _proto.loadTop = function loadTop(url) {
         window.location = url;
-      } // Private
-      ;
+      }; // Private
+
 
       _proto._getConfig = function _getConfig(config) {
         config = Object.assign({}, Default, config);
@@ -1468,8 +192,8 @@ webpackJsonp([1],{
             _this.setUpUrl(event.currentTarget.getAttribute('href'));
           }
         });
-      } // Static
-      ;
+      }; // Static
+
 
       AjaxLoad._jQueryInterface = function _jQueryInterface(config) {
         return this.each(function () {
@@ -1518,7 +242,7 @@ webpackJsonp([1],{
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.1.5): toggle-classes.js
+   * CoreUI (v2.0.17): toggle-classes.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -1543,7 +267,7 @@ webpackJsonp([1],{
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.1.5): aside-menu.js
+   * CoreUI (v2.0.17): aside-menu.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -1555,7 +279,7 @@ webpackJsonp([1],{
      * ------------------------------------------------------------------------
      */
     var NAME = 'aside-menu';
-    var VERSION = '2.1.5';
+    var VERSION = '2.0.17';
     var DATA_KEY = 'coreui.aside-menu';
     var EVENT_KEY = "." + DATA_KEY;
     var DATA_API_KEY = '.data-api';
@@ -1591,14 +315,14 @@ webpackJsonp([1],{
 
       // Private
       _proto._addEventListeners = function _addEventListeners() {
-        $$$1(document).on(Event.CLICK, Selector.ASIDE_MENU_TOGGLER, function (event) {
+        $$$1(Selector.ASIDE_MENU_TOGGLER).on(Event.CLICK, function (event) {
           event.preventDefault();
           event.stopPropagation();
-          var toggle = event.currentTarget.dataset ? event.currentTarget.dataset.toggle : $$$1(event.currentTarget).data('toggle');
+          var toggle = event.currentTarget.dataset.toggle;
           toggleClasses(toggle, ShowClassNames);
         });
-      } // Static
-      ;
+      }; // Static
+
 
       AsideMenu._jQueryInterface = function _jQueryInterface() {
         return this.each(function () {
@@ -1650,132 +374,240 @@ webpackJsonp([1],{
     return AsideMenu;
   }($);
 
-  // 7.2.2 IsArray(argument)
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.17): sidebar.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
 
-  var _isArray = Array.isArray || function isArray(arg) {
-    return _cof(arg) == 'Array';
-  };
-
-  var SPECIES$2 = _wks('species');
-
-  var _arraySpeciesConstructor = function (original) {
-    var C;
-    if (_isArray(original)) {
-      C = original.constructor;
-      // cross-realm fallback
-      if (typeof C == 'function' && (C === Array || _isArray(C.prototype))) C = undefined;
-      if (_isObject(C)) {
-        C = C[SPECIES$2];
-        if (C === null) C = undefined;
-      }
-    } return C === undefined ? Array : C;
-  };
-
-  // 9.4.2.3 ArraySpeciesCreate(originalArray, length)
-
-
-  var _arraySpeciesCreate = function (original, length) {
-    return new (_arraySpeciesConstructor(original))(length);
-  };
-
-  // 0 -> Array#forEach
-  // 1 -> Array#map
-  // 2 -> Array#filter
-  // 3 -> Array#some
-  // 4 -> Array#every
-  // 5 -> Array#find
-  // 6 -> Array#findIndex
-
-
-
-
-
-  var _arrayMethods = function (TYPE, $create) {
-    var IS_MAP = TYPE == 1;
-    var IS_FILTER = TYPE == 2;
-    var IS_SOME = TYPE == 3;
-    var IS_EVERY = TYPE == 4;
-    var IS_FIND_INDEX = TYPE == 6;
-    var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
-    var create = $create || _arraySpeciesCreate;
-    return function ($this, callbackfn, that) {
-      var O = _toObject($this);
-      var self = _iobject(O);
-      var f = _ctx(callbackfn, that, 3);
-      var length = _toLength(self.length);
-      var index = 0;
-      var result = IS_MAP ? create($this, length) : IS_FILTER ? create($this, 0) : undefined;
-      var val, res;
-      for (;length > index; index++) if (NO_HOLES || index in self) {
-        val = self[index];
-        res = f(val, index, O);
-        if (TYPE) {
-          if (IS_MAP) result[index] = res;   // map
-          else if (res) switch (TYPE) {
-            case 3: return true;             // some
-            case 5: return val;              // find
-            case 6: return index;            // findIndex
-            case 2: result.push(val);        // filter
-          } else if (IS_EVERY) return false; // every
-        }
-      }
-      return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : result;
+  var Sidebar = function ($$$1) {
+    /**
+     * ------------------------------------------------------------------------
+     * Constants
+     * ------------------------------------------------------------------------
+     */
+    var NAME = 'sidebar';
+    var VERSION = '2.0.17';
+    var DATA_KEY = 'coreui.sidebar';
+    var EVENT_KEY = "." + DATA_KEY;
+    var DATA_API_KEY = '.data-api';
+    var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
+    var Default = {
+      transition: 400
     };
-  };
+    var ClassName = {
+      ACTIVE: 'active',
+      BRAND_MINIMIZED: 'brand-minimized',
+      NAV_DROPDOWN_TOGGLE: 'nav-dropdown-toggle',
+      OPEN: 'open',
+      SIDEBAR_FIXED: 'sidebar-fixed',
+      SIDEBAR_MINIMIZED: 'sidebar-minimized',
+      SIDEBAR_OFF_CANVAS: 'sidebar-off-canvas'
+    };
+    var Event = {
+      CLICK: 'click',
+      DESTROY: 'destroy',
+      INIT: 'init',
+      LOAD_DATA_API: "load" + EVENT_KEY + DATA_API_KEY,
+      TOGGLE: 'toggle',
+      UPDATE: 'update'
+    };
+    var Selector = {
+      BODY: 'body',
+      BRAND_MINIMIZER: '.brand-minimizer',
+      NAV_DROPDOWN_TOGGLE: '.nav-dropdown-toggle',
+      NAV_DROPDOWN_ITEMS: '.nav-dropdown-items',
+      NAV_ITEM: '.nav-item',
+      NAV_LINK: '.nav-link',
+      NAVIGATION_CONTAINER: '.sidebar-nav',
+      NAVIGATION: '.sidebar-nav > .nav',
+      SIDEBAR: '.sidebar',
+      SIDEBAR_MINIMIZER: '.sidebar-minimizer',
+      SIDEBAR_TOGGLER: '.sidebar-toggler'
+    };
+    var ShowClassNames = ['sidebar-show', 'sidebar-sm-show', 'sidebar-md-show', 'sidebar-lg-show', 'sidebar-xl-show'];
+    /**
+     * ------------------------------------------------------------------------
+     * Class Definition
+     * ------------------------------------------------------------------------
+     */
 
-  // 22.1.3.8 Array.prototype.find(predicate, thisArg = undefined)
+    var Sidebar =
+    /*#__PURE__*/
+    function () {
+      function Sidebar(element) {
+        this._element = element;
+        this.ps = null;
+        this.perfectScrollbar(Event.INIT);
+        this.setActiveLink();
 
-  var $find = _arrayMethods(5);
-  var KEY = 'find';
-  var forced = true;
-  // Shouldn't skip holes
-  if (KEY in []) Array(1)[KEY](function () { forced = false; });
-  _export(_export.P + _export.F * forced, 'Array', {
-    find: function find(callbackfn /* , that = undefined */) {
-      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-  _addToUnscopables(KEY);
+        this._addEventListeners();
+      } // Getters
 
-  // @@match logic
-  _fixReWks('match', 1, function (defined, MATCH, $match, maybeCallNative) {
-    return [
-      // `String.prototype.match` method
-      // https://tc39.github.io/ecma262/#sec-string.prototype.match
-      function match(regexp) {
-        var O = defined(this);
-        var fn = regexp == undefined ? undefined : regexp[MATCH];
-        return fn !== undefined ? fn.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
-      },
-      // `RegExp.prototype[@@match]` method
-      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
-      function (regexp) {
-        var res = maybeCallNative($match, regexp, this);
-        if (res.done) return res.value;
-        var rx = _anObject(regexp);
-        var S = String(this);
-        if (!rx.global) return _regexpExecAbstract(rx, S);
-        var fullUnicode = rx.unicode;
-        rx.lastIndex = 0;
-        var A = [];
-        var n = 0;
-        var result;
-        while ((result = _regexpExecAbstract(rx, S)) !== null) {
-          var matchStr = String(result[0]);
-          A[n] = matchStr;
-          if (matchStr === '') rx.lastIndex = _advanceStringIndex(S, _toLength(rx.lastIndex), fullUnicode);
-          n++;
+
+      var _proto = Sidebar.prototype;
+
+      // Public
+      _proto.perfectScrollbar = function perfectScrollbar(event) {
+        var _this = this;
+
+        if (typeof PerfectScrollbar !== 'undefined') {
+          if (event === Event.INIT && !document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+            this.ps = this.makeScrollbar();
+          }
+
+          if (event === Event.DESTROY) {
+            this.destroyScrollbar();
+          }
+
+          if (event === Event.TOGGLE) {
+            if (document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+              this.destroyScrollbar();
+            } else {
+              this.ps = this.makeScrollbar();
+            }
+          }
+
+          if (event === Event.UPDATE && !document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+            // ToDo: Add smooth transition
+            setTimeout(function () {
+              _this.destroyScrollbar();
+
+              _this.ps = _this.makeScrollbar();
+            }, Default.transition);
+          }
         }
-        return n === 0 ? null : A;
-      }
-    ];
-  });
+      };
+
+      _proto.makeScrollbar = function makeScrollbar(container) {
+        if (container === void 0) {
+          container = Selector.NAVIGATION_CONTAINER;
+        }
+
+        var ps = new PerfectScrollbar(document.querySelector(container), {
+          suppressScrollX: true
+        }); // ToDo: find real fix for ps rtl
+
+        ps.isRtl = false;
+        return ps;
+      };
+
+      _proto.destroyScrollbar = function destroyScrollbar() {
+        if (this.ps) {
+          this.ps.destroy();
+          this.ps = null;
+        }
+      };
+
+      _proto.setActiveLink = function setActiveLink() {
+        $$$1(Selector.NAVIGATION).find(Selector.NAV_LINK).each(function (key, value) {
+          var link = value;
+          var cUrl = String(window.location).split('?')[0];
+
+          if (cUrl.substr(cUrl.length - 1) === '#') {
+            cUrl = cUrl.slice(0, -1);
+          }
+
+          if ($$$1($$$1(link))[0].href === cUrl) {
+            $$$1(link).addClass(ClassName.ACTIVE).parents(Selector.NAV_DROPDOWN_ITEMS).add(link).each(function (key, value) {
+              link = value;
+              $$$1(link).parent().addClass(ClassName.OPEN);
+            });
+          }
+        });
+      }; // Private
+
+
+      _proto._addEventListeners = function _addEventListeners() {
+        var _this2 = this;
+
+        $$$1(Selector.BRAND_MINIMIZER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          $$$1(Selector.BODY).toggleClass(ClassName.BRAND_MINIMIZED);
+        });
+        $$$1(Selector.NAV_DROPDOWN_TOGGLE).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var dropdown = event.target;
+          $$$1(dropdown).parent().toggleClass(ClassName.OPEN);
+
+          _this2.perfectScrollbar(Event.UPDATE);
+        });
+        $$$1(Selector.SIDEBAR_MINIMIZER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          $$$1(Selector.BODY).toggleClass(ClassName.SIDEBAR_MINIMIZED);
+
+          _this2.perfectScrollbar(Event.TOGGLE);
+        });
+        $$$1(Selector.SIDEBAR_TOGGLER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var toggle = event.currentTarget.dataset.toggle;
+          toggleClasses(toggle, ShowClassNames);
+        });
+        $$$1(Selector.NAVIGATION + " > " + Selector.NAV_ITEM + " " + Selector.NAV_LINK + ":not(" + Selector.NAV_DROPDOWN_TOGGLE + ")").on(Event.CLICK, function () {
+          document.body.classList.remove('sidebar-show');
+        });
+      }; // Static
+
+
+      Sidebar._jQueryInterface = function _jQueryInterface() {
+        return this.each(function () {
+          var $element = $$$1(this);
+          var data = $element.data(DATA_KEY);
+
+          if (!data) {
+            data = new Sidebar(this);
+            $element.data(DATA_KEY, data);
+          }
+        });
+      };
+
+      _createClass(Sidebar, null, [{
+        key: "VERSION",
+        get: function get() {
+          return VERSION;
+        }
+      }]);
+
+      return Sidebar;
+    }();
+    /**
+     * ------------------------------------------------------------------------
+     * Data Api implementation
+     * ------------------------------------------------------------------------
+     */
+
+
+    $$$1(window).on(Event.LOAD_DATA_API, function () {
+      var sidebar = $$$1(Selector.SIDEBAR);
+
+      Sidebar._jQueryInterface.call(sidebar);
+    });
+    /**
+     * ------------------------------------------------------------------------
+     * jQuery
+     * ------------------------------------------------------------------------
+     */
+
+    $$$1.fn[NAME] = Sidebar._jQueryInterface;
+    $$$1.fn[NAME].Constructor = Sidebar;
+
+    $$$1.fn[NAME].noConflict = function () {
+      $$$1.fn[NAME] = JQUERY_NO_CONFLICT;
+      return Sidebar._jQueryInterface;
+    };
+
+    return Sidebar;
+  }($);
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI Utilities (v2.1.5): get-css-custom-properties.js
+   * CoreUI Utilities (v2.0.17): get-style.js
    * Licensed under MIT (https://coreui.io/license)
-   * @returns {string} css custom property name
    * --------------------------------------------------------------------------
    */
   var getCssCustomProperties = function getCssCustomProperties() {
@@ -1841,307 +673,7 @@ webpackJsonp([1],{
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.1.5): sidebar.js
-   * Licensed under MIT (https://coreui.io/license)
-   * --------------------------------------------------------------------------
-   */
-
-  var Sidebar = function ($$$1) {
-    /**
-     * ------------------------------------------------------------------------
-     * Constants
-     * ------------------------------------------------------------------------
-     */
-    var NAME = 'sidebar';
-    var VERSION = '2.1.5';
-    var DATA_KEY = 'coreui.sidebar';
-    var EVENT_KEY = "." + DATA_KEY;
-    var DATA_API_KEY = '.data-api';
-    var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
-    var Default = {
-      transition: 400
-    };
-    var ClassName = {
-      ACTIVE: 'active',
-      BRAND_MINIMIZED: 'brand-minimized',
-      NAV_DROPDOWN_TOGGLE: 'nav-dropdown-toggle',
-      OPEN: 'open',
-      SIDEBAR_FIXED: 'sidebar-fixed',
-      SIDEBAR_MINIMIZED: 'sidebar-minimized',
-      SIDEBAR_OFF_CANVAS: 'sidebar-off-canvas'
-    };
-    var Event = {
-      CLICK: 'click',
-      DESTROY: 'destroy',
-      INIT: 'init',
-      LOAD_DATA_API: "load" + EVENT_KEY + DATA_API_KEY,
-      TOGGLE: 'toggle',
-      UPDATE: 'update'
-    };
-    var Selector = {
-      BODY: 'body',
-      BRAND_MINIMIZER: '.brand-minimizer',
-      NAV_DROPDOWN_TOGGLE: '.nav-dropdown-toggle',
-      NAV_DROPDOWN_ITEMS: '.nav-dropdown-items',
-      NAV_ITEM: '.nav-item',
-      NAV_LINK: '.nav-link',
-      NAV_LINK_QUERIED: '.nav-link-queried',
-      NAVIGATION_CONTAINER: '.sidebar-nav',
-      NAVIGATION: '.sidebar-nav > .nav',
-      SIDEBAR: '.sidebar',
-      SIDEBAR_MINIMIZER: '.sidebar-minimizer',
-      SIDEBAR_TOGGLER: '.sidebar-toggler'
-    };
-    var ShowClassNames = ['sidebar-show', 'sidebar-sm-show', 'sidebar-md-show', 'sidebar-lg-show', 'sidebar-xl-show'];
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
-
-    var Sidebar =
-    /*#__PURE__*/
-    function () {
-      function Sidebar(element) {
-        this._element = element;
-        this.mobile = false;
-        this.ps = null;
-        this.perfectScrollbar(Event.INIT);
-        this.setActiveLink();
-        this._breakpointTest = this._breakpointTest.bind(this);
-        this._clickOutListener = this._clickOutListener.bind(this);
-
-        this._addEventListeners();
-
-        this._addMediaQuery();
-      } // Getters
-
-
-      var _proto = Sidebar.prototype;
-
-      // Public
-      _proto.perfectScrollbar = function perfectScrollbar(event) {
-        var _this = this;
-
-        if (typeof PerfectScrollbar !== 'undefined') {
-          var classList = document.body.classList;
-
-          if (event === Event.INIT && !classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
-            this.ps = this.makeScrollbar();
-          }
-
-          if (event === Event.DESTROY) {
-            this.destroyScrollbar();
-          }
-
-          if (event === Event.TOGGLE) {
-            if (classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
-              this.destroyScrollbar();
-            } else {
-              this.destroyScrollbar();
-              this.ps = this.makeScrollbar();
-            }
-          }
-
-          if (event === Event.UPDATE && !classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
-            // ToDo: Add smooth transition
-            setTimeout(function () {
-              _this.destroyScrollbar();
-
-              _this.ps = _this.makeScrollbar();
-            }, Default.transition);
-          }
-        }
-      };
-
-      _proto.makeScrollbar = function makeScrollbar(container) {
-        if (container === void 0) {
-          container = Selector.NAVIGATION_CONTAINER;
-        }
-
-        var ps = new PerfectScrollbar(document.querySelector(container), {
-          suppressScrollX: true
-        }); // ToDo: find real fix for ps rtl
-
-        ps.isRtl = false;
-        return ps;
-      };
-
-      _proto.destroyScrollbar = function destroyScrollbar() {
-        if (this.ps) {
-          this.ps.destroy();
-          this.ps = null;
-        }
-      };
-
-      _proto.setActiveLink = function setActiveLink() {
-        $$$1(Selector.NAVIGATION).find(Selector.NAV_LINK).each(function (key, value) {
-          var link = value;
-          var cUrl;
-
-          if (link.classList.contains(Selector.NAV_LINK_QUERIED)) {
-            cUrl = String(window.location);
-          } else {
-            cUrl = String(window.location).split('?')[0];
-          }
-
-          if (cUrl.substr(cUrl.length - 1) === '#') {
-            cUrl = cUrl.slice(0, -1);
-          }
-
-          if ($$$1($$$1(link))[0].href === cUrl) {
-            $$$1(link).addClass(ClassName.ACTIVE).parents(Selector.NAV_DROPDOWN_ITEMS).add(link).each(function (key, value) {
-              link = value;
-              $$$1(link).parent().addClass(ClassName.OPEN);
-            });
-          }
-        });
-      } // Private
-      ;
-
-      _proto._addMediaQuery = function _addMediaQuery() {
-        var sm = getStyle('--breakpoint-sm');
-
-        if (!sm) {
-          return;
-        }
-
-        var smVal = parseInt(sm, 10) - 1;
-        var mediaQueryList = window.matchMedia("(max-width: " + smVal + "px)");
-
-        this._breakpointTest(mediaQueryList);
-
-        mediaQueryList.addListener(this._breakpointTest);
-      };
-
-      _proto._breakpointTest = function _breakpointTest(e) {
-        this.mobile = Boolean(e.matches);
-
-        this._toggleClickOut();
-      };
-
-      _proto._clickOutListener = function _clickOutListener(event) {
-        if (!this._element.contains(event.target)) {
-          // or use: event.target.closest(Selector.SIDEBAR) === null
-          event.preventDefault();
-          event.stopPropagation();
-
-          this._removeClickOut();
-
-          document.body.classList.remove('sidebar-show');
-        }
-      };
-
-      _proto._addClickOut = function _addClickOut() {
-        document.addEventListener(Event.CLICK, this._clickOutListener, true);
-      };
-
-      _proto._removeClickOut = function _removeClickOut() {
-        document.removeEventListener(Event.CLICK, this._clickOutListener, true);
-      };
-
-      _proto._toggleClickOut = function _toggleClickOut() {
-        if (this.mobile && document.body.classList.contains('sidebar-show')) {
-          document.body.classList.remove('aside-menu-show');
-
-          this._addClickOut();
-        } else {
-          this._removeClickOut();
-        }
-      };
-
-      _proto._addEventListeners = function _addEventListeners() {
-        var _this2 = this;
-
-        $$$1(document).on(Event.CLICK, Selector.BRAND_MINIMIZER, function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          $$$1(Selector.BODY).toggleClass(ClassName.BRAND_MINIMIZED);
-        });
-        $$$1(document).on(Event.CLICK, Selector.NAV_DROPDOWN_TOGGLE, function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          var dropdown = event.target;
-          $$$1(dropdown).parent().toggleClass(ClassName.OPEN);
-
-          _this2.perfectScrollbar(Event.UPDATE);
-        });
-        $$$1(document).on(Event.CLICK, Selector.SIDEBAR_MINIMIZER, function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          $$$1(Selector.BODY).toggleClass(ClassName.SIDEBAR_MINIMIZED);
-
-          _this2.perfectScrollbar(Event.TOGGLE);
-        });
-        $$$1(document).on(Event.CLICK, Selector.SIDEBAR_TOGGLER, function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          var toggle = event.currentTarget.dataset ? event.currentTarget.dataset.toggle : $$$1(event.currentTarget).data('toggle');
-          toggleClasses(toggle, ShowClassNames);
-
-          _this2._toggleClickOut();
-        });
-        $$$1(Selector.NAVIGATION + " > " + Selector.NAV_ITEM + " " + Selector.NAV_LINK + ":not(" + Selector.NAV_DROPDOWN_TOGGLE + ")").on(Event.CLICK, function () {
-          _this2._removeClickOut();
-
-          document.body.classList.remove('sidebar-show');
-        });
-      } // Static
-      ;
-
-      Sidebar._jQueryInterface = function _jQueryInterface() {
-        return this.each(function () {
-          var $element = $$$1(this);
-          var data = $element.data(DATA_KEY);
-
-          if (!data) {
-            data = new Sidebar(this);
-            $element.data(DATA_KEY, data);
-          }
-        });
-      };
-
-      _createClass(Sidebar, null, [{
-        key: "VERSION",
-        get: function get() {
-          return VERSION;
-        }
-      }]);
-
-      return Sidebar;
-    }();
-    /**
-     * ------------------------------------------------------------------------
-     * Data Api implementation
-     * ------------------------------------------------------------------------
-     */
-
-
-    $$$1(window).on(Event.LOAD_DATA_API, function () {
-      var sidebar = $$$1(Selector.SIDEBAR);
-
-      Sidebar._jQueryInterface.call(sidebar);
-    });
-    /**
-     * ------------------------------------------------------------------------
-     * jQuery
-     * ------------------------------------------------------------------------
-     */
-
-    $$$1.fn[NAME] = Sidebar._jQueryInterface;
-    $$$1.fn[NAME].Constructor = Sidebar;
-
-    $$$1.fn[NAME].noConflict = function () {
-      $$$1.fn[NAME] = JQUERY_NO_CONFLICT;
-      return Sidebar._jQueryInterface;
-    };
-
-    return Sidebar;
-  }($);
-
-  /**
-   * --------------------------------------------------------------------------
-   * CoreUI Utilities (v2.1.5): hex-to-rgb.js
+   * CoreUI Utilities (v2.0.17): hex-to-rgb.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -2177,7 +709,7 @@ webpackJsonp([1],{
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI Utilities (v2.1.5): hex-to-rgba.js
+   * CoreUI Utilities (v2.0.17): hex-to-rgba.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -2215,36 +747,9 @@ webpackJsonp([1],{
     return "rgba(" + r + ", " + g + ", " + b + ", " + opacity / 100 + ")";
   };
 
-  // 21.2.5.3 get RegExp.prototype.flags()
-  if (_descriptors && /./g.flags != 'g') _objectDp.f(RegExp.prototype, 'flags', {
-    configurable: true,
-    get: _flags
-  });
-
-  var TO_STRING = 'toString';
-  var $toString = /./[TO_STRING];
-
-  var define = function (fn) {
-    _redefine(RegExp.prototype, TO_STRING, fn, true);
-  };
-
-  // 21.2.5.14 RegExp.prototype.toString()
-  if (_fails(function () { return $toString.call({ source: 'a', flags: 'b' }) != '/a/b'; })) {
-    define(function toString() {
-      var R = _anObject(this);
-      return '/'.concat(R.source, '/',
-        'flags' in R ? R.flags : !_descriptors && R instanceof RegExp ? _flags.call(R) : undefined);
-    });
-  // FF44- RegExp#toString has a wrong name
-  } else if ($toString.name != TO_STRING) {
-    define(function toString() {
-      return $toString.call(this);
-    });
-  }
-
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.1.5): rgb-to-hex.js
+   * CoreUI (v2.0.17): rgb-to-hex.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -2253,10 +758,6 @@ webpackJsonp([1],{
   var rgbToHex = function rgbToHex(color) {
     if (typeof color === 'undefined') {
       throw new Error('Hex color is not defined');
-    }
-
-    if (color === 'transparent') {
-      return '#00000000';
     }
 
     var rgb = color.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
@@ -2273,7 +774,7 @@ webpackJsonp([1],{
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.1.5): index.js
+   * CoreUI (v2.0.17): index.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -2305,19 +806,2423 @@ webpackJsonp([1],{
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
 //# sourceMappingURL=coreui.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/lodash/lodash.js":
-/***/ (function(module, exports, __webpack_require__) {
+/***/ "./resources/js/backend/after.js"
+/*!***************************************!*\
+  !*** ./resources/js/backend/after.js ***!
+  \***************************************/
+() {
 
-/* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
+// Loaded after CoreUI app.js
+
+//Message Notification
+setInterval(function () {
+  $.ajax({
+    type: "POST",
+    url: messageNotificationRoute,
+    data: {
+      _token: $('meta[name="csrf-token"]').attr('content')
+    },
+    datatype: "html",
+    success: function (data) {
+      if (data.unreadMessageCount > 0) {
+        $('.unreadMessages').empty();
+        $('.mob-notification').removeClass('d-none').html('!');
+        $('.unreadMessageCounter').removeClass('d-none').html(data.unreadMessageCount);
+        var html = "";
+        var host = $(location).attr('protocol') + '//' + $(location).attr('hostname') + '/user/messages/?thread=';
+        $(data.threads).each(function (key, value) {
+          html += '<a class="dropdown-item" href="' + host + value.thread_id + '"> ' + '<p class="font-weight-bold mb-0">' + value.title + ' <span class="badge badge-success">' + value.unreadMessagesCount + '</span></p>' + '<p class="mb-0">' + value.message + '</p>' + '</a>';
+        });
+        $('.unreadMessages').html(html);
+      } else {
+        $('.unreadMessageCounter').addClass('d-none');
+        $('.mob-notification').addClass('d-none');
+      }
+    }
+  });
+}, 5000);
+
+//Bell Notification
+function fetchBellNotifications() {
+  if (typeof bellNotificationRoute === 'undefined') return;
+  $.ajax({
+    type: "POST",
+    url: bellNotificationRoute,
+    data: {
+      _token: $('meta[name="csrf-token"]').attr('content')
+    },
+    datatype: "json",
+    success: function (data) {
+      if (data.unreadCount > 0) {
+        $('.unreadNotificationCounter').removeClass('d-none').html(data.unreadCount);
+        var html = "";
+        $(data.notifications).each(function (key, notification) {
+          var iconColorClass = 'text-' + notification.icon_color;
+          var linkHref = notification.link ? notification.link : '#';
+          html += '<a class="dropdown-item notification-item py-2" href="' + linkHref + '" data-notification-id="' + notification.id + '">' + '<div class="d-flex align-items-start">' + '<div class="mr-3"><i class="fas ' + notification.icon + ' ' + iconColorClass + '"></i></div>' + '<div class="flex-grow-1">' + '<p class="font-weight-bold mb-1" style="font-size: 13px;">' + notification.title + '</p>' + (notification.message ? '<p class="mb-1 text-muted" style="font-size: 12px;">' + notification.message + '</p>' : '') + '<small class="text-muted">' + notification.time + '</small>' + '</div>' + '</div>' + '</a>';
+        });
+        $('.unreadNotifications').html(html);
+      } else {
+        $('.unreadNotificationCounter').addClass('d-none');
+        $('.unreadNotifications').html('<p class="mb-0 text-center py-3 text-muted">No new notifications</p>');
+      }
+    }
+  });
+}
+
+// Initial fetch and set interval for bell notifications
+$(document).ready(function () {
+  fetchBellNotifications();
+  setInterval(fetchBellNotifications, 10000);
+
+  // Mark notification as read when clicked
+  $(document).on('click', '.notification-item', function (e) {
+    var notificationId = $(this).data('notification-id');
+    if (notificationId && typeof markNotificationReadRoute !== 'undefined') {
+      $.ajax({
+        type: "POST",
+        url: markNotificationReadRoute.replace(':id', notificationId),
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        datatype: "json"
+      });
+    }
+  });
+
+  // Mark all notifications as read
+  $(document).on('click', '.mark-all-read-btn', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof markAllNotificationsReadRoute !== 'undefined') {
+      $.ajax({
+        type: "POST",
+        url: markAllNotificationsReadRoute,
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        datatype: "json",
+        success: function () {
+          fetchBellNotifications();
+        }
+      });
+    }
+  });
+});
+
+/***/ },
+
+/***/ "./resources/js/backend/app.js"
+/*!*************************************!*\
+  !*** ./resources/js/backend/app.js ***!
+  \*************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _coreui_coreui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @coreui/coreui */ "./node_modules/@coreui/coreui/dist/js/coreui.js");
+/* harmony import */ var _coreui_coreui__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_coreui_coreui__WEBPACK_IMPORTED_MODULE_0__);
+
+
+/***/ },
+
+/***/ "./resources/js/backend/before.js"
+/*!****************************************!*\
+  !*** ./resources/js/backend/before.js ***!
+  \****************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../bootstrap */ "./resources/js/bootstrap.js");
+/* harmony import */ var pace__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! pace */ "./node_modules/pace/pace.js");
+/* harmony import */ var pace__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(pace__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _plugins__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../plugins */ "./resources/js/plugins.js");
+/* harmony import */ var _plugins__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_plugins__WEBPACK_IMPORTED_MODULE_2__);
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+
+// Loaded before CoreUI app.js
+
+
+
+
+/***/ },
+
+/***/ "./resources/js/bootstrap.js"
+/*!***********************************!*\
+  !*** ./resources/js/bootstrap.js ***!
+  \***********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+/* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
+/* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var bootstrap__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! bootstrap */ "./node_modules/bootstrap/dist/js/bootstrap.js");
+/* harmony import */ var bootstrap__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(bootstrap__WEBPACK_IMPORTED_MODULE_4__);
+/**
+ * This bootstrap file is used for both frontend and backend
+ */
+
+
+
+
+
+ // Required for BS4
+
+
+/**
+ * Font Awesome >=5.1
+ *
+ * Is recommended import just the icons that you use, for decrease considerably the file size.
+ * You can see at next link, how it works: https://github.com/FortAwesome/Font-Awesome/blob/master/UPGRADING.md#no-more-default-imports
+ * Also you can import the icons separately on the frontend and backend
+ */
+//
+// import { library, dom } from '@fortawesome/fontawesome-svg-core';
+// import { fab } from '@fortawesome/free-brands-svg-icons';
+// import { far } from '@fortawesome/free-regular-svg-icons';
+// import { fas } from '@fortawesome/free-solid-svg-icons';
+//
+// library.add(fab, far, fas);
+
+// Kicks off the process of finding <i> tags and replacing with <svg>
+// dom.watch();
+
+/**
+ * We'll load jQuery and the Bootstrap jQuery plugin which provides support
+ * for JavaScript based Bootstrap features such as modals and tabs. This
+ * code may be modified to fit the specific needs of your application.
+ */
+
+window.$ = window.jQuery = (jquery__WEBPACK_IMPORTED_MODULE_3___default());
+window.swal = (sweetalert2__WEBPACK_IMPORTED_MODULE_2___default());
+window._ = (lodash__WEBPACK_IMPORTED_MODULE_0___default()); // Lodash
+
+/**
+ * We'll load the axios HTTP library which allows us to easily issue requests
+ * to our Laravel back-end. This library automatically handles sending the
+ * CSRF token as a header based on the value of the "XSRF" token cookie.
+ */
+
+window.axios = axios__WEBPACK_IMPORTED_MODULE_1__["default"];
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+/**
+ * Next we will register the CSRF Token as a common header with Axios so that
+ * all outgoing HTTP requests automatically have it attached. This is just
+ * a simple convenience so we don't have to attach every token manually.
+ */
+
+const token = document.head.querySelector('meta[name="csrf-token"]');
+if (token) {
+  window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+} else {
+  console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allows your team to easily build robust real-time web applications.
+ */
+
+// import Echo from 'laravel-echo'
+
+// window.Pusher = require('pusher-js');
+
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: process.env.MIX_PUSHER_APP_KEY
+//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//     encrypted: true
+// });
+
+/***/ },
+
+/***/ "./resources/js/plugins.js"
+/*!*********************************!*\
+  !*** ./resources/js/plugins.js ***!
+  \*********************************/
+() {
+
+/**
+ * Allows you to add data-method="METHOD to links to automatically inject a form
+ * with the method on click
+ *
+ * Example: <a href="{{route('customers.destroy', $customer->id)}}"
+ * data-method="delete" name="delete_item">Delete</a>
+ *
+ * Injects a form with that's fired on click of the link with a DELETE request.
+ * Good because you don't have to dirty your HTML with delete forms everywhere.
+ */
+function addDeleteForms() {
+  $('[data-method]').append(function () {
+    if (!$(this).find('form').length > 0) {
+      return "\n<form action='" + $(this).attr('href') + "' method='POST' name='delete_item' style='display:none'>\n" + "<input type='hidden' name='_method' value='" + $(this).attr('data-method') + "'>\n" + "<input type='hidden' name='_token' value='" + $('meta[name="csrf-token"]').attr('content') + "'>\n" + '</form>\n';
+    } else {
+      return '';
+    }
+  }).attr('href', '#').attr('style', 'cursor:pointer;').attr('onclick', '$(this).find("form").submit();');
+}
+
+/**
+ * Place any jQuery/helper plugins in here.
+ */
+$(function () {
+  /**
+   * Add the data-method="delete" forms to all delete links
+   */
+  addDeleteForms();
+
+  /**
+   * Disable all submit buttons once clicked
+   */
+  $('form').submit(function () {
+    $(this).find('input[type="submit"]').attr('disabled', true);
+    $(this).find('button[type="submit"]').attr('disabled', true);
+    return true;
+  });
+
+  /**
+   * Generic confirm form delete using Sweet Alert
+   */
+  $('body').on('submit', 'form[name=delete_item]', function (e) {
+    e.preventDefault();
+    const form = this;
+    const link = $('a[data-method="delete"]');
+    const cancel = link.attr('data-trans-button-cancel') ? link.attr('data-trans-button-cancel') : 'Cancel';
+    const confirm = link.attr('data-trans-button-confirm') ? link.attr('data-trans-button-confirm') : 'Yes, delete';
+    const title = link.attr('data-trans-title') ? link.attr('data-trans-title') : 'Are you sure you want to delete this item?';
+    swal({
+      title: title,
+      showCancelButton: true,
+      confirmButtonText: confirm,
+      cancelButtonText: cancel,
+      type: 'warning'
+    }).then(result => {
+      result.value && form.submit();
+    });
+  }).on('click', 'a[name=confirm_item]', function (e) {
+    /**
+     * Generic 'are you sure' confirm box
+     */
+    e.preventDefault();
+    const link = $(this);
+    const title = link.attr('data-trans-title') ? link.attr('data-trans-title') : 'Are you sure you want to do this?';
+    const cancel = link.attr('data-trans-button-cancel') ? link.attr('data-trans-button-cancel') : 'Cancel';
+    const confirm = link.attr('data-trans-button-confirm') ? link.attr('data-trans-button-confirm') : 'Continue';
+    swal({
+      title: title,
+      showCancelButton: true,
+      confirmButtonText: confirm,
+      cancelButtonText: cancel,
+      type: 'info'
+    }).then(result => {
+      result.value && window.location.assign(link.attr('href'));
+    });
+  });
+});
+
+/***/ },
+
+/***/ "./node_modules/base64-js/index.js"
+/*!*****************************************!*\
+  !*** ./node_modules/base64-js/index.js ***!
+  \*****************************************/
+(__unused_webpack_module, exports) {
+
+"use strict";
+
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function getLens (b64) {
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // Trim off extra bytes after placeholder bytes are found
+  // See: https://github.com/beatgammit/base64-js/issues/42
+  var validLen = b64.indexOf('=')
+  if (validLen === -1) validLen = len
+
+  var placeHoldersLen = validLen === len
+    ? 0
+    : 4 - (validLen % 4)
+
+  return [validLen, placeHoldersLen]
+}
+
+// base64 is 4/3 + up to two characters of the original data
+function byteLength (b64) {
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function _byteLength (b64, validLen, placeHoldersLen) {
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function toByteArray (b64) {
+  var tmp
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+
+  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
+
+  var curByte = 0
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  var len = placeHoldersLen > 0
+    ? validLen - 4
+    : validLen
+
+  for (var i = 0; i < len; i += 4) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 18) |
+      (revLookup[b64.charCodeAt(i + 1)] << 12) |
+      (revLookup[b64.charCodeAt(i + 2)] << 6) |
+      revLookup[b64.charCodeAt(i + 3)]
+    arr[curByte++] = (tmp >> 16) & 0xFF
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 2) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 2) |
+      (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 1) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 10) |
+      (revLookup[b64.charCodeAt(i + 1)] << 4) |
+      (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] +
+    lookup[num >> 12 & 0x3F] +
+    lookup[num >> 6 & 0x3F] +
+    lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp =
+      ((uint8[i] << 16) & 0xFF0000) +
+      ((uint8[i + 1] << 8) & 0xFF00) +
+      (uint8[i + 2] & 0xFF)
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(
+      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
+    ))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 2] +
+      lookup[(tmp << 4) & 0x3F] +
+      '=='
+    )
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 10] +
+      lookup[(tmp >> 4) & 0x3F] +
+      lookup[(tmp << 2) & 0x3F] +
+      '='
+    )
+  }
+
+  return parts.join('')
+}
+
+
+/***/ },
+
+/***/ "./node_modules/buffer/index.js"
+/*!**************************************!*\
+  !*** ./node_modules/buffer/index.js ***!
+  \**************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
+
+
+var base64 = __webpack_require__(/*! base64-js */ "./node_modules/base64-js/index.js")
+var ieee754 = __webpack_require__(/*! ieee754 */ "./node_modules/ieee754/index.js")
+var isArray = __webpack_require__(/*! isarray */ "./node_modules/isarray/index.js")
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * Due to various browser bugs, sometimes the Object implementation will be used even
+ * when the browser supports typed arrays.
+ *
+ * Note:
+ *
+ *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
+ *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ *
+ *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *
+ *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *     incorrect length in some situations.
+
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
+ * get the Object implementation, which is slower but behaves correctly.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = __webpack_require__.g.TYPED_ARRAY_SUPPORT !== undefined
+  ? __webpack_require__.g.TYPED_ARRAY_SUPPORT
+  : typedArraySupport()
+
+/*
+ * Export kMaxLength after typed array support is determined.
+ */
+exports.kMaxLength = kMaxLength()
+
+function typedArraySupport () {
+  try {
+    var arr = new Uint8Array(1)
+    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    return arr.foo() === 42 && // typed array instances can be augmented
+        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
+        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+  } catch (e) {
+    return false
+  }
+}
+
+function kMaxLength () {
+  return Buffer.TYPED_ARRAY_SUPPORT
+    ? 0x7fffffff
+    : 0x3fffffff
+}
+
+function createBuffer (that, length) {
+  if (kMaxLength() < length) {
+    throw new RangeError('Invalid typed array length')
+  }
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(length)
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    if (that === null) {
+      that = new Buffer(length)
+    }
+    that.length = length
+  }
+
+  return that
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
+    return new Buffer(arg, encodingOrOffset, length)
+  }
+
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new Error(
+        'If encoding is specified then the first argument must be a string'
+      )
+    }
+    return allocUnsafe(this, arg)
+  }
+  return from(this, arg, encodingOrOffset, length)
+}
+
+Buffer.poolSize = 8192 // not used by this implementation
+
+// TODO: Legacy, not needed anymore. Remove in next major version.
+Buffer._augment = function (arr) {
+  arr.__proto__ = Buffer.prototype
+  return arr
+}
+
+function from (that, value, encodingOrOffset, length) {
+  if (typeof value === 'number') {
+    throw new TypeError('"value" argument must not be a number')
+  }
+
+  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
+    return fromArrayBuffer(that, value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'string') {
+    return fromString(that, value, encodingOrOffset)
+  }
+
+  return fromObject(that, value)
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(null, value, encodingOrOffset, length)
+}
+
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype
+  Buffer.__proto__ = Uint8Array
+  if (typeof Symbol !== 'undefined' && Symbol.species &&
+      Buffer[Symbol.species] === Buffer) {
+    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+    Object.defineProperty(Buffer, Symbol.species, {
+      value: null,
+      configurable: true
+    })
+  }
+}
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be a number')
+  } else if (size < 0) {
+    throw new RangeError('"size" argument must not be negative')
+  }
+}
+
+function alloc (that, size, fill, encoding) {
+  assertSize(size)
+  if (size <= 0) {
+    return createBuffer(that, size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(that, size).fill(fill, encoding)
+      : createBuffer(that, size).fill(fill)
+  }
+  return createBuffer(that, size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(null, size, fill, encoding)
+}
+
+function allocUnsafe (that, size) {
+  assertSize(size)
+  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < size; ++i) {
+      that[i] = 0
+    }
+  }
+  return that
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(null, size)
+}
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(null, size)
+}
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8'
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('"encoding" must be a valid string encoding')
+  }
+
+  var length = byteLength(string, encoding) | 0
+  that = createBuffer(that, length)
+
+  var actual = that.write(string, encoding)
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    that = that.slice(0, actual)
+  }
+
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = array.length < 0 ? 0 : checked(array.length) | 0
+  that = createBuffer(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function fromArrayBuffer (that, array, byteOffset, length) {
+  array.byteLength // this throws if `array` is not a valid ArrayBuffer
+
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('\'offset\' is out of bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('\'length\' is out of bounds')
+  }
+
+  if (byteOffset === undefined && length === undefined) {
+    array = new Uint8Array(array)
+  } else if (length === undefined) {
+    array = new Uint8Array(array, byteOffset)
+  } else {
+    array = new Uint8Array(array, byteOffset, length)
+  }
+
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = array
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that = fromArrayLike(that, array)
+  }
+  return that
+}
+
+function fromObject (that, obj) {
+  if (Buffer.isBuffer(obj)) {
+    var len = checked(obj.length) | 0
+    that = createBuffer(that, len)
+
+    if (that.length === 0) {
+      return that
+    }
+
+    obj.copy(that, 0, 0, len)
+    return that
+  }
+
+  if (obj) {
+    if ((typeof ArrayBuffer !== 'undefined' &&
+        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
+      if (typeof obj.length !== 'number' || isnan(obj.length)) {
+        return createBuffer(that, 0)
+      }
+      return fromArrayLike(that, obj)
+    }
+
+    if (obj.type === 'Buffer' && isArray(obj.data)) {
+      return fromArrayLike(that, obj.data)
+    }
+  }
+
+  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength()` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength()) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0
+  }
+  return Buffer.alloc(+length)
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return !!(b != null && b._isBuffer)
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length)
+  var pos = 0
+  for (i = 0; i < list.length; ++i) {
+    var buf = list[i]
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos)
+    pos += buf.length
+  }
+  return buffer
+}
+
+function byteLength (string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length
+  }
+  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
+      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    string = '' + string
+  }
+
+  var len = string.length
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'latin1':
+      case 'binary':
+        return len
+      case 'utf8':
+      case 'utf-8':
+      case undefined:
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0
+  start >>>= 0
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Slice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
+// Buffer instances.
+Buffer.prototype._isBuffer = true
+
+function swap (b, n, m) {
+  var i = b[n]
+  b[n] = b[m]
+  b[m] = i
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var len = this.length
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this, i, i + 1)
+  }
+  return this
+}
+
+Buffer.prototype.swap32 = function swap32 () {
+  var len = this.length
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this, i, i + 3)
+    swap(this, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7)
+    swap(this, i + 1, i + 6)
+    swap(this, i + 2, i + 5)
+    swap(this, i + 3, i + 4)
+  }
+  return this
+}
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length | 0
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
+    if (this.length > max) str += ' ... '
+  }
+  return '<Buffer ' + str + '>'
+}
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (!Buffer.isBuffer(target)) {
+    throw new TypeError('Argument must be a Buffer')
+  }
+
+  if (start === undefined) {
+    start = 0
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0
+  }
+  if (thisStart === undefined) {
+    thisStart = 0
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0
+  end >>>= 0
+  thisStart >>>= 0
+  thisEnd >>>= 0
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart
+  var y = end - start
+  var len = Math.min(x, y)
+
+  var thisCopy = this.slice(thisStart, thisEnd)
+  var targetCopy = target.slice(start, end)
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i]
+      y = targetCopy[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset = +byteOffset  // Coerce to Number.
+  if (isNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1)
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (Buffer.isBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF // Search for a byte value [0-255]
+    if (Buffer.TYPED_ARRAY_SUPPORT &&
+        typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
+  var indexSize = 1
+  var arrLength = arr.length
+  var valLength = val.length
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase()
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2
+      arrLength /= 2
+      valLength /= 2
+      byteOffset /= 2
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var i
+  if (dir) {
+    var foundIndex = -1
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex
+        foundIndex = -1
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false
+          break
+        }
+      }
+      if (found) return i
+    }
+  }
+
+  return -1
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+}
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; ++i) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (isNaN(parsed)) return i
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function latin1Write (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0
+    if (isFinite(length)) {
+      length = length | 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Write(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function latin1Slice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; ++i) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    newBuf = this.subarray(start, end)
+    newBuf.__proto__ = Buffer.prototype
+  } else {
+    var sliceLen = end - start
+    newBuf = new Buffer(sliceLen, undefined)
+    for (var i = 0; i < sliceLen; ++i) {
+      newBuf[i] = this[i + start]
+    }
+  }
+
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+function objectWriteUInt16 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
+    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+      (littleEndian ? i : 1 - i) * 8
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+function objectWriteUInt32 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffffffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
+    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset + 3] = (value >>> 24)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 1] = (value >>> 8)
+    this[offset] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 3] = (value >>> 24)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+  var i
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    // ascending copy from start
+    for (i = 0; i < len; ++i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start
+      start = 0
+      end = this.length
+    } else if (typeof end === 'string') {
+      encoding = end
+      end = this.length
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0)
+      if (code < 256) {
+        val = code
+      }
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0
+  end = end === undefined ? this.length : end >>> 0
+
+  if (!val) val = 0
+
+  var i
+  if (typeof val === 'number') {
+    for (i = start; i < end; ++i) {
+      this[i] = val
+    }
+  } else {
+    var bytes = Buffer.isBuffer(val)
+      ? val
+      : utf8ToBytes(new Buffer(val, encoding).toString())
+    var len = bytes.length
+    for (i = 0; i < end - start; ++i) {
+      this[i + start] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; ++i) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; ++i) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+function isnan (val) {
+  return val !== val // eslint-disable-line no-self-compare
+}
+
+
+/***/ },
+
+/***/ "./node_modules/ieee754/index.js"
+/*!***************************************!*\
+  !*** ./node_modules/ieee754/index.js ***!
+  \***************************************/
+(__unused_webpack_module, exports) {
+
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = (nBytes * 8) - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = (nBytes * 8) - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = ((value * c) - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+
+/***/ },
+
+/***/ "./node_modules/isarray/index.js"
+/*!***************************************!*\
+  !*** ./node_modules/isarray/index.js ***!
+  \***************************************/
+(module) {
+
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+
+/***/ },
+
+/***/ "./node_modules/lodash/lodash.js"
+/*!***************************************!*\
+  !*** ./node_modules/lodash/lodash.js ***!
+  \***************************************/
+(module, exports, __webpack_require__) {
+
+/* module decorator */ module = __webpack_require__.nmd(module);
+var __WEBPACK_AMD_DEFINE_RESULT__;/**
  * @license
  * Lodash <https://lodash.com/>
- * Copyright JS Foundation and other contributors <https://js.foundation/>
+ * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
  * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -2328,14 +3233,16 @@ webpackJsonp([1],{
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.5';
+  var VERSION = '4.18.1';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
 
   /** Error message constants. */
   var CORE_ERROR_TEXT = 'Unsupported core-js use. Try https://npms.io/search?q=ponyfill.',
-      FUNC_ERROR_TEXT = 'Expected a function';
+      FUNC_ERROR_TEXT = 'Expected a function',
+      INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`',
+      INVALID_TEMPL_IMPORTS_ERROR_TEXT = 'Invalid `imports` option passed into `_.template`';
 
   /** Used to stand-in for `undefined` hash values. */
   var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -2468,10 +3375,11 @@ webpackJsonp([1],{
   var reRegExpChar = /[\\^$.*+?()[\]{}|]/g,
       reHasRegExpChar = RegExp(reRegExpChar.source);
 
-  /** Used to match leading and trailing whitespace. */
-  var reTrim = /^\s+|\s+$/g,
-      reTrimStart = /^\s+/,
-      reTrimEnd = /\s+$/;
+  /** Used to match leading whitespace. */
+  var reTrimStart = /^\s+/;
+
+  /** Used to match a single whitespace character. */
+  var reWhitespace = /\s/;
 
   /** Used to match wrap detail comments. */
   var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/,
@@ -2480,6 +3388,18 @@ webpackJsonp([1],{
 
   /** Used to match words composed of alphanumeric characters. */
   var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+
+  /**
+   * Used to validate the `validate` option in `_.template` variable.
+   *
+   * Forbids characters which could potentially change the meaning of the function argument definition:
+   * - "()," (modification of function parameters)
+   * - "=" (default value)
+   * - "[]{}" (destructuring of function parameters)
+   * - "/" (beginning of a comment)
+   * - whitespace
+   */
+  var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
 
   /** Used to match backslashes in property paths. */
   var reEscapeChar = /\\(\\)?/g;
@@ -2592,7 +3512,7 @@ webpackJsonp([1],{
   var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
 
   /** Used to detect strings that need a more robust regexp to match words. */
-  var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+  var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
 
   /** Used to assign default `context` object properties. */
   var contextProps = [
@@ -2729,7 +3649,7 @@ webpackJsonp([1],{
       freeParseInt = parseInt;
 
   /** Detect free variable `global` from Node.js. */
-  var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+  var freeGlobal = typeof __webpack_require__.g == 'object' && __webpack_require__.g && __webpack_require__.g.Object === Object && __webpack_require__.g;
 
   /** Detect free variable `self`. */
   var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -2738,10 +3658,10 @@ webpackJsonp([1],{
   var root = freeGlobal || freeSelf || Function('return this')();
 
   /** Detect free variable `exports`. */
-  var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+  var freeExports =  true && exports && !exports.nodeType && exports;
 
   /** Detect free variable `module`. */
-  var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+  var freeModule = freeExports && "object" == 'object' && module && !module.nodeType && module;
 
   /** Detect the popular CommonJS extension `module.exports`. */
   var moduleExports = freeModule && freeModule.exports === freeExports;
@@ -2752,6 +3672,14 @@ webpackJsonp([1],{
   /** Used to access faster Node.js helpers. */
   var nodeUtil = (function() {
     try {
+      // Use `util.types` for Node.js 10+.
+      var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+      if (types) {
+        return types;
+      }
+
+      // Legacy `process.binding('util')` for Node.js < 10.
       return freeProcess && freeProcess.binding && freeProcess.binding('util');
     } catch (e) {}
   }());
@@ -3302,6 +4230,19 @@ webpackJsonp([1],{
   }
 
   /**
+   * The base implementation of `_.trim`.
+   *
+   * @private
+   * @param {string} string The string to trim.
+   * @returns {string} Returns the trimmed string.
+   */
+  function baseTrim(string) {
+    return string
+      ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, '')
+      : string;
+  }
+
+  /**
    * The base implementation of `_.unary` without support for storing metadata.
    *
    * @private
@@ -3533,20 +4474,6 @@ webpackJsonp([1],{
   }
 
   /**
-   * Gets the value at `key`, unless `key` is "__proto__".
-   *
-   * @private
-   * @param {Object} object The object to query.
-   * @param {string} key The key of the property to get.
-   * @returns {*} Returns the property value.
-   */
-  function safeGet(object, key) {
-    return key == '__proto__'
-      ? undefined
-      : object[key];
-  }
-
-  /**
    * Converts `set` to an array of its values.
    *
    * @private
@@ -3646,6 +4573,21 @@ webpackJsonp([1],{
     return hasUnicode(string)
       ? unicodeToArray(string)
       : asciiToArray(string);
+  }
+
+  /**
+   * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
+   * character of `string`.
+   *
+   * @private
+   * @param {string} string The string to inspect.
+   * @returns {number} Returns the index of the last non-whitespace character.
+   */
+  function trimmedEndIndex(string) {
+    var index = string.length;
+
+    while (index-- && reWhitespace.test(string.charAt(index))) {}
+    return index;
   }
 
   /**
@@ -4031,6 +4973,10 @@ webpackJsonp([1],{
      * By default, the template delimiters used by lodash are like those in
      * embedded Ruby (ERB) as well as ES2015 template strings. Change the
      * following template settings to use alternative delimiters.
+     *
+     * **Security:** See
+     * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md)
+     * — `_.template` is insecure and will be removed in v5.
      *
      * @static
      * @memberOf _
@@ -4580,7 +5526,7 @@ webpackJsonp([1],{
      * @name has
      * @memberOf SetCache
      * @param {*} value The value to search for.
-     * @returns {number} Returns `true` if `value` is found, else `false`.
+     * @returns {boolean} Returns `true` if `value` is found, else `false`.
      */
     function setCacheHas(value) {
       return this.__data__.has(value);
@@ -4993,16 +5939,10 @@ webpackJsonp([1],{
         value.forEach(function(subValue) {
           result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
         });
-
-        return result;
-      }
-
-      if (isMap(value)) {
+      } else if (isMap(value)) {
         value.forEach(function(subValue, key) {
           result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
         });
-
-        return result;
       }
 
       var keysFunc = isFull
@@ -5926,8 +6866,8 @@ webpackJsonp([1],{
         return;
       }
       baseFor(source, function(srcValue, key) {
+        stack || (stack = new Stack);
         if (isObject(srcValue)) {
-          stack || (stack = new Stack);
           baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
         }
         else {
@@ -6003,7 +6943,7 @@ webpackJsonp([1],{
           if (isArguments(objValue)) {
             newValue = toPlainObject(objValue);
           }
-          else if (!isObject(objValue) || (srcIndex && isFunction(objValue))) {
+          else if (!isObject(objValue) || isFunction(objValue)) {
             newValue = initCloneObject(srcValue);
           }
         }
@@ -6047,8 +6987,21 @@ webpackJsonp([1],{
      * @returns {Array} Returns the new sorted array.
      */
     function baseOrderBy(collection, iteratees, orders) {
+      if (iteratees.length) {
+        iteratees = arrayMap(iteratees, function(iteratee) {
+          if (isArray(iteratee)) {
+            return function(value) {
+              return baseGet(value, iteratee.length === 1 ? iteratee[0] : iteratee);
+            };
+          }
+          return iteratee;
+        });
+      } else {
+        iteratees = [identity];
+      }
+
       var index = -1;
-      iteratees = arrayMap(iteratees.length ? iteratees : [identity], baseUnary(getIteratee()));
+      iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
 
       var result = baseMap(collection, function(value, key, collection) {
         var criteria = arrayMap(iteratees, function(iteratee) {
@@ -6305,6 +7258,10 @@ webpackJsonp([1],{
         var key = toKey(path[index]),
             newValue = value;
 
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+          return object;
+        }
+
         if (index != lastIndex) {
           var objValue = nested[key];
           newValue = customizer ? customizer(objValue, key, nested) : undefined;
@@ -6457,11 +7414,14 @@ webpackJsonp([1],{
      *  into `array`.
      */
     function baseSortedIndexBy(array, value, iteratee, retHighest) {
-      value = iteratee(value);
-
       var low = 0,
-          high = array == null ? 0 : array.length,
-          valIsNaN = value !== value,
+          high = array == null ? 0 : array.length;
+      if (high === 0) {
+        return 0;
+      }
+
+      value = iteratee(value);
+      var valIsNaN = value !== value,
           valIsNull = value === null,
           valIsSymbol = isSymbol(value),
           valIsUndefined = value === undefined;
@@ -6636,8 +7596,34 @@ webpackJsonp([1],{
      */
     function baseUnset(object, path) {
       path = castPath(path, object);
-      object = parent(object, path);
-      return object == null || delete object[toKey(last(path))];
+
+      // Prevent prototype pollution:
+      // https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg
+      // https://github.com/lodash/lodash/security/advisories/GHSA-f23m-r3pf-42rh
+      var index = -1,
+          length = path.length;
+
+      if (!length) {
+        return true;
+      }
+
+      while (++index < length) {
+        var key = toKey(path[index]);
+
+        // Always block "__proto__" anywhere in the path if it's not expected
+        if (key === '__proto__' && !hasOwnProperty.call(object, '__proto__')) {
+          return false;
+        }
+
+        // Block constructor/prototype as non-terminal traversal keys to prevent
+        // escaping the object graph into built-in constructors and prototypes.
+        if ((key === 'constructor' || key === 'prototype') && index < length - 1) {
+          return false;
+        }
+      }
+
+      var obj = parent(object, path);
+      return obj == null || delete obj[toKey(last(path))];
     }
 
     /**
@@ -7744,7 +8730,7 @@ webpackJsonp([1],{
       return function(number, precision) {
         number = toNumber(number);
         precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
-        if (precision) {
+        if (precision && nativeIsFinite(number)) {
           // Shift with exponential notation to avoid floating-point issues.
           // See [MDN](https://mdn.io/round#Examples) for more details.
           var pair = (toString(number) + 'e').split('e'),
@@ -7946,10 +8932,11 @@ webpackJsonp([1],{
       if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
         return false;
       }
-      // Assume cyclic values are equal.
-      var stacked = stack.get(array);
-      if (stacked && stack.get(other)) {
-        return stacked == other;
+      // Check that cyclic values are equal.
+      var arrStacked = stack.get(array);
+      var othStacked = stack.get(other);
+      if (arrStacked && othStacked) {
+        return arrStacked == other && othStacked == array;
       }
       var index = -1,
           result = true,
@@ -8111,10 +9098,11 @@ webpackJsonp([1],{
           return false;
         }
       }
-      // Assume cyclic values are equal.
-      var stacked = stack.get(object);
-      if (stacked && stack.get(other)) {
-        return stacked == other;
+      // Check that cyclic values are equal.
+      var objStacked = stack.get(object);
+      var othStacked = stack.get(other);
+      if (objStacked && othStacked) {
+        return objStacked == other && othStacked == object;
       }
       var result = true;
       stack.set(object, other);
@@ -8927,6 +9915,26 @@ webpackJsonp([1],{
     }
 
     /**
+     * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
+     *
+     * @private
+     * @param {Object} object The object to query.
+     * @param {string} key The key of the property to get.
+     * @returns {*} Returns the property value.
+     */
+    function safeGet(object, key) {
+      if (key === 'constructor' && typeof object[key] === 'function') {
+        return;
+      }
+
+      if (key == '__proto__') {
+        return;
+      }
+
+      return object[key];
+    }
+
+    /**
      * Sets metadata for `func`.
      *
      * **Note:** If this function becomes hot, i.e. is invoked a lot in a short
@@ -9166,7 +10174,7 @@ webpackJsonp([1],{
 
     /**
      * Creates an array with all falsey values removed. The values `false`, `null`,
-     * `0`, `""`, `undefined`, and `NaN` are falsey.
+     * `0`, `-0`, `0n`, `""`, `undefined`, and `NaN` are falsy.
      *
      * @static
      * @memberOf _
@@ -9705,7 +10713,7 @@ webpackJsonp([1],{
 
       while (++index < length) {
         var pair = pairs[index];
-        result[pair[0]] = pair[1];
+        baseAssignValue(result, pair[0], pair[1]);
       }
       return result;
     }
@@ -11475,6 +12483,10 @@ webpackJsonp([1],{
      * // The `_.property` iteratee shorthand.
      * _.filter(users, 'active');
      * // => objects for ['barney']
+     *
+     * // Combining several predicates using `_.overEvery` or `_.overSome`.
+     * _.filter(users, _.overSome([{ 'age': 36 }, ['age', 40]]));
+     * // => objects for ['fred', 'barney']
      */
     function filter(collection, predicate) {
       var func = isArray(collection) ? arrayFilter : baseFilter;
@@ -12224,15 +13236,15 @@ webpackJsonp([1],{
      * var users = [
      *   { 'user': 'fred',   'age': 48 },
      *   { 'user': 'barney', 'age': 36 },
-     *   { 'user': 'fred',   'age': 40 },
+     *   { 'user': 'fred',   'age': 30 },
      *   { 'user': 'barney', 'age': 34 }
      * ];
      *
      * _.sortBy(users, [function(o) { return o.user; }]);
-     * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 40]]
+     * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 30]]
      *
      * _.sortBy(users, ['user', 'age']);
-     * // => objects for [['barney', 34], ['barney', 36], ['fred', 40], ['fred', 48]]
+     * // => objects for [['barney', 34], ['barney', 36], ['fred', 30], ['fred', 48]]
      */
     var sortBy = baseRest(function(collection, iteratees) {
       if (collection == null) {
@@ -12719,6 +13731,7 @@ webpackJsonp([1],{
           }
           if (maxing) {
             // Handle invocations in a tight loop.
+            clearTimeout(timerId);
             timerId = setTimeout(timerExpired, wait);
             return invokeFunc(lastCallTime);
           }
@@ -14775,7 +15788,7 @@ webpackJsonp([1],{
       if (typeof value != 'string') {
         return value === 0 ? value : +value;
       }
-      value = value.replace(reTrim, '');
+      value = baseTrim(value);
       var isBinary = reIsBinary.test(value);
       return (isBinary || reIsOctal.test(value))
         ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
@@ -16360,6 +17373,8 @@ webpackJsonp([1],{
      * **Note:** JavaScript follows the IEEE-754 standard for resolving
      * floating-point values which can produce unexpected results.
      *
+     * **Note:** If `lower` is greater than `upper`, the values are swapped.
+     *
      * @static
      * @memberOf _
      * @since 0.7.0
@@ -16373,8 +17388,15 @@ webpackJsonp([1],{
      * _.random(0, 5);
      * // => an integer between 0 and 5
      *
+     * // when lower is greater than upper the values are swapped
+     * _.random(5, 0);
+     * // => an integer between 0 and 5
+     *
      * _.random(5);
      * // => also an integer between 0 and 5
+     *
+     * _.random(-5);
+     * // => an integer between -5 and 0
      *
      * _.random(5, true);
      * // => a floating-point number between 0 and 5
@@ -16977,6 +17999,10 @@ webpackJsonp([1],{
      * properties may be accessed as free variables in the template. If a setting
      * object is given, it takes precedence over `_.templateSettings` values.
      *
+     * **Security:** `_.template` is insecure and should not be used. It will be
+     * removed in Lodash v5. Avoid untrusted input. See
+     * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md).
+     *
      * **Note:** In the development build `_.template` utilizes
      * [sourceURLs](http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/#toc-sourceurl)
      * for easier debugging.
@@ -17084,11 +18110,17 @@ webpackJsonp([1],{
         options = undefined;
       }
       string = toString(string);
-      options = assignInWith({}, options, settings, customDefaultsAssignIn);
+      options = assignWith({}, options, settings, customDefaultsAssignIn);
 
-      var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn),
+      var imports = assignWith({}, options.imports, settings.imports, customDefaultsAssignIn),
           importsKeys = keys(imports),
           importsValues = baseValues(imports, importsKeys);
+
+      arrayEach(importsKeys, function(key) {
+        if (reForbiddenIdentifierChars.test(key)) {
+          throw new Error(INVALID_TEMPL_IMPORTS_ERROR_TEXT);
+        }
+      });
 
       var isEscaping,
           isEvaluating,
@@ -17105,9 +18137,12 @@ webpackJsonp([1],{
       , 'g');
 
       // Use a sourceURL for easier debugging.
+      // The sourceURL gets injected into the source that's eval-ed, so be careful
+      // to normalize all kinds of whitespace, so e.g. newlines (and unicode versions of it) can't sneak in
+      // and escape the comment, thus injecting code that gets evaled.
       var sourceURL = '//# sourceURL=' +
-        ('sourceURL' in options
-          ? options.sourceURL
+        (hasOwnProperty.call(options, 'sourceURL')
+          ? (options.sourceURL + '').replace(/\s/g, ' ')
           : ('lodash.templateSources[' + (++templateCounter) + ']')
         ) + '\n';
 
@@ -17140,10 +18175,16 @@ webpackJsonp([1],{
 
       // If `variable` is not specified wrap a with-statement around the generated
       // code to add the data object to the top of the scope chain.
-      var variable = options.variable;
+      var variable = hasOwnProperty.call(options, 'variable') && options.variable;
       if (!variable) {
         source = 'with (obj) {\n' + source + '\n}\n';
       }
+      // Throw an error if a forbidden character was found in `variable`, to prevent
+      // potential command injection attacks.
+      else if (reForbiddenIdentifierChars.test(variable)) {
+        throw new Error(INVALID_TEMPL_VAR_ERROR_TEXT);
+      }
+
       // Cleanup code by stripping empty strings.
       source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source)
         .replace(reEmptyStringMiddle, '$1')
@@ -17257,7 +18298,7 @@ webpackJsonp([1],{
     function trim(string, chars, guard) {
       string = toString(string);
       if (string && (guard || chars === undefined)) {
-        return string.replace(reTrim, '');
+        return baseTrim(string);
       }
       if (!string || !(chars = baseToString(chars))) {
         return string;
@@ -17292,7 +18333,7 @@ webpackJsonp([1],{
     function trimEnd(string, chars, guard) {
       string = toString(string);
       if (string && (guard || chars === undefined)) {
-        return string.replace(reTrimEnd, '');
+        return string.slice(0, trimmedEndIndex(string) + 1);
       }
       if (!string || !(chars = baseToString(chars))) {
         return string;
@@ -17846,6 +18887,9 @@ webpackJsonp([1],{
      * values against any array or object value, respectively. See `_.isEqual`
      * for a list of supported value comparisons.
      *
+     * **Note:** Multiple values can be checked by combining several matchers
+     * using `_.overSome`
+     *
      * @static
      * @memberOf _
      * @since 3.0.0
@@ -17861,6 +18905,10 @@ webpackJsonp([1],{
      *
      * _.filter(objects, _.matches({ 'a': 4, 'c': 6 }));
      * // => [{ 'a': 4, 'b': 5, 'c': 6 }]
+     *
+     * // Checking for several possible values
+     * _.filter(objects, _.overSome([_.matches({ 'a': 1 }), _.matches({ 'a': 4 })]));
+     * // => [{ 'a': 1, 'b': 2, 'c': 3 }, { 'a': 4, 'b': 5, 'c': 6 }]
      */
     function matches(source) {
       return baseMatches(baseClone(source, CLONE_DEEP_FLAG));
@@ -17874,6 +18922,9 @@ webpackJsonp([1],{
      * **Note:** Partial comparisons will match empty array and empty object
      * `srcValue` values against any array or object value, respectively. See
      * `_.isEqual` for a list of supported value comparisons.
+     *
+     * **Note:** Multiple values can be checked by combining several matchers
+     * using `_.overSome`
      *
      * @static
      * @memberOf _
@@ -17891,6 +18942,10 @@ webpackJsonp([1],{
      *
      * _.find(objects, _.matchesProperty('a', 4));
      * // => { 'a': 4, 'b': 5, 'c': 6 }
+     *
+     * // Checking for several possible values
+     * _.filter(objects, _.overSome([_.matchesProperty('a', 1), _.matchesProperty('a', 4)]));
+     * // => [{ 'a': 1, 'b': 2, 'c': 3 }, { 'a': 4, 'b': 5, 'c': 6 }]
      */
     function matchesProperty(path, srcValue) {
       return baseMatchesProperty(path, baseClone(srcValue, CLONE_DEEP_FLAG));
@@ -18114,6 +19169,10 @@ webpackJsonp([1],{
      * Creates a function that checks if **all** of the `predicates` return
      * truthy when invoked with the arguments it receives.
      *
+     * Following shorthands are possible for providing predicates.
+     * Pass an `Object` and it will be used as an parameter for `_.matches` to create the predicate.
+     * Pass an `Array` of parameters for `_.matchesProperty` and the predicate will be created using them.
+     *
      * @static
      * @memberOf _
      * @since 4.0.0
@@ -18140,6 +19199,10 @@ webpackJsonp([1],{
      * Creates a function that checks if **any** of the `predicates` return
      * truthy when invoked with the arguments it receives.
      *
+     * Following shorthands are possible for providing predicates.
+     * Pass an `Object` and it will be used as an parameter for `_.matches` to create the predicate.
+     * Pass an `Array` of parameters for `_.matchesProperty` and the predicate will be created using them.
+     *
      * @static
      * @memberOf _
      * @since 4.0.0
@@ -18159,6 +19222,9 @@ webpackJsonp([1],{
      *
      * func(NaN);
      * // => false
+     *
+     * var matchesFunc = _.overSome([{ 'a': 1 }, { 'a': 2 }])
+     * var matchesPropertyFunc = _.overSome([['a', 1], ['a', 2]])
      */
     var overSome = createOver(arraySome);
 
@@ -19345,10 +20411,11 @@ webpackJsonp([1],{
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
       var lodashFunc = lodash[methodName];
       if (lodashFunc) {
-        var key = (lodashFunc.name + ''),
-            names = realNames[key] || (realNames[key] = []);
-
-        names.push({ 'name': methodName, 'func': lodashFunc });
+        var key = lodashFunc.name + '';
+        if (!hasOwnProperty.call(realNames, key)) {
+          realNames[key] = [];
+        }
+        realNames[key].push({ 'name': methodName, 'func': lodashFunc });
       }
     });
 
@@ -19398,27 +20465,21 @@ webpackJsonp([1],{
     !(__WEBPACK_AMD_DEFINE_RESULT__ = (function() {
       return _;
     }).call(exports, __webpack_require__, exports, module),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
   // Check for `exports` after `define` in case a build optimizer adds it.
-  else if (freeModule) {
-    // Export for Node.js.
-    (freeModule.exports = _)._ = _;
-    // Export for CommonJS support.
-    freeExports._ = _;
-  }
-  else {
-    // Export to the global object.
-    root._ = _;
-  }
+  else // removed by dead control flow
+{}
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__("./node_modules/webpack/buildin/global.js"), __webpack_require__("./node_modules/webpack/buildin/module.js")(module)))
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/pace/pace.js":
-/***/ (function(module, exports, __webpack_require__) {
+/***/ "./node_modules/pace/pace.js"
+/*!***********************************!*\
+  !*** ./node_modules/pace/pace.js ***!
+  \***********************************/
+(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function() {
   var AjaxMonitor, Bar, DocumentMonitor, ElementMonitor, ElementTracker, EventLagMonitor, Evented, Events, NoTargetError, Pace, RequestIntercept, SOURCE_KEYS, Scaler, SocketRequestTracker, XHRRequestTracker, animation, avgAmplitude, bar, cancelAnimation, cancelAnimationFrame, defaultOptions, extend, extendNative, getFromDOM, getIntercept, handlePushState, ignoreStack, init, now, options, requestAnimationFrame, result, runAnimation, scalers, shouldIgnoreURL, shouldTrack, source, sources, uniScaler, _WebSocket, _XDomainRequest, _XMLHttpRequest, _i, _intercept, _len, _pushState, _ref, _ref1, _replaceState,
@@ -20343,28 +21404,29 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function() {
   };
 
   if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__("./node_modules/pace/pace.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function() {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! pace */ "./node_modules/pace/pace.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function() {
       return Pace;
     }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else if (typeof exports === 'object') {
-    module.exports = Pace;
-  } else {
-    if (options.startOnPageLoad) {
-      Pace.start();
-    }
-  }
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else // removed by dead control flow
+{}
 
 }).call(this);
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js"
+/*!**********************************************************************!*\
+  !*** ./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js ***!
+  \**********************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
 /*!
  * perfect-scrollbar v1.4.0
  * (c) 2018 Hyunje Jun
@@ -21680,301 +22742,2840 @@ PerfectScrollbar.prototype.removePsClasses = function removePsClasses () {
     .join(' ');
 };
 
-/* harmony default export */ __webpack_exports__["default"] = (PerfectScrollbar);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PerfectScrollbar);
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/webpack/buildin/module.js":
-/***/ (function(module, exports) {
+/***/ "./node_modules/popper.js/dist/esm/popper.js"
+/*!***************************************************!*\
+  !*** ./node_modules/popper.js/dist/esm/popper.js ***!
+  \***************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/**!
+ * @fileOverview Kickass library to create and place poppers near their reference elements.
+ * @version 1.16.1
+ * @license
+ * Copyright (c) 2016 Federico Zivolo and contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof navigator !== 'undefined';
+
+var timeoutDuration = function () {
+  var longerTimeoutBrowsers = ['Edge', 'Trident', 'Firefox'];
+  for (var i = 0; i < longerTimeoutBrowsers.length; i += 1) {
+    if (isBrowser && navigator.userAgent.indexOf(longerTimeoutBrowsers[i]) >= 0) {
+      return 1;
+    }
+  }
+  return 0;
+}();
+
+function microtaskDebounce(fn) {
+  var called = false;
+  return function () {
+    if (called) {
+      return;
+    }
+    called = true;
+    window.Promise.resolve().then(function () {
+      called = false;
+      fn();
+    });
+  };
+}
+
+function taskDebounce(fn) {
+  var scheduled = false;
+  return function () {
+    if (!scheduled) {
+      scheduled = true;
+      setTimeout(function () {
+        scheduled = false;
+        fn();
+      }, timeoutDuration);
+    }
+  };
+}
+
+var supportsMicroTasks = isBrowser && window.Promise;
+
+/**
+* Create a debounced version of a method, that's asynchronously deferred
+* but called in the minimum time possible.
+*
+* @method
+* @memberof Popper.Utils
+* @argument {Function} fn
+* @returns {Function}
+*/
+var debounce = supportsMicroTasks ? microtaskDebounce : taskDebounce;
+
+/**
+ * Check if the given variable is a function
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Any} functionToCheck - variable to check
+ * @returns {Boolean} answer to: is a function?
+ */
+function isFunction(functionToCheck) {
+  var getType = {};
+  return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+}
+
+/**
+ * Get CSS computed property of the given element
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Eement} element
+ * @argument {String} property
+ */
+function getStyleComputedProperty(element, property) {
+  if (element.nodeType !== 1) {
+    return [];
+  }
+  // NOTE: 1 DOM access here
+  var window = element.ownerDocument.defaultView;
+  var css = window.getComputedStyle(element, null);
+  return property ? css[property] : css;
+}
+
+/**
+ * Returns the parentNode or the host of the element
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @returns {Element} parent
+ */
+function getParentNode(element) {
+  if (element.nodeName === 'HTML') {
+    return element;
+  }
+  return element.parentNode || element.host;
+}
+
+/**
+ * Returns the scrolling parent of the given element
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @returns {Element} scroll parent
+ */
+function getScrollParent(element) {
+  // Return body, `getScroll` will take care to get the correct `scrollTop` from it
+  if (!element) {
+    return document.body;
+  }
+
+  switch (element.nodeName) {
+    case 'HTML':
+    case 'BODY':
+      return element.ownerDocument.body;
+    case '#document':
+      return element.body;
+  }
+
+  // Firefox want us to check `-x` and `-y` variations as well
+
+  var _getStyleComputedProp = getStyleComputedProperty(element),
+      overflow = _getStyleComputedProp.overflow,
+      overflowX = _getStyleComputedProp.overflowX,
+      overflowY = _getStyleComputedProp.overflowY;
+
+  if (/(auto|scroll|overlay)/.test(overflow + overflowY + overflowX)) {
+    return element;
+  }
+
+  return getScrollParent(getParentNode(element));
+}
+
+/**
+ * Returns the reference node of the reference object, or the reference object itself.
+ * @method
+ * @memberof Popper.Utils
+ * @param {Element|Object} reference - the reference element (the popper will be relative to this)
+ * @returns {Element} parent
+ */
+function getReferenceNode(reference) {
+  return reference && reference.referenceNode ? reference.referenceNode : reference;
+}
+
+var isIE11 = isBrowser && !!(window.MSInputMethodContext && document.documentMode);
+var isIE10 = isBrowser && /MSIE 10/.test(navigator.userAgent);
+
+/**
+ * Determines if the browser is Internet Explorer
+ * @method
+ * @memberof Popper.Utils
+ * @param {Number} version to check
+ * @returns {Boolean} isIE
+ */
+function isIE(version) {
+  if (version === 11) {
+    return isIE11;
+  }
+  if (version === 10) {
+    return isIE10;
+  }
+  return isIE11 || isIE10;
+}
+
+/**
+ * Returns the offset parent of the given element
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @returns {Element} offset parent
+ */
+function getOffsetParent(element) {
+  if (!element) {
+    return document.documentElement;
+  }
+
+  var noOffsetParent = isIE(10) ? document.body : null;
+
+  // NOTE: 1 DOM access here
+  var offsetParent = element.offsetParent || null;
+  // Skip hidden elements which don't have an offsetParent
+  while (offsetParent === noOffsetParent && element.nextElementSibling) {
+    offsetParent = (element = element.nextElementSibling).offsetParent;
+  }
+
+  var nodeName = offsetParent && offsetParent.nodeName;
+
+  if (!nodeName || nodeName === 'BODY' || nodeName === 'HTML') {
+    return element ? element.ownerDocument.documentElement : document.documentElement;
+  }
+
+  // .offsetParent will return the closest TH, TD or TABLE in case
+  // no offsetParent is present, I hate this job...
+  if (['TH', 'TD', 'TABLE'].indexOf(offsetParent.nodeName) !== -1 && getStyleComputedProperty(offsetParent, 'position') === 'static') {
+    return getOffsetParent(offsetParent);
+  }
+
+  return offsetParent;
+}
+
+function isOffsetContainer(element) {
+  var nodeName = element.nodeName;
+
+  if (nodeName === 'BODY') {
+    return false;
+  }
+  return nodeName === 'HTML' || getOffsetParent(element.firstElementChild) === element;
+}
+
+/**
+ * Finds the root node (document, shadowDOM root) of the given element
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} node
+ * @returns {Element} root node
+ */
+function getRoot(node) {
+  if (node.parentNode !== null) {
+    return getRoot(node.parentNode);
+  }
+
+  return node;
+}
+
+/**
+ * Finds the offset parent common to the two provided nodes
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element1
+ * @argument {Element} element2
+ * @returns {Element} common offset parent
+ */
+function findCommonOffsetParent(element1, element2) {
+  // This check is needed to avoid errors in case one of the elements isn't defined for any reason
+  if (!element1 || !element1.nodeType || !element2 || !element2.nodeType) {
+    return document.documentElement;
+  }
+
+  // Here we make sure to give as "start" the element that comes first in the DOM
+  var order = element1.compareDocumentPosition(element2) & Node.DOCUMENT_POSITION_FOLLOWING;
+  var start = order ? element1 : element2;
+  var end = order ? element2 : element1;
+
+  // Get common ancestor container
+  var range = document.createRange();
+  range.setStart(start, 0);
+  range.setEnd(end, 0);
+  var commonAncestorContainer = range.commonAncestorContainer;
+
+  // Both nodes are inside #document
+
+  if (element1 !== commonAncestorContainer && element2 !== commonAncestorContainer || start.contains(end)) {
+    if (isOffsetContainer(commonAncestorContainer)) {
+      return commonAncestorContainer;
+    }
+
+    return getOffsetParent(commonAncestorContainer);
+  }
+
+  // one of the nodes is inside shadowDOM, find which one
+  var element1root = getRoot(element1);
+  if (element1root.host) {
+    return findCommonOffsetParent(element1root.host, element2);
+  } else {
+    return findCommonOffsetParent(element1, getRoot(element2).host);
+  }
+}
+
+/**
+ * Gets the scroll value of the given element in the given side (top and left)
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @argument {String} side `top` or `left`
+ * @returns {number} amount of scrolled pixels
+ */
+function getScroll(element) {
+  var side = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'top';
+
+  var upperSide = side === 'top' ? 'scrollTop' : 'scrollLeft';
+  var nodeName = element.nodeName;
+
+  if (nodeName === 'BODY' || nodeName === 'HTML') {
+    var html = element.ownerDocument.documentElement;
+    var scrollingElement = element.ownerDocument.scrollingElement || html;
+    return scrollingElement[upperSide];
+  }
+
+  return element[upperSide];
+}
+
+/*
+ * Sum or subtract the element scroll values (left and top) from a given rect object
+ * @method
+ * @memberof Popper.Utils
+ * @param {Object} rect - Rect object you want to change
+ * @param {HTMLElement} element - The element from the function reads the scroll values
+ * @param {Boolean} subtract - set to true if you want to subtract the scroll values
+ * @return {Object} rect - The modifier rect object
+ */
+function includeScroll(rect, element) {
+  var subtract = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+  var scrollTop = getScroll(element, 'top');
+  var scrollLeft = getScroll(element, 'left');
+  var modifier = subtract ? -1 : 1;
+  rect.top += scrollTop * modifier;
+  rect.bottom += scrollTop * modifier;
+  rect.left += scrollLeft * modifier;
+  rect.right += scrollLeft * modifier;
+  return rect;
+}
+
+/*
+ * Helper to detect borders of a given element
+ * @method
+ * @memberof Popper.Utils
+ * @param {CSSStyleDeclaration} styles
+ * Result of `getStyleComputedProperty` on the given element
+ * @param {String} axis - `x` or `y`
+ * @return {number} borders - The borders size of the given axis
+ */
+
+function getBordersSize(styles, axis) {
+  var sideA = axis === 'x' ? 'Left' : 'Top';
+  var sideB = sideA === 'Left' ? 'Right' : 'Bottom';
+
+  return parseFloat(styles['border' + sideA + 'Width']) + parseFloat(styles['border' + sideB + 'Width']);
+}
+
+function getSize(axis, body, html, computedStyle) {
+  return Math.max(body['offset' + axis], body['scroll' + axis], html['client' + axis], html['offset' + axis], html['scroll' + axis], isIE(10) ? parseInt(html['offset' + axis]) + parseInt(computedStyle['margin' + (axis === 'Height' ? 'Top' : 'Left')]) + parseInt(computedStyle['margin' + (axis === 'Height' ? 'Bottom' : 'Right')]) : 0);
+}
+
+function getWindowSizes(document) {
+  var body = document.body;
+  var html = document.documentElement;
+  var computedStyle = isIE(10) && getComputedStyle(html);
+
+  return {
+    height: getSize('Height', body, html, computedStyle),
+    width: getSize('Width', body, html, computedStyle)
+  };
+}
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
 };
 
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
 
-/***/ }),
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
 
-/***/ "./resources/js/backend/after.js":
-/***/ (function(module, exports) {
 
-// Loaded after CoreUI app.js
 
-//Message Notification
-setInterval(function () {
 
-    $.ajax({
-        type: "POST",
-        url: messageNotificationRoute,
-        data: { _token: $('meta[name="csrf-token"]').attr('content') },
-        datatype: "html",
-        success: function success(data) {
-            if (data.unreadMessageCount > 0) {
-                $('.unreadMessages').empty();
-                $('.mob-notification').removeClass('d-none').html('!');
-                $('.unreadMessageCounter').removeClass('d-none').html(data.unreadMessageCount);
-                var html = "";
-                var host = $(location).attr('protocol') + '//' + $(location).attr('hostname') + '/user/messages/?thread=';
-                $(data.threads).each(function (key, value) {
-                    html += '<a class="dropdown-item" href="' + host + value.thread_id + '"> ' + '<p class="font-weight-bold mb-0">' + value.title + ' <span class="badge badge-success">' + value.unreadMessagesCount + '</span></p>' + '<p class="mb-0">' + value.message + '</p>' + '</a>';
-                });
-                $('.unreadMessages').html(html);
-            } else {
-                $('.unreadMessageCounter').addClass('d-none');
-                $('.mob-notification').addClass('d-none');
+
+var defineProperty = function (obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+};
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
+/**
+ * Given element offsets, generate an output similar to getBoundingClientRect
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Object} offsets
+ * @returns {Object} ClientRect like output
+ */
+function getClientRect(offsets) {
+  return _extends({}, offsets, {
+    right: offsets.left + offsets.width,
+    bottom: offsets.top + offsets.height
+  });
+}
+
+/**
+ * Get bounding client rect of given element
+ * @method
+ * @memberof Popper.Utils
+ * @param {HTMLElement} element
+ * @return {Object} client rect
+ */
+function getBoundingClientRect(element) {
+  var rect = {};
+
+  // IE10 10 FIX: Please, don't ask, the element isn't
+  // considered in DOM in some circumstances...
+  // This isn't reproducible in IE10 compatibility mode of IE11
+  try {
+    if (isIE(10)) {
+      rect = element.getBoundingClientRect();
+      var scrollTop = getScroll(element, 'top');
+      var scrollLeft = getScroll(element, 'left');
+      rect.top += scrollTop;
+      rect.left += scrollLeft;
+      rect.bottom += scrollTop;
+      rect.right += scrollLeft;
+    } else {
+      rect = element.getBoundingClientRect();
+    }
+  } catch (e) {}
+
+  var result = {
+    left: rect.left,
+    top: rect.top,
+    width: rect.right - rect.left,
+    height: rect.bottom - rect.top
+  };
+
+  // subtract scrollbar size from sizes
+  var sizes = element.nodeName === 'HTML' ? getWindowSizes(element.ownerDocument) : {};
+  var width = sizes.width || element.clientWidth || result.width;
+  var height = sizes.height || element.clientHeight || result.height;
+
+  var horizScrollbar = element.offsetWidth - width;
+  var vertScrollbar = element.offsetHeight - height;
+
+  // if an hypothetical scrollbar is detected, we must be sure it's not a `border`
+  // we make this check conditional for performance reasons
+  if (horizScrollbar || vertScrollbar) {
+    var styles = getStyleComputedProperty(element);
+    horizScrollbar -= getBordersSize(styles, 'x');
+    vertScrollbar -= getBordersSize(styles, 'y');
+
+    result.width -= horizScrollbar;
+    result.height -= vertScrollbar;
+  }
+
+  return getClientRect(result);
+}
+
+function getOffsetRectRelativeToArbitraryNode(children, parent) {
+  var fixedPosition = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+  var isIE10 = isIE(10);
+  var isHTML = parent.nodeName === 'HTML';
+  var childrenRect = getBoundingClientRect(children);
+  var parentRect = getBoundingClientRect(parent);
+  var scrollParent = getScrollParent(children);
+
+  var styles = getStyleComputedProperty(parent);
+  var borderTopWidth = parseFloat(styles.borderTopWidth);
+  var borderLeftWidth = parseFloat(styles.borderLeftWidth);
+
+  // In cases where the parent is fixed, we must ignore negative scroll in offset calc
+  if (fixedPosition && isHTML) {
+    parentRect.top = Math.max(parentRect.top, 0);
+    parentRect.left = Math.max(parentRect.left, 0);
+  }
+  var offsets = getClientRect({
+    top: childrenRect.top - parentRect.top - borderTopWidth,
+    left: childrenRect.left - parentRect.left - borderLeftWidth,
+    width: childrenRect.width,
+    height: childrenRect.height
+  });
+  offsets.marginTop = 0;
+  offsets.marginLeft = 0;
+
+  // Subtract margins of documentElement in case it's being used as parent
+  // we do this only on HTML because it's the only element that behaves
+  // differently when margins are applied to it. The margins are included in
+  // the box of the documentElement, in the other cases not.
+  if (!isIE10 && isHTML) {
+    var marginTop = parseFloat(styles.marginTop);
+    var marginLeft = parseFloat(styles.marginLeft);
+
+    offsets.top -= borderTopWidth - marginTop;
+    offsets.bottom -= borderTopWidth - marginTop;
+    offsets.left -= borderLeftWidth - marginLeft;
+    offsets.right -= borderLeftWidth - marginLeft;
+
+    // Attach marginTop and marginLeft because in some circumstances we may need them
+    offsets.marginTop = marginTop;
+    offsets.marginLeft = marginLeft;
+  }
+
+  if (isIE10 && !fixedPosition ? parent.contains(scrollParent) : parent === scrollParent && scrollParent.nodeName !== 'BODY') {
+    offsets = includeScroll(offsets, parent);
+  }
+
+  return offsets;
+}
+
+function getViewportOffsetRectRelativeToArtbitraryNode(element) {
+  var excludeScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  var html = element.ownerDocument.documentElement;
+  var relativeOffset = getOffsetRectRelativeToArbitraryNode(element, html);
+  var width = Math.max(html.clientWidth, window.innerWidth || 0);
+  var height = Math.max(html.clientHeight, window.innerHeight || 0);
+
+  var scrollTop = !excludeScroll ? getScroll(html) : 0;
+  var scrollLeft = !excludeScroll ? getScroll(html, 'left') : 0;
+
+  var offset = {
+    top: scrollTop - relativeOffset.top + relativeOffset.marginTop,
+    left: scrollLeft - relativeOffset.left + relativeOffset.marginLeft,
+    width: width,
+    height: height
+  };
+
+  return getClientRect(offset);
+}
+
+/**
+ * Check if the given element is fixed or is inside a fixed parent
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @argument {Element} customContainer
+ * @returns {Boolean} answer to "isFixed?"
+ */
+function isFixed(element) {
+  var nodeName = element.nodeName;
+  if (nodeName === 'BODY' || nodeName === 'HTML') {
+    return false;
+  }
+  if (getStyleComputedProperty(element, 'position') === 'fixed') {
+    return true;
+  }
+  var parentNode = getParentNode(element);
+  if (!parentNode) {
+    return false;
+  }
+  return isFixed(parentNode);
+}
+
+/**
+ * Finds the first parent of an element that has a transformed property defined
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @returns {Element} first transformed parent or documentElement
+ */
+
+function getFixedPositionOffsetParent(element) {
+  // This check is needed to avoid errors in case one of the elements isn't defined for any reason
+  if (!element || !element.parentElement || isIE()) {
+    return document.documentElement;
+  }
+  var el = element.parentElement;
+  while (el && getStyleComputedProperty(el, 'transform') === 'none') {
+    el = el.parentElement;
+  }
+  return el || document.documentElement;
+}
+
+/**
+ * Computed the boundaries limits and return them
+ * @method
+ * @memberof Popper.Utils
+ * @param {HTMLElement} popper
+ * @param {HTMLElement} reference
+ * @param {number} padding
+ * @param {HTMLElement} boundariesElement - Element used to define the boundaries
+ * @param {Boolean} fixedPosition - Is in fixed position mode
+ * @returns {Object} Coordinates of the boundaries
+ */
+function getBoundaries(popper, reference, padding, boundariesElement) {
+  var fixedPosition = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
+  // NOTE: 1 DOM access here
+
+  var boundaries = { top: 0, left: 0 };
+  var offsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, getReferenceNode(reference));
+
+  // Handle viewport case
+  if (boundariesElement === 'viewport') {
+    boundaries = getViewportOffsetRectRelativeToArtbitraryNode(offsetParent, fixedPosition);
+  } else {
+    // Handle other cases based on DOM element used as boundaries
+    var boundariesNode = void 0;
+    if (boundariesElement === 'scrollParent') {
+      boundariesNode = getScrollParent(getParentNode(reference));
+      if (boundariesNode.nodeName === 'BODY') {
+        boundariesNode = popper.ownerDocument.documentElement;
+      }
+    } else if (boundariesElement === 'window') {
+      boundariesNode = popper.ownerDocument.documentElement;
+    } else {
+      boundariesNode = boundariesElement;
+    }
+
+    var offsets = getOffsetRectRelativeToArbitraryNode(boundariesNode, offsetParent, fixedPosition);
+
+    // In case of HTML, we need a different computation
+    if (boundariesNode.nodeName === 'HTML' && !isFixed(offsetParent)) {
+      var _getWindowSizes = getWindowSizes(popper.ownerDocument),
+          height = _getWindowSizes.height,
+          width = _getWindowSizes.width;
+
+      boundaries.top += offsets.top - offsets.marginTop;
+      boundaries.bottom = height + offsets.top;
+      boundaries.left += offsets.left - offsets.marginLeft;
+      boundaries.right = width + offsets.left;
+    } else {
+      // for all the other DOM elements, this one is good
+      boundaries = offsets;
+    }
+  }
+
+  // Add paddings
+  padding = padding || 0;
+  var isPaddingNumber = typeof padding === 'number';
+  boundaries.left += isPaddingNumber ? padding : padding.left || 0;
+  boundaries.top += isPaddingNumber ? padding : padding.top || 0;
+  boundaries.right -= isPaddingNumber ? padding : padding.right || 0;
+  boundaries.bottom -= isPaddingNumber ? padding : padding.bottom || 0;
+
+  return boundaries;
+}
+
+function getArea(_ref) {
+  var width = _ref.width,
+      height = _ref.height;
+
+  return width * height;
+}
+
+/**
+ * Utility used to transform the `auto` placement to the placement with more
+ * available space.
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Object} data - The data object generated by update method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function computeAutoPlacement(placement, refRect, popper, reference, boundariesElement) {
+  var padding = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+
+  if (placement.indexOf('auto') === -1) {
+    return placement;
+  }
+
+  var boundaries = getBoundaries(popper, reference, padding, boundariesElement);
+
+  var rects = {
+    top: {
+      width: boundaries.width,
+      height: refRect.top - boundaries.top
+    },
+    right: {
+      width: boundaries.right - refRect.right,
+      height: boundaries.height
+    },
+    bottom: {
+      width: boundaries.width,
+      height: boundaries.bottom - refRect.bottom
+    },
+    left: {
+      width: refRect.left - boundaries.left,
+      height: boundaries.height
+    }
+  };
+
+  var sortedAreas = Object.keys(rects).map(function (key) {
+    return _extends({
+      key: key
+    }, rects[key], {
+      area: getArea(rects[key])
+    });
+  }).sort(function (a, b) {
+    return b.area - a.area;
+  });
+
+  var filteredAreas = sortedAreas.filter(function (_ref2) {
+    var width = _ref2.width,
+        height = _ref2.height;
+    return width >= popper.clientWidth && height >= popper.clientHeight;
+  });
+
+  var computedPlacement = filteredAreas.length > 0 ? filteredAreas[0].key : sortedAreas[0].key;
+
+  var variation = placement.split('-')[1];
+
+  return computedPlacement + (variation ? '-' + variation : '');
+}
+
+/**
+ * Get offsets to the reference element
+ * @method
+ * @memberof Popper.Utils
+ * @param {Object} state
+ * @param {Element} popper - the popper element
+ * @param {Element} reference - the reference element (the popper will be relative to this)
+ * @param {Element} fixedPosition - is in fixed position mode
+ * @returns {Object} An object containing the offsets which will be applied to the popper
+ */
+function getReferenceOffsets(state, popper, reference) {
+  var fixedPosition = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
+  var commonOffsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, getReferenceNode(reference));
+  return getOffsetRectRelativeToArbitraryNode(reference, commonOffsetParent, fixedPosition);
+}
+
+/**
+ * Get the outer sizes of the given element (offset size + margins)
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element
+ * @returns {Object} object containing width and height properties
+ */
+function getOuterSizes(element) {
+  var window = element.ownerDocument.defaultView;
+  var styles = window.getComputedStyle(element);
+  var x = parseFloat(styles.marginTop || 0) + parseFloat(styles.marginBottom || 0);
+  var y = parseFloat(styles.marginLeft || 0) + parseFloat(styles.marginRight || 0);
+  var result = {
+    width: element.offsetWidth + y,
+    height: element.offsetHeight + x
+  };
+  return result;
+}
+
+/**
+ * Get the opposite placement of the given one
+ * @method
+ * @memberof Popper.Utils
+ * @argument {String} placement
+ * @returns {String} flipped placement
+ */
+function getOppositePlacement(placement) {
+  var hash = { left: 'right', right: 'left', bottom: 'top', top: 'bottom' };
+  return placement.replace(/left|right|bottom|top/g, function (matched) {
+    return hash[matched];
+  });
+}
+
+/**
+ * Get offsets to the popper
+ * @method
+ * @memberof Popper.Utils
+ * @param {Object} position - CSS position the Popper will get applied
+ * @param {HTMLElement} popper - the popper element
+ * @param {Object} referenceOffsets - the reference offsets (the popper will be relative to this)
+ * @param {String} placement - one of the valid placement options
+ * @returns {Object} popperOffsets - An object containing the offsets which will be applied to the popper
+ */
+function getPopperOffsets(popper, referenceOffsets, placement) {
+  placement = placement.split('-')[0];
+
+  // Get popper node sizes
+  var popperRect = getOuterSizes(popper);
+
+  // Add position, width and height to our offsets object
+  var popperOffsets = {
+    width: popperRect.width,
+    height: popperRect.height
+  };
+
+  // depending by the popper placement we have to compute its offsets slightly differently
+  var isHoriz = ['right', 'left'].indexOf(placement) !== -1;
+  var mainSide = isHoriz ? 'top' : 'left';
+  var secondarySide = isHoriz ? 'left' : 'top';
+  var measurement = isHoriz ? 'height' : 'width';
+  var secondaryMeasurement = !isHoriz ? 'height' : 'width';
+
+  popperOffsets[mainSide] = referenceOffsets[mainSide] + referenceOffsets[measurement] / 2 - popperRect[measurement] / 2;
+  if (placement === secondarySide) {
+    popperOffsets[secondarySide] = referenceOffsets[secondarySide] - popperRect[secondaryMeasurement];
+  } else {
+    popperOffsets[secondarySide] = referenceOffsets[getOppositePlacement(secondarySide)];
+  }
+
+  return popperOffsets;
+}
+
+/**
+ * Mimics the `find` method of Array
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Array} arr
+ * @argument prop
+ * @argument value
+ * @returns index or -1
+ */
+function find(arr, check) {
+  // use native find if supported
+  if (Array.prototype.find) {
+    return arr.find(check);
+  }
+
+  // use `filter` to obtain the same behavior of `find`
+  return arr.filter(check)[0];
+}
+
+/**
+ * Return the index of the matching object
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Array} arr
+ * @argument prop
+ * @argument value
+ * @returns index or -1
+ */
+function findIndex(arr, prop, value) {
+  // use native findIndex if supported
+  if (Array.prototype.findIndex) {
+    return arr.findIndex(function (cur) {
+      return cur[prop] === value;
+    });
+  }
+
+  // use `find` + `indexOf` if `findIndex` isn't supported
+  var match = find(arr, function (obj) {
+    return obj[prop] === value;
+  });
+  return arr.indexOf(match);
+}
+
+/**
+ * Loop trough the list of modifiers and run them in order,
+ * each of them will then edit the data object.
+ * @method
+ * @memberof Popper.Utils
+ * @param {dataObject} data
+ * @param {Array} modifiers
+ * @param {String} ends - Optional modifier name used as stopper
+ * @returns {dataObject}
+ */
+function runModifiers(modifiers, data, ends) {
+  var modifiersToRun = ends === undefined ? modifiers : modifiers.slice(0, findIndex(modifiers, 'name', ends));
+
+  modifiersToRun.forEach(function (modifier) {
+    if (modifier['function']) {
+      // eslint-disable-line dot-notation
+      console.warn('`modifier.function` is deprecated, use `modifier.fn`!');
+    }
+    var fn = modifier['function'] || modifier.fn; // eslint-disable-line dot-notation
+    if (modifier.enabled && isFunction(fn)) {
+      // Add properties to offsets to make them a complete clientRect object
+      // we do this before each modifier to make sure the previous one doesn't
+      // mess with these values
+      data.offsets.popper = getClientRect(data.offsets.popper);
+      data.offsets.reference = getClientRect(data.offsets.reference);
+
+      data = fn(data, modifier);
+    }
+  });
+
+  return data;
+}
+
+/**
+ * Updates the position of the popper, computing the new offsets and applying
+ * the new style.<br />
+ * Prefer `scheduleUpdate` over `update` because of performance reasons.
+ * @method
+ * @memberof Popper
+ */
+function update() {
+  // if popper is destroyed, don't perform any further update
+  if (this.state.isDestroyed) {
+    return;
+  }
+
+  var data = {
+    instance: this,
+    styles: {},
+    arrowStyles: {},
+    attributes: {},
+    flipped: false,
+    offsets: {}
+  };
+
+  // compute reference element offsets
+  data.offsets.reference = getReferenceOffsets(this.state, this.popper, this.reference, this.options.positionFixed);
+
+  // compute auto placement, store placement inside the data object,
+  // modifiers will be able to edit `placement` if needed
+  // and refer to originalPlacement to know the original value
+  data.placement = computeAutoPlacement(this.options.placement, data.offsets.reference, this.popper, this.reference, this.options.modifiers.flip.boundariesElement, this.options.modifiers.flip.padding);
+
+  // store the computed placement inside `originalPlacement`
+  data.originalPlacement = data.placement;
+
+  data.positionFixed = this.options.positionFixed;
+
+  // compute the popper offsets
+  data.offsets.popper = getPopperOffsets(this.popper, data.offsets.reference, data.placement);
+
+  data.offsets.popper.position = this.options.positionFixed ? 'fixed' : 'absolute';
+
+  // run the modifiers
+  data = runModifiers(this.modifiers, data);
+
+  // the first `update` will call `onCreate` callback
+  // the other ones will call `onUpdate` callback
+  if (!this.state.isCreated) {
+    this.state.isCreated = true;
+    this.options.onCreate(data);
+  } else {
+    this.options.onUpdate(data);
+  }
+}
+
+/**
+ * Helper used to know if the given modifier is enabled.
+ * @method
+ * @memberof Popper.Utils
+ * @returns {Boolean}
+ */
+function isModifierEnabled(modifiers, modifierName) {
+  return modifiers.some(function (_ref) {
+    var name = _ref.name,
+        enabled = _ref.enabled;
+    return enabled && name === modifierName;
+  });
+}
+
+/**
+ * Get the prefixed supported property name
+ * @method
+ * @memberof Popper.Utils
+ * @argument {String} property (camelCase)
+ * @returns {String} prefixed property (camelCase or PascalCase, depending on the vendor prefix)
+ */
+function getSupportedPropertyName(property) {
+  var prefixes = [false, 'ms', 'Webkit', 'Moz', 'O'];
+  var upperProp = property.charAt(0).toUpperCase() + property.slice(1);
+
+  for (var i = 0; i < prefixes.length; i++) {
+    var prefix = prefixes[i];
+    var toCheck = prefix ? '' + prefix + upperProp : property;
+    if (typeof document.body.style[toCheck] !== 'undefined') {
+      return toCheck;
+    }
+  }
+  return null;
+}
+
+/**
+ * Destroys the popper.
+ * @method
+ * @memberof Popper
+ */
+function destroy() {
+  this.state.isDestroyed = true;
+
+  // touch DOM only if `applyStyle` modifier is enabled
+  if (isModifierEnabled(this.modifiers, 'applyStyle')) {
+    this.popper.removeAttribute('x-placement');
+    this.popper.style.position = '';
+    this.popper.style.top = '';
+    this.popper.style.left = '';
+    this.popper.style.right = '';
+    this.popper.style.bottom = '';
+    this.popper.style.willChange = '';
+    this.popper.style[getSupportedPropertyName('transform')] = '';
+  }
+
+  this.disableEventListeners();
+
+  // remove the popper if user explicitly asked for the deletion on destroy
+  // do not use `remove` because IE11 doesn't support it
+  if (this.options.removeOnDestroy) {
+    this.popper.parentNode.removeChild(this.popper);
+  }
+  return this;
+}
+
+/**
+ * Get the window associated with the element
+ * @argument {Element} element
+ * @returns {Window}
+ */
+function getWindow(element) {
+  var ownerDocument = element.ownerDocument;
+  return ownerDocument ? ownerDocument.defaultView : window;
+}
+
+function attachToScrollParents(scrollParent, event, callback, scrollParents) {
+  var isBody = scrollParent.nodeName === 'BODY';
+  var target = isBody ? scrollParent.ownerDocument.defaultView : scrollParent;
+  target.addEventListener(event, callback, { passive: true });
+
+  if (!isBody) {
+    attachToScrollParents(getScrollParent(target.parentNode), event, callback, scrollParents);
+  }
+  scrollParents.push(target);
+}
+
+/**
+ * Setup needed event listeners used to update the popper position
+ * @method
+ * @memberof Popper.Utils
+ * @private
+ */
+function setupEventListeners(reference, options, state, updateBound) {
+  // Resize event listener on window
+  state.updateBound = updateBound;
+  getWindow(reference).addEventListener('resize', state.updateBound, { passive: true });
+
+  // Scroll event listener on scroll parents
+  var scrollElement = getScrollParent(reference);
+  attachToScrollParents(scrollElement, 'scroll', state.updateBound, state.scrollParents);
+  state.scrollElement = scrollElement;
+  state.eventsEnabled = true;
+
+  return state;
+}
+
+/**
+ * It will add resize/scroll events and start recalculating
+ * position of the popper element when they are triggered.
+ * @method
+ * @memberof Popper
+ */
+function enableEventListeners() {
+  if (!this.state.eventsEnabled) {
+    this.state = setupEventListeners(this.reference, this.options, this.state, this.scheduleUpdate);
+  }
+}
+
+/**
+ * Remove event listeners used to update the popper position
+ * @method
+ * @memberof Popper.Utils
+ * @private
+ */
+function removeEventListeners(reference, state) {
+  // Remove resize event listener on window
+  getWindow(reference).removeEventListener('resize', state.updateBound);
+
+  // Remove scroll event listener on scroll parents
+  state.scrollParents.forEach(function (target) {
+    target.removeEventListener('scroll', state.updateBound);
+  });
+
+  // Reset state
+  state.updateBound = null;
+  state.scrollParents = [];
+  state.scrollElement = null;
+  state.eventsEnabled = false;
+  return state;
+}
+
+/**
+ * It will remove resize/scroll events and won't recalculate popper position
+ * when they are triggered. It also won't trigger `onUpdate` callback anymore,
+ * unless you call `update` method manually.
+ * @method
+ * @memberof Popper
+ */
+function disableEventListeners() {
+  if (this.state.eventsEnabled) {
+    cancelAnimationFrame(this.scheduleUpdate);
+    this.state = removeEventListeners(this.reference, this.state);
+  }
+}
+
+/**
+ * Tells if a given input is a number
+ * @method
+ * @memberof Popper.Utils
+ * @param {*} input to check
+ * @return {Boolean}
+ */
+function isNumeric(n) {
+  return n !== '' && !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+/**
+ * Set the style to the given popper
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element - Element to apply the style to
+ * @argument {Object} styles
+ * Object with a list of properties and values which will be applied to the element
+ */
+function setStyles(element, styles) {
+  Object.keys(styles).forEach(function (prop) {
+    var unit = '';
+    // add unit if the value is numeric and is one of the following
+    if (['width', 'height', 'top', 'right', 'bottom', 'left'].indexOf(prop) !== -1 && isNumeric(styles[prop])) {
+      unit = 'px';
+    }
+    element.style[prop] = styles[prop] + unit;
+  });
+}
+
+/**
+ * Set the attributes to the given popper
+ * @method
+ * @memberof Popper.Utils
+ * @argument {Element} element - Element to apply the attributes to
+ * @argument {Object} styles
+ * Object with a list of properties and values which will be applied to the element
+ */
+function setAttributes(element, attributes) {
+  Object.keys(attributes).forEach(function (prop) {
+    var value = attributes[prop];
+    if (value !== false) {
+      element.setAttribute(prop, attributes[prop]);
+    } else {
+      element.removeAttribute(prop);
+    }
+  });
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by `update` method
+ * @argument {Object} data.styles - List of style properties - values to apply to popper element
+ * @argument {Object} data.attributes - List of attribute properties - values to apply to popper element
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The same data object
+ */
+function applyStyle(data) {
+  // any property present in `data.styles` will be applied to the popper,
+  // in this way we can make the 3rd party modifiers add custom styles to it
+  // Be aware, modifiers could override the properties defined in the previous
+  // lines of this modifier!
+  setStyles(data.instance.popper, data.styles);
+
+  // any property present in `data.attributes` will be applied to the popper,
+  // they will be set as HTML attributes of the element
+  setAttributes(data.instance.popper, data.attributes);
+
+  // if arrowElement is defined and arrowStyles has some properties
+  if (data.arrowElement && Object.keys(data.arrowStyles).length) {
+    setStyles(data.arrowElement, data.arrowStyles);
+  }
+
+  return data;
+}
+
+/**
+ * Set the x-placement attribute before everything else because it could be used
+ * to add margins to the popper margins needs to be calculated to get the
+ * correct popper offsets.
+ * @method
+ * @memberof Popper.modifiers
+ * @param {HTMLElement} reference - The reference element used to position the popper
+ * @param {HTMLElement} popper - The HTML element used as popper
+ * @param {Object} options - Popper.js options
+ */
+function applyStyleOnLoad(reference, popper, options, modifierOptions, state) {
+  // compute reference element offsets
+  var referenceOffsets = getReferenceOffsets(state, popper, reference, options.positionFixed);
+
+  // compute auto placement, store placement inside the data object,
+  // modifiers will be able to edit `placement` if needed
+  // and refer to originalPlacement to know the original value
+  var placement = computeAutoPlacement(options.placement, referenceOffsets, popper, reference, options.modifiers.flip.boundariesElement, options.modifiers.flip.padding);
+
+  popper.setAttribute('x-placement', placement);
+
+  // Apply `position` to popper before anything else because
+  // without the position applied we can't guarantee correct computations
+  setStyles(popper, { position: options.positionFixed ? 'fixed' : 'absolute' });
+
+  return options;
+}
+
+/**
+ * @function
+ * @memberof Popper.Utils
+ * @argument {Object} data - The data object generated by `update` method
+ * @argument {Boolean} shouldRound - If the offsets should be rounded at all
+ * @returns {Object} The popper's position offsets rounded
+ *
+ * The tale of pixel-perfect positioning. It's still not 100% perfect, but as
+ * good as it can be within reason.
+ * Discussion here: https://github.com/FezVrasta/popper.js/pull/715
+ *
+ * Low DPI screens cause a popper to be blurry if not using full pixels (Safari
+ * as well on High DPI screens).
+ *
+ * Firefox prefers no rounding for positioning and does not have blurriness on
+ * high DPI screens.
+ *
+ * Only horizontal placement and left/right values need to be considered.
+ */
+function getRoundedOffsets(data, shouldRound) {
+  var _data$offsets = data.offsets,
+      popper = _data$offsets.popper,
+      reference = _data$offsets.reference;
+  var round = Math.round,
+      floor = Math.floor;
+
+  var noRound = function noRound(v) {
+    return v;
+  };
+
+  var referenceWidth = round(reference.width);
+  var popperWidth = round(popper.width);
+
+  var isVertical = ['left', 'right'].indexOf(data.placement) !== -1;
+  var isVariation = data.placement.indexOf('-') !== -1;
+  var sameWidthParity = referenceWidth % 2 === popperWidth % 2;
+  var bothOddWidth = referenceWidth % 2 === 1 && popperWidth % 2 === 1;
+
+  var horizontalToInteger = !shouldRound ? noRound : isVertical || isVariation || sameWidthParity ? round : floor;
+  var verticalToInteger = !shouldRound ? noRound : round;
+
+  return {
+    left: horizontalToInteger(bothOddWidth && !isVariation && shouldRound ? popper.left - 1 : popper.left),
+    top: verticalToInteger(popper.top),
+    bottom: verticalToInteger(popper.bottom),
+    right: horizontalToInteger(popper.right)
+  };
+}
+
+var isFirefox = isBrowser && /Firefox/i.test(navigator.userAgent);
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by `update` method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function computeStyle(data, options) {
+  var x = options.x,
+      y = options.y;
+  var popper = data.offsets.popper;
+
+  // Remove this legacy support in Popper.js v2
+
+  var legacyGpuAccelerationOption = find(data.instance.modifiers, function (modifier) {
+    return modifier.name === 'applyStyle';
+  }).gpuAcceleration;
+  if (legacyGpuAccelerationOption !== undefined) {
+    console.warn('WARNING: `gpuAcceleration` option moved to `computeStyle` modifier and will not be supported in future versions of Popper.js!');
+  }
+  var gpuAcceleration = legacyGpuAccelerationOption !== undefined ? legacyGpuAccelerationOption : options.gpuAcceleration;
+
+  var offsetParent = getOffsetParent(data.instance.popper);
+  var offsetParentRect = getBoundingClientRect(offsetParent);
+
+  // Styles
+  var styles = {
+    position: popper.position
+  };
+
+  var offsets = getRoundedOffsets(data, window.devicePixelRatio < 2 || !isFirefox);
+
+  var sideA = x === 'bottom' ? 'top' : 'bottom';
+  var sideB = y === 'right' ? 'left' : 'right';
+
+  // if gpuAcceleration is set to `true` and transform is supported,
+  //  we use `translate3d` to apply the position to the popper we
+  // automatically use the supported prefixed version if needed
+  var prefixedProperty = getSupportedPropertyName('transform');
+
+  // now, let's make a step back and look at this code closely (wtf?)
+  // If the content of the popper grows once it's been positioned, it
+  // may happen that the popper gets misplaced because of the new content
+  // overflowing its reference element
+  // To avoid this problem, we provide two options (x and y), which allow
+  // the consumer to define the offset origin.
+  // If we position a popper on top of a reference element, we can set
+  // `x` to `top` to make the popper grow towards its top instead of
+  // its bottom.
+  var left = void 0,
+      top = void 0;
+  if (sideA === 'bottom') {
+    // when offsetParent is <html> the positioning is relative to the bottom of the screen (excluding the scrollbar)
+    // and not the bottom of the html element
+    if (offsetParent.nodeName === 'HTML') {
+      top = -offsetParent.clientHeight + offsets.bottom;
+    } else {
+      top = -offsetParentRect.height + offsets.bottom;
+    }
+  } else {
+    top = offsets.top;
+  }
+  if (sideB === 'right') {
+    if (offsetParent.nodeName === 'HTML') {
+      left = -offsetParent.clientWidth + offsets.right;
+    } else {
+      left = -offsetParentRect.width + offsets.right;
+    }
+  } else {
+    left = offsets.left;
+  }
+  if (gpuAcceleration && prefixedProperty) {
+    styles[prefixedProperty] = 'translate3d(' + left + 'px, ' + top + 'px, 0)';
+    styles[sideA] = 0;
+    styles[sideB] = 0;
+    styles.willChange = 'transform';
+  } else {
+    // othwerise, we use the standard `top`, `left`, `bottom` and `right` properties
+    var invertTop = sideA === 'bottom' ? -1 : 1;
+    var invertLeft = sideB === 'right' ? -1 : 1;
+    styles[sideA] = top * invertTop;
+    styles[sideB] = left * invertLeft;
+    styles.willChange = sideA + ', ' + sideB;
+  }
+
+  // Attributes
+  var attributes = {
+    'x-placement': data.placement
+  };
+
+  // Update `data` attributes, styles and arrowStyles
+  data.attributes = _extends({}, attributes, data.attributes);
+  data.styles = _extends({}, styles, data.styles);
+  data.arrowStyles = _extends({}, data.offsets.arrow, data.arrowStyles);
+
+  return data;
+}
+
+/**
+ * Helper used to know if the given modifier depends from another one.<br />
+ * It checks if the needed modifier is listed and enabled.
+ * @method
+ * @memberof Popper.Utils
+ * @param {Array} modifiers - list of modifiers
+ * @param {String} requestingName - name of requesting modifier
+ * @param {String} requestedName - name of requested modifier
+ * @returns {Boolean}
+ */
+function isModifierRequired(modifiers, requestingName, requestedName) {
+  var requesting = find(modifiers, function (_ref) {
+    var name = _ref.name;
+    return name === requestingName;
+  });
+
+  var isRequired = !!requesting && modifiers.some(function (modifier) {
+    return modifier.name === requestedName && modifier.enabled && modifier.order < requesting.order;
+  });
+
+  if (!isRequired) {
+    var _requesting = '`' + requestingName + '`';
+    var requested = '`' + requestedName + '`';
+    console.warn(requested + ' modifier is required by ' + _requesting + ' modifier in order to work, be sure to include it before ' + _requesting + '!');
+  }
+  return isRequired;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by update method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function arrow(data, options) {
+  var _data$offsets$arrow;
+
+  // arrow depends on keepTogether in order to work
+  if (!isModifierRequired(data.instance.modifiers, 'arrow', 'keepTogether')) {
+    return data;
+  }
+
+  var arrowElement = options.element;
+
+  // if arrowElement is a string, suppose it's a CSS selector
+  if (typeof arrowElement === 'string') {
+    arrowElement = data.instance.popper.querySelector(arrowElement);
+
+    // if arrowElement is not found, don't run the modifier
+    if (!arrowElement) {
+      return data;
+    }
+  } else {
+    // if the arrowElement isn't a query selector we must check that the
+    // provided DOM node is child of its popper node
+    if (!data.instance.popper.contains(arrowElement)) {
+      console.warn('WARNING: `arrow.element` must be child of its popper element!');
+      return data;
+    }
+  }
+
+  var placement = data.placement.split('-')[0];
+  var _data$offsets = data.offsets,
+      popper = _data$offsets.popper,
+      reference = _data$offsets.reference;
+
+  var isVertical = ['left', 'right'].indexOf(placement) !== -1;
+
+  var len = isVertical ? 'height' : 'width';
+  var sideCapitalized = isVertical ? 'Top' : 'Left';
+  var side = sideCapitalized.toLowerCase();
+  var altSide = isVertical ? 'left' : 'top';
+  var opSide = isVertical ? 'bottom' : 'right';
+  var arrowElementSize = getOuterSizes(arrowElement)[len];
+
+  //
+  // extends keepTogether behavior making sure the popper and its
+  // reference have enough pixels in conjunction
+  //
+
+  // top/left side
+  if (reference[opSide] - arrowElementSize < popper[side]) {
+    data.offsets.popper[side] -= popper[side] - (reference[opSide] - arrowElementSize);
+  }
+  // bottom/right side
+  if (reference[side] + arrowElementSize > popper[opSide]) {
+    data.offsets.popper[side] += reference[side] + arrowElementSize - popper[opSide];
+  }
+  data.offsets.popper = getClientRect(data.offsets.popper);
+
+  // compute center of the popper
+  var center = reference[side] + reference[len] / 2 - arrowElementSize / 2;
+
+  // Compute the sideValue using the updated popper offsets
+  // take popper margin in account because we don't have this info available
+  var css = getStyleComputedProperty(data.instance.popper);
+  var popperMarginSide = parseFloat(css['margin' + sideCapitalized]);
+  var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width']);
+  var sideValue = center - data.offsets.popper[side] - popperMarginSide - popperBorderSide;
+
+  // prevent arrowElement from being placed not contiguously to its popper
+  sideValue = Math.max(Math.min(popper[len] - arrowElementSize, sideValue), 0);
+
+  data.arrowElement = arrowElement;
+  data.offsets.arrow = (_data$offsets$arrow = {}, defineProperty(_data$offsets$arrow, side, Math.round(sideValue)), defineProperty(_data$offsets$arrow, altSide, ''), _data$offsets$arrow);
+
+  return data;
+}
+
+/**
+ * Get the opposite placement variation of the given one
+ * @method
+ * @memberof Popper.Utils
+ * @argument {String} placement variation
+ * @returns {String} flipped placement variation
+ */
+function getOppositeVariation(variation) {
+  if (variation === 'end') {
+    return 'start';
+  } else if (variation === 'start') {
+    return 'end';
+  }
+  return variation;
+}
+
+/**
+ * List of accepted placements to use as values of the `placement` option.<br />
+ * Valid placements are:
+ * - `auto`
+ * - `top`
+ * - `right`
+ * - `bottom`
+ * - `left`
+ *
+ * Each placement can have a variation from this list:
+ * - `-start`
+ * - `-end`
+ *
+ * Variations are interpreted easily if you think of them as the left to right
+ * written languages. Horizontally (`top` and `bottom`), `start` is left and `end`
+ * is right.<br />
+ * Vertically (`left` and `right`), `start` is top and `end` is bottom.
+ *
+ * Some valid examples are:
+ * - `top-end` (on top of reference, right aligned)
+ * - `right-start` (on right of reference, top aligned)
+ * - `bottom` (on bottom, centered)
+ * - `auto-end` (on the side with more space available, alignment depends by placement)
+ *
+ * @static
+ * @type {Array}
+ * @enum {String}
+ * @readonly
+ * @method placements
+ * @memberof Popper
+ */
+var placements = ['auto-start', 'auto', 'auto-end', 'top-start', 'top', 'top-end', 'right-start', 'right', 'right-end', 'bottom-end', 'bottom', 'bottom-start', 'left-end', 'left', 'left-start'];
+
+// Get rid of `auto` `auto-start` and `auto-end`
+var validPlacements = placements.slice(3);
+
+/**
+ * Given an initial placement, returns all the subsequent placements
+ * clockwise (or counter-clockwise).
+ *
+ * @method
+ * @memberof Popper.Utils
+ * @argument {String} placement - A valid placement (it accepts variations)
+ * @argument {Boolean} counter - Set to true to walk the placements counterclockwise
+ * @returns {Array} placements including their variations
+ */
+function clockwise(placement) {
+  var counter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  var index = validPlacements.indexOf(placement);
+  var arr = validPlacements.slice(index + 1).concat(validPlacements.slice(0, index));
+  return counter ? arr.reverse() : arr;
+}
+
+var BEHAVIORS = {
+  FLIP: 'flip',
+  CLOCKWISE: 'clockwise',
+  COUNTERCLOCKWISE: 'counterclockwise'
+};
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by update method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function flip(data, options) {
+  // if `inner` modifier is enabled, we can't use the `flip` modifier
+  if (isModifierEnabled(data.instance.modifiers, 'inner')) {
+    return data;
+  }
+
+  if (data.flipped && data.placement === data.originalPlacement) {
+    // seems like flip is trying to loop, probably there's not enough space on any of the flippable sides
+    return data;
+  }
+
+  var boundaries = getBoundaries(data.instance.popper, data.instance.reference, options.padding, options.boundariesElement, data.positionFixed);
+
+  var placement = data.placement.split('-')[0];
+  var placementOpposite = getOppositePlacement(placement);
+  var variation = data.placement.split('-')[1] || '';
+
+  var flipOrder = [];
+
+  switch (options.behavior) {
+    case BEHAVIORS.FLIP:
+      flipOrder = [placement, placementOpposite];
+      break;
+    case BEHAVIORS.CLOCKWISE:
+      flipOrder = clockwise(placement);
+      break;
+    case BEHAVIORS.COUNTERCLOCKWISE:
+      flipOrder = clockwise(placement, true);
+      break;
+    default:
+      flipOrder = options.behavior;
+  }
+
+  flipOrder.forEach(function (step, index) {
+    if (placement !== step || flipOrder.length === index + 1) {
+      return data;
+    }
+
+    placement = data.placement.split('-')[0];
+    placementOpposite = getOppositePlacement(placement);
+
+    var popperOffsets = data.offsets.popper;
+    var refOffsets = data.offsets.reference;
+
+    // using floor because the reference offsets may contain decimals we are not going to consider here
+    var floor = Math.floor;
+    var overlapsRef = placement === 'left' && floor(popperOffsets.right) > floor(refOffsets.left) || placement === 'right' && floor(popperOffsets.left) < floor(refOffsets.right) || placement === 'top' && floor(popperOffsets.bottom) > floor(refOffsets.top) || placement === 'bottom' && floor(popperOffsets.top) < floor(refOffsets.bottom);
+
+    var overflowsLeft = floor(popperOffsets.left) < floor(boundaries.left);
+    var overflowsRight = floor(popperOffsets.right) > floor(boundaries.right);
+    var overflowsTop = floor(popperOffsets.top) < floor(boundaries.top);
+    var overflowsBottom = floor(popperOffsets.bottom) > floor(boundaries.bottom);
+
+    var overflowsBoundaries = placement === 'left' && overflowsLeft || placement === 'right' && overflowsRight || placement === 'top' && overflowsTop || placement === 'bottom' && overflowsBottom;
+
+    // flip the variation if required
+    var isVertical = ['top', 'bottom'].indexOf(placement) !== -1;
+
+    // flips variation if reference element overflows boundaries
+    var flippedVariationByRef = !!options.flipVariations && (isVertical && variation === 'start' && overflowsLeft || isVertical && variation === 'end' && overflowsRight || !isVertical && variation === 'start' && overflowsTop || !isVertical && variation === 'end' && overflowsBottom);
+
+    // flips variation if popper content overflows boundaries
+    var flippedVariationByContent = !!options.flipVariationsByContent && (isVertical && variation === 'start' && overflowsRight || isVertical && variation === 'end' && overflowsLeft || !isVertical && variation === 'start' && overflowsBottom || !isVertical && variation === 'end' && overflowsTop);
+
+    var flippedVariation = flippedVariationByRef || flippedVariationByContent;
+
+    if (overlapsRef || overflowsBoundaries || flippedVariation) {
+      // this boolean to detect any flip loop
+      data.flipped = true;
+
+      if (overlapsRef || overflowsBoundaries) {
+        placement = flipOrder[index + 1];
+      }
+
+      if (flippedVariation) {
+        variation = getOppositeVariation(variation);
+      }
+
+      data.placement = placement + (variation ? '-' + variation : '');
+
+      // this object contains `position`, we want to preserve it along with
+      // any additional property we may add in the future
+      data.offsets.popper = _extends({}, data.offsets.popper, getPopperOffsets(data.instance.popper, data.offsets.reference, data.placement));
+
+      data = runModifiers(data.instance.modifiers, data, 'flip');
+    }
+  });
+  return data;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by update method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function keepTogether(data) {
+  var _data$offsets = data.offsets,
+      popper = _data$offsets.popper,
+      reference = _data$offsets.reference;
+
+  var placement = data.placement.split('-')[0];
+  var floor = Math.floor;
+  var isVertical = ['top', 'bottom'].indexOf(placement) !== -1;
+  var side = isVertical ? 'right' : 'bottom';
+  var opSide = isVertical ? 'left' : 'top';
+  var measurement = isVertical ? 'width' : 'height';
+
+  if (popper[side] < floor(reference[opSide])) {
+    data.offsets.popper[opSide] = floor(reference[opSide]) - popper[measurement];
+  }
+  if (popper[opSide] > floor(reference[side])) {
+    data.offsets.popper[opSide] = floor(reference[side]);
+  }
+
+  return data;
+}
+
+/**
+ * Converts a string containing value + unit into a px value number
+ * @function
+ * @memberof {modifiers~offset}
+ * @private
+ * @argument {String} str - Value + unit string
+ * @argument {String} measurement - `height` or `width`
+ * @argument {Object} popperOffsets
+ * @argument {Object} referenceOffsets
+ * @returns {Number|String}
+ * Value in pixels, or original string if no values were extracted
+ */
+function toValue(str, measurement, popperOffsets, referenceOffsets) {
+  // separate value from unit
+  var split = str.match(/((?:\-|\+)?\d*\.?\d*)(.*)/);
+  var value = +split[1];
+  var unit = split[2];
+
+  // If it's not a number it's an operator, I guess
+  if (!value) {
+    return str;
+  }
+
+  if (unit.indexOf('%') === 0) {
+    var element = void 0;
+    switch (unit) {
+      case '%p':
+        element = popperOffsets;
+        break;
+      case '%':
+      case '%r':
+      default:
+        element = referenceOffsets;
+    }
+
+    var rect = getClientRect(element);
+    return rect[measurement] / 100 * value;
+  } else if (unit === 'vh' || unit === 'vw') {
+    // if is a vh or vw, we calculate the size based on the viewport
+    var size = void 0;
+    if (unit === 'vh') {
+      size = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    } else {
+      size = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    }
+    return size / 100 * value;
+  } else {
+    // if is an explicit pixel unit, we get rid of the unit and keep the value
+    // if is an implicit unit, it's px, and we return just the value
+    return value;
+  }
+}
+
+/**
+ * Parse an `offset` string to extrapolate `x` and `y` numeric offsets.
+ * @function
+ * @memberof {modifiers~offset}
+ * @private
+ * @argument {String} offset
+ * @argument {Object} popperOffsets
+ * @argument {Object} referenceOffsets
+ * @argument {String} basePlacement
+ * @returns {Array} a two cells array with x and y offsets in numbers
+ */
+function parseOffset(offset, popperOffsets, referenceOffsets, basePlacement) {
+  var offsets = [0, 0];
+
+  // Use height if placement is left or right and index is 0 otherwise use width
+  // in this way the first offset will use an axis and the second one
+  // will use the other one
+  var useHeight = ['right', 'left'].indexOf(basePlacement) !== -1;
+
+  // Split the offset string to obtain a list of values and operands
+  // The regex addresses values with the plus or minus sign in front (+10, -20, etc)
+  var fragments = offset.split(/(\+|\-)/).map(function (frag) {
+    return frag.trim();
+  });
+
+  // Detect if the offset string contains a pair of values or a single one
+  // they could be separated by comma or space
+  var divider = fragments.indexOf(find(fragments, function (frag) {
+    return frag.search(/,|\s/) !== -1;
+  }));
+
+  if (fragments[divider] && fragments[divider].indexOf(',') === -1) {
+    console.warn('Offsets separated by white space(s) are deprecated, use a comma (,) instead.');
+  }
+
+  // If divider is found, we divide the list of values and operands to divide
+  // them by ofset X and Y.
+  var splitRegex = /\s*,\s*|\s+/;
+  var ops = divider !== -1 ? [fragments.slice(0, divider).concat([fragments[divider].split(splitRegex)[0]]), [fragments[divider].split(splitRegex)[1]].concat(fragments.slice(divider + 1))] : [fragments];
+
+  // Convert the values with units to absolute pixels to allow our computations
+  ops = ops.map(function (op, index) {
+    // Most of the units rely on the orientation of the popper
+    var measurement = (index === 1 ? !useHeight : useHeight) ? 'height' : 'width';
+    var mergeWithPrevious = false;
+    return op
+    // This aggregates any `+` or `-` sign that aren't considered operators
+    // e.g.: 10 + +5 => [10, +, +5]
+    .reduce(function (a, b) {
+      if (a[a.length - 1] === '' && ['+', '-'].indexOf(b) !== -1) {
+        a[a.length - 1] = b;
+        mergeWithPrevious = true;
+        return a;
+      } else if (mergeWithPrevious) {
+        a[a.length - 1] += b;
+        mergeWithPrevious = false;
+        return a;
+      } else {
+        return a.concat(b);
+      }
+    }, [])
+    // Here we convert the string values into number values (in px)
+    .map(function (str) {
+      return toValue(str, measurement, popperOffsets, referenceOffsets);
+    });
+  });
+
+  // Loop trough the offsets arrays and execute the operations
+  ops.forEach(function (op, index) {
+    op.forEach(function (frag, index2) {
+      if (isNumeric(frag)) {
+        offsets[index] += frag * (op[index2 - 1] === '-' ? -1 : 1);
+      }
+    });
+  });
+  return offsets;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by update method
+ * @argument {Object} options - Modifiers configuration and options
+ * @argument {Number|String} options.offset=0
+ * The offset value as described in the modifier description
+ * @returns {Object} The data object, properly modified
+ */
+function offset(data, _ref) {
+  var offset = _ref.offset;
+  var placement = data.placement,
+      _data$offsets = data.offsets,
+      popper = _data$offsets.popper,
+      reference = _data$offsets.reference;
+
+  var basePlacement = placement.split('-')[0];
+
+  var offsets = void 0;
+  if (isNumeric(+offset)) {
+    offsets = [+offset, 0];
+  } else {
+    offsets = parseOffset(offset, popper, reference, basePlacement);
+  }
+
+  if (basePlacement === 'left') {
+    popper.top += offsets[0];
+    popper.left -= offsets[1];
+  } else if (basePlacement === 'right') {
+    popper.top += offsets[0];
+    popper.left += offsets[1];
+  } else if (basePlacement === 'top') {
+    popper.left += offsets[0];
+    popper.top -= offsets[1];
+  } else if (basePlacement === 'bottom') {
+    popper.left += offsets[0];
+    popper.top += offsets[1];
+  }
+
+  data.popper = popper;
+  return data;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by `update` method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function preventOverflow(data, options) {
+  var boundariesElement = options.boundariesElement || getOffsetParent(data.instance.popper);
+
+  // If offsetParent is the reference element, we really want to
+  // go one step up and use the next offsetParent as reference to
+  // avoid to make this modifier completely useless and look like broken
+  if (data.instance.reference === boundariesElement) {
+    boundariesElement = getOffsetParent(boundariesElement);
+  }
+
+  // NOTE: DOM access here
+  // resets the popper's position so that the document size can be calculated excluding
+  // the size of the popper element itself
+  var transformProp = getSupportedPropertyName('transform');
+  var popperStyles = data.instance.popper.style; // assignment to help minification
+  var top = popperStyles.top,
+      left = popperStyles.left,
+      transform = popperStyles[transformProp];
+
+  popperStyles.top = '';
+  popperStyles.left = '';
+  popperStyles[transformProp] = '';
+
+  var boundaries = getBoundaries(data.instance.popper, data.instance.reference, options.padding, boundariesElement, data.positionFixed);
+
+  // NOTE: DOM access here
+  // restores the original style properties after the offsets have been computed
+  popperStyles.top = top;
+  popperStyles.left = left;
+  popperStyles[transformProp] = transform;
+
+  options.boundaries = boundaries;
+
+  var order = options.priority;
+  var popper = data.offsets.popper;
+
+  var check = {
+    primary: function primary(placement) {
+      var value = popper[placement];
+      if (popper[placement] < boundaries[placement] && !options.escapeWithReference) {
+        value = Math.max(popper[placement], boundaries[placement]);
+      }
+      return defineProperty({}, placement, value);
+    },
+    secondary: function secondary(placement) {
+      var mainSide = placement === 'right' ? 'left' : 'top';
+      var value = popper[mainSide];
+      if (popper[placement] > boundaries[placement] && !options.escapeWithReference) {
+        value = Math.min(popper[mainSide], boundaries[placement] - (placement === 'right' ? popper.width : popper.height));
+      }
+      return defineProperty({}, mainSide, value);
+    }
+  };
+
+  order.forEach(function (placement) {
+    var side = ['left', 'top'].indexOf(placement) !== -1 ? 'primary' : 'secondary';
+    popper = _extends({}, popper, check[side](placement));
+  });
+
+  data.offsets.popper = popper;
+
+  return data;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by `update` method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function shift(data) {
+  var placement = data.placement;
+  var basePlacement = placement.split('-')[0];
+  var shiftvariation = placement.split('-')[1];
+
+  // if shift shiftvariation is specified, run the modifier
+  if (shiftvariation) {
+    var _data$offsets = data.offsets,
+        reference = _data$offsets.reference,
+        popper = _data$offsets.popper;
+
+    var isVertical = ['bottom', 'top'].indexOf(basePlacement) !== -1;
+    var side = isVertical ? 'left' : 'top';
+    var measurement = isVertical ? 'width' : 'height';
+
+    var shiftOffsets = {
+      start: defineProperty({}, side, reference[side]),
+      end: defineProperty({}, side, reference[side] + reference[measurement] - popper[measurement])
+    };
+
+    data.offsets.popper = _extends({}, popper, shiftOffsets[shiftvariation]);
+  }
+
+  return data;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by update method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function hide(data) {
+  if (!isModifierRequired(data.instance.modifiers, 'hide', 'preventOverflow')) {
+    return data;
+  }
+
+  var refRect = data.offsets.reference;
+  var bound = find(data.instance.modifiers, function (modifier) {
+    return modifier.name === 'preventOverflow';
+  }).boundaries;
+
+  if (refRect.bottom < bound.top || refRect.left > bound.right || refRect.top > bound.bottom || refRect.right < bound.left) {
+    // Avoid unnecessary DOM access if visibility hasn't changed
+    if (data.hide === true) {
+      return data;
+    }
+
+    data.hide = true;
+    data.attributes['x-out-of-boundaries'] = '';
+  } else {
+    // Avoid unnecessary DOM access if visibility hasn't changed
+    if (data.hide === false) {
+      return data;
+    }
+
+    data.hide = false;
+    data.attributes['x-out-of-boundaries'] = false;
+  }
+
+  return data;
+}
+
+/**
+ * @function
+ * @memberof Modifiers
+ * @argument {Object} data - The data object generated by `update` method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {Object} The data object, properly modified
+ */
+function inner(data) {
+  var placement = data.placement;
+  var basePlacement = placement.split('-')[0];
+  var _data$offsets = data.offsets,
+      popper = _data$offsets.popper,
+      reference = _data$offsets.reference;
+
+  var isHoriz = ['left', 'right'].indexOf(basePlacement) !== -1;
+
+  var subtractLength = ['top', 'left'].indexOf(basePlacement) === -1;
+
+  popper[isHoriz ? 'left' : 'top'] = reference[basePlacement] - (subtractLength ? popper[isHoriz ? 'width' : 'height'] : 0);
+
+  data.placement = getOppositePlacement(placement);
+  data.offsets.popper = getClientRect(popper);
+
+  return data;
+}
+
+/**
+ * Modifier function, each modifier can have a function of this type assigned
+ * to its `fn` property.<br />
+ * These functions will be called on each update, this means that you must
+ * make sure they are performant enough to avoid performance bottlenecks.
+ *
+ * @function ModifierFn
+ * @argument {dataObject} data - The data object generated by `update` method
+ * @argument {Object} options - Modifiers configuration and options
+ * @returns {dataObject} The data object, properly modified
+ */
+
+/**
+ * Modifiers are plugins used to alter the behavior of your poppers.<br />
+ * Popper.js uses a set of 9 modifiers to provide all the basic functionalities
+ * needed by the library.
+ *
+ * Usually you don't want to override the `order`, `fn` and `onLoad` props.
+ * All the other properties are configurations that could be tweaked.
+ * @namespace modifiers
+ */
+var modifiers = {
+  /**
+   * Modifier used to shift the popper on the start or end of its reference
+   * element.<br />
+   * It will read the variation of the `placement` property.<br />
+   * It can be one either `-end` or `-start`.
+   * @memberof modifiers
+   * @inner
+   */
+  shift: {
+    /** @prop {number} order=100 - Index used to define the order of execution */
+    order: 100,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: shift
+  },
+
+  /**
+   * The `offset` modifier can shift your popper on both its axis.
+   *
+   * It accepts the following units:
+   * - `px` or unit-less, interpreted as pixels
+   * - `%` or `%r`, percentage relative to the length of the reference element
+   * - `%p`, percentage relative to the length of the popper element
+   * - `vw`, CSS viewport width unit
+   * - `vh`, CSS viewport height unit
+   *
+   * For length is intended the main axis relative to the placement of the popper.<br />
+   * This means that if the placement is `top` or `bottom`, the length will be the
+   * `width`. In case of `left` or `right`, it will be the `height`.
+   *
+   * You can provide a single value (as `Number` or `String`), or a pair of values
+   * as `String` divided by a comma or one (or more) white spaces.<br />
+   * The latter is a deprecated method because it leads to confusion and will be
+   * removed in v2.<br />
+   * Additionally, it accepts additions and subtractions between different units.
+   * Note that multiplications and divisions aren't supported.
+   *
+   * Valid examples are:
+   * ```
+   * 10
+   * '10%'
+   * '10, 10'
+   * '10%, 10'
+   * '10 + 10%'
+   * '10 - 5vh + 3%'
+   * '-10px + 5vh, 5px - 6%'
+   * ```
+   * > **NB**: If you desire to apply offsets to your poppers in a way that may make them overlap
+   * > with their reference element, unfortunately, you will have to disable the `flip` modifier.
+   * > You can read more on this at this [issue](https://github.com/FezVrasta/popper.js/issues/373).
+   *
+   * @memberof modifiers
+   * @inner
+   */
+  offset: {
+    /** @prop {number} order=200 - Index used to define the order of execution */
+    order: 200,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: offset,
+    /** @prop {Number|String} offset=0
+     * The offset value as described in the modifier description
+     */
+    offset: 0
+  },
+
+  /**
+   * Modifier used to prevent the popper from being positioned outside the boundary.
+   *
+   * A scenario exists where the reference itself is not within the boundaries.<br />
+   * We can say it has "escaped the boundaries" — or just "escaped".<br />
+   * In this case we need to decide whether the popper should either:
+   *
+   * - detach from the reference and remain "trapped" in the boundaries, or
+   * - if it should ignore the boundary and "escape with its reference"
+   *
+   * When `escapeWithReference` is set to`true` and reference is completely
+   * outside its boundaries, the popper will overflow (or completely leave)
+   * the boundaries in order to remain attached to the edge of the reference.
+   *
+   * @memberof modifiers
+   * @inner
+   */
+  preventOverflow: {
+    /** @prop {number} order=300 - Index used to define the order of execution */
+    order: 300,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: preventOverflow,
+    /**
+     * @prop {Array} [priority=['left','right','top','bottom']]
+     * Popper will try to prevent overflow following these priorities by default,
+     * then, it could overflow on the left and on top of the `boundariesElement`
+     */
+    priority: ['left', 'right', 'top', 'bottom'],
+    /**
+     * @prop {number} padding=5
+     * Amount of pixel used to define a minimum distance between the boundaries
+     * and the popper. This makes sure the popper always has a little padding
+     * between the edges of its container
+     */
+    padding: 5,
+    /**
+     * @prop {String|HTMLElement} boundariesElement='scrollParent'
+     * Boundaries used by the modifier. Can be `scrollParent`, `window`,
+     * `viewport` or any DOM element.
+     */
+    boundariesElement: 'scrollParent'
+  },
+
+  /**
+   * Modifier used to make sure the reference and its popper stay near each other
+   * without leaving any gap between the two. Especially useful when the arrow is
+   * enabled and you want to ensure that it points to its reference element.
+   * It cares only about the first axis. You can still have poppers with margin
+   * between the popper and its reference element.
+   * @memberof modifiers
+   * @inner
+   */
+  keepTogether: {
+    /** @prop {number} order=400 - Index used to define the order of execution */
+    order: 400,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: keepTogether
+  },
+
+  /**
+   * This modifier is used to move the `arrowElement` of the popper to make
+   * sure it is positioned between the reference element and its popper element.
+   * It will read the outer size of the `arrowElement` node to detect how many
+   * pixels of conjunction are needed.
+   *
+   * It has no effect if no `arrowElement` is provided.
+   * @memberof modifiers
+   * @inner
+   */
+  arrow: {
+    /** @prop {number} order=500 - Index used to define the order of execution */
+    order: 500,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: arrow,
+    /** @prop {String|HTMLElement} element='[x-arrow]' - Selector or node used as arrow */
+    element: '[x-arrow]'
+  },
+
+  /**
+   * Modifier used to flip the popper's placement when it starts to overlap its
+   * reference element.
+   *
+   * Requires the `preventOverflow` modifier before it in order to work.
+   *
+   * **NOTE:** this modifier will interrupt the current update cycle and will
+   * restart it if it detects the need to flip the placement.
+   * @memberof modifiers
+   * @inner
+   */
+  flip: {
+    /** @prop {number} order=600 - Index used to define the order of execution */
+    order: 600,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: flip,
+    /**
+     * @prop {String|Array} behavior='flip'
+     * The behavior used to change the popper's placement. It can be one of
+     * `flip`, `clockwise`, `counterclockwise` or an array with a list of valid
+     * placements (with optional variations)
+     */
+    behavior: 'flip',
+    /**
+     * @prop {number} padding=5
+     * The popper will flip if it hits the edges of the `boundariesElement`
+     */
+    padding: 5,
+    /**
+     * @prop {String|HTMLElement} boundariesElement='viewport'
+     * The element which will define the boundaries of the popper position.
+     * The popper will never be placed outside of the defined boundaries
+     * (except if `keepTogether` is enabled)
+     */
+    boundariesElement: 'viewport',
+    /**
+     * @prop {Boolean} flipVariations=false
+     * The popper will switch placement variation between `-start` and `-end` when
+     * the reference element overlaps its boundaries.
+     *
+     * The original placement should have a set variation.
+     */
+    flipVariations: false,
+    /**
+     * @prop {Boolean} flipVariationsByContent=false
+     * The popper will switch placement variation between `-start` and `-end` when
+     * the popper element overlaps its reference boundaries.
+     *
+     * The original placement should have a set variation.
+     */
+    flipVariationsByContent: false
+  },
+
+  /**
+   * Modifier used to make the popper flow toward the inner of the reference element.
+   * By default, when this modifier is disabled, the popper will be placed outside
+   * the reference element.
+   * @memberof modifiers
+   * @inner
+   */
+  inner: {
+    /** @prop {number} order=700 - Index used to define the order of execution */
+    order: 700,
+    /** @prop {Boolean} enabled=false - Whether the modifier is enabled or not */
+    enabled: false,
+    /** @prop {ModifierFn} */
+    fn: inner
+  },
+
+  /**
+   * Modifier used to hide the popper when its reference element is outside of the
+   * popper boundaries. It will set a `x-out-of-boundaries` attribute which can
+   * be used to hide with a CSS selector the popper when its reference is
+   * out of boundaries.
+   *
+   * Requires the `preventOverflow` modifier before it in order to work.
+   * @memberof modifiers
+   * @inner
+   */
+  hide: {
+    /** @prop {number} order=800 - Index used to define the order of execution */
+    order: 800,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: hide
+  },
+
+  /**
+   * Computes the style that will be applied to the popper element to gets
+   * properly positioned.
+   *
+   * Note that this modifier will not touch the DOM, it just prepares the styles
+   * so that `applyStyle` modifier can apply it. This separation is useful
+   * in case you need to replace `applyStyle` with a custom implementation.
+   *
+   * This modifier has `850` as `order` value to maintain backward compatibility
+   * with previous versions of Popper.js. Expect the modifiers ordering method
+   * to change in future major versions of the library.
+   *
+   * @memberof modifiers
+   * @inner
+   */
+  computeStyle: {
+    /** @prop {number} order=850 - Index used to define the order of execution */
+    order: 850,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: computeStyle,
+    /**
+     * @prop {Boolean} gpuAcceleration=true
+     * If true, it uses the CSS 3D transformation to position the popper.
+     * Otherwise, it will use the `top` and `left` properties
+     */
+    gpuAcceleration: true,
+    /**
+     * @prop {string} [x='bottom']
+     * Where to anchor the X axis (`bottom` or `top`). AKA X offset origin.
+     * Change this if your popper should grow in a direction different from `bottom`
+     */
+    x: 'bottom',
+    /**
+     * @prop {string} [x='left']
+     * Where to anchor the Y axis (`left` or `right`). AKA Y offset origin.
+     * Change this if your popper should grow in a direction different from `right`
+     */
+    y: 'right'
+  },
+
+  /**
+   * Applies the computed styles to the popper element.
+   *
+   * All the DOM manipulations are limited to this modifier. This is useful in case
+   * you want to integrate Popper.js inside a framework or view library and you
+   * want to delegate all the DOM manipulations to it.
+   *
+   * Note that if you disable this modifier, you must make sure the popper element
+   * has its position set to `absolute` before Popper.js can do its work!
+   *
+   * Just disable this modifier and define your own to achieve the desired effect.
+   *
+   * @memberof modifiers
+   * @inner
+   */
+  applyStyle: {
+    /** @prop {number} order=900 - Index used to define the order of execution */
+    order: 900,
+    /** @prop {Boolean} enabled=true - Whether the modifier is enabled or not */
+    enabled: true,
+    /** @prop {ModifierFn} */
+    fn: applyStyle,
+    /** @prop {Function} */
+    onLoad: applyStyleOnLoad,
+    /**
+     * @deprecated since version 1.10.0, the property moved to `computeStyle` modifier
+     * @prop {Boolean} gpuAcceleration=true
+     * If true, it uses the CSS 3D transformation to position the popper.
+     * Otherwise, it will use the `top` and `left` properties
+     */
+    gpuAcceleration: undefined
+  }
+};
+
+/**
+ * The `dataObject` is an object containing all the information used by Popper.js.
+ * This object is passed to modifiers and to the `onCreate` and `onUpdate` callbacks.
+ * @name dataObject
+ * @property {Object} data.instance The Popper.js instance
+ * @property {String} data.placement Placement applied to popper
+ * @property {String} data.originalPlacement Placement originally defined on init
+ * @property {Boolean} data.flipped True if popper has been flipped by flip modifier
+ * @property {Boolean} data.hide True if the reference element is out of boundaries, useful to know when to hide the popper
+ * @property {HTMLElement} data.arrowElement Node used as arrow by arrow modifier
+ * @property {Object} data.styles Any CSS property defined here will be applied to the popper. It expects the JavaScript nomenclature (eg. `marginBottom`)
+ * @property {Object} data.arrowStyles Any CSS property defined here will be applied to the popper arrow. It expects the JavaScript nomenclature (eg. `marginBottom`)
+ * @property {Object} data.boundaries Offsets of the popper boundaries
+ * @property {Object} data.offsets The measurements of popper, reference and arrow elements
+ * @property {Object} data.offsets.popper `top`, `left`, `width`, `height` values
+ * @property {Object} data.offsets.reference `top`, `left`, `width`, `height` values
+ * @property {Object} data.offsets.arrow] `top` and `left` offsets, only one of them will be different from 0
+ */
+
+/**
+ * Default options provided to Popper.js constructor.<br />
+ * These can be overridden using the `options` argument of Popper.js.<br />
+ * To override an option, simply pass an object with the same
+ * structure of the `options` object, as the 3rd argument. For example:
+ * ```
+ * new Popper(ref, pop, {
+ *   modifiers: {
+ *     preventOverflow: { enabled: false }
+ *   }
+ * })
+ * ```
+ * @type {Object}
+ * @static
+ * @memberof Popper
+ */
+var Defaults = {
+  /**
+   * Popper's placement.
+   * @prop {Popper.placements} placement='bottom'
+   */
+  placement: 'bottom',
+
+  /**
+   * Set this to true if you want popper to position it self in 'fixed' mode
+   * @prop {Boolean} positionFixed=false
+   */
+  positionFixed: false,
+
+  /**
+   * Whether events (resize, scroll) are initially enabled.
+   * @prop {Boolean} eventsEnabled=true
+   */
+  eventsEnabled: true,
+
+  /**
+   * Set to true if you want to automatically remove the popper when
+   * you call the `destroy` method.
+   * @prop {Boolean} removeOnDestroy=false
+   */
+  removeOnDestroy: false,
+
+  /**
+   * Callback called when the popper is created.<br />
+   * By default, it is set to no-op.<br />
+   * Access Popper.js instance with `data.instance`.
+   * @prop {onCreate}
+   */
+  onCreate: function onCreate() {},
+
+  /**
+   * Callback called when the popper is updated. This callback is not called
+   * on the initialization/creation of the popper, but only on subsequent
+   * updates.<br />
+   * By default, it is set to no-op.<br />
+   * Access Popper.js instance with `data.instance`.
+   * @prop {onUpdate}
+   */
+  onUpdate: function onUpdate() {},
+
+  /**
+   * List of modifiers used to modify the offsets before they are applied to the popper.
+   * They provide most of the functionalities of Popper.js.
+   * @prop {modifiers}
+   */
+  modifiers: modifiers
+};
+
+/**
+ * @callback onCreate
+ * @param {dataObject} data
+ */
+
+/**
+ * @callback onUpdate
+ * @param {dataObject} data
+ */
+
+// Utils
+// Methods
+var Popper = function () {
+  /**
+   * Creates a new Popper.js instance.
+   * @class Popper
+   * @param {Element|referenceObject} reference - The reference element used to position the popper
+   * @param {Element} popper - The HTML / XML element used as the popper
+   * @param {Object} options - Your custom options to override the ones defined in [Defaults](#defaults)
+   * @return {Object} instance - The generated Popper.js instance
+   */
+  function Popper(reference, popper) {
+    var _this = this;
+
+    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    classCallCheck(this, Popper);
+
+    this.scheduleUpdate = function () {
+      return requestAnimationFrame(_this.update);
+    };
+
+    // make update() debounced, so that it only runs at most once-per-tick
+    this.update = debounce(this.update.bind(this));
+
+    // with {} we create a new object with the options inside it
+    this.options = _extends({}, Popper.Defaults, options);
+
+    // init state
+    this.state = {
+      isDestroyed: false,
+      isCreated: false,
+      scrollParents: []
+    };
+
+    // get reference and popper elements (allow jQuery wrappers)
+    this.reference = reference && reference.jquery ? reference[0] : reference;
+    this.popper = popper && popper.jquery ? popper[0] : popper;
+
+    // Deep merge modifiers options
+    this.options.modifiers = {};
+    Object.keys(_extends({}, Popper.Defaults.modifiers, options.modifiers)).forEach(function (name) {
+      _this.options.modifiers[name] = _extends({}, Popper.Defaults.modifiers[name] || {}, options.modifiers ? options.modifiers[name] : {});
+    });
+
+    // Refactoring modifiers' list (Object => Array)
+    this.modifiers = Object.keys(this.options.modifiers).map(function (name) {
+      return _extends({
+        name: name
+      }, _this.options.modifiers[name]);
+    })
+    // sort the modifiers by order
+    .sort(function (a, b) {
+      return a.order - b.order;
+    });
+
+    // modifiers have the ability to execute arbitrary code when Popper.js get inited
+    // such code is executed in the same order of its modifier
+    // they could add new properties to their options configuration
+    // BE AWARE: don't add options to `options.modifiers.name` but to `modifierOptions`!
+    this.modifiers.forEach(function (modifierOptions) {
+      if (modifierOptions.enabled && isFunction(modifierOptions.onLoad)) {
+        modifierOptions.onLoad(_this.reference, _this.popper, _this.options, modifierOptions, _this.state);
+      }
+    });
+
+    // fire the first update to position the popper in the right place
+    this.update();
+
+    var eventsEnabled = this.options.eventsEnabled;
+    if (eventsEnabled) {
+      // setup event listeners, they will take care of update the position in specific situations
+      this.enableEventListeners();
+    }
+
+    this.state.eventsEnabled = eventsEnabled;
+  }
+
+  // We can't use class properties because they don't get listed in the
+  // class prototype and break stuff like Sinon stubs
+
+
+  createClass(Popper, [{
+    key: 'update',
+    value: function update$$1() {
+      return update.call(this);
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy$$1() {
+      return destroy.call(this);
+    }
+  }, {
+    key: 'enableEventListeners',
+    value: function enableEventListeners$$1() {
+      return enableEventListeners.call(this);
+    }
+  }, {
+    key: 'disableEventListeners',
+    value: function disableEventListeners$$1() {
+      return disableEventListeners.call(this);
+    }
+
+    /**
+     * Schedules an update. It will run on the next UI update available.
+     * @method scheduleUpdate
+     * @memberof Popper
+     */
+
+
+    /**
+     * Collection of utilities useful when writing custom modifiers.
+     * Starting from version 1.7, this method is available only if you
+     * include `popper-utils.js` before `popper.js`.
+     *
+     * **DEPRECATION**: This way to access PopperUtils is deprecated
+     * and will be removed in v2! Use the PopperUtils module directly instead.
+     * Due to the high instability of the methods contained in Utils, we can't
+     * guarantee them to follow semver. Use them at your own risk!
+     * @static
+     * @private
+     * @type {Object}
+     * @deprecated since version 1.8
+     * @member Utils
+     * @memberof Popper
+     */
+
+  }]);
+  return Popper;
+}();
+
+/**
+ * The `referenceObject` is an object that provides an interface compatible with Popper.js
+ * and lets you use it as replacement of a real DOM node.<br />
+ * You can use this method to position a popper relatively to a set of coordinates
+ * in case you don't have a DOM node to use as reference.
+ *
+ * ```
+ * new Popper(referenceObject, popperNode);
+ * ```
+ *
+ * NB: This feature isn't supported in Internet Explorer 10.
+ * @name referenceObject
+ * @property {Function} data.getBoundingClientRect
+ * A function that returns a set of coordinates compatible with the native `getBoundingClientRect` method.
+ * @property {number} data.clientWidth
+ * An ES6 getter that will return the width of the virtual reference element.
+ * @property {number} data.clientHeight
+ * An ES6 getter that will return the height of the virtual reference element.
+ */
+
+
+Popper.Utils = (typeof window !== 'undefined' ? window : __webpack_require__.g).PopperUtils;
+Popper.placements = placements;
+Popper.Defaults = Defaults;
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Popper);
+//# sourceMappingURL=popper.js.map
+
+
+/***/ },
+
+/***/ "./node_modules/process/browser.js"
+/*!*****************************************!*\
+  !*** ./node_modules/process/browser.js ***!
+  \*****************************************/
+(module) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
             }
         }
-    });
-}, 5000);
-
-/***/ }),
-
-/***/ "./resources/js/backend/app.js":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coreui_coreui__ = __webpack_require__("./node_modules/@coreui/coreui/dist/js/coreui.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__coreui_coreui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__coreui_coreui__);
-
-
-/***/ }),
-
-/***/ "./resources/js/backend/before.js":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__("./resources/js/bootstrap.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_pace__ = __webpack_require__("./node_modules/pace/pace.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_pace___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_pace__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__plugins__ = __webpack_require__("./resources/js/plugins.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__plugins___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__plugins__);
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
-// Loaded before CoreUI app.js
-
-
-
-
-/***/ }),
-
-/***/ "./resources/js/bootstrap.js":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__("./node_modules/lodash/lodash.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_axios__ = __webpack_require__("./node_modules/axios/index.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_axios__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_sweetalert2__ = __webpack_require__("./node_modules/sweetalert2/dist/sweetalert2.all.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_sweetalert2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_sweetalert2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_jquery__ = __webpack_require__("./node_modules/jquery/dist/jquery.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_popper_js_dist_umd_popper__ = __webpack_require__("./node_modules/popper.js/dist/umd/popper.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_popper_js_dist_umd_popper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_popper_js_dist_umd_popper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_bootstrap__ = __webpack_require__("./node_modules/bootstrap/dist/js/bootstrap.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_bootstrap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_bootstrap__);
-/**
- * This bootstrap file is used for both frontend and backend
- */
-
-
-
-
-
-// import 'jquery-ui-dist/jquery-ui.min'; // Required for BS4
- // Required for BS4
-
-
-/**
- * Font Awesome >=5.1
- *
- * Is recommended import just the icons that you use, for decrease considerably the file size.
- * You can see at next link, how it works: https://github.com/FortAwesome/Font-Awesome/blob/master/UPGRADING.md#no-more-default-imports
- * Also you can import the icons separately on the frontend and backend
- */
-//
-// import { library, dom } from '@fortawesome/fontawesome-svg-core';
-// import { fab } from '@fortawesome/free-brands-svg-icons';
-// import { far } from '@fortawesome/free-regular-svg-icons';
-// import { fas } from '@fortawesome/free-solid-svg-icons';
-//
-// library.add(fab, far, fas);
-
-// Kicks off the process of finding <i> tags and replacing with <svg>
-// dom.watch();
-
-/**
- * We'll load jQuery and the Bootstrap jQuery plugin which provides support
- * for JavaScript based Bootstrap features such as modals and tabs. This
- * code may be modified to fit the specific needs of your application.
- */
-
-window.$ = window.jQuery = __WEBPACK_IMPORTED_MODULE_3_jquery___default.a;
-window.swal = __WEBPACK_IMPORTED_MODULE_2_sweetalert2___default.a;
-window._ = __WEBPACK_IMPORTED_MODULE_0_lodash___default.a; // Lodash
-
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
-window.axios = __WEBPACK_IMPORTED_MODULE_1_axios___default.a;
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-/**
- * Next we will register the CSRF Token as a common header with Axios so that
- * all outgoing HTTP requests automatically have it attached. This is just
- * a simple convenience so we don't have to attach every token manually.
- */
-
-var token = document.head.querySelector('meta[name="csrf-token"]');
-
-if (token) {
-  window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
-} else {
-  console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
 }
 
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-
-// import Echo from 'laravel-echo'
-
-// window.Pusher = require('pusher-js');
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     encrypted: true
-// });
-
-/***/ }),
-
-/***/ "./resources/js/plugins.js":
-/***/ (function(module, exports) {
-
-/**
- * Allows you to add data-method="METHOD to links to automatically inject a form
- * with the method on click
- *
- * Example: <a href="{{route('customers.destroy', $customer->id)}}"
- * data-method="delete" name="delete_item">Delete</a>
- *
- * Injects a form with that's fired on click of the link with a DELETE request.
- * Good because you don't have to dirty your HTML with delete forms everywhere.
- */
-function addDeleteForms() {
-    $('[data-method]').append(function () {
-        if (!$(this).find('form').length > 0) {
-            return "\n<form action='" + $(this).attr('href') + "' method='POST' name='delete_item' style='display:none'>\n" + "<input type='hidden' name='_method' value='" + $(this).attr('data-method') + "'>\n" + "<input type='hidden' name='_token' value='" + $('meta[name="csrf-token"]').attr('content') + "'>\n" + '</form>\n';
-        } else {
-            return '';
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
         }
-    }).attr('href', '#').attr('style', 'cursor:pointer;').attr('onclick', '$(this).find("form").submit();');
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
 }
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
 
-/**
- * Place any jQuery/helper plugins in here.
- */
-$(function () {
-    /**
-     * Add the data-method="delete" forms to all delete links
-     */
-    addDeleteForms();
+function noop() {}
 
-    /**
-     * Disable all submit buttons once clicked
-     */
-    $('form').submit(function () {
-        $(this).find('input[type="submit"]').attr('disabled', true);
-        $(this).find('button[type="submit"]').attr('disabled', true);
-        return true;
-    });
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
 
-    /**
-     * Generic confirm form delete using Sweet Alert
-     */
-    $('body').on('submit', 'form[name=delete_item]', function (e) {
-        e.preventDefault();
+process.listeners = function (name) { return [] }
 
-        var form = this;
-        var link = $('a[data-method="delete"]');
-        var cancel = link.attr('data-trans-button-cancel') ? link.attr('data-trans-button-cancel') : 'Cancel';
-        var confirm = link.attr('data-trans-button-confirm') ? link.attr('data-trans-button-confirm') : 'Yes, delete';
-        var title = link.attr('data-trans-title') ? link.attr('data-trans-title') : 'Are you sure you want to delete this item?';
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
 
-        swal({
-            title: title,
-            showCancelButton: true,
-            confirmButtonText: confirm,
-            cancelButtonText: cancel,
-            type: 'warning'
-        }).then(function (result) {
-            result.value && form.submit();
-        });
-    }).on('click', 'a[name=confirm_item]', function (e) {
-        /**
-         * Generic 'are you sure' confirm box
-         */
-        e.preventDefault();
-
-        var link = $(this);
-        var title = link.attr('data-trans-title') ? link.attr('data-trans-title') : 'Are you sure you want to do this?';
-        var cancel = link.attr('data-trans-button-cancel') ? link.attr('data-trans-button-cancel') : 'Cancel';
-        var confirm = link.attr('data-trans-button-confirm') ? link.attr('data-trans-button-confirm') : 'Continue';
-
-        swal({
-            title: title,
-            showCancelButton: true,
-            confirmButtonText: confirm,
-            cancelButtonText: cancel,
-            type: 'info'
-        }).then(function (result) {
-            result.value && window.location.assign(link.attr('href'));
-        });
-    });
-});
-
-/***/ }),
-
-/***/ 1:
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__("./resources/js/backend/before.js");
-__webpack_require__("./resources/js/backend/app.js");
-module.exports = __webpack_require__("./resources/js/backend/after.js");
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
 
 
-/***/ })
+/***/ }
 
-},[1]);
+},
+/******/ __webpack_require__ => { // webpackRuntimeModules
+/******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
+/******/ __webpack_require__.O(0, ["/js/vendor"], () => (__webpack_exec__("./resources/js/backend/before.js"), __webpack_exec__("./resources/js/backend/app.js"), __webpack_exec__("./resources/js/backend/after.js")));
+/******/ var __webpack_exports__ = __webpack_require__.O();
+/******/ }
+]);

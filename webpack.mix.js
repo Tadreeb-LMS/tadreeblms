@@ -12,6 +12,9 @@ const mix = require('laravel-mix');
  */
 
 mix.setPublicPath('public');
+mix.options({
+    processCssUrls: false
+});
 
 mix.sass('resources/sass/frontend/app.scss', 'css/frontend.css')
     .sass('resources/sass/frontend-rtl/app.scss', 'css/frontend-rtl.css')
@@ -30,6 +33,12 @@ mix.sass('resources/sass/frontend/app.scss', 'css/frontend.css')
         'axios',
         'sweetalert2',
     ]);
+
+mix.override(config => {
+    config.plugins = (config.plugins || []).filter(
+        plugin => plugin.constructor.name !== 'WebpackBarPlugin'
+    );
+});
 
 if (mix.inProduction() || process.env.npm_lifecycle_event !== 'hot') {
     mix.version();
