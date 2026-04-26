@@ -14,12 +14,6 @@
         </div>
     @endif
 
-    @if(!$canManage)
-        <div class="alert alert-secondary">
-            Read-only mode: only authorized users can save or remove role KPI overrides.
-        </div>
-    @endif
-
     <div class="card mb-4">
         <div class="card-header">
             <strong>About Role Configurations</strong>
