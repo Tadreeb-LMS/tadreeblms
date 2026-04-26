@@ -1312,16 +1312,25 @@ public function courseAssignment(Request $request)
 
         $internal_users = User::query()
             ->where('employee_type', 'internal')
-            //->where('active','1')
             ->get();
 
         $published_courses = Course::query()
-            //->where('published', '1')
             ->get();
+
+        $teachers = User::query()->role('student')
+            ->groupBy('email')
+            ->orderBy('created_at', 'desc')
+            ->active()
+            ->get()
+            ->pluck('name', 'id');
+
+        $departments = Department::all();
 
         return view('backend.assessment_accounts.course_assignment_index',[
             'internal_users' => $internal_users,
             'published_courses' => $published_courses,
+            'teachers' => $teachers,
+            'departments' => $departments,
         ]);
     }
 
@@ -1420,18 +1429,25 @@ public function courseAssignment(Request $request)
 
         $internal_users = User::query()
             ->where('employee_type', 'internal')
-            //->where('active','1')
             ->get();
 
         $published_courses = Course::query()
-            //->where('published', '1')
             ->get();
 
-            
+        $teachers = User::query()->role('student')
+            ->groupBy('email')
+            ->orderBy('created_at', 'desc')
+            ->active()
+            ->get()
+            ->pluck('name', 'id');
+
+        $departments = Department::all();
 
         return view('backend.assessment_accounts.course_assignment_index',[
             'internal_users' => $internal_users,
             'published_courses' => $published_courses,
+            'teachers' => $teachers,
+            'departments' => $departments,
         ]);
     }
 

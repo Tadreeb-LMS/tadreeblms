@@ -27,9 +27,9 @@
 
             @if (true)
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                )
+                    )
                     @can('trainer_access')
                         <!-- <li class="nav-item ">
                             <a class="nav-link {{ $request->segment(2) == 'teachers' ? 'active' : '' }}"
@@ -42,9 +42,9 @@
                 @endif
 
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                )
+                    )
                     @can('trainee_access')
                         <!-- <li
                             class="nav-item nav-dropdown   {{ active_class(Active::checkUriPattern(['user/employee*', 'user/external-employee*']), 'open') }}">
@@ -86,9 +86,9 @@
                 @endif
 
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2]))
-                )
+                    )
                     @can('feedback_access')
                         <li
                             class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['user/employee*', 'user/external-employee*']), 'open') }}">
@@ -135,10 +135,10 @@
                 @endif
 
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2]))
-                )
-                    {{-- @can('calender_access') --}}
+                    )
+                    {{-- @can('calender_access') --}} {{-- Removed: permission not seeded; revert by uncommenting if needed --}}
                     <li class="nav-item ">
                         <a class="nav-link {{ request()->routeIs('user.calender') ? 'active' : '' }}"
                             href="{{ route('user.calender') }}">
@@ -152,9 +152,9 @@
 
             @can('category_access')
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                )
+                    )
                     <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'categories' ? 'active' : '' }}"
                             href="{{ route('admin.categories.index') }}">
@@ -164,10 +164,11 @@
                     </li>
                 @endif
 
-                @if (
+                {{-- Temporarily disabled: Positions menu item hidden per issue #466 --}}
+                @if (false && (
                     null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2]))
-                )
+                ))
                     <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'position' ? 'active' : '' }}"
                             href="{{ route('admin.position.index') }}">
@@ -178,11 +179,11 @@
                 @endif
 
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                )
+                    )
                     @if ($logged_in_user->isAdmin() || $logged_in_user->can('kpi_access'))
-                        <li class="nav-item nav-dropdown {{ in_array($request->segment(2), ['kpis', 'kpi-role-configs', 'kpi-targets']) ? 'open' : '' }}">
+                        <li class="nav-item nav-dropdown {{ in_array($request->segment(2), ['kpis', 'kpi-role-configs', 'kpi-targets', 'kpi-templates']) ? 'open' : '' }}">
                             <a class="nav-link nav-dropdown-toggle d-flex align-items-center" href="#">
                                 <div>
                                     <i class="nav-icon fa fa-bullseye"></i>
@@ -215,15 +216,24 @@
                                         </a>
                                     </li>
                                 @endif
+
+                                @if ($logged_in_user->isAdmin() || $logged_in_user->can('kpi_template_access'))
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $request->segment(2) == 'kpi-templates' ? 'active' : '' }}"
+                                            href="{{ route('admin.kpi-templates.index') }}">
+                                            <span class="title">Templates</span>
+                                        </a>
+                                    </li>
+                                @endif
                             </ul>
                         </li>
                     @endif
                 @endif
 
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                )
+                    )
                     {{-- <li class="nav-item ">
                         <a class="nav-link {{ $request->segment(2) == 'manual-assessments' ? 'active' : '' }}"
                             href="{{ route('admin.manual-assessments.index') }}">
@@ -236,9 +246,9 @@
 
             @if (true)
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                )
+                    )
                     @can('course_access')
                         <li
                             class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['user/courses*', 'user/lessons*', 'user/tests*', 'user/live-lessons*', 'user/live-lesson-slots*']), 'open') }}">
@@ -397,9 +407,9 @@
             @endif
 
             @if (
-                null == Session::get('setvaluesession') ||
+                    null == Session::get('setvaluesession') ||
                     (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-            )
+                )
                 @if (true)
                     @can('contact_request_access')
                         <li class="nav-item ">
@@ -453,9 +463,9 @@
             @endif
 
             @if (
-                null == Session::get('setvaluesession') ||
+                    null == Session::get('setvaluesession') ||
                     (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1]))
-            )
+                )
                 @if (true)
                     @can('site_management_access')
                         <li
@@ -604,6 +614,8 @@
                     </a>
                 </li>
 
+                {{-- Calendar link removed here — already shown in common section above --}}
+
                 <li class="nav-item ">
                     <a class="nav-link {{ $request->segment(1) == 'user.subscriptions' ? 'active' : '' }}"
                         href="{{ route('user.subscriptions') }}">
@@ -623,9 +635,9 @@
 
             @if (true)
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && Session::get('setvaluesession') == 1)
-                )
+                    )
                     @can('access_management_access')
                         <li
                             class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['admin/auth*', 'user/department*']), 'open') }}">
@@ -657,9 +669,9 @@
 
                                 @if (true)
                                     @if (
-                                        null == Session::get('setvaluesession') ||
+                                            null == Session::get('setvaluesession') ||
                                             (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
-                                    )
+                                        )
                                         @can('trainer_access')
                                             <li class="nav-item ">
                                                 <a class="nav-link {{ $request->segment(2) == 'teachers' ? 'active' : '' }}"
@@ -672,9 +684,9 @@
 
                                     @can('course_access')
                                         @if (
-                                            null == Session::get('setvaluesession') ||
+                                                null == Session::get('setvaluesession') ||
                                                 (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2]))
-                                        )
+                                            )
                                             <li class="nav-item ">
                                                 <a class="nav-link {{ $request->segment(2) == 'employee' ? 'active' : '' }}"
                                                     href="{{ route('admin.employee.index') }}">
@@ -686,9 +698,9 @@
 
                                     @can('category_access')
                                         @if (
-                                            null == Session::get('setvaluesession') ||
+                                                null == Session::get('setvaluesession') ||
                                                 (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2]))
-                                        )
+                                            )
                                             <li class="nav-item ">
                                                 <a class="nav-link {{ $request->segment(2) == 'department' ? 'active' : '' }}"
                                                     href="{{ route('admin.department.index') }}">
@@ -720,9 +732,9 @@
                 <li class="divider"></li>
 
                 @if (
-                    null == Session::get('setvaluesession') ||
+                        null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && Session::get('setvaluesession') == 1)
-                )
+                    )
                     @can('settings_access')
                         <li class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('admin/*'), 'open') }}">
                             <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/settings*')) }}"
@@ -772,6 +784,7 @@
                                     </a>
                                 </li>
 
+                                {{-- Show external module configurations only if enabled --}}
                                 @php
                                     $enabledApps = Cache::get('enabled_external_apps', []);
                                 @endphp

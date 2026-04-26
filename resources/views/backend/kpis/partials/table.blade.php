@@ -75,6 +75,7 @@
                     </button>
                     <i class="fa fa-question-circle text-muted ml-1" title="KPI contribution after applying its weight relative to total active weight."></i>
                 </th>
+                <th>Mapped Categories</th>
                 <th>Target</th>
                 <th>Deviation</th>
                 <th>Updated</th>
@@ -87,7 +88,9 @@
                     <td>{{ $kpi->id }}</td>
                     <td>{{ $kpi->name }}</td>
                     <td><code>{{ $kpi->code }}</code></td>
-                    <td title="{{ $kpiTypes[$kpi->type]['description'] ?? '' }}">{{ $kpiTypes[$kpi->type]['label'] ?? ucfirst($kpi->type) }}</td>
+                    <td title="{{ $kpiTypes[$kpi->type]['description'] ?? '' }}">
+                        {{ $kpiTypes[$kpi->type]['label'] ?? ucfirst($kpi->type) }}
+                    </td>
                     <td>{{ number_format((float) $kpi->weight, 2) }}</td>
                     <td>
                         @if($kpi->is_active)
@@ -109,6 +112,13 @@
                         @else
                             {{ number_format((float) $kpi->calculation['weighted_score'], 2) }}
                         @endif
+                    </td>
+                    <td>
+                        @forelse($kpi->categories as $category)
+                            <span class="badge badge-light border mr-1 mb-1">{{ $category->name }}</span>
+                        @empty
+                            <span class="text-muted">Uncategorized</span>
+                        @endforelse
                     </td>
                     <td>
                         @if(($kpi->calculation['target'] ?? null) === null)
@@ -167,7 +177,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="12" class="text-center">No KPIs found.</td>
+                    <td colspan="13" class="text-center">No KPIs found.</td>
                 </tr>
             @endforelse
         </tbody>

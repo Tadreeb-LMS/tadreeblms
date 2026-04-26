@@ -8,6 +8,7 @@ return array(
   'socialite' => array(
     'unacceptable' => ': fournisseur n\'est pas un type de connexion acceptable.',
   ),
+  'invalid_captcha' => 'Réponse captcha invalide.',
   'throttle' => 'Trop de tentatives de connexion. Veuillez réessayer dans: secondes secondes.',
   'unknown' => 'Une erreur inconnue est survenue',
   'welcome' => 'Bienvenue, :attribute',
