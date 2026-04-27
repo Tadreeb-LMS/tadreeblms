@@ -33,6 +33,8 @@ Route::group(['middleware' => ['role:administrator']], function () {
 Route::group(['middleware' => ['role:teacher|administrator']], function () {
     Route::resource('kpis', 'Admin\KpiController')->except(['show']);
     Route::post('kpis/{kpi}/toggle-status', 'Admin\KpiController@toggleStatus')->name('kpis.toggle-status');
+    Route::post('kpis/exports', 'Admin\KpiExportController@store')->name('kpis.exports.store');
+    Route::get('kpis/exports/{export}/status', 'Admin\KpiExportController@status')->name('kpis.exports.status');
 
     Route::get('kpi-role-configs', 'Admin\KpiRoleConfigController@index')->name('kpi-role-configs.index');
     Route::post('kpi-role-configs', 'Admin\KpiRoleConfigController@store')->name('kpi-role-configs.store');

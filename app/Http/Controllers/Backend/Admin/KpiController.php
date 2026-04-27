@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreKpiRequest;
 use App\Http\Requests\Admin\UpdateKpiRequest;
+use App\Models\Auth\Role;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Kpi;
@@ -85,6 +86,8 @@ class KpiController extends Controller
         $kpiTypes = $this->getSupportedKpiTypes();
         $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $kpiCategoryGroups = $this->buildCategoryGroups($calculatedKpis);
+        $exportRoles = Role::query()->orderBy('name')->pluck('name');
+        $exportKpis = Kpi::query()->where('is_active', true)->orderBy('name')->select('id', 'name', 'code')->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -94,7 +97,7 @@ class KpiController extends Controller
             ]);
         }
 
-        return view('backend.kpis.index', compact('kpis', 'kpiTypes', 'totalActiveWeight', 'weightInsights', 'categories', 'kpiCategoryGroups'));
+        return view('backend.kpis.index', compact('kpis', 'kpiTypes', 'totalActiveWeight', 'weightInsights', 'categories', 'kpiCategoryGroups', 'exportRoles', 'exportKpis'));
     }
 
     protected function normalizeSorts(Request $request)
