@@ -49,6 +49,10 @@ Route::group(['middleware' => ['role:teacher|administrator']], function () {
     Route::post('kpi-templates/{kpiTemplate}/apply', 'Admin\KpiTemplateController@apply')->name('kpi-templates.apply');
 });
 
+Route::group(['middleware' => ['permission:kpi_access']], function () {
+    Route::get('kpis/team-insights', 'Admin\TeamKpiInsightController@index')->name('kpis.team-insights');
+});
+
 Route::group(['middleware' => 'role:teacher|administrator'], function () {
     Route::resource('orders', 'Admin\OrderController');
 });

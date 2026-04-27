@@ -15,6 +15,8 @@
                 <a href="{{ route('admin.kpi-templates.index') }}" class="btn btn-outline-secondary mr-2">Templates</a>
             @endcan
 
+            <a href="{{ route('admin.kpis.team-insights') }}" class="btn btn-outline-secondary mr-2">Team Insights</a>
+
             @can('kpi_target_access')
                 <a href="{{ route('admin.kpi-targets.index') }}" class="btn btn-outline-secondary mr-2">Manage Targets</a>
             @endcan
