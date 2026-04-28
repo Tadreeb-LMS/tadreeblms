@@ -33,6 +33,8 @@ Route::group(['middleware' => ['role:administrator']], function () {
 Route::group(['middleware' => ['role:teacher|administrator']], function () {
     Route::resource('kpis', 'Admin\KpiController')->except(['show']);
     Route::post('kpis/{kpi}/toggle-status', 'Admin\KpiController@toggleStatus')->name('kpis.toggle-status');
+    Route::post('kpis/exports', 'Admin\KpiExportController@store')->name('kpis.exports.store');
+    Route::get('kpis/exports/{export}/status', 'Admin\KpiExportController@status')->name('kpis.exports.status');
 
     Route::get('kpi-role-configs', 'Admin\KpiRoleConfigController@index')->name('kpi-role-configs.index');
     Route::post('kpi-role-configs', 'Admin\KpiRoleConfigController@store')->name('kpi-role-configs.store');
@@ -47,6 +49,10 @@ Route::group(['middleware' => ['role:teacher|administrator']], function () {
     Route::post('kpi-templates', 'Admin\KpiTemplateController@store')->name('kpi-templates.store');
     Route::get('kpi-templates/{kpiTemplate}', 'Admin\KpiTemplateController@show')->name('kpi-templates.show');
     Route::post('kpi-templates/{kpiTemplate}/apply', 'Admin\KpiTemplateController@apply')->name('kpi-templates.apply');
+});
+
+Route::group(['middleware' => ['permission:kpi_access']], function () {
+    Route::get('kpis/team-insights', 'Admin\TeamKpiInsightController@index')->name('kpis.team-insights');
 });
 
 Route::group(['middleware' => 'role:teacher|administrator'], function () {
