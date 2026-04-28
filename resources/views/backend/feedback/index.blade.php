@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', 'Feedback' . ' | ' . app_name())
+@section('title', __('user_feedback.feedback_questions.title') . ' | ' . app_name())
 @push('after-styles')
 <link rel="stylesheet" href="{{asset('assets/css/colors/switch.css')}}">
 <style>
@@ -30,7 +30,7 @@
     <div
         class="d-flex justify-content-between pb-3 align-items-center">
         <div class="grow">
-            <h5 class="text-20">Feedback Questions</h5>
+            <h5 class="text-20">{{ __('user_feedback.feedback_questions.title') }}</h5>
         </div>
         @can('course_create')
         <div class="">
@@ -48,10 +48,10 @@
                 <table id="myTable" class="table custom-teacher-table table-striped">
                     <thead>
                         <tr>
-                            <th>Id</th>
-                            <th>Question Text</th>
-                            <th>Question Type</th>
-                            <th style="text-align:center;">Action</th>
+                            <th>{{ __('user_feedback.feedback_questions.id') }}</th>
+                            <th>{{ __('user_feedback.feedback_questions.question_text') }}</th>
+                            <th>{{ __('user_feedback.feedback_questions.question_type') }}</th>
+                            <th style="text-align:center;">{{ __('user_feedback.feedback_questions.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,11 +61,11 @@
                             <td>{!! $value->question !!}</td>
                             <td>
                                 @if ($value->question_type == 1)
-                                Single Choice
+                                {{ __('user_feedback.feedback_questions.single_choice') }}
                                 @elseif ($value->question_type == 2)
-                                Multiple Choice
+                                {{ __('user_feedback.feedback_questions.multiple_choice') }}
                                 @else
-                                Short Answer
+                                {{ __('user_feedback.feedback_questions.short_answer') }}
                                 @endif
                             </td>
                             <td>
@@ -73,10 +73,10 @@
                                 <div class="action-pill">
                                     
                               
-                                        <a title="Edit" class="" href="{{ route('admin.feedback_question.edit', ['id' => $value->id]) }}">
+                                        <a title="{{ __('user_feedback.feedback_questions.edit') }}" class="" href="{{ route('admin.feedback_question.edit', ['id' => $value->id]) }}">
                                             <i class="fa fa-edit" aria-hidden="true"></i>
                                         </a>
-                                        <a title="Delete" class="" href="#" onclick="delete_client('{{ $value->id }}')">
+                                        <a title="{{ __('user_feedback.feedback_questions.delete') }}" class="" href="#" onclick="delete_client('{{ $value->id }}')">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                
@@ -202,7 +202,8 @@
             "paginate": true,
             "sort": true,
             "language": {
-                "emptyTable": "No Data Is Available.",
+                "emptyTable": "{{ __('user_feedback.feedback_questions.no_data_available') }}",
+                "lengthMenu": "{{ trans('datatable.length_menu') }}",
                 search: ""
                 //                 paginate: {
                 //     previous: '<i class="fa fa-angle-left"></i>',
@@ -221,14 +222,14 @@
                     className: '',
                     buttons: [{
                             extend: 'csv',
-                            text: 'CSV',
+                            text: '{{ trans('datatable.csv') }}',
                             exportOptions: {
                                 columns: [1, 2, 3, 4, 5]
                             }
                         },
                         {
                             extend: 'pdf',
-                            text: 'PDF',
+                            text: '{{ trans('datatable.pdf') }}',
                             exportOptions: {
                                 columns: [1, 2, 3, 4, 5]
                             }

@@ -53,12 +53,14 @@ class User extends Authenticatable
         invoices as StripeInvoices;
     }
     use  HasRoles,
+        SoftDeletes,
         Notifiable,
         SendUserPasswordReset,
         UserAttribute,
         UserMethod,
         UserRelationship,
         UserScope,
+        SoftDeletes,
         Uuid;
     use HasApiTokens;
     // use Messagable {

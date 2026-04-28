@@ -1,0 +1,32 @@
+<?php
+
+return array(
+  'contribute' => array(
+    'page_title' => 'Contributo linguistico',
+    'title' => 'Contributo linguistico',
+    'subtitle' => 'Invia il tuo pacchetto JSON tradotto per :locale.',
+    'invitation_details' => 'Dettagli invito',
+    'contributor' => 'Contributore',
+    'default_contributor' => 'Contributore',
+    'email' => 'Email',
+    'status' => 'Stato',
+    'expires' => 'Scade',
+    'no_expiry' => 'Nessuna scadenza',
+    'source_package' => 'Pacchetto sorgente (:locale)',
+    'source_package_help' => 'Scarica il pacchetto sorgente corrente, traducilo, quindi carica il JSON tradotto qui sotto.',
+    'download_source_package' => 'Scarica pacchetto sorgente',
+    'auto_detected_title' => 'Etichette non tradotte rilevate automaticamente',
+    'auto_detected_desc' => 'Abbiamo rilevato :count etichette non tradotte confrontando la sorgente :source con la destinazione :target. Compila i campi qui sotto e invia.',
+    'no_source_modules' => 'Nessun modulo sorgente trovato per la lingua sorgente selezionata. Pubblica prima un pacchetto sorgente valido o usa EN come sorgente.',
+    'module' => 'Modulo',
+    'source' => 'Sorgente',
+    'current' => 'Corrente',
+    'insert_translation' => 'Inserisci traduzione',
+    'no_untranslated_labels' => 'Nessuna etichetta non tradotta rilevata per questa coppia di lingue.',
+    'upload_translated_json_file' => 'Carica file JSON tradotto',
+    'or_paste_translated_json' => 'Oppure incolla il JSON tradotto',
+    'message_to_reviewer' => 'Messaggio al revisore',
+    'optional_note' => 'Nota facoltativa per il revisore amministratore',
+    'submit_translation' => 'Invia traduzione',
+  ),
+);

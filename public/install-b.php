@@ -24,13 +24,13 @@ if ($step === 'start') {
         $basePath . '/installed',
         $basePath . '/.migrations_done',
         $basePath . '/.seed_done',
-        __DIR__ . '/db_config.json',
+        $basePath . '/storage/app/installer/db_config.json',
     ] as $file) {
         if (file_exists($file)) unlink($file);
     }
 
     // Recreate empty db_config.json
-    file_put_contents(__DIR__ . '/db_config.json', '{}');
+    file_put_contents($basePath . '/storage/app/installer/db_config.json', '{}');
 
     // Recreate fresh .env from .env.example using an atomic rename so the file
     // is never absent — preventing filemtime() crashes in `php artisan serve`.
@@ -47,10 +47,17 @@ if ($step === 'start') {
     }
 
     // Log reset
-    file_put_contents(__DIR__ . '/install.log',
-        date('Y-m-d H:i:s') . " - Installer reset on start\n",
-        FILE_APPEND
-    );
+    $logFile = $basePath . '/storage/logs/install.log';
+    // Ensure directory exists
+    if (!is_dir(dirname($logFile))) {
+        mkdir(dirname($logFile), 0755, true);
+    }
+
+    // Create file if not exists
+    if (!file_exists($logFile)) {
+        touch($logFile);
+    }
+    file_put_contents($logFile,date('Y-m-d H:i:s') . " - Installer reset on start\n",FILE_APPEND);
 }
 // --------------------
 // Installer Steps
@@ -73,7 +80,7 @@ $steps = [
 $envFile = __DIR__ . '/../.env';
 $migrationDoneFile = __DIR__ . '/../.migrations_done';
 $seedDoneFile = __DIR__ . '/../.seed_done';
-$dbConfigFile = __DIR__ . '/db_config.json';
+$dbConfigFile = $basePath . '/storage/app/installer/db_config.json';
 $installedFlag = __DIR__ . '/../installed'; 
 
 // --------------------
@@ -97,7 +104,18 @@ function out($text)
 
 function fail($msg)
 {
-    file_put_contents(__DIR__ . '/install_error.log', date('Y-m-d H:i:s') . " - " . $msg . "\n", FILE_APPEND);
+    $basePath = realpath(__DIR__ . '/..');
+    $errorLogFile = $basePath . '/storage/logs/install_error.log';
+    // Ensure directory exists
+    if (!is_dir(dirname($errorLogFile))) {
+        mkdir(dirname($errorLogFile), 0755, true);
+    }
+
+    // Create file if not exists
+    if (!file_exists($errorLogFile)) {
+        touch($errorLogFile);
+    }
+    file_put_contents($errorLogFile, date('Y-m-d H:i:s') . " - " . $msg . "\n", FILE_APPEND);
     echo "<br>⚠️ " . htmlspecialchars($msg) . "<br>";
     exit;
 }

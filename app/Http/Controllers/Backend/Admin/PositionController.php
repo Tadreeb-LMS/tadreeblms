@@ -25,6 +25,13 @@ class PositionController extends Controller
     use FileUploadTrait;
     private $tags;
 
+    // Intentionally returns 404 for all Position routes while the module is unmapped.
+    // All routes in routes/backend/admin.php are pointed here until the feature is active.
+    public function disabled(): never
+    {
+        abort(404);
+    }
+
     public function index()
     {
         if (!Gate::allows('page_access')) {

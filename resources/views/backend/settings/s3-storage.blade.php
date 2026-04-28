@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', 'S3 Storage Settings | ' . config('app.name'))
+@section('title', __('s3_storage.page_title') . ' | ' . config('app.name'))
 
 @push('after-styles')
 <style>
@@ -33,10 +33,10 @@
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">
-                        <i class="fas fa-cloud mr-2"></i>S3 Storage Settings
+                        <i class="fas fa-cloud mr-2"></i>{{ __('s3_storage.page_title') }}
                     </h4>
                     <span class="badge badge-{{ ($settings['STORAGE_DRIVER'] ?? 'local') === 's3' ? 'success' : 'secondary' }}">
-                        {{ ($settings['STORAGE_DRIVER'] ?? 'local') === 's3' ? 'S3 Active' : 'Local Storage' }}
+                        {{ ($settings['STORAGE_DRIVER'] ?? 'local') === 's3' ? __('s3_storage.s3_active') : __('s3_storage.local_storage') }}
                     </span>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                     </div>
                 @endif
 
-                <p class="text-muted mb-4">Configure your storage driver. Choose between local file storage or S3-compatible cloud storage (AWS S3, MinIO, DigitalOcean Spaces, etc.)</p>
+                <p class="text-muted mb-4">{{ __('s3_storage.description') }}</p>
 
                 <form action="{{ route('admin.s3-storage-settings.store') }}" method="POST" id="storageSettingsForm">
                     @csrf
@@ -64,15 +64,15 @@
                     {{-- Storage Driver --}}
                     <div class="form-group row">
                         <label for="storage_driver" class="col-md-3 col-form-label font-weight-bold">
-                            Storage Driver <span class="text-danger">*</span>
+                            {{ __('s3_storage.storage_driver') }} <span class="text-danger">*</span>
                         </label>
                         <div class="col-md-6">
                             <select name="storage_driver" id="storage_driver" class="form-control @error('storage_driver') is-invalid @enderror">
                                 <option value="local" {{ ($settings['STORAGE_DRIVER'] ?? 'local') === 'local' ? 'selected' : '' }}>
-                                    Local Storage
+                                    {{ __('s3_storage.local_storage') }}
                                 </option>
                                 <option value="s3" {{ ($settings['STORAGE_DRIVER'] ?? '') === 's3' ? 'selected' : '' }}>
-                                    S3 Compatible Storage
+                                    {{ __('s3_storage.s3_compatible_storage') }}
                                 </option>
                             </select>
                             @error('storage_driver')
@@ -84,7 +84,7 @@
                     {{-- S3 Configuration Fields --}}
                     <div class="s3-fields {{ ($settings['STORAGE_DRIVER'] ?? 'local') === 's3' ? 'active' : '' }}">
                         <hr/>
-                        <h5 class="mb-3"><i class="fab fa-aws mr-1"></i> S3 Configuration</h5>
+                        <h5 class="mb-3"><i class="fab fa-aws mr-1"></i> {{ __('s3_storage.s3_configuration') }}</h5>
 
                         {{-- Access Key --}}
                         <div class="form-group row">
@@ -144,7 +144,7 @@
                         {{-- Bucket --}}
                         <div class="form-group row">
                             <label for="s3_bucket" class="col-md-3 col-form-label font-weight-bold">
-                                Bucket Name <span class="text-danger">*</span>
+                                {{ __('s3_storage.bucket_name') }} <span class="text-danger">*</span>
                             </label>
                             <div class="col-md-6">
                                 <input type="text" name="s3_bucket" id="s3_bucket"
@@ -160,7 +160,7 @@
                         {{-- Endpoint --}}
                         <div class="form-group row">
                             <label for="s3_endpoint" class="col-md-3 col-form-label font-weight-bold">
-                                Endpoint URL
+                                {{ __('s3_storage.endpoint_url') }}
                             </label>
                             <div class="col-md-6">
                                 <input type="text" name="s3_endpoint" id="s3_endpoint"
@@ -170,14 +170,14 @@
                                 @error('s3_endpoint')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text text-muted">Custom endpoint for S3-compatible services like MinIO or DigitalOcean Spaces. Leave empty for AWS S3.</small>
+                                <small class="form-text text-muted">{{ __('s3_storage.endpoint_help') }}</small>
                             </div>
                         </div>
 
                         {{-- Custom URL --}}
                         <div class="form-group row">
                             <label for="s3_url" class="col-md-3 col-form-label font-weight-bold">
-                                Custom URL
+                                {{ __('s3_storage.custom_url') }}
                             </label>
                             <div class="col-md-6">
                                 <input type="text" name="s3_url" id="s3_url"
@@ -187,14 +187,14 @@
                                 @error('s3_url')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text text-muted">Custom URL for accessing files (e.g., CloudFront CDN URL). Leave empty to use default S3 URL.</small>
+                                <small class="form-text text-muted">{{ __('s3_storage.custom_url_help') }}</small>
                             </div>
                         </div>
 
                         {{-- Root Path --}}
                         <div class="form-group row">
                             <label for="s3_root" class="col-md-3 col-form-label font-weight-bold">
-                                Root Path
+                                {{ __('s3_storage.root_path') }}
                             </label>
                             <div class="col-md-6">
                                 <input type="text" name="s3_root" id="s3_root"
@@ -204,7 +204,7 @@
                                 @error('s3_root')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text text-muted">Root directory inside the bucket. All files will be stored under this path.</small>
+                                <small class="form-text text-muted">{{ __('s3_storage.root_path_help') }}</small>
                             </div>
                         </div>
 
@@ -212,7 +212,7 @@
                         <div class="form-group row">
                             <div class="col-md-6 offset-md-3">
                                 <button type="button" id="testConnectionBtn" class="btn btn-outline-info">
-                                    <i class="fas fa-plug mr-1"></i> Test Connection
+                                    <i class="fas fa-plug mr-1"></i> {{ __('s3_storage.test_connection') }}
                                 </button>
                                 <div id="testResult" class="test-result"></div>
                             </div>
@@ -225,10 +225,10 @@
                     <div class="form-group row">
                         <div class="col-md-6 offset-md-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save mr-1"></i> Save Settings
+                                <i class="fas fa-save mr-1"></i> {{ __('s3_storage.save_settings') }}
                             </button>
                             <a href="{{ route('admin.external-apps.index') }}" class="btn btn-secondary ml-2">
-                                Back
+                                {{ __('s3_storage.back') }}
                             </a>
                         </div>
                     </div>
@@ -270,7 +270,7 @@ $(document).ready(function() {
         var resultDiv = $('#testResult');
         var originalText = btn.html();
 
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Testing...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> {{ __('s3_storage.testing') }}');
         resultDiv.hide().removeClass('success error');
 
         $.ajax({
@@ -294,7 +294,7 @@ $(document).ready(function() {
                     .show();
             },
             error: function(xhr) {
-                var message = 'An error occurred.';
+                var message = '{{ __('s3_storage.error_occurred') }}';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
                 }

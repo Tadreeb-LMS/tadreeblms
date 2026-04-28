@@ -12,7 +12,9 @@
     <h4 class="page-title d-inline">@lang('Course Assignment')</h4>
     @can('course_create')
         <div class="">
-            <a href="{{ route('admin.asmnt_0_withcourse') }}" class="btn add-btn">+ @lang('Make New Assignment')</a>
+            <button type="button" class="btn add-btn" data-toggle="modal" data-target="#assignCourseModal">
+                + @lang('Assign Course')
+            </button>
         </div>
     @endcan
 </div>
@@ -94,7 +96,7 @@
                                     <th>@lang('Course Category')</th>
                                     <th>@lang('Assign. By')</th>
                                     <th>@lang('Assign. Date')</th>
-                                    <th>@lang('Assign. to Department')</th>
+                                    <th>@lang('Assign. to User Group')</th>
                                     <th>@lang('Assign. to Specific User')</th>
                                     <th>@lang('Due Date')</th>
                                     {{-- <th>@lang('Action')</th> --}}
@@ -105,6 +107,77 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    </div>
+
+    <!-- Assign Course Modal -->
+    <div class="modal fade" id="assignCourseModal" tabindex="-1" role="dialog" aria-labelledby="assignCourseModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form method="POST" action="{{ route('admin.assessment_accounts.course-assignment') }}" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-header">
+              <h5 class="modal-title" id="assignCourseModalLabel">@lang('Assign Course')</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="user_type" value="1">
+                
+                {{-- Course --}}
+                <div class="form-group row">
+                    <label class="col-md-12 form-control-label">@lang('Select Course')</label>
+                    <div class="col-md-12 custom-select-wrapper">
+                        <select class="form-control custom-select-box select2" name="course_ids[]" multiple style="width: 100%;">
+                            @foreach ($published_courses as $value)
+                                <option value="{{ $value->id }}">
+                                    {{ $value->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Users --}}
+                <div class="form-group row mt-3">
+                    <label class="col-md-12 form-control-label">@lang('Select Users')</label>
+                    <div class="col-md-12 custom-select-wrapper">
+                        <select name="teachers[]" class="form-control select2 custom-select-box" multiple style="width: 100%;">
+                            @foreach ($teachers as $key => $name)
+                                <option value="{{ $key }}">
+                                    {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                
+                <p class="mt-3 mb-1 text-center">@lang('OR')</p>
+
+                {{-- User Group --}}
+                <div class="row mt-3">
+                    <label class="col-md-12 form-control-label">@lang('Select User Group')</label>
+                    <div class="col-md-12 custom-select-wrapper">
+                        <select name="department_id" class="form-control select2 custom-select-box" style="width: 100%;">
+                            <option value="">@lang('select-one')</option>
+                            @foreach ($departments as $row)
+                                <option value="{{ $row->id }}">
+                                    {{ $row->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('Cancel')</button>
+              <button type="submit" class="btn btn-primary">@lang('Assign')</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
 @endsection

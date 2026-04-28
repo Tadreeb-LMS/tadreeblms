@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Upload External App')
+@section('title', __('external_apps.external_apps.upload_module'))
 
 @section('content')
 <div class="container-fluid">
@@ -9,7 +9,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="mb-0">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i>Upload External Module
+                        <i class="fas fa-cloud-upload-alt mr-2"></i>{{ __('external_apps.external_apps.upload_module') }}
                     </h4>
                 </div>
                 <div class="card-body">
@@ -32,7 +32,7 @@
                     @if ($errors->any())
                     <div class="alert alert-danger">
                         <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+                        <h4><i class="icon fa fa-ban"></i> {{ __('external_apps.external_apps.alert_title') }}</h4>
                         <ul class="mb-0">
                             @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -46,30 +46,30 @@
 
 
                         <div class="form-group">
-                            <label for="zip_file">Upload Zip File <span class="text-danger">*</span></label>
+                            <label for="zip_file">{{ __('external_apps.external_apps.upload_zip_file') }} <span class="text-danger">*</span></label>
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input @error('zip_file') is-invalid @enderror" 
                                        id="zip_file" name="zip_file" accept=".zip" required>
-                                <label class="custom-file-label" for="zip_file">Choose zip file...</label>
+                                <label class="custom-file-label" for="zip_file">{{ __('external_apps.external_apps.choose_zip_file') }}</label>
                                 @error('zip_file')
                                 <span class="invalid-feedback d-block">{{ $message }}</span>
                                 @enderror
                             </div>
                             <small class="form-text text-muted d-block mt-2">
-                                <i class="fas fa-info-circle mr-1"></i>Maximum file size: 100MB
+                                <i class="fas fa-info-circle mr-1"></i>{{ __('external_apps.external_apps.max_file_size') }}
                             </small>
                         </div>
 
                         <div class="alert alert-info">
-                            <h5 class="mb-3"><i class="fas fa-lightbulb mr-2"></i>Module Requirements</h5>
-                            <p>Your zip file must contain the following structure:</p>
+                            <h5 class="mb-3"><i class="fas fa-lightbulb mr-2"></i>{{ __('external_apps.external_apps.module_requirements') }}</h5>
+                            <p>{{ __('external_apps.external_apps.module_structure') }}</p>
                             <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">module-name/
 ├── config.json          (Required)
 ├── install.php          (Optional)
 ├── uninstall.php        (Optional)
 ├── validate-config.php  (Optional)
 └── ... other files</pre>
-                            <p class="mb-0"><strong>config.json example:</strong></p>
+                            <p class="mb-0"><strong>{{ __('external_apps.external_apps.config_example') }}</strong></p>
                             <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin-top: 8px;">{
   "name": "Google Meet Integration",
   "description": "Integrate Google Meet with LMS",
@@ -79,10 +79,10 @@
 
                         <div class="form-group mt-4">
                             <a href="{{ route('admin.external-apps.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-times mr-1"></i>Cancel
+                                <i class="fas fa-times mr-1"></i>{{ __('external_apps.external_apps.cancel') }}
                             </a>
                             <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <i class="fas fa-upload mr-1"></i>Upload & Install
+                                <i class="fas fa-upload mr-1"></i>{{ __('external_apps.external_apps.upload_and_install') }}
                             </button>
                         </div>
                     </form>
@@ -106,7 +106,7 @@ $(document).ready(function() {
     // Form submission
     $('#uploadForm').on('submit', function() {
         $('#submitBtn').prop('disabled', true);
-        $('#submitBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i>Uploading...');
+        $('#submitBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i>{{ __('external_apps.external_apps.uploading') }}');
     });
 });
 </script>

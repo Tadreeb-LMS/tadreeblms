@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 use Barryvdh\TranslationManager\Controller as Controller;
 use App\Models\Locale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class LangController extends Controller
 {
@@ -20,6 +21,9 @@ class LangController extends Controller
             $locale = new Locale();
             $locale->short_name = $newLocale;
             $locale->display_type = 'ltr';
+            if (Schema::hasColumn('locales', 'is_enabled')) {
+                $locale->is_enabled = 0;
+            }
             $locale->save();
         }
         return redirect()->back();

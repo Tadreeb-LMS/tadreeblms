@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', __('labels.backend.pages.title').' | '.app_name())
+@section('title', __('position_pages.show.title').' | '.app_name())
 
 @push('after-styles')
     <style>
@@ -20,7 +20,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="page-title float-left mb-0">@lang('labels.backend.pages.view')</h3>
+            <h3 class="page-title float-left mb-0">{{ __('position_pages.show.title') }}</h3>
         </div>
         <div class="card-body">
             <div class="row">

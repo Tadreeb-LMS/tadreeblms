@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Libraries'.' | '.app_name())
+@section('title', __('admin_pages.library.title') . ' | ' . app_name())
 @push('after-styles')
 <link rel="stylesheet" href="{{asset('assets/css/colors/switch.css')}}">
  <style>
@@ -15,7 +15,7 @@
 
 <div class="pb-3 d-flex justify-content-between align-items-center">
 
-        <h4 >@lang('Libraries')</h4>
+    <h4>{{ __('admin_pages.library.title') }}</h4>
         <div >
             <a href="{{ route('admin.libraries.create') }}"
                class="add-btn">@lang('strings.backend.general.app_add_new')</a>
@@ -43,7 +43,7 @@
 
                                 <th>@lang('labels.general.sr_no')</th>
                                 <th>@lang('labels.backend.reasons.fields.title')</th>
-                                <th>@lang('Video/Image')</th>
+                                <th>{{ __('admin_pages.library.video_image') }}</th>
                                 <th>@lang('labels.backend.reasons.fields.content')</th>
                                 <th>@lang('labels.backend.reasons.fields.status')</th>
                                 @if( request('show_deleted') == 1 )
@@ -113,14 +113,14 @@
         buttons: [
             {
                 extend: 'csv',
-                text: 'CSV',
+                text: '{{ trans("datatable.csv") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
             },
             {
                 extend: 'pdf',
-                text: 'PDF',
+                text: '{{ trans("datatable.pdf") }}',
                 exportOptions: {
                     columns: [1, 2, 3, 4, 5]
                 }
@@ -170,6 +170,8 @@
                 },
                 language:{
                     url : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
+                    emptyTable: '{{ __('admin_pages.library.no_data_available') }}',
                     buttons :{
                         colvis : '{{trans("datatable.colvis")}}',
                         pdf : '{{trans("datatable.pdf")}}',
