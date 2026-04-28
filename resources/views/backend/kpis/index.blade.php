@@ -34,7 +34,7 @@
     <div class="d-flex justify-content-between align-items-center pb-3">
         <h4 class="mb-0">KPI Management</h4>
 
-        <div class="d-flex align-items-center kpi-action-toolbar">
+          <div class="d-flex align-items-center kpi-action-toolbar">
             @can('category_access')
                 <a href="{{ route('admin.categories.index') }}" class="btn kpi-action-btn">Manage Categories</a>
             @endcan
@@ -42,6 +42,10 @@
             @can('kpi_template_access')
                 <a href="{{ route('admin.kpi-templates.index') }}" class="btn kpi-action-btn">Templates</a>
             @endcan
+
+            <a href="{{ route('admin.kpis.team-insights') }}" class="btn kpi-action-btn">
+                Team Insights
+            </a>
 
             <button type="button" class="btn kpi-action-btn" data-toggle="modal" data-target="#kpiExportModal">
                 Export KPI Data
