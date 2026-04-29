@@ -20,8 +20,6 @@ Route::get('fix-attendance-data', [DashboardController::class, 'fix_attendance_d
 Route::get('fix_assign_courses_data', [DashboardController::class, 'fix_assign_courses_data']);
 Route::get('fix_assign_test_ans_data', [DashboardController::class, 'fix_assign_test_ans_data']);
 
-
-
 //===== General Routes Here =====//
 Route::redirect('/', '/user/dashboard', 301);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -30,6 +28,31 @@ Route::get('setvaluesession/{type}', [DashboardController::class, 'setvaluesessi
 
 Route::group(['middleware' => ['role:administrator']], function () {
     Route::resource('roles', 'Admin\RolesController');
+});
+
+Route::group(['middleware' => ['role:teacher|administrator']], function () {
+    Route::resource('kpis', 'Admin\KpiController')->except(['show']);
+    Route::post('kpis/{kpi}/toggle-status', 'Admin\KpiController@toggleStatus')->name('kpis.toggle-status');
+    Route::post('kpis/exports', 'Admin\KpiExportController@store')->name('kpis.exports.store');
+    Route::get('kpis/exports/{export}/status', 'Admin\KpiExportController@status')->name('kpis.exports.status');
+
+    Route::get('kpi-role-configs', 'Admin\KpiRoleConfigController@index')->name('kpi-role-configs.index');
+    Route::post('kpi-role-configs', 'Admin\KpiRoleConfigController@store')->name('kpi-role-configs.store');
+    Route::delete('kpi-role-configs/{kpiRoleConfig}', 'Admin\KpiRoleConfigController@destroy')->name('kpi-role-configs.destroy');
+
+    Route::get('kpi-targets', 'Admin\KpiTargetController@index')->name('kpi-targets.index');
+    Route::post('kpi-targets', 'Admin\KpiTargetController@store')->name('kpi-targets.store');
+    Route::delete('kpi-targets/{kpiTarget}', 'Admin\KpiTargetController@destroy')->name('kpi-targets.destroy');
+
+    Route::get('kpi-templates', 'Admin\KpiTemplateController@index')->name('kpi-templates.index');
+    Route::get('kpi-templates/create', 'Admin\KpiTemplateController@create')->name('kpi-templates.create');
+    Route::post('kpi-templates', 'Admin\KpiTemplateController@store')->name('kpi-templates.store');
+    Route::get('kpi-templates/{kpiTemplate}', 'Admin\KpiTemplateController@show')->name('kpi-templates.show');
+    Route::post('kpi-templates/{kpiTemplate}/apply', 'Admin\KpiTemplateController@apply')->name('kpi-templates.apply');
+});
+
+Route::group(['middleware' => ['permission:kpi_access']], function () {
+    Route::get('kpis/team-insights', 'Admin\TeamKpiInsightController@index')->name('kpis.team-insights');
 });
 
 Route::group(['middleware' => 'role:teacher|administrator'], function () {
@@ -140,6 +163,24 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::get('settings/general', ['uses' => 'Admin\ConfigController@getGeneralSettings', 'as' => 'general-settings']);
 
     Route::post('settings/general', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-settings');
+    Route::get('settings/language-library/{locale}/download', ['uses' => 'Admin\ConfigController@downloadLanguageLibrary'])
+        ->name('settings.language-library.download');
+    Route::post('settings/language-marketplace/publish-source', ['uses' => 'Admin\LanguageMarketplaceController@publishEnglishSource'])
+        ->name('settings.language-marketplace.publish-source');
+    Route::post('settings/language-marketplace/invite', ['uses' => 'Admin\LanguageMarketplaceController@inviteContributor'])
+        ->name('settings.language-marketplace.invite');
+    Route::get('settings/language-marketplace/packages/{package}/download', ['uses' => 'Admin\LanguageMarketplaceController@downloadPackage'])
+        ->name('settings.language-marketplace.packages.download');
+    Route::get('settings/language-marketplace/manual/download', ['uses' => 'Admin\LanguageMarketplaceController@downloadManual'])
+        ->name('settings.language-marketplace.manual.download');
+    Route::post('settings/language-marketplace/submissions/{package}/approve', ['uses' => 'Admin\LanguageMarketplaceController@approveSubmission'])
+        ->name('settings.language-marketplace.submissions.approve');
+    Route::post('settings/language-marketplace/submissions/{package}/reject', ['uses' => 'Admin\LanguageMarketplaceController@rejectSubmission'])
+        ->name('settings.language-marketplace.submissions.reject');
+    Route::post('settings/language-marketplace/packages/{package}/sync-github', ['uses' => 'Admin\LanguageMarketplaceController@syncPackageToGithub'])
+        ->name('settings.language-marketplace.packages.sync-github');
+
+    Route::get('settings/language/download-base', ['uses' => 'Admin\ConfigController@downloadBaseLanguageFile', 'as' => 'settings.language.download-base']);
 
     
     Route::post('settings/landing-general-setting', ['uses' => 'Admin\ConfigController@saveLandingPageGeneralSettings'])->name('landing-general-settings');
@@ -588,21 +629,21 @@ Route::post('department_restore/{page}', ['uses' => 'Admin\DepartmentController@
 Route::delete('department_perma_del/{page}', ['uses' => 'Admin\DepartmentController@perma_del', 'as' => 'department.perma_del']);
 
 
-// Position
-Route::get('position', 'Admin\PositionController@index')->name('position.index');
-Route::get('position-create', 'Admin\PositionController@create')->name('position.create');
-Route::post('position-store', 'Admin\PositionController@store')->name('position.store');
-Route::get('position-view/{page}', 'Admin\PositionController@show')->name('position.show');
-Route::get('position-edit/{page}', 'Admin\PositionController@edit')->name('position.edit');
-Route::post('position-update/{page}', 'Admin\PositionController@update')->name('position.update');
-Route::delete('position-destroy/{page}', 'Admin\PositionController@destroy')->name('position.destroy');
+// Position module is intentionally disabled until it is mapped to active functionality.
+Route::get('position', 'Admin\PositionController@disabled')->name('position.index');
+Route::get('position-create', 'Admin\PositionController@disabled')->name('position.create');
+Route::post('position-store', 'Admin\PositionController@disabled')->name('position.store');
+Route::get('position-view/{page}', 'Admin\PositionController@disabled')->name('position.show');
+Route::get('position-edit/{page}', 'Admin\PositionController@disabled')->name('position.edit');
+Route::post('position-update/{page}', 'Admin\PositionController@disabled')->name('position.update');
+Route::delete('position-destroy/{page}', 'Admin\PositionController@disabled')->name('position.destroy');
 
-Route::post('position/import/', 'Admin\PositionController@import_exl')->name('position.add.import');
+Route::post('position/import/', 'Admin\PositionController@disabled')->name('position.add.import');
 
-Route::get('get-position-data', ['uses' => 'Admin\PositionController@getData', 'as' => 'position.get_data']);
-Route::post('position_mass_destroy', ['uses' => 'Admin\PositionController@massDestroy', 'as' => 'position.mass_destroy']);
-Route::post('position_restore/{page}', ['uses' => 'Admin\PositionController@restore', 'as' => 'position.restore']);
-Route::delete('position_perma_del/{page}', ['uses' => 'Admin\PositionController@perma_del', 'as' => 'position.perma_del']);
+Route::get('get-position-data', 'Admin\PositionController@disabled')->name('position.get_data');
+Route::post('position_mass_destroy', 'Admin\PositionController@disabled')->name('position.mass_destroy');
+Route::post('position_restore/{page}', 'Admin\PositionController@disabled')->name('position.restore');
+Route::delete('position_perma_del/{page}', 'Admin\PositionController@disabled')->name('position.perma_del');
 
 Route::get('subscription', 'Admin\SubscriptionController@index')->name('subscription.index');
 Route::get('subscription-create', 'Admin\SubscriptionController@create')->name('subscription.create');

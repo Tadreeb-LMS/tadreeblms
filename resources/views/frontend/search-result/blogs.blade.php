@@ -92,7 +92,7 @@
                                                                 </div>
 
                                                                 <div class="view-all-btn bold-font">
-                                                                    <a href="{{route('blogs.index',['slug'=> $item->slug.'-'.$item->id])}}">Read More <i
+                                                                    <a href="{{route('blogs.index',['slug'=> $item->slug.'-'.$item->id])}}">@lang('labels.general.read_more') <i
                                                                                 class="fas fa-chevron-circle-right"></i></a>
                                                                 </div>
                                                             </div>
@@ -131,7 +131,7 @@
                                                                     </div>
 
                                                                     <div class="view-all-btn bold-font">
-                                                                        <a href="{{route('blogs.index',['slug'=> $item->slug.'-'.$item->id])}}">Read More <i
+                                                                        <a href="{{route('blogs.index',['slug'=> $item->slug.'-'.$item->id])}}">@lang('labels.general.read_more') <i
                                                                                     class="fas fa-chevron-circle-right"></i></a>
                                                                     </div>
                                                                 </div>

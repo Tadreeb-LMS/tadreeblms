@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return array(
   'accepted' => 'L\'attribut: doit être accepté.',
   'active_url' => 'L\'attribut: n\'est pas une URL valide.',
   'after' => 'L\'attribut: doit être une date après: date.',
@@ -11,8 +11,7 @@ return array (
   'array' => 'L\'attribut: doit être un tableau.',
   'before' => 'L\'attribut: doit être une date antérieure à: date.',
   'before_or_equal' => 'L\'attribut: doit être une date antérieure ou égale à: date.',
-  'between' => 
-  array (
+  'between' => array(
     'numeric' => 'L\'attribut: doit être compris entre: min et: max.',
     'file' => 'L\'attribut: doit être compris entre: min et: max kilo-octets.',
     'string' => 'L\'attribut: doit être compris entre: min et: max caractères.',
@@ -31,15 +30,13 @@ return array (
   'exists' => 'L\'attribut sélectionné: n\'est pas valide.',
   'file' => 'L\'attribut: doit être un fichier.',
   'filled' => 'Le champ d\'attribut: doit avoir une valeur.',
-  'gt' => 
-  array (
+  'gt' => array(
     'numeric' => 'L\'attribut: doit être supérieur à: valeur.',
     'file' => 'L\'attribut: doit être supérieur à: valeur kilo-octets.',
     'string' => 'L\'attribut: doit être supérieur à: caractères de valeur.',
     'array' => 'L\'attribut: doit avoir plus de: éléments de valeur.',
   ),
-  'gte' => 
-  array (
+  'gte' => array(
     'numeric' => 'L\'attribut: doit être supérieur ou égal à: valeur.',
     'file' => 'L\'attribut: doit être supérieur ou égal à: valeur en kilo-octets.',
     'string' => 'L\'attribut: doit être supérieur ou égal à: caractères de valeur.',
@@ -53,22 +50,19 @@ return array (
   'ipv4' => 'L\'attribut: doit être une adresse IPv4 valide.',
   'ipv6' => 'L\'attribut: doit être une adresse IPv6 valide.',
   'json' => 'L\'attribut: doit être une chaîne JSON valide.',
-  'lt' => 
-  array (
+  'lt' => array(
     'numeric' => 'L\'attribut: doit être inférieur à: valeur.',
     'file' => 'L\'attribut: doit être inférieur à: valeur kilo-octets.',
     'string' => 'L\'attribut: doit être inférieur à: caractères de valeur.',
     'array' => 'L\'attribut: doit avoir moins de: éléments de valeur.',
   ),
-  'lte' => 
-  array (
+  'lte' => array(
     'numeric' => 'L\'attribut: doit être inférieur ou égal à: valeur.',
     'file' => 'L\'attribut: doit être inférieur ou égal à: valeur kilo-octets.',
     'string' => 'L\'attribut: doit être inférieur ou égal à: caractères de valeur.',
     'array' => 'L\'attribut: ne doit pas avoir plus de: éléments de valeur.',
   ),
-  'max' => 
-  array (
+  'max' => array(
     'numeric' => 'L\'attribut: ne peut pas être supérieur à: max.',
     'file' => 'L\'attribut: ne peut pas être supérieur à: max kilo-octets.',
     'string' => 'L\'attribut: ne peut pas être supérieur à: max caractères.',
@@ -76,8 +70,7 @@ return array (
   ),
   'mimes' => 'L\'attribut: doit être un fichier de type:attribute valeurs.',
   'mimetypes' => 'L\'attribut: doit être un fichier de type:attribute valeurs.',
-  'min' => 
-  array (
+  'min' => array(
     'numeric' => 'L\'attribut: doit être au moins: min.',
     'file' => 'L\'attribut: doit être au moins: min kilo-octets.',
     'string' => 'L\'attribut: doit être au moins: min caractères.',
@@ -96,8 +89,7 @@ return array (
   'required_without' => 'Le champ: attribut est requis lorsque: values ​​n\'est pas présent.',
   'required_without_all' => 'Le champ d\'attribut: est requis lorsqu\'aucune des valeurs suivantes n\'est présente.',
   'same' => 'L\'attribut: et: other doivent correspondre.',
-  'size' => 
-  array (
+  'size' => array(
     'numeric' => 'L\'attribut: doit être: taille.',
     'file' => 'L\'attribut: doit être: taille kilo-octets.',
     'string' => 'L\'attribut: doit être: caractères de taille.',
@@ -109,28 +101,21 @@ return array (
   'uploaded' => 'L\'attribut: n\'a pas pu être téléchargé.',
   'url' => 'Le format d\'attribut est invalide.',
   'uuid' => 'L\'attribut: doit être un UUID valide.',
-  'custom' => 
-  array (
-    'attribute-name' => 
-    array (
+  'custom' => array(
+    'attribute-name' => array(
       'rule-name' => 'message personnalisé',
     ),
   ),
-  'attributes' => 
-  array (
-    'backend' => 
-    array (
-      'access' => 
-      array (
-        'permissions' => 
-        array (
+  'attributes' => array(
+    'backend' => array(
+      'access' => array(
+        'permissions' => array(
           'associated_roles' => 'Rôles associés',
           'dependencies' => 'Les dépendances',
           'display_name' => 'Afficher un nom',
           'group' => 'Groupe',
           'group_sort' => 'Tri du groupe',
-          'groups' => 
-          array (
+          'groups' => array(
             'name' => 'Nom de groupe',
           ),
           'name' => 'prénom',
@@ -138,14 +123,12 @@ return array (
           'last_name' => 'Nom de famille',
           'system' => 'Système',
         ),
-        'roles' => 
-        array (
+        'roles' => array(
           'associated_permissions' => 'Autorisations associées',
           'name' => 'prénom',
           'sort' => 'Trier',
         ),
-        'users' => 
-        array (
+        'users' => array(
           'active' => 'actif',
           'associated_roles' => 'Rôles associés',
           'confirmed' => 'Confirmé',
@@ -161,11 +144,9 @@ return array (
           'timezone' => 'Fuseau horaire',
         ),
       ),
-      'settings' => 
-      array (
-        'general_settings' => 
-        array (
-          'app_locale' => 'App Locale',
+      'settings' => array(
+        'general_settings' => array(
+          'app_locale' => 'Paramètres régionaux de l\'application',
           'app_name' => 'Nom de l\'application',
           'app_timezone' => 'Fuseau horaire de l\'application',
           'app_url' => 'URL de l\'application',
@@ -180,14 +161,14 @@ return array (
           'mail_username' => 'Mail Nom d\'utilisateur',
           'mail_port' => 'Port de messagerie',
           'mail_password' => 'Mot de passe mail',
-          'mail_host' => 'Mail Host',
+          'mail_host' => 'Hôte de messagerie',
           'mail_from_name' => 'Mail De Nom',
           'mail_from_address' => 'Mail De Adresse',
           'mail_driver' => 'Pilote de courrier',
           'layout_type' => 'Type de disposition',
           'homepage' => 'Sélectionner la page d\'accueil',
-          'captcha_site_key' => 'Captcha Key',
-          'captcha_site_secret' => 'Captcha Secret',
+          'captcha_site_key' => 'Clé Captcha',
+          'captcha_site_secret' => 'Captcha secret',
           'captcha_status' => 'Statut Captcha',
           'retest_status' => 'Re-tester',
           'google_analytics' => 'Code Google Analytics',
@@ -196,45 +177,38 @@ return array (
           'onesignal_code' => 'Collez le code de script OneSignal ici',
           'show_offers' => 'Afficher les offres',
         ),
-        'social_settings' => 
-        array (
-          'twitter' => 
-          array (
+        'social_settings' => array(
+          'twitter' => array(
             'redirect' => 'URL de redirection',
             'label' => 'État de connexion Twitter',
             'client_secret' => 'Secret du client',
             'client_id' => 'identité du client',
           ),
-          'linkedin' => 
-          array (
+          'linkedin' => array(
             'redirect' => 'URL de redirection',
             'client_secret' => 'Secret du client',
             'client_id' => 'identité du client',
             'label' => 'État de connexion LinkedIn',
           ),
-          'google' => 
-          array (
+          'google' => array(
             'redirect' => 'URL de redirection',
             'label' => 'État de connexion Google',
             'client_secret' => 'Secret du client',
             'client_id' => 'identité du client',
           ),
-          'github' => 
-          array (
+          'github' => array(
             'client_secret' => 'Secret du client',
             'client_id' => 'identité du client',
             'redirect' => 'URL de redirection',
             'label' => 'Statut de connexion Github',
           ),
-          'facebook' => 
-          array (
+          'facebook' => array(
             'client_secret' => 'Secret du client',
             'client_id' => 'identité du client',
             'redirect' => 'URL de redirection',
             'label' => 'État de connexion Facebook',
           ),
-          'bitbucket' => 
-          array (
+          'bitbucket' => array(
             'redirect' => 'URL de redirection',
             'client_secret' => 'Secret du client',
             'client_id' => 'identité du client',
@@ -243,8 +217,7 @@ return array (
         ),
       ),
     ),
-    'frontend' => 
-    array (
+    'frontend' => array(
       'avatar' => 'Localisation de l\'avatar',
       'email' => 'Adresse électronique',
       'last_name' => 'Nom de famille',

@@ -1,0 +1,72 @@
+<?php
+
+return array(
+  'processing' => 'Elaborazione',
+  'backend' => array(
+    'general' => array(
+      'mark_attendance' => 'La tua partecipazione è contrassegnata con successo.',
+      'couse_not_subscribed' => 'Non sei iscritto a questo corso.',
+      'already_mark_present' => 'Hai già contrassegnato come presente',
+      'you_are_late_for_this_lesson' => 'Sei in ritardo per questa lezione',
+      'not_yet_started_lesson' => 'Non ho ancora iniziato la lezione.',
+      'created' => 'Creato con successo.',
+      'slug_exist' => 'Esistono record con lo stesso slug, aggiorna lo slug.',
+      'error' => 'Qualcosa è andato storto. Riprova',
+      'updated' => 'Aggiornato con successo.',
+      'deleted' => 'Eliminato con successo.',
+      'restored' => 'Ripristinato con successo.',
+      'cancelled' => 'Aggiornamento annullato.',
+      'unverified' => 'File di aggiornamento non verificati.',
+      'backup_warning' => 'Si prega di compilare i dettagli necessari per il backup',
+      'delete_warning' => 'Non puoi eliminare il corso. Gli studenti sono già iscritti. Annulla invece la pubblicazione del corso',
+      'delete_warning_bundle' => 'Non è possibile eliminare Bundle. Gli studenti sono già iscritti. Annulla invece la pubblicazione del bundle',
+      'teacher_delete_warning' => 'Non puoi eliminare l\'insegnante. I corsi sono già aggiunti. Cambia invece lo stato',
+    ),
+    'roles' => array(
+      'created' => 'Il ruolo è stato creato con successo.',
+      'updated' => 'Il ruolo è stato aggiornato con successo.',
+      'deleted' => 'Il ruolo è stato eliminato con successo.',
+    ),
+    'users' => array(
+      'cant_resend_confirmation' => 'L\'applicazione è attualmente impostata per approvare manualmente gli utenti.',
+      'confirmation_email' => 'Una nuova e-mail di conferma è stata inviata all\'indirizzo in archivio.',
+      'confirmed' => 'L\'utente è stato confermato con successo.',
+      'unconfirmed' => 'L\'utente è stato deconfermato con successo',
+      'created' => 'L\'utente è stato creato con successo.',
+      'updated' => 'L\'utente è stato aggiornato con successo.',
+      'deleted' => 'L\'utente è stato eliminato con successo.',
+      'updated_password' => 'La password dell\'utente è stata aggiornata con successo.',
+      'session_cleared' => 'La sessione dell\'utente è stata cancellata con successo.',
+      'social_deleted' => 'Account social rimosso con successo',
+      'deleted_permanently' => 'L\'utente è stato eliminato definitivamente.',
+      'restored' => 'L\'utente è stato ripristinato correttamente.',
+    ),
+    'stripe_plan' => array(
+      'stripe_credentials' => 'Credenziali Stripe non disponibili',
+    ),
+  ),
+  'frontend' => array(
+    'contact' => array(
+      'sent' => 'Le tue informazioni sono state inviate con successo. Risponderemo all\'e-mail fornita il prima possibile.',
+    ),
+    'course' => array(
+      'completed' => 'Congratulazioni! Hai completato con successo il corso. L\'amministratore emetterà il certificato entro 3 giorni',
+      'certificate_issued' => 'Il certificato è stato generato correttamente.',
+      'slot_booking' => 'Prenotazione degli slot per lezioni dal vivo riuscita',
+      'subscription_plan_expired' => 'Il tuo piano di abbonamento è scaduto',
+      'subscription_plan_cancelled' => 'Il tuo piano di abbonamento è stato annullato',
+      'sub_course_limit_over' => 'Limite dei corsi del tuo piano di abbonamento superato',
+      'sub_bundle_limit_over' => 'Limite del pacchetto del tuo piano di abbonamento superato',
+      'sub_course_success' => 'Iscrizione al corso riuscita',
+      'sub_bundle_success' => 'Pacchetto Abbonamento riuscito',
+      'sub_course_not_access' => 'Il tuo piano di abbonamento, non l\'accesso al corso',
+      'sub_bundle_not_access' => 'Il tuo piano di abbonamento, non l\'accesso al pacchetto',
+    ),
+    'duplicate_course' => 'è già stato acquistato il corso.',
+    'duplicate_bundle' => 'è già stato acquistato in bundle.',
+    'wishlist' => array(
+      'exist' => 'Questo corso è già nella lista dei desideri',
+      'added' => 'Corso aggiunto con successo nella lista dei desideri',
+    ),
+  ),
+);

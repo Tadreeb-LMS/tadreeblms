@@ -49,6 +49,7 @@ class Kernel extends ConsoleKernel
         // RemoveUnwantedFiles::class,
         // UpdateAssesmentStatusAndScoreInSubscribeCourses::class
         \App\Console\Commands\UnpublishExpiredCourses::class,
+        \App\Console\Commands\Kpi\ProcessIncrementalKpiCommand::class,
     ];
 
     /**
@@ -68,6 +69,13 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('license:expiry-check')->everyMinute();
         $schedule->command('license:user-limit-check')->everyMinute();
+
+        // Incremental KPI processing: runs every 15 minutes to keep user KPI
+        // values fresh without expensive full-table scans.
+        $schedule->command('kpi:process-incremental')
+            ->everyFifteenMinutes()
+            ->withoutOverlapping()
+            ->runInBackground();
         //$schedule->command(FixOfflineCoursesDownloadButton::class)->daily()->withoutOverlapping();
         
         // Once for data fix

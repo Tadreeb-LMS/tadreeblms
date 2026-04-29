@@ -1,12 +1,9 @@
 <?php
 
 return array(
-  'backend' =>
-  array(
-    'access' =>
-    array(
-      'users' =>
-      array(
+  'backend' => array(
+    'access' => array(
+      'users' => array(
         'delete_user_confirm' => 'هل تريد بالتأكيد حذف هذا المستخدم نهائيًا؟ في أي مكان في التطبيق يشير إلى معرف المستخدم هذا ، من المحتمل أن يكون الخطأ المضي قدما على مسؤوليتك الخاصة. هذا لا يمكن التراجع عنها.',
         'if_confirmed_off' => '(إذا تم تأكيد إيقاف التشغيل)',
         'no_deactivated' => 'لا يوجد مستخدمين غير نشطين.',
@@ -14,8 +11,7 @@ return array(
         'restore_user_confirm' => 'استعادة هذا المستخدم إلى حالته الأصلية؟',
       ),
     ),
-    'dashboard' =>
-    array(
+    'dashboard' => array(
       'my_courses' => 'دوراتي',
       'title' => 'لوحة القيادة',
       'welcome' => 'أهلا بك',
@@ -38,10 +34,19 @@ return array(
       'Added-Courses' => 'الدورات المضافة',
       'Assigned-Users' => 'المستخدمون المعينون',
       'Assignments' => 'المهام',
-      'Certificate-Issued' => 'صدرت الشهادة'
+      'Certificate-Issued' => 'صدرت الشهادة',
+      'Latest-Course-Assignments' => 'أحدث مهام الدورة',
+      'View-All' => 'عرض الكل',
+      'Course-Name' => 'اسم الدورة',
+      'Assigned-To' => 'تم تعيينه ل',
+      'Assigned-By' => 'تم تعيينه بواسطة',
+      'Due-Date' => 'تاريخ الاستحقاق',
+      'Assigned-Date' => 'التاريخ المحدد',
+      'Quick-View' => 'عرض سريع',
+      'No-assignments-yet' => 'لا توجد مهام الدورة الأخيرة.',
+      'Recent-Courses' => 'الدورات الأخيرة (آخر 10 دورات تم إنشاؤها)',
     ),
-    'general' =>
-    array(
+    'general' => array(
       'trainers' => 'المدربون',
       'actions' => 'أفعال',
       'all' => 'الكل',
@@ -69,28 +74,27 @@ return array(
       'member_since' => 'عضو منذ',
       'minutes' => 'الدقائق',
       'search_placeholder' => 'بحث...',
-      'see_all' =>
-      array(
+      'see_all' => array(
         'messages' => 'رؤية كل الرسائل',
         'notifications' => 'عرض الكل',
         'tasks' => 'عرض جميع المهام',
       ),
-      'status' =>
-      array(
+      'status' => array(
         'offline' => 'غير متصل على الانترنت',
         'online' => 'عبر الانترنت',
       ),
       'timeout' => 'تم تسجيل خروجك تلقائيًا لأسباب أمنية نظرًا لعدم وجود نشاط لك فيها',
       'trashed' => 'الحضيض',
-      'you_have' =>
-      array(
+      'you_have' => array(
         'messages' => '{0} ليس لديك رسائل | {1} لديك رسالة واحدة | [2 ، Inf] لديك: رسائل عدد',
         'notifications' => '{0} ليس لديك إعلامات | {1} لديك إشعار واحد | [2 ، Inf] لديك: إعلامات الأرقام',
         'tasks' => '{0} ليس لديك مهام | {1} لديك مهمة واحدة | [2 ، Inf] لديك: رقم المهام',
       ),
+      'app_add_new_course' => 'إضافة دورة جديدة',
+      'app_assign_trainer' => 'يرجى تعيين مدرب لهذه الدورة',
+      'app_assign_lessons ' => 'الرجاء إضافة الدروس',
     ),
-    'menu_manager' =>
-    array(
+    'menu_manager' => array(
       'Category' => 'الفئة',
       'add_to_menu' => 'أضف إلى القائمة',
       'assigned_menu' => 'القائمة المخصصة',
@@ -140,11 +144,10 @@ return array(
       'top' => 'أعلى',
       'top_menu' => 'القائمة العلوية',
       'update_item' => 'تحديث البند',
-      'url' => 'URL',
+      'url' => 'عنوان URL',
       'welcome' => 'أهلا بك',
     ),
-    'search' =>
-    array(
+    'search' => array(
       'empty' => 'يرجى إدخال مصطلح البحث.',
       'incomplete' => 'يجب عليك كتابة منطق البحث الخاص بك لهذا النظام.',
       'results' => 'نتائج البحث عن: الاستعلام',
@@ -152,10 +155,8 @@ return array(
     ),
     'welcome' => 'مرحبًا بك في لوحة المعلومات',
   ),
-  'emails' =>
-  array(
-    'auth' =>
-    array(
+  'emails' => array(
+    'auth' => array(
       'account_confirmed' => 'تم تأكيد حسابك.',
       'click_to_confirm' => 'انقر هنا لتأكيد حسابك:',
       'error' => 'يصيح!',
@@ -168,34 +169,27 @@ return array(
       'thank_you_for_using_app' => 'شكرا لك لاستخدام التطبيق لدينا!',
       'trouble_clicking_button' => 'إذا كنت تواجه مشكلة في النقر فوق الزر ": action_text" ، فانسخ والصق عنوان URL أدناه في متصفح الويب الخاص بك:',
     ),
-    'contact' =>
-    array(
+    'contact' => array(
       'email_body_title' => 'لديك طلب نموذج اتصال جديد: فيما يلي التفاصيل:',
       'subject' => 'جديد: app_name تقديم نموذج الاتصال!',
     ),
-    'offline_order' =>
-    array(
+    'offline_order' => array(
       'subject' => 'بخصوص طلبك الأخير على: app_name',
     ),
   ),
-  'frontend' =>
-  array(
-    'general' =>
-    array(
+  'frontend' => array(
+    'general' => array(
       'joined' => 'انضم',
       'add_to_wishlist' => 'إضافة لقائمة الأمنيات',
     ),
     'test' => 'اختبار',
-    'tests' =>
-    array(
-      'based_on' =>
-      array(
+    'tests' => array(
+      'based_on' => array(
         'permission' => 'بناء على إذن -',
         'role' => 'الدور القائم -',
       ),
       'js_injected_from_controller' => 'جافا سكريبت حقن من وحدة تحكم',
-      'using_access_helper' =>
-      array(
+      'using_access_helper' => array(
         'array_permissions' => 'استخدام مساعد الوصول مع مجموعة من أسماء الإذن أو المعرّف حيث يجب على المستخدم امتلاك كل شيء.',
         'array_permissions_not' => 'استخدام مساعد الوصول مع مجموعة من أسماء التصاريح أو المعرفات حيث لا يتعين على المستخدم امتلاك كل شيء.',
         'array_roles' => 'استخدام مساعد الوصول مع مجموعة من أسماء الأدوار أو معرفات حيث يتعين على المستخدم امتلاك كل شيء.',
@@ -211,8 +205,7 @@ return array(
       'using_blade_extensions' => 'باستخدام ملحقات النصل',
     ),
     'welcome_to' => 'مرحبا بكم في: المكان',
-    'user' =>
-    array(
+    'user' => array(
       'profile_updated' => 'تم تحديث الملف الشخصي بنجاح.',
       'password_updated' => 'تم تحديث كلمة المرور بنجاح.',
       'change_email_notice' => 'إذا قمت بتغيير بريدك الإلكتروني ، فسوف يتم تسجيل خروجك حتى تؤكد عنوان بريدك الإلكتروني الجديد.',

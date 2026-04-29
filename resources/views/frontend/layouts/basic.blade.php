@@ -126,7 +126,9 @@
 
 
         @yield('content')
-        @include('cookieConsent::index')
+        @if(view()->exists('cookieConsent::index'))
+            @include('cookieConsent::index')
+        @endif
 
 
         @include('frontend.layouts.partials.footer')

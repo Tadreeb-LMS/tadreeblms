@@ -84,7 +84,7 @@
                 <div class="col-sm-12">
                     <ul class="nav main-nav-tabs nav-tabs">
                         <li class="nav-item"><a data-toggle="tab" class="nav-link active " href="#general">
-                                {{ __('LDAP Setting') }}
+                                {{ __('ldap_settings.title') }}
                             </a>
                         </li>
                         {{-- <li class="nav-item"><a data-toggle="tab" class="nav-link " href="#footer-section">
@@ -120,7 +120,7 @@
                                 @csrf
 
                                 <div class="form-group row">
-                                    <label class="col-md-4">Enable LDAP</label>
+                                    <label class="col-md-4">{{ __('ldap_settings.enable_ldap') }}</label>
                                     <div class="col-md-8">
                                         <label class="switch switch-lg switch-3d switch-primary">
                                             <input type="checkbox"
@@ -137,7 +137,7 @@
                                 <hr>
 
                                 <div class="form-group row">
-                                    <label class="col-md-4">LDAP Host</label>
+                                    <label class="col-md-4">{{ __('ldap_settings.ldap_host') }}</label>
                                     <div class="col-md-8">
                                         <input type="text" name="ldap_host" class="form-control"
                                             value="{{ $ldap_host ?? '127.0.0.1' }}">
@@ -145,7 +145,7 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label class="col-md-4">LDAP Port</label>
+                                    <label class="col-md-4">{{ __('ldap_settings.ldap_port') }}</label>
                                     <div class="col-md-8">
                                         <input type="text" name="ldap_port" class="form-control"
                                             value="{{ $ldap_port ?? '389' }}">
@@ -153,7 +153,7 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label class="col-md-4">Base DN</label>
+                                    <label class="col-md-4">{{ __('ldap_settings.base_dn') }}</label>
                                     <div class="col-md-8">
                                         <input type="text" name="ldap_base_dn" class="form-control"
                                             value="{{ $ldap_base_dn ?? 'dc=mycompany,dc=local' }}">
@@ -161,7 +161,7 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label class="col-md-4">Admin Username (Bind DN)</label>
+                                    <label class="col-md-4">{{ __('ldap_settings.admin_username_bind_dn') }}</label>
                                     <div class="col-md-8">
                                         <input type="text" name="ldap_username" class="form-control"
                                             value="{{ $ldap_username ?? 'cn=admin,dc=mycompany,dc=local' }}">
@@ -169,7 +169,7 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label class="col-md-4">Admin Password</label>
+                                    <label class="col-md-4">{{ __('ldap_settings.admin_password') }}</label>
                                     <div class="col-md-8">
                                         <input type="password" name="ldap_password" class="form-control"
                                             value="{{ $ldap_password ?? '' }}">
@@ -177,7 +177,7 @@
                                 </div>
 
                                 <button type="button" id="saveLdapBtn" class="btn btn-primary mt-3">
-                                    Save Configuration
+                                    {{ __('ldap_settings.save_configuration') }}
                                 </button>
 
                                 <div id="ldapStatusMsg" class=" error"></div>
@@ -186,10 +186,10 @@
                             <br>
                             <hr>
                             <div class="mt-20">
-                            <h3>Test LDAP Connection</h3>
+                            <h3>{{ __('ldap_settings.test_ldap_connection') }}</h3>
                             <form>
                                 <button type="button" id="test_ldap_connection" class="btn btn-primary mt-3">
-                                    Test LDAP Connection
+                                    {{ __('ldap_settings.test_ldap_connection') }}
                                 </button>
                                 <div id="ldapStatus" class="error"></div>
                             </form>

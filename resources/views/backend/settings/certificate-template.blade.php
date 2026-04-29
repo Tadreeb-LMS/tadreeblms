@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-@section('title', 'Certificate Template | ' . app_name())
+@section('title', __('certificate_template.page_title') . ' | ' . app_name())
 
 @push('after-styles')
 <style>
@@ -393,14 +393,14 @@
     <div class="page-header-section">
         <div class="d-flex align-items-center justify-content-between">
             <div>
-                <h4><i class="fas fa-certificate mr-2 text-warning"></i>Certificate Template</h4>
-                <p>Customize and manage certificate templates issued to learners.</p>
+                <h4><i class="fas fa-certificate mr-2 text-warning"></i>{{ __('certificate_template.page_title') }}</h4>
+                <p>{{ __('certificate_template.page_subtitle') }}</p>
             </div>
         </div>
         <div class="template-info-row">
-            <span class="template-info-pill"><i class="fas fa-palette"></i> <span id="template-count">3</span> Templates Available</span>
-            <span class="template-info-pill"><i class="fas fa-check-circle"></i> Live Preview</span>
-            <span class="template-info-pill"><i class="fas fa-expand-arrows-alt"></i> A4 Landscape</span>
+            <span class="template-info-pill"><i class="fas fa-palette"></i> <span id="template-count">3</span> {{ __('certificate_template.templates_available') }}</span>
+            <span class="template-info-pill"><i class="fas fa-check-circle"></i> {{ __('certificate_template.live_preview') }}</span>
+            <span class="template-info-pill"><i class="fas fa-expand-arrows-alt"></i> {{ __('certificate_template.a4_landscape') }}</span>
         </div>
     </div>
 
@@ -411,10 +411,9 @@
                 <div class="card certificate-card">
                     <div class="card-header d-flex align-items-center justify-content-between bg-white">
                         <div class="d-flex align-items-center">
-                            <span class="badge badge-warning mr-2" style="font-size:11px;">Preview</span>
-                            <strong id="preview-template-name" style="font-size:15px;">{{ ucfirst(str_replace('-', ' ', $settings['template'] ?? 'classic-dark')) }}</strong>
+                            <span class="badge badge-warning mr-2" style="font-size:11px;">{{ __('certificate_template.preview') }}</span>
+                            <strong id="preview-template-name" style="font-size:15px;">{{ __('certificate_template.style_' . str_replace('-', '_', $settings['template'] ?? 'classic-dark')) }}</strong>
                         </div>
-                        <small class="text-muted">Dynamic Visualization</small>
                     </div>
 
                     <div id="certificate-preview" class="certificate-preview {{ $settings['template'] ?? 'classic-dark' }}">
@@ -423,7 +422,7 @@
                         
                         <div class="logo-container" id="preview-logo-container">
                             @if($settings['logo_image'] ?? null)
-                                <img src="{{ asset($settings['logo_image'] ?? '') }}" alt="Logo" style="max-height: 60px;">
+                                <img src="{{ asset($settings['logo_image'] ?? '') }}" alt="{{ __('certificate_template.logo') }}" style="max-height: 60px;">
                             @endif
                         </div>
 
@@ -431,32 +430,32 @@
                             <i class="fas fa-trophy"></i>
                         </div>
 
-                        <div class="cert-label" id="preview-cert-label">{{ $settings['cert_label'] ?? 'Certificate of Completion' }}</div>
-                        <div class="cert-title" id="preview-cert-title">{{ $settings['cert_title'] ?? 'Achievement Award' }}</div>
+                        <div class="cert-label" id="preview-cert-label">{{ $settings['cert_label'] ?? __('certificate_template.default_cert_label') }}</div>
+                        <div class="cert-title" id="preview-cert-title">{{ $settings['cert_title'] ?? __('certificate_template.default_cert_title') }}</div>
                         <div class="cert-divider"></div>
 
-                        <div class="cert-presented-to">This certificate is proudly presented to</div>
-                        <div class="cert-recipient-name">John A. Smith</div>
+                        <div class="cert-presented-to">{{ __('certificate_template.presented_to') }}</div>
+                        <div class="cert-recipient-name">{{ __('certificate_template.sample_recipient_name') }}</div>
 
-                        <div class="cert-course-label">for successfully completing</div>
-                        <div class="cert-course-name">Advanced Web Development Fundamentals</div>
+                        <div class="cert-course-label">{{ __('certificate_template.completed_label') }}</div>
+                        <div class="cert-course-name">{{ __('certificate_template.sample_course_name') }}</div>
 
                         <div class="cert-footer">
                             <div class="cert-signature-block">
                                 <div class="cert-signature-wrapper" id="preview-signature-wrapper" style="{{ ($settings['show_signature'] ?? 1) ? '' : 'display:none;' }}">
-                                    <div class="cert-signature-label">Instructor</div>
+                                    <div class="cert-signature-label">{{ __('certificate_template.instructor') }}</div>
                                 </div>
                             </div>
 
                             <div class="cert-signature-block">
                                 <div class="cert-signature-wrapper">
-                                    <div class="cert-signature-label">Date Issued</div>
+                                    <div class="cert-signature-label">{{ __('certificate_template.date_issued') }}</div>
                                 </div>
                             </div>
 
                             <div class="cert-seal" id="preview-cert-seal" style="{{ ($settings['show_seal'] ?? 1) ? '' : 'display:none;' }}">
                                 @if($settings['seal_image'] ?? null)
-                                    <img src="{{ asset($settings['seal_image'] ?? '') }}" alt="Seal" style="max-width: 100%; border-radius: 50%;">
+                                    <img src="{{ asset($settings['seal_image'] ?? '') }}" alt="{{ __('certificate_template.seal') }}" style="max-width: 100%; border-radius: 50%;">
                                 @else
                                     <i class="fas fa-certificate"></i>
                                 @endif
@@ -467,44 +466,44 @@
                     <div class="card-footer bg-white">
                         <div class="text-muted" style="font-size:13px;">
                             <i class="fas fa-info-circle mr-1"></i>
-                            This is a live preview. Changes will be reflected here immediately. Save your changes to apply them to all issued certificates.
+                            {{ __('certificate_template.live_preview_note') }}
                         </div>
                     </div>
                 </div>
 
                 <div class="card mt-4">
                     <div class="card-header bg-white">
-                        <strong><i class=" mr-2"></i>Display & Assets</strong>
+                        <strong><i class=" mr-2"></i>{{ __('certificate_template.display_assets') }}</strong>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 border-right">
-                                <h6>Toggle Elements</h6>
+                                <h6>{{ __('certificate_template.toggle_elements') }}</h6>
                                 <div class="form-check mb-2">
                                     <input type="checkbox" name="show_badge" id="show-badge-toggle" class="form-check-input" {{ ($settings['show_badge'] ?? 1) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="show-badge-toggle">Show Badge</label>
+                                    <label class="form-check-label" for="show-badge-toggle">{{ __('certificate_template.show_badge') }}</label>
                                 </div>
                                 <div class="form-check mb-2">
                                     <input type="checkbox" name="show_seal" id="show-seal-toggle" class="form-check-input" {{ ($settings['show_seal'] ?? 1) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="show-seal-toggle">Show Seal</label>
+                                    <label class="form-check-label" for="show-seal-toggle">{{ __('certificate_template.show_seal') }}</label>
                                 </div>
                                 <div class="form-check mb-2">
                                     <input type="checkbox" name="show_signature" id="show-signature-toggle" class="form-check-input" {{ ($settings['show_signature'] ?? 1) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="show-signature-toggle">Show Signature</label>
+                                    <label class="form-check-label" for="show-signature-toggle">{{ __('certificate_template.show_signature') }}</label>
                                 </div>
                             </div>
                             <div class="col-md-8">
-                                <h6>Upload Images</h6>
+                                <h6>{{ __('certificate_template.upload_images') }}</h6>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Logo</label>
+                                            <label>{{ __('certificate_template.logo') }}</label>
                                             @if($settings['logo_image'] ?? null)
                                                 <div class="mb-2">
                                                     <img src="{{ asset($settings['logo_image']) }}" style="max-height: 30px;">
                                                     <div class="form-check">
                                                         <input type="checkbox" name="remove_logo_image" value="1" class="form-check-input" id="remove-logo" style="width:12px; height:12px;">
-                                                        <label class="form-check-label text-danger small" for="remove-logo">Remove</label>
+                                                        <label class="form-check-label text-danger small" for="remove-logo">{{ __('certificate_template.remove') }}</label>
                                                     </div>
                                                 </div>
                                             @endif
@@ -513,13 +512,13 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Seal</label>
+                                            <label>{{ __('certificate_template.seal') }}</label>
                                             @if($settings['seal_image'] ?? null)
                                                 <div class="mb-2">
                                                     <img src="{{ asset($settings['seal_image']) }}" style="max-height: 30px;">
                                                     <div class="form-check">
                                                         <input type="checkbox" name="remove_seal_image" value="1" class="form-check-input" id="remove-seal" style="width:12px; height:12px;">
-                                                        <label class="form-check-label text-danger small" for="remove-seal">Remove</label>
+                                                        <label class="form-check-label text-danger small" for="remove-seal">{{ __('certificate_template.remove') }}</label>
                                                     </div>
                                                 </div>
                                             @endif
@@ -536,66 +535,66 @@
             <div class="col-xl-4 col-lg-5 col-md-12">
                 <div class="card">
                     <div class="card-header bg-white">
-                        <strong><i class="fas fa-sliders-h mr-2"></i>Settings</strong>
+                        <strong><i class="fas fa-sliders-h mr-2"></i>{{ __('certificate_template.settings') }}</strong>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label>Template Style</label>
+                            <label>{{ __('certificate_template.template_style') }}</label>
                             <select name="template" id="template-select" class="form-control">
-                                <option value="classic-dark" {{ ($settings['template'] ?? 'classic-dark') == 'classic-dark' ? 'selected' : '' }}>Classic Dark</option>
-                                <option value="modern-light" {{ ($settings['template'] ?? 'classic-dark') == 'modern-light' ? 'selected' : '' }}>Modern Light</option>
-                                <option value="elegant-gold" {{ ($settings['template'] ?? 'classic-dark') == 'elegant-gold' ? 'selected' : '' }}>Elegant Gold</option>
+                                <option value="classic-dark" {{ ($settings['template'] ?? 'classic-dark') == 'classic-dark' ? 'selected' : '' }}>{{ __('certificate_template.style_classic_dark') }}</option>
+                                <option value="modern-light" {{ ($settings['template'] ?? 'classic-dark') == 'modern-light' ? 'selected' : '' }}>{{ __('certificate_template.style_modern_light') }}</option>
+                                <option value="elegant-gold" {{ ($settings['template'] ?? 'classic-dark') == 'elegant-gold' ? 'selected' : '' }}>{{ __('certificate_template.style_elegant_gold') }}</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label>Background Texture</label>
+                            <label>{{ __('certificate_template.background_texture') }}</label>
                             <select name="bg_texture" id="texture-select" class="form-control">
-                                <option value="" {{ ($settings['bg_texture'] ?? '') == '' ? 'selected' : '' }}>None</option>
-                                <option value="texture-noise" {{ ($settings['bg_texture'] ?? '') == 'texture-noise' ? 'selected' : '' }}>Noise</option>
-                                <option value="texture-dots" {{ ($settings['bg_texture'] ?? '') == 'texture-dots' ? 'selected' : '' }}>Dots</option>
-                                <option value="texture-lines" {{ ($settings['bg_texture'] ?? '') == 'texture-lines' ? 'selected' : '' }}>Diagonal Lines</option>
+                                <option value="" {{ ($settings['bg_texture'] ?? '') == '' ? 'selected' : '' }}>{{ __('certificate_template.none') }}</option>
+                                <option value="texture-noise" {{ ($settings['bg_texture'] ?? '') == 'texture-noise' ? 'selected' : '' }}>{{ __('certificate_template.texture_noise') }}</option>
+                                <option value="texture-dots" {{ ($settings['bg_texture'] ?? '') == 'texture-dots' ? 'selected' : '' }}>{{ __('certificate_template.texture_dots') }}</option>
+                                <option value="texture-lines" {{ ($settings['bg_texture'] ?? '') == 'texture-lines' ? 'selected' : '' }}>{{ __('certificate_template.texture_diagonal_lines') }}</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label>Certificate Label</label>
-                            <input type="text" name="cert_label" id="cert-label-input" class="form-control" value="{{ $settings['cert_label'] ?? 'Certificate of Completion' }}">
+                            <label>{{ __('certificate_template.certificate_label') }}</label>
+                            <input type="text" name="cert_label" id="cert-label-input" class="form-control" value="{{ $settings['cert_label'] ?? __('certificate_template.default_cert_label') }}">
                         </div>
 
                         <div class="form-group">
-                            <label>Certificate Title</label>
-                            <input type="text" name="cert_title" id="cert-title-input" class="form-control" value="{{ $settings['cert_title'] ?? 'Achievement Award' }}">
+                            <label>{{ __('certificate_template.certificate_title') }}</label>
+                            <input type="text" name="cert_title" id="cert-title-input" class="form-control" value="{{ $settings['cert_title'] ?? __('certificate_template.default_cert_title') }}">
                         </div>
 
                         <hr>
 
                         <div class="color-picker-wrapper">
-                            <label>Primary Color</label>
+                            <label>{{ __('certificate_template.primary_color') }}</label>
                             <input type="color" name="primary_color" id="primary-color-picker" value="{{ $settings['primary_color'] ?? '#d4af37' }}">
                         </div>
 
                         <div class="color-picker-wrapper">
-                            <label>Secondary Color</label>
+                            <label>{{ __('certificate_template.secondary_color') }}</label>
                             <input type="color" name="secondary_color" id="secondary-color-picker" value="{{ $settings['secondary_color'] ?? '#f5d670' }}">
                         </div>
 
                         <div class="color-picker-wrapper">
-                            <label>Background Color</label>
+                            <label>{{ __('certificate_template.background_color') }}</label>
                             <input type="color" name="bg_color" id="bg-color-picker" value="{{ $settings['bg_color'] ?? '#1a1a2e' }}">
                         </div>
 
                         <div class="color-picker-wrapper">
-                            <label>Text Color</label>
+                            <label>{{ __('certificate_template.text_color') }}</label>
                             <input type="color" name="text_color" id="text-color-picker" value="{{ $settings['text_color'] ?? '#ffffff' }}">
                         </div>
 
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-save mr-2"></i>Save Settings
+                                <i class="fas fa-save mr-2"></i>{{ __('certificate_template.save_settings') }}
                             </button>
                             <button type="button" id="reset-colors" class="btn btn-outline-secondary btn-block mt-2">
-                                <i class="fas fa-undo mr-2"></i>Reset to Default
+                                <i class="fas fa-undo mr-2"></i>{{ __('certificate_template.reset_to_default') }}
                             </button>
                         </div>
                     </div>
@@ -709,10 +708,10 @@
         templateSelect.on('change', function() {
             const template = $(this).val();
             preview.removeClass('classic-dark modern-light elegant-gold').addClass(template);
-            previewName.text(template.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()));
+            previewName.text($(this).find('option:selected').text());
             
             // Optionally apply default colors for the template
-            if (confirm('Apply default colors for ' + template + ' template?')) {
+            if (confirm('{{ __('certificate_template.apply_default_colors_confirm') }}'.replace(':template', template))) {
                 const config = defaultColors[template];
                 $('#primary-color-picker').val(config.primary);
                 $('#secondary-color-picker').val(config.secondary);

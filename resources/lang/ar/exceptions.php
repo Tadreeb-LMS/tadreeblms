@@ -1,12 +1,9 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'roles' => 
-      array (
+return array(
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
         'already_exists' => 'هذا الدور موجود بالفعل. يرجى اختيار اسم مختلف.',
         'cant_delete_admin' => 'لا يمكنك حذف دور المسؤول.',
         'create_error' => 'كانت هناك مشكلة في إنشاء هذا الدور. حاول مرة اخرى.',
@@ -16,8 +13,7 @@ return array (
         'not_found' => 'هذا الدور غير موجود.',
         'update_error' => 'حدثت مشكلة أثناء تحديث هذا الدور. حاول مرة اخرى.',
       ),
-      'users' => 
-      array (
+      'users' => array(
         'already_confirmed' => 'تم تأكيد هذا المستخدم بالفعل.',
         'cant_confirm' => 'حدثت مشكلة في تأكيد حساب المستخدم.',
         'cant_deactivate_self' => 'لا يمكنك فعل ذلك بنفسك.',
@@ -44,12 +40,9 @@ return array (
       ),
     ),
   ),
-  'frontend' => 
-  array (
-    'auth' => 
-    array (
-      'confirmation' => 
-      array (
+  'frontend' => array(
+    'auth' => array(
+      'confirmation' => array(
         'already_confirmed' => 'تم تأكيد حسابك بالفعل.',
         'confirm' => 'اكد حسابك!',
         'created_confirm' => 'تم إنشاء حسابك بنجاح. لقد أرسلنا لك رسالة بريد إلكتروني لتأكيد حسابك.',
@@ -63,8 +56,7 @@ return array (
       ),
       'deactivated' => 'حسابك تم تعطيله.',
       'email_taken' => 'عنوان البريد الإلكتروني هذا مأخوذ بالفعل.',
-      'password' => 
-      array (
+      'password' => array(
         'change_mismatch' => 'هذه ليست كلمة مرورك القديمة.',
         'reset_problem' => 'حدثت مشكلة في إعادة تعيين كلمة المرور الخاصة بك. يرجى إعادة إرسال البريد الإلكتروني لإعادة تعيين كلمة المرور.',
       ),
