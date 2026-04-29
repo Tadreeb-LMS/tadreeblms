@@ -163,7 +163,7 @@
         </div> --}}
 
         <div class="card-body">
-            @if (Auth::user()->isAdmin())
+         
 
 
             <div class="row">
@@ -195,9 +195,9 @@
                             href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                     </div>
                 </div>
-            @endif
+      
 
-            @if (Auth::user()->isAdmin())
+           
                 {{-- <div class="row">
                         <div class="col-10 form-group">
                             <label for="internal_students" class="control-label">
@@ -206,16 +206,15 @@
                             <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.internal_students') }}" name="internal_students" type="text" value="{{ old('internal_students') }}">
                         </div>
                     </div> --}}
-            @endif
+           
 
-            @if (Auth::user()->isAdmin())
                 {{-- <div class="row">
             <div class="col-10 form-group">
                {!! Form::label('external_students',trans('labels.backend.courses.fields.external_students'), ['class' => 'control-label']) !!}
                {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents'), ['class' => 'form-control select2 js-example-external-student-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
             </div>
         </div> --}}
-            @endif
+      
 
             <div class="row">
                 <div class="col-md-8 col-12 form-group">
@@ -352,13 +351,13 @@
                            value="{{ old('start_date') }}">
                 </div>
 
-                @if (Auth::user()->isAdmin())
+                
                     <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                         <label for="expire_at" class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd) <span class="date-required-star" style="display:none">*</span></label>
                         <input class="form-control date" id="expire_at" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" placeholder="{{ trans('labels.backend.courses.fields.expire_at') }} (Ex . 2019-01-01)" autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
                     </div>
-                @endif
+               
             </div>
 
             {{-- <div class="row">
