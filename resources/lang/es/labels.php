@@ -1,17 +1,15 @@
 <?php
 
-return array (
-  'general' => 
-  array (
+return array(
+  'general' => array(
     'all' => 'Todos',
     'yes' => 'Sí',
     'no' => 'No',
-    'copyright' => 'Copyright',
+    'copyright' => 'Derechos de autor',
     'custom' => 'Personalizado',
     'actions' => 'Acciones',
     'active' => 'Activo',
-    'buttons' => 
-    array (
+    'buttons' => array(
       'save' => 'Guardar',
       'update' => 'Actualizar',
       'cancel' => 'Cancelar',
@@ -25,25 +23,26 @@ return array (
     'toolbar_btn_groups' => 'Barra de herramientas con grupos de botones',
     'sr_no' => 'No Señor.',
     'read_more' => 'Lee mas',
+      'view_all' => 'Ver todo',
     'no_data_available' => 'Datos no disponibles',
     'more' => 'Más',
     'edit' => 'Editar',
     'delete_selected' => 'Eliminar seleccionado',
+      'not_available' => 'N/D',
     'delete' => 'Borrar',
     'create_new' => 'Crear nuevo',
     'back' => 'Espalda',
+    'score_label' => 'Puntuación',
+    'score_new' => 'Puntuación',
+    'id' => 'identificación',
   ),
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'roles' => 
-      array (
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
         'create' => 'Crear Rol',
         'edit' => 'Modificar Rol',
         'management' => 'Administración de Roles',
-        'table' => 
-        array (
+        'table' => array(
           'number_of_users' => 'Número de Usuarios',
           'permissions' => 'Permisos',
           'role' => 'Rol',
@@ -51,8 +50,7 @@ return array (
           'total' => 'Todos los Roles',
         ),
       ),
-      'users' => 
-      array (
+      'users' => array(
         'active' => 'Usuarios activos',
         'all_permissions' => 'Todos los Permisos',
         'change_password' => 'Cambiar la contraseña',
@@ -65,12 +63,11 @@ return array (
         'no_permissions' => 'Sin Permisos',
         'no_roles' => 'No hay Roles disponibles.',
         'permissions' => 'Permisos',
-        'table' => 
-        array (
+        'table' => array(
           'confirmed' => 'Confirmado',
           'created' => 'Creado',
           'email' => 'Correo',
-          'id' => 'ID',
+          'id' => 'identificación',
           'last_updated' => 'Última modificación',
           'name' => 'Nombre',
           'first_name' => 'Nombre',
@@ -85,22 +82,18 @@ return array (
           'abilities' => 'Habilidades',
           'status' => 'Estado',
         ),
-        'tabs' => 
-        array (
-          'titles' => 
-          array (
+        'tabs' => array(
+          'titles' => array(
             'overview' => 'Resúmen',
             'history' => 'Historia',
           ),
-          'content' => 
-          array (
-            'overview' => 
-            array (
-              'avatar' => 'Avatar',
+          'content' => array(
+            'overview' => array(
+              'avatar' => 'avatar',
               'confirmed' => 'Confirmado',
               'created_at' => 'Creación',
               'deleted_at' => 'Eliminación',
-              'email' => 'E-mail',
+              'email' => 'correo electrónico',
               'last_login_at' => 'Último Login En',
               'last_login_ip' => 'Último Login IP',
               'last_updated' => 'Última Actualización',
@@ -117,13 +110,12 @@ return array (
         'select_role' => 'Seleccionar rol',
       ),
     ),
-    'backup' => 
-    array (
+    'backup' => array(
       'api_key' => 'Clave API',
-      'api_secret' => 'API Secret',
+      'api_secret' => 'Secreto de API',
       'app_key' => 'Clave de aplicación',
       'app_secret' => 'App secreta',
-      'app_token' => 'App Token',
+      'app_token' => 'Ficha de aplicación',
       'aws' => 'AWS S3',
       'backup_files' => 'Archivos de respaldo',
       'backup_note' => '<b> Nota </b>: para ejecutar esta copia de seguridad correctamente, debe agregar el siguiente código a su <b> TABLA CRON: </b> <br> <code> * * * * * cd / path-to-your -proyecto && php programa artesanal: ejecuta >> / dev / null 2> & 1 </code>',
@@ -136,7 +128,7 @@ return array (
       'db' => 'Base de datos',
       'db_app' => 'Base de datos y archivos de aplicación',
       'db_storage' => 'Base de datos y archivos de almacenamiento',
-      'dropbox' => 'Dropbox',
+      'dropbox' => 'buzón',
       'dropbox_note' => 'Consulte la documentación de <b> ¿Cómo obtener las claves de la aplicación DropBox? </b>',
       'email' => 'Notificación de correo electrónico',
       'enable_disable' => 'Habilitar deshabilitar',
@@ -146,12 +138,10 @@ return array (
       'title' => 'Apoyo',
       'weekly' => 'Semanal',
     ),
-    'blogs' => 
-    array (
+    'blogs' => array(
       'create' => 'Blog creativo',
-      'edit' => 'Edit Blog',
-      'fields' => 
-      array (
+      'edit' => 'Editar blog',
+      'fields' => array(
         'category' => 'Categoría',
         'clear' => 'Claro',
         'comments' => 'Comentarios',
@@ -160,10 +150,10 @@ return array (
         'created_at' => 'Creado en',
         'featured_image' => 'Foto principal',
         'meta_description' => 'Metadescripción',
-        'meta_keywords' => 'Meta Keywords',
+        'meta_keywords' => 'Metapalabras clave',
         'meta_title' => 'Título meta',
         'publish' => 'Publicar',
-        'slug' => 'Babosa',
+        'slug' => 'Slug',
         'status' => 'Estado',
         'tags' => 'Etiquetas',
         'tags_placeholder' => 'Añadir etiquetas aquí',
@@ -174,16 +164,13 @@ return array (
       'title' => 'Blog',
       'view' => 'Ver Blogs',
     ),
-    'categories' => 
-    array (
+    'categories' => array(
       'create' => 'Crear Categoría',
       'edit' => 'Editar categoria',
-      'fields' => 
-      array (
+      'fields' => array(
         'courses' => 'Los cursos',
         'icon' => 'Icono',
-        'icon_type' => 
-        array (
+        'icon_type' => array(
           'icon' => 'Seleccionar icono',
           'image' => 'Cargar imagen',
           'select_any' => 'Seleccione Cualquiera',
@@ -192,8 +179,8 @@ return array (
         'image' => 'Imagen',
         'name' => 'Nombre',
         'or' => 'O',
-        'select_icon' => 'Select Icon',
-        'slug' => 'Babosa',
+        'select_icon' => 'Seleccionar icono',
+        'slug' => 'Slug',
         'status' => 'Estado',
         'blog' => 'Blog',
       ),
@@ -201,26 +188,20 @@ return array (
       'view' => 'Ver Categorías',
       'not_allowed' => '¡No permitido! La categoría contiene datos.',
     ),
-    'courses' => 
-    array (
-      'fields' => 
-      array (
-        'slug' => 'Babosa',
+    'courses' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'status' => 'Estado',
         'category' => 'Categoría',
         'course' => 'Curso',
         'course_image' => 'Imagen del curso',
         'description' => 'Descripción',
         'featured' => 'Destacados',
-        'lessons' => 
-        array (
-          'add' => 'Añadir lecciones',
-          'view' => 'Ver Lecciones',
-        ),
+        'lessons' => 'Lecciones',
         'meta_description' => 'Metadescripción',
-        'meta_keywords' => 'Meta Keywords',
+        'meta_keywords' => 'Metapalabras clave',
         'meta_title' => 'Título meta',
-        'popular' => 'Popular',
+        'popular' => 'populares',
         'price' => 'Precio',
         'published' => 'Publicado',
         'sidebar' => 'Añadir barra lateral',
@@ -230,6 +211,16 @@ return array (
         'trending' => 'Tendencias',
         'free' => 'Gratis',
         'unpublished' => 'No publicada',
+        'draft' => 'borrador',
+        'external_students' => 'Estudiantes Externos',
+        'internal_students' => 'Estudiantes Internos',
+        'strike' => 'Precio de ejercicio',
+        'qr_code' => 'Código QR',
+        0 => array(
+          'add' => 'Agregar lecciones',
+          'view' => 'Ver lecciones',
+        ),
+        'expire_at' => 'Caducar/Desactivar fecha del curso',
       ),
       'add_categories' => 'Añadir categorías',
       'add_teachers' => 'Añadir profesores',
@@ -247,12 +238,16 @@ return array (
       'timeline_description' => 'Arrastrar y cambiar la secuencia de Lecciones / Pruebas para el curso.',
       'title' => 'Los cursos',
       'view' => 'Ver cursos',
+      'add_internal_students' => 'Agregar estudiantes internos',
+      'add_external_students' => 'Agregar estudiantes externos',
+      'select_internal_students' => 'Seleccionar estudiantes internos',
+      'select_external_students' => 'Seleccionar estudiantes externos',
+      'select_questions' => 'Seleccionar preguntas',
+      'select_courses' => 'Seleccionar cursos',
     ),
-    'pages' => 
-    array (
-      'fields' => 
-      array (
-        'slug' => 'Babosa',
+    'pages' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'clear' => 'Claro',
         'content' => 'Contenido',
         'created' => 'Creado',
@@ -260,11 +255,14 @@ return array (
         'drafted' => 'Redactado',
         'featured_image' => 'Foto principal',
         'meta_description' => 'Metadescripción',
-        'meta_keywords' => 'Meta Keywords',
+        'meta_keywords' => 'Metapalabras clave',
         'meta_title' => 'Título meta',
         'published' => 'Publicado',
         'status' => 'Estado',
         'title' => 'Título',
+        'email' => 'Correo electrónico',
+        'course_name' => 'Nombre del curso',
+        'view' => 'Ver',
       ),
       'create' => 'Crear página',
       'edit' => 'Editar página',
@@ -272,11 +270,9 @@ return array (
       'title' => 'Páginas',
       'view' => 'Ver páginas',
     ),
-    'lessons' => 
-    array (
-      'fields' => 
-      array (
-        'slug' => 'Babosa',
+    'lessons' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'course' => 'Curso',
         'downloadable_files' => 'Archivos descargables',
         'free_lesson' => 'Lección gratis',
@@ -290,9 +286,10 @@ return array (
         'add_pdf' => 'Añadir PDF',
         'add_video' => 'Añadir video',
         'add_audio' => 'Añadir audio',
-        'media_audio' => 'Media Audio',
-        'media_pdf' => 'Media PDF',
+        'media_audio' => 'Audio multimedia',
+        'media_pdf' => 'PDF multimedia',
         'media_video' => 'Video multimedia',
+        'add_subtitle' => 'Agregar subtítulo',
       ),
       'create' => 'Crear lección',
       'edit' => 'Editar Lección',
@@ -306,17 +303,29 @@ return array (
 <p class = "mb-1"> <b> Vimeo: </b> Vaya a Vimeo -> Vaya al video que desea mostrar -> haga clic en el botón Compartir y copie la URL del video aquí </p>
 <p class = "mb-1"> <b> Subir: </b> Subir <b> mp4 </b> en la entrada del archivo </p>
 <p class = "mb-1"> <b> Incrustar: </b> Copiar / Pegar código de inserción en el cuadro de texto anterior </p>',
-      'remove' => 'Retirar',
+      'remove' => 'Eliminar',
+      'choose_file' => 'Elegir archivo',
+      'current_file' => 'Archivo actual',
+      'no_files_uploaded' => 'Todavia no hay ningun archivo cargado.',
+      'no_videos_added' => 'Todavia no hay videos. Agrega uno para ver la vista previa aqui.',
+      'open_file' => 'Abrir archivo',
+      'preview_video' => 'Video de vista previa',
+      'replace_file' => 'Reemplazar archivo',
+      'saved_files' => 'guardados',
+      'selected_file' => 'Archivo seleccionado',
+      'upload_file' => 'Subir archivo',
+      'upload_replaces_file' => 'Subir un archivo nuevo aqui reemplazara el actual despues de guardar.',
+      'video_title' => 'Titulo del video',
+      'video_type' => 'Tipo de video',
+      'video_url' => 'URL del video',
       'enter_video_url' => 'Introducir datos de video',
       'enter_video_embed_code' => 'Ingrese el código de inserción de video',
       'vimeo_note' => '<b> Instrucciones para agregar el enlace del video: </b> <br> Vaya a vimeo -> abrir video -> haga clic derecho en el video y <b> Copiar URL del video </b> y péguelo aquí. <br> Si desea para agregar varios videos, luego sepárelos con <b>, </b> (coma) Firmar.',
       'yt_note' => '<b> Instructions pour ajouter un lien vidéo: </b> <br> Allez sur youtube -> ouvrir la vidéo -> faites un clic droit sur la vidéo et <b> Copier l\'URL de la vidéo </b> et collez-le ici. <br> Si vous voulez pour ajouter plusieurs vidéos, séparez-les par <b>, </b> (Virgule).',
     ),
-    'contacts' => 
-    array (
-      'fields' => 
-      array (
-        'email' => 'Email',
+    'contacts' => array(
+      'fields' => array(
+        'email' => 'Correo electrónico',
         'message' => 'Mensaje',
         'name' => 'Nombre',
         'phone' => 'Teléfono',
@@ -324,14 +333,13 @@ return array (
       ),
       'title' => 'Lleva',
     ),
-    'dashboard' => 
-    array (
+    'dashboard' => array(
       'amount' => 'Cantidad',
       'buy_course_now' => 'Comprar curso ahora',
       'completed' => 'Terminado',
       'course' => 'Curso',
       'courses' => 'Los cursos',
-      'email' => 'Email',
+      'email' => 'Correo electrónico',
       'message' => 'Mensaje',
       'message_by' => 'Mensaje por',
       'name' => 'Nombre',
@@ -360,13 +368,26 @@ return array (
       'pending_orders' => 'Ordenes pendientes',
       'success' => 'Éxito',
       'failed' => 'Ha fallado',
+      'Course-Name' => 'Nombre del curso',
+      'type-your-course' => 'Escribe tu curso',
+      'course-status' => 'Estado del curso',
+      'select-one' => 'Seleccione uno',
+      'by-due-date' => 'Por fecha de vencimiento',
+      'advance-search' => 'Búsqueda avanzada',
+      'reset' => 'Reiniciar',
+      'in-progress' => 'En progreso',
+      'not-stated' => 'No iniciado',
+      'late' => 'tarde',
+      'soon' => 'pronto',
+      'due_date' => 'Fecha de vencimiento',
+      'employees_requests' => 'Solicitudes de empleados',
+      'my_subscribed_courses' => 'Mis cursos suscritos',
+      'my_subscribed_course_bundles' => 'Mis paquetes de cursos suscritos',
     ),
-    'faqs' => 
-    array (
+    'faqs' => array(
       'create' => 'Crear preguntas frecuentes',
       'edit' => 'Editar preguntas frecuentes',
-      'fields' => 
-      array (
+      'fields' => array(
         'answer' => 'Responder',
         'category' => 'Categoría',
         'question' => 'Pregunta',
@@ -375,8 +396,7 @@ return array (
       'title' => 'Preguntas frecuentes',
       'view' => 'Ver preguntas frecuentes',
     ),
-    'general_settings' => 
-    array (
+    'general_settings' => array(
       'app_locale' => 'Localidad de la aplicación',
       'app_name' => 'Nombre de la aplicación',
       'app_timezone' => 'Zona horaria de la aplicación',
@@ -385,8 +405,7 @@ return array (
       'app_url' => 'URL de la aplicación',
       'change_email' => 'Cambiar e-mail',
       'confirm_email' => 'Confirmar correo electrónico',
-      'contact' => 
-      array (
+      'contact' => array(
         'location_on_map' => 'Ubicación en el mapa',
         'map_note' => '<h3> ¿Cómo incrustar la ubicación para el mapa? </h3>
                                 <p> Sigue los sencillos pasos y ya estás listo: </p>
@@ -407,14 +426,13 @@ return array (
         'secondary_email' => 'Dirección secundaria',
         'secondary_phone' => 'Teléfono secundario',
         'short_text' => 'Texto corto',
-        'show' => 'Show',
+        'show' => 'Mostrar',
         'title' => 'Contacto',
       ),
       'counter' => 'Mostrador',
       'counter_note' => '<b> Estático </b> = Agregar datos manualmente para el contador. Ingrese el texto exacto que desea mostrar en la sección de contador de frontend, <br> <b> Database / Real </b> = Tomará datos reales de la base de datos para todos los campos (Estudiantes inscritos, Total de cursos, Total de maestros)',
       'database' => 'Base de datos / Real',
-      'email' => 
-      array (
+      'email' => array(
         'mail_driver' => 'Controlador de correo',
         'mail_driver_note' => 'Puede seleccionar cualquier controlador que desee para su configuración de correo. <b> Ex. SMTP, Mailgun, Mandrill, SparkPost, Amazon SES, etc. </b> <br> Agregar <b> solo controlador único </b>.',
         'mail_encryption' => 'Cifrado de correo',
@@ -429,6 +447,8 @@ return array (
         'mail_port' => 'Correo PORT',
         'mail_username' => 'Nombre de usuario del correo',
         'mail_username_note' => 'Agregue su ID de correo electrónico que desea configurar para enviar correos electrónicos',
+        'site_logo' => 'Logo del sitio',
+        'save_settings' => 'Guardar ajustes',
         'note' => '<b> Nota importante </b>: si está utilizando <b> GMAIL </b> para la configuración de correo, asegúrese de haber completado el siguiente proceso antes de actualizar:
   <ul>
 <li> Vaya a <a target="_blank" href="https://myaccount.google.com/security"> Mi cuenta </a> desde la cuenta de Google que desea configurar e iniciar sesión </li>
@@ -438,8 +458,7 @@ return array (
       ),
       'enable_registration' => 'Habilitar registro',
       'font_color' => 'Color de fuente',
-      'footer' => 
-      array (
+      'footer' => array(
         'bottom_footer' => 'Pie de página inferior',
         'bottom_footer_note' => 'Nota: incluye texto de copyright y enlaces de pie de página.',
         'copyright_text' => 'Texto de copyright',
@@ -462,20 +481,17 @@ return array (
         'title' => 'Pie de página',
         'trending_courses' => 'Cursos de tendencias',
       ),
-      'general' => 
-      array (
-        'title' => 'General',
+      'general' => array(
+        'title' => 'generales',
       ),
       'google_analytics' => 'Código de Google Analytics',
       'homepage' => 'Seleccione la página de inicio',
-      'layout' => 
-      array (
+      'layout' => array(
         'title' => 'Diseño',
       ),
       'layout_note' => 'Esto cambiará el diseño del tema frontend',
       'layout_type' => 'Tipo de diseño',
-      'logos' => 
-      array (
+      'logos' => array(
         'title' => 'Logotipos',
       ),
       'mail_configuration_note' => '¿Has configurado :link Configuración de correo </a>? Es obligatorio configurar para enviar / recibir correos electrónicos.',
@@ -487,8 +503,9 @@ return array (
       'mail_port' => 'Puerto de correo',
       'mail_username' => 'Nombre de usuario del correo',
       'management' => 'Configuración general',
-      'newsletter' => 
-      array (
+      'site_logo' => 'Logo del sitio',
+      'save_settings' => 'Guardar ajustes',
+      'newsletter' => array(
         'api_key' => 'Clave API',
         'api_key_note' => 'Genere <b> clave de API </b> a partir de su <a target="_blank" href="https://mailchimp.com/"> <b> cuenta de Mailchimp </b> </a> y péguela arriba. caja de texto.',
         'api_key_note_sendgrid' => 'Genere <b> clave de API </b> a partir de su <a target="_blank" href="https://sendgrid.com/"> <b> cuenta de SendGrid </b> </a> y péguela arriba. caja de texto.',
@@ -503,17 +520,16 @@ return array (
         'list_id_question_sendgrid' => 'Crear nueva lista de correo electrónico para SendGrid aquí.',
         'mail_provider' => 'Proveedor de servicios de correo',
         'mail_provider_note' => '<b> Nota </b>: puede seleccionar cualquier proveedor de servicios de correo para recibir todos los correos electrónicos que se utilizan para <b> suscribirse al boletín </b>. Seleccione y configure de acuerdo con los pasos dados. <b> Es obligatorio </b>, si desea utilizar el formulario <b> suscripción al boletín </b>.',
-        'mailchimp' => 'Mailchimp',
+        'mailchimp' => 'correochimp',
         'manage_lists' => 'Gestionar listas de SendGrid',
         'select_list' => 'Seleccionar lista',
-        'sendgrid' => 'SendGrid',
+        'sendgrid' => 'EnviarGrid',
         'sendgrid_lists' => 'Listas de correo electrónico de SendGrid',
         'title' => 'Configuración del boletín',
       ),
       'password_expires_days' => 'Contraseña caduca días',
       'password_history' => 'Historial de contraseñas',
-      'payment_settings' => 
-      array (
+      'payment_settings' => array(
         'client_id' => 'Identificación del cliente',
         'client_secret' => 'Secreto',
         'how_to_paypal' => '¿Cómo obtener las credenciales API de PayPal?',
@@ -527,8 +543,8 @@ return array (
         'offline_mode_note' => 'El usuario obtiene asistencia para el pago fuera de línea a través de admin',
         'paypal' => 'Método de pago de PayPal',
         'paypal_note' => 'Redirecciones a paypal para el pago.',
-        'sandbox' => 'Sandbox',
-        'secret' => 'API Secret',
+        'sandbox' => 'Caja de arena',
+        'secret' => 'Secreto de API',
         'stripe' => 'Método de pago a rayas',
         'stripe_note' => 'Permite pagos en sitio con tarjetas de débito / crédito.',
         'title' => 'Configuración de pago',
@@ -537,42 +553,63 @@ return array (
         'bluesnap_note' => 'Formulario de tarjeta Bluesnap para pago',
         'how_to_bluesnap' => '¿Cómo obtener las credenciales de la API de Bluesnap?',
         'offline_mode_instruction' => 'Ingrese las instrucciones de pago fuera de línea',
+        'instamojo' => 'Método de pago Instamojo',
+        'instamojo_note' => 'Redirecciona a instamojo para pago',
+        'instamojo_token' => 'Ficha API',
+        'instamojo_mode_note' => '<b>Sandbox</b>= Se utilizará para probar pagos con credenciales de prueba de Instamojo. Estas opciones redireccionarán para probar el pago de Instamojo con las credenciales de usuario de Sandbox. Se utilizará únicamente para transacciones ficticias.<br><a href="//test.instamojo.com/">¿Cómo obtener las credenciales de la API de prueba de Instamojo?</a><br>
+      <b>Live</b> = Se usará con sus credenciales de Live Instamojo para realizar transacciones reales con usuarios normales con cuenta de Instamojo.<br><a href="//www.instamojo.com">¿Cómo obtener las credenciales de Instamojo Live API?</a>',
+        'razorpay' => 'Método de pago de Razorpay',
+        'razorpay_note' => 'Redirecciona a RazorPay para el pago',
+        'how_to_razorpay' => '¿Cómo obtener las credenciales API de RAZORPAY?',
+        'cashfree' => 'Método de pago sin efectivo',
+        'cashfree_note' => 'Redirecciona a CashFree para pago',
+        'cashfree_app_id' => 'ID de aplicación',
+        'cashfree_secret' => 'clave secreta',
+        'cashfree_mode_note' => '<b>Sandbox</b>= Se utilizará para probar pagos con credenciales de prueba de CasFree. Las cuentas con INR solo pueden realizar pagos con Cashfree por ahora. Estas opciones redireccionarán para probar el pago Cashfree con credenciales de usuario de Sandbox. Se utilizará únicamente para transacciones ficticias.<br><a href="//test.cashfree.com">¿Cómo obtener credenciales de API de prueba sin efectivo?</a><br>
+      <b>Live</b> = Se usará con sus credenciales de Live Cashfree para realizar transacciones reales con usuarios normales con cuenta Cashfree.<br><strong>Si configura esta pasarela de pago, configure su moneda como INR</strong><br><a href="//www.cashfree.com">¿Cómo obtener credenciales de Cashfree Live API?</a>',
+        'payu' => 'Método de pago PayUMoney',
+        'payu_note' => 'Redirecciona a PayUMoney para pago',
+        'payu_salt' => 'sal',
+        'how_to_payu' => '¿Cómo obtener las credenciales API de PayUMoney?',
+        'payu_mode_note' => '<b>Sandbox</b>= Se utilizará para probar pagos con credenciales de prueba de PayUMoney. La cuenta con INR solo puede realizar pagos con Pago por ahora. Estas opciones redireccionarán para probar el pago de PayUMoney con credenciales de usuario de Sandbox. Se utilizará únicamente para transacciones ficticias.<br>
+      <b>Live</b> = Se usará con sus credenciales de Live PayUMoney para realizar transacciones reales con usuarios normales con cuenta PayUMoney.<br><strong>Si configura esta pasarela de pago, configure su moneda como INR</strong>',
+        'flutter' => 'Método de pago de aleteo',
+        'how_to_flutter' => '¿Cómo obtener las credenciales de la API de Flutter?',
+        'flutter_note' => 'Redirecciona a Flutter para pago',
       ),
       'requires_approval' => 'Requiere Aprobación',
       'sections_note' => 'Una vez que haga clic en actualizar, verá la lista de secciones para activar / desactivar.',
       'static' => 'Estático',
       'theme_layout' => 'Diseño del tema',
-      'title' => 'General',
+      'title' => 'generales',
       'total_courses' => 'Introduzca el total de cursos. Ej: 1K, 1000 etc.',
       'total_students' => 'Ingrese el total de estudiantes. Ej: 1K, 1Million, 1000 etc.',
       'total_teachers' => 'Introduzca Total de Maestros. Ej: 1K, 1000 etc.',
       'captcha' => 'Si el registro - login captcha está activado o desactivado',
       'captcha_note' => '¿Cómo obtener credenciales reCaptcha de Google?',
-      'captcha_site_key' => 'Captcha Key',
-      'captcha_site_secret' => 'Captcha Secret',
+      'captcha_site_key' => 'Clave Captcha',
+      'captcha_site_secret' => 'Captcha secreto',
       'captcha_status' => 'Estado Captcha',
       'google_analytics_id' => 'identificación de Google Analytics',
       'google_analytics_id_note' => '¿Cómo obtener el ID de Google Analytics?',
       'retest_note' => 'Habilitar / Deshabilitar si el usuario podrá volver a realizar la prueba para el mismo examen',
-      'language_settings' => 
-      array (
+      'language_settings' => array(
         'default_language' => 'Idioma predeterminado',
         'display_type' => 'Tipo de visualización',
+        'download_base_language_file' => 'Descargar archivo de idioma base',
         'left_to_right' => 'De izquierda a derecha',
         'right_to_left' => 'De derecha a izquierda',
         'title' => 'Configuraciones de idioma',
       ),
-      'user_registration_settings' => 
-      array (
+      'user_registration_settings' => array(
         'desc' => 'Los campos marcados en la barra lateral derecha se mostrarán en el formulario de registro',
-        'fields' => 
-        array (
+        'fields' => array(
           'address' => 'Dirección',
           'city' => 'Ciudad',
           'country' => 'País',
           'dob' => 'Fecha de nacimiento',
-          'email' => 'Email',
-          'female' => 'Hembra',
+          'email' => 'Correo electrónico',
+          'female' => 'Femenino',
           'first_name' => 'Nombre de pila',
           'gender' => 'Género',
           'last_name' => 'Apellido',
@@ -591,12 +628,10 @@ return array (
       'how_to_onesignal' => '¿Cómo crear una aplicación en OneSignal?',
       'onesignal_note' => 'Habilitar / deshabilitar la configuración de OneSignal para el sitio web.',
       'setup_onesignal' => '¿Cómo configurar OneSignal?',
-      'api_clients' => 
-      array (
+      'api_clients' => array(
         'api_client_name' => 'Nombre del cliente API',
         'enable' => 'Habilitar',
-        'fields' => 
-        array (
+        'fields' => array(
           'action' => 'acción',
           'id' => 'CARNÉ DE IDENTIDAD',
           'name' => 'Nombre',
@@ -614,21 +649,23 @@ return array (
         'note' => '<span class = "text-danger font-weight-bold"> Nota: </span> Esta sección será útil para fines de API. Puede generar <b> ID de cliente </b> y <b> Secreto de cliente </b> para usar en su aplicación de Android o Postman para probar la API. <br> Debe personalizar los parámetros y la URL de acuerdo con sus requisitos.',
       ),
       'teacher_commission_rate' => 'Tasa de comisión docente',
-      'box' => 'Caja',
+      'box' => 'En caja',
       'layout_label' => 'Diseño',
-      'layout_type_note' => 'Esto cambiará el tipo de diseño del tema de la interfaz',
+      'layout_type_note' => 'Esto cambiará el tipo de diseño del tema del frontend',
       'list_update_note' => 'Una vez que haga clic en actualizar, verá una lista de secciones para activar / desactivar.',
-      'wide' => 'Amplio',
+      'wide' => 'Ancho completo',
+      'disable_landing_page' => 'Deshabilitar página de destino',
+      'admin_registration_mail' => 'Correo de registro',
+      'admin_registration_mail_note' => 'Activar/Desactivar si el administrador podrá recibir el correo del nuevo usuario registrado',
+      'admin_order_mail' => 'Ordenar por correo',
+      'admin_order_mail_note' => 'Activar/Desactivar si el administrador podrá recibir un nuevo correo de pedido',
     ),
-    'hero_slider' => 
-    array (
+    'hero_slider' => array(
       'create' => 'Crear diapositiva',
       'edit' => 'Editar diapositiva',
-      'fields' => 
-      array (
+      'fields' => array(
         'bg_image' => 'Imagen de BG',
-        'buttons' => 
-        array (
+        'buttons' => array(
           'add' => 'Añadir',
           'label' => 'Etiqueta',
           'link' => 'Enlazar',
@@ -639,21 +676,19 @@ return array (
         ),
         'hero_text' => 'Texto de héroe',
         'name' => 'Nombre',
-        'overlay' => 
-        array (
+        'overlay' => array(
           'note' => 'Si lo enciendes. Se mostrará una superposición negra en su imagen. Será útil cuando la imagen BG no sea más oscura o no tenga Superposición',
           'title' => 'Cubrir',
         ),
         'sequence' => 'Secuencia',
         'status' => 'Estado',
         'sub_text' => 'Sub texto',
-        'widget' => 
-        array (
+        'widget' => array(
           'countdown_timer' => 'Contador regresivo',
           'input_date_time' => 'Ingrese fecha y hora',
           'search_bar' => 'Barra de búsqueda',
           'select_widget' => 'Seleccione Widget',
-          'title' => 'Widget',
+          'title' => 'widget',
         ),
       ),
       'manage_sequence' => 'Gestionar secuencia de diapositivas',
@@ -665,10 +700,8 @@ return array (
       'title' => 'Control deslizante de héroe',
       'view' => 'Ver diapositivas',
     ),
-    'invoices' => 
-    array (
-      'fields' => 
-      array (
+    'invoices' => array(
+      'fields' => array(
         'amount' => 'Cantidad',
         'download' => 'Descargar',
         'order_date' => 'Fecha de orden',
@@ -676,26 +709,23 @@ return array (
       ),
       'title' => 'Facturas',
     ),
-    'logo' => 
-    array (
+    'logo' => array(
       'favicon' => 'Añadir Favicon',
       'favicon_note' => 'Nota: Cargue el logotipo con la resolución <b> 32x32 </b> píxeles y la extensión <b> .png </b> o <b> .gif </b> o <b> .ico </b>',
-      'logo_b' => 'Logo 1',
+      'logo_b' => 'Logotipo 1',
       'logo_b_note' => 'Nota: Cargue el logotipo con <b> texto negro y fondo transparente en formato .png </b> y <b> 294x50 </b> (WxH) píxeles. <br> <b> Altura </b> se debe corregir <b> ancho </b> según su <b> relación de aspecto </b>.',
       'logo_popup' => 'Logo para Popups',
       'logo_popup_note' => 'Nota: Agregue una resolución mínima de logotipo cuadrado <b> 72x72 </b> píxeles',
-      'logo_w' => 'Logo 2',
-      'logo_white' => 'Logo 3',
+      'logo_w' => 'Logotipo 2',
+      'logo_white' => 'Logotipo 3',
       'logo_w_note' => 'Nota: suba el logotipo con <b> texto en blanco y fondo transparente en formato .png </b> y <b> 294x50 </b> (WxH) píxeles. <b> ancho </b> según su <b> relación de aspecto </b>.',
       'logo_white_note' => 'Nota: Cargue el logotipo con <b> solo en texto blanco y fondo transparente en formato .png </b> y <b> 294x50 </b> (WxH) píxeles. fijo, <b> ancho </b> según su <b> relación de aspecto </b>.',
       'title' => 'Cambiar Logo',
     ),
-    'menu-manager' => 
-    array (
+    'menu-manager' => array(
       'title' => 'Gerente de menú',
     ),
-    'messages' => 
-    array (
+    'messages' => array(
       'compose' => 'Componer',
       'search_user' => 'Buscar usuario',
       'select_recipients' => 'Seleccionar destinatarios',
@@ -703,27 +733,23 @@ return array (
       'title' => 'Mensajes',
       'type_a_message' => 'Escribe un mensaje',
     ),
-    'orders' => 
-    array (
+    'orders' => array(
       'complete' => 'Completar manualmente',
       'download_invoice' => 'Descargar factura',
-      'fields' => 
-      array (
+      'fields' => array(
         'amount' => 'Cantidad',
         'date' => 'Fecha de orden',
         'items' => 'Artículos',
         'ordered_by' => 'Ordenado por',
-        'payment_status' => 
-        array (
+        'payment_status' => array(
           'completed' => 'Terminado',
           'failed' => 'Ha fallado',
           'pending' => 'Pendiente',
           'title' => 'Pago',
         ),
-        'payment_type' => 
-        array (
+        'payment_type' => array(
           'offline' => 'Desconectado',
-          'paypal' => 'Paypal',
+          'paypal' => 'PayPal',
           'stripe' => 'Tarjeta de crédito / débito (Stripe Payment Gateway)',
           'title' => 'Tipo de pago',
         ),
@@ -734,12 +760,10 @@ return array (
       'title' => 'Pedidos',
       'view_invoice' => 'Mirar la factura',
     ),
-    'questions' => 
-    array (
+    'questions' => array(
       'create' => 'Crear pregunta',
       'edit' => 'Editar pregunta',
-      'fields' => 
-      array (
+      'fields' => array(
         'correct' => 'Correcto',
         'course' => 'Curso',
         'lesson' => 'Lección',
@@ -755,12 +779,10 @@ return array (
       'view' => 'Ver preguntas',
       'test' => 'Prueba',
     ),
-    'questions_options' => 
-    array (
+    'questions_options' => array(
       'create' => 'Opción de creación',
       'edit' => 'Opción de edición',
-      'fields' => 
-      array (
+      'fields' => array(
         'correct' => 'Correcto',
         'course' => 'Curso',
         'lesson' => 'Lección',
@@ -774,10 +796,8 @@ return array (
       'title' => 'Opción de preguntas',
       'view' => 'Ver opciones de preguntas',
     ),
-    'reviews' => 
-    array (
-      'fields' => 
-      array (
+    'reviews' => array(
+      'fields' => array(
         'course' => 'Curso',
         'content' => 'Contenido',
         'time' => 'Hora',
@@ -785,12 +805,10 @@ return array (
       ),
       'title' => 'Opiniones',
     ),
-    'reasons' => 
-    array (
+    'reasons' => array(
       'create' => 'Crear razón',
       'edit' => 'Razón de edición',
-      'fields' => 
-      array (
+      'fields' => array(
         'content' => 'Contenido',
         'icon' => 'Icono',
         'status' => 'Estado',
@@ -800,8 +818,7 @@ return array (
       'title' => 'Razones',
       'view' => 'Ver razones',
     ),
-    'social_settings' => 
-    array (
+    'social_settings' => array(
       'fb_api_note' => '¿Cómo obtener credenciales API de Facebook?',
       'fb_note' => 'Habilitar / deshabilitar el inicio de sesión de Facebook para el sitio web',
       'google_api_note' => '¿Cómo obtener credenciales API de Google?',
@@ -812,26 +829,22 @@ return array (
       'linkedin_api_note' => '¿Cómo obtener credenciales API de LinkedIn?',
       'linkedin_note' => 'Habilitar / deshabilitar el inicio de sesión de LinkedIn para el sitio web',
     ),
-    'sponsors' => 
-    array (
+    'sponsors' => array(
       'create' => 'Crear patrocinadores',
       'edit' => 'Editar patrocinadores',
-      'fields' => 
-      array (
+      'fields' => array(
         'link' => 'Enlazar',
-        'logo' => 'Logo',
+        'logo' => 'Logotipo',
         'name' => 'Nombre',
         'status' => 'Estado',
       ),
       'title' => 'Los patrocinadores',
       'view' => 'Ver los patrocinadores',
     ),
-    'teachers' => 
-    array (
+    'teachers' => array(
       'create' => 'Crear profesor',
       'edit' => 'Profesor de edición',
-      'fields' => 
-      array (
+      'fields' => array(
         'email' => 'Dirección de correo electrónico',
         'first_name' => 'Nombre de pila',
         'image' => 'Imagen',
@@ -842,12 +855,10 @@ return array (
       'title' => 'Maestros',
       'view' => 'Ver profesores',
     ),
-    'testimonials' => 
-    array (
+    'testimonials' => array(
       'create' => 'Crear Testimonial',
       'edit' => 'Editar Testimonial',
-      'fields' => 
-      array (
+      'fields' => array(
         'content' => 'Contenido',
         'name' => 'Nombre',
         'occupation' => 'Ocupación',
@@ -856,24 +867,23 @@ return array (
       'title' => 'Testimonios',
       'view' => 'Ver testimonios',
     ),
-    'tests' => 
-    array (
+    'tests' => array(
       'create' => 'Crear prueba',
       'edit' => 'Prueba de edición',
-      'fields' => 
-      array (
+      'fields' => array(
         'course' => 'Curso',
         'description' => 'Descripción',
         'lesson' => 'Lección',
         'published' => 'Publicado',
         'questions' => 'Preguntas',
         'title' => 'Título',
+        'score_field' => 'Puntuación',
+        'score_field_placeholder' => 'Puntuación',
       ),
       'title' => 'Pruebas',
       'view' => 'Ver Pruebas',
     ),
-    'translations' => 
-    array (
+    'translations' => array(
       'add_new_locale' => 'Agregar nuevo local',
       'adding' => 'Añadiendo ...',
       'append_new_translations' => 'Añadir nuevas traducciones',
@@ -896,12 +906,11 @@ return array (
       'replace_existing_translations' => 'Reemplazar las traducciones existentes',
       'supported_locales' => 'Locales soportados',
       'title' => 'Gerente de traducción',
-      'total' => 'Total',
+      'total' => 'totales',
       'translation_warning' => '¿Estás seguro de que quieres publicar el grupo de traducciones :group ? Esto sobrescribirá los archivos de idioma existentes.',
       'warning' => 'Advertencia, las traducciones no están visibles hasta que se exportan de nuevo al archivo app / lang, usando  <code> php artisan translation:export </code> comando o botón de publicación.',
     ),
-    'update' => 
-    array (
+    'update' => array(
       'current_version' => 'Versión actual',
       'file_replaced' => 'Los siguientes archivos serán actualizados / reemplazados',
       'note_before_upload' => '<p> <b> Realice BACKUP antes de actualizar. </b> El archivo zip actualizado puede incluir nuevas carpetas y actualizaciones de archivos. <b> Sus archivos actuales serán reemplazados por uno nuevo </b>. Por lo tanto, <b> si ha realizado algún cambio en los archivos de la aplicación actual, se PERDERÁ </b>. </p>
@@ -912,38 +921,60 @@ return array (
       'upload' => 'Subir nueva versión <small> (update.zip) </small>',
       'warning' => '<b> ADVERTENCIA: le recomendamos encarecidamente que actualice el tema por el número de versión </b>. <br> <b> Ejemplo: </b> update_v1.zip, update_v2.zip. Por favor, no saltar el número de versión. Si su número de versión es 1 y desea actualizarlo, entonces actualice a la versión 2. No actualice directamente a la versión 3.',
     ),
-    'certificates' => 
-    array (
+    'certificates' => array(
       'download' => 'Descargar',
-      'fields' => 
-      array (
+      'fields' => array(
         'action' => 'Acción',
         'course_name' => 'Nombre del curso',
         'progress' => 'Progreso',
+        'certificate_id' => 'ID de certificado',
+        'user_name' => 'Nombre de usuario',
+        'user_email' => 'Correo electrónico del usuario',
+        'status' => 'Estado',
+        'issue_date' => 'Fecha de emisión',
+        'from_date' => 'Desde la fecha',
+        'to_date' => 'A la fecha',
+        'all_courses' => 'Todos los cursos',
+        'all_users' => 'Todos los usuarios',
+        'all_statuses' => 'Todos los estados',
+        'preview' => 'Vista previa del certificado',
+        'details' => 'Detalles del certificado',
+        'user_details' => 'Detalles del usuario',
+        'course_details' => 'Detalles del curso',
+        'issue_history' => 'Historial de problemas',
+        'notes' => 'Notas',
+        'reissue_notes_placeholder' => 'Motivo de la reemisión del certificado (opcional)',
+        'notify_user' => 'Notificar al usuario por correo electrónico',
+        'performed_by' => 'Realizado por',
+        'performed_at' => 'Realizado en',
+        'revoked_at' => 'Revocado en',
+        'no_history' => 'No hay historial de problemas disponible.',
+        'Download-Link' => 'Enlace de descarga',
+        'download-certificate' => 'Descargar certificado',
       ),
       'title' => 'Certificados',
       'view' => 'Ver',
+      'reissue' => 'Certificado de reemisión',
+      'confirm_reissue' => '¿Está seguro de que desea volver a emitir este certificado?',
+      'back_to_list' => 'Volver a la lista',
     ),
-    'bundles' => 
-    array (
-      'fields' => 
-      array (
-        'slug' => 'Babosa',
+    'bundles' => array(
+      'fields' => array(
+        'slug' => 'Slug',
         'status' => 'Estado',
         'category' => 'Categoría',
         'course' => 'Curso',
         'course_image' => 'Imagen del curso',
         'description' => 'Descripción',
         'featured' => 'Destacados',
-        'lessons' => 
-        array (
+        'lessons' => array(
           'add' => 'Añadir lecciones',
           'view' => 'Ver Lecciones',
         ),
         'meta_description' => 'Metadescripción',
-        'meta_keywords' => 'Meta Keywords',
+        'meta_keywords' => 'Metapalabras clave',
         'meta_title' => 'Título meta',
-        'popular' => 'Popular',
+        'popular' => 'populares',
         'price' => 'Precio',
         'published' => 'Publicado',
         'sidebar' => 'Añadir barra lateral',
@@ -954,6 +985,8 @@ return array (
         'courses' => 'Los cursos',
         'free' => 'Gratis',
         'unpublished' => 'No publicada',
+        'students' => 'estudiantes',
+        'expire_at' => 'Fecha de caducidad/desactivación del paquete',
       ),
       'add_categories' => 'Añadir categorías',
       'add_teachers' => 'Añadir profesores',
@@ -973,13 +1006,13 @@ return array (
       'view' => 'Ver paquetes',
       'add_courses' => 'Añadir cursos',
       'select_courses' => 'Seleccionar cursos',
+      'add_students' => 'Agregar estudiantes',
+      'select_students' => 'Seleccionar estudiantes',
     ),
-    'reports' => 
-    array (
+    'reports' => array(
       'bundles' => 'manojos',
       'courses' => 'Los cursos',
-      'fields' => 
-      array (
+      'fields' => array(
         'bundle' => 'Haz',
         'completed' => 'Curso completado',
         'content' => 'Contenido',
@@ -990,15 +1023,35 @@ return array (
         'students' => 'Estudiantes',
         'time' => 'Hora',
         'user' => 'Usuario',
+        'amount' => 'Cantidad',
+        'student' => 'estudiante',
+        'date' => 'Fecha',
+        'transaction' => 'ID de transacción',
       ),
       'sales_report' => 'Reporte de ventas',
       'students_report' => 'Informe de los estudiantes',
       'title' => 'Informes',
       'total_earnings' => 'Ganancias Totales',
       'total_sales' => 'Ventas totales',
+      'date_range' => 'Rango de fechas',
+      'select_student' => 'Seleccionar estudiante',
+      'select_bundle' => 'Seleccionar paquete',
+      'select_course' => 'Seleccionar curso',
+      'filter' => 'Filtrar',
+      'reset' => 'Reiniciar',
+      'apply_date' => 'Fecha de solicitud',
+      'date_input_lang' => array(
+        'today' => 'hoy',
+        'yesterday' => 'ayer',
+        'last_7_days' => 'Últimos 7 días',
+        'last_30_days' => 'Últimos 30 días',
+        'this_month' => 'este mes',
+        'last_month' => 'El mes pasado',
+        'quarter_to_date' => 'Trimestre hasta la fecha',
+        'year_to_date' => 'Año hasta la fecha',
+      ),
     ),
-    'coupons' => 
-    array (
+    'coupons' => array(
       'amount_note' => 'Si se selecciona <b> Tasa de descuento </b>, ingrese la tasa de porcentaje. Si se selecciona <b> Tarifa plana </b>, ingrese una cantidad particular que se deducirá.',
       'bundles' => 'manojos',
       'courses' => 'Cursos',
@@ -1006,8 +1059,7 @@ return array (
       'description' => 'Descripción',
       'discount_rate' => 'Tasa de descuento',
       'edit' => 'Editar cupón',
-      'fields' => 
-      array (
+      'fields' => array(
         'amount' => 'Cantidad',
         'code' => 'Código',
         'description' => 'Descripción',
@@ -1017,7 +1069,7 @@ return array (
         'name' => 'Nombre',
         'per_user_limit' => 'Por límite de usuario',
         'status' => 'Estado',
-        'total' => 'Total',
+        'total' => 'totales',
         'type' => 'Tipo',
       ),
       'flat_rate' => 'Tarifa plana',
@@ -1030,8 +1082,7 @@ return array (
       'unlimited' => 'Ilimitada',
       'view' => 'Ver cupones',
     ),
-    'sitemap' => 
-    array (
+    'sitemap' => array(
       'daily' => 'Diaria',
       'generate' => 'Generar',
       'generated' => 'Mapa del sitio generado con éxito.',
@@ -1042,12 +1093,10 @@ return array (
       'title' => 'Mapa del sitio',
       'weekly' => 'Semanal',
     ),
-    'tax' => 
-    array (
+    'tax' => array(
       'create' => 'Crear impuesto',
       'edit' => 'Editar impuesto',
-      'fields' => 
-      array (
+      'fields' => array(
         'name' => 'Nombre',
         'rate' => 'Tarifa',
         'status' => 'Estado',
@@ -1057,12 +1106,10 @@ return array (
       'title' => 'Impuesto',
       'view' => 'Ver impuesto',
     ),
-    'forum_category' => 
-    array (
+    'forum_category' => array(
       'create' => 'Crear categoría de foro',
       'edit' => 'Editar categoría del foro',
-      'fields' => 
-      array (
+      'fields' => array(
         'category' => 'Categoría',
         'color' => 'Color',
         'order' => 'Orden',
@@ -1074,8 +1121,7 @@ return array (
       'title' => 'Categorías del foro',
       'view' => 'Ver categoría del foro',
     ),
-    'payments' => 
-    array (
+    'payments' => array(
       'title' => 'pagos',
       'total_earnings' => 'Ganancias Totales',
       'total_withdrawals' => 'retiros totales',
@@ -1086,20 +1132,17 @@ return array (
       'add_withdrawal_request' => 'Agregar solicitud de retiro',
       'approve' => 'aprobar',
       'reject' => 'rechazar',
-      'payment_type' => 
-      array (
+      'payment_type' => array(
         'bank' => 'banco',
         'paypal' => 'paypal',
         'offline' => 'desconectada',
       ),
-      'status' => 
-      array (
+      'status' => array(
         'pending' => 'pendiente',
         'approved' => 'aprobada',
         'rejected' => 'rechazado',
       ),
-      'fields' => 
-      array (
+      'fields' => array(
         'amount' => 'Cantidad',
         'payment_type' => 'Tipo de pago',
         'status' => 'Estado',
@@ -1108,11 +1151,226 @@ return array (
         'teacher_name' => 'nombre del profesor',
       ),
     ),
+    'live_lessons' => array(
+      'title' => 'Lección en vivo',
+      'create' => 'Crear lección en vivo',
+      'edit' => 'Editar lección en vivo',
+      'view' => 'Ver lección',
+      'select_course' => 'Seleccionar curso',
+      'short_description_placeholder' => 'Introduzca una breve descripción de la lección en vivo.',
+      'fields' => array(
+        'course' => 'Curso',
+        'title' => 'Título',
+        'short_text' => 'Ordenar Descripción',
+      ),
+    ),
+    'live_lesson_slots' => array(
+      'title' => 'Espacios para lecciones en vivo',
+      'select_lesson' => 'Seleccionar lección',
+      'create' => 'Crear espacio para lecciones en vivo',
+      'edit' => 'Editar espacio de lección en vivo',
+      'view' => 'Ver ranura',
+      'slot' => 'Ranura',
+      'short_description_placeholder' => 'Introduzca una breve descripción de la ranura',
+      'start_url' => 'URL de inicio',
+      'slot_booked_student_list' => 'Lista de estudiantes con plazas reservadas',
+      'student_name' => 'Nombre del estudiante',
+      'student_email' => 'Correo electrónico del estudiante',
+      'closed' => 'Cerrado',
+      'type' => array(
+        'select_type' => 'Seleccionar tipo',
+        'daily' => 'Diariamente',
+        'weekly' => 'Semanal',
+        'monthly' => 'Mensual',
+      ),
+      'fields' => array(
+        'lesson' => 'Lección',
+        'topic' => 'Tema',
+        'short_text' => 'Ordenar Descripción',
+        'date_of_slot' => 'Fecha',
+        'duration' => 'Duración (en minutos)',
+        'meeting_id' => 'ID de reunión',
+        'date' => 'Fecha',
+        'password' => 'Contraseña',
+        'change_default_setting' => 'Cambiar la configuración predeterminada',
+        'student_limit' => 'Límite de estudiantes',
+      ),
+    ),
+    'zoom_setting' => array(
+      'management' => 'Configuración de zoom',
+      'select_timezone' => 'Seleccionar zona horaria',
+      'audio_options' => array(
+        'both' => 'ambos',
+        'voip' => 'VoIP',
+        'telephony' => 'Telefonía',
+      ),
+      'meeting_approval_options' => array(
+        'automatically' => 'Automáticamente',
+        'manually' => 'Manualmente',
+        'no_registration_required' => 'No es necesario registrarse',
+      ),
+      'auto_recording_options' => array(
+        'none' => 'Ninguno',
+        'local' => 'locales',
+        'cloud' => 'nube',
+      ),
+      'fields' => array(
+        'api_key' => 'Clave API',
+        'api_secret' => 'clave secreta',
+        'join_before_host' => 'Unirse antes que ser anfitrión',
+        'host_video' => 'Presentar vídeo',
+        'participant_video' => 'Vídeo del participante',
+        'participant_mic_mute' => 'Silenciar el micrófono del participante',
+        'waiting_room' => 'Sala de espera',
+        'audio_option' => 'Opción de audio',
+        'meeting_join_approval' => 'Aprobación de unirse a la reunión',
+        'auto_recording' => 'Grabación automática',
+        'timezone' => 'Zona horaria',
+      ),
+    ),
+    'stripe' => array(
+      'plan' => array(
+        'title' => 'Planes de rayas',
+        'create' => 'Crear plan de franjas',
+        'edit' => 'Editar plan de franjas',
+        'view' => 'Ver plan de franjas',
+        'select_product' => 'Seleccionar Producto',
+        'course' => '{0} Acceso ilimitado|{99} Sin acceso|[1,*] :quantity',
+        'bundle' => '{0} Acceso ilimitado|{99} Sin acceso|[1,*] :quantity',
+        'interval_type' => array(
+          '' => 'Seleccionar intervalo',
+          'day' => 'dia',
+          'week' => 'Semana',
+          'month' => 'Mes',
+          'year' => 'Año',
+        ),
+        'input_quantity_note' => '0 significa acceso ilimitado, 99 significa sin acceso',
+        'stripe_currency_note' => '<strong>Utilice el código de moneda en minúsculas. Encuentre su código de moneda <a href="//stripe.com/docs/currencies#presentment-currencies" target="_blank">aquí</a></strong>',
+        'fields' => array(
+          'product' => 'Producto',
+          'name' => 'Nombre',
+          'description' => 'Descripción',
+          'amount' => 'Cantidad',
+          'currency' => 'Moneda',
+          'interval' => 'Intervalo',
+          'course' => 'Cantidad de cursos',
+          'bundle' => 'Cantidad del paquete',
+        ),
+      ),
+    ),
+    'subscription' => array(
+      'title' => 'Suscripción',
+      'invoice_list' => 'Lista de facturas',
+      'click_here' => 'Haga clic aquí',
+      'cancel_title' => 'Cancelar suscripción',
+      'subscribe_plan' => 'Plan de suscripción',
+      'date' => 'Fecha',
+      'sub_total' => 'Subtotal',
+      'total' => 'totales',
+      'download' => 'Descargar',
+      'active_plan' => 'Plan Activo',
+      'course' => 'Curso',
+      'bundle' => 'Paquete',
+      'quantity' => '{0} Ilimitado|{99} Sin acceso|[1,*] :quantity',
+    ),
+    'wishlist' => array(
+      'title' => 'Lista de deseos',
+      'course' => 'Curso',
+    ),
+    'license_settings' => array(
+      'title' => 'Configuración de licencia',
+      'not_configured' => 'Servidor de licencias no configurado',
+      'not_configured_note' => 'Agregue las siguientes variables de entorno a su archivo .env:',
+      'limit_exceeded' => 'Límite de usuarios excedido',
+      'limit_exceeded_note' => 'Tiene :current usuarios activos pero su licencia solo permite :max usuarios.',
+      'limit_warning' => 'Advertencia de límite de usuarios',
+      'limit_warning_note' => 'Te estás acercando a tu límite de usuarios. Actualmente :current de :max usuarios.',
+      'license_key' => 'Clave de licencia',
+      'status' => 'Estado',
+      'license_type' => 'Tipo de licencia',
+      'licensed_to' => 'Licenciado para',
+      'licensee_email' => 'Correo electrónico del licenciatario',
+      'max_users' => 'Usuarios máximos',
+      'active_users' => 'Usuarios activos',
+      'remaining_users' => 'Usuarios restantes',
+      'unlimited' => 'Ilimitado',
+      'expiry_date' => 'Fecha de vencimiento',
+      'support_until' => 'Soporte válido hasta',
+      'last_validated' => 'Última validación',
+      'expired' => 'Caducado',
+      'never' => 'nunca',
+      'user_usage' => 'Uso del usuario',
+      'users' => 'usuarios',
+      'no_license' => 'Sin licencia activada',
+      'no_license_note' => 'Ingrese su clave de licencia a continuación para activar su licencia. Comuníquese con <a href="mailto:info@tadreeblms.com">support@tadreeblms.com</a> para comprar una nueva licencia.',
+      'validate_now' => 'Validar ahora',
+      'remove_license' => 'Quitar licencia',
+      'update_license' => 'Actualizar licencia',
+      'activate_license' => 'Activar licencia',
+      'enter_license_key' => 'Ingrese la clave de licencia',
+      'license_key_placeholder' => 'Ingrese su clave de licencia aquí...',
+      'license_key_note' => 'Su clave de licencia se le proporcionó cuando compró el software.',
+      'activate' => 'Activar',
+      'activating' => 'Activando...',
+      'activation_failed' => 'La activación de la licencia falló.',
+      'validation_failed' => 'La validación de la licencia falló.',
+      'remove_confirm' => '¿Está seguro de que desea eliminar esta licencia?',
+      'remove_failed' => 'No se pudo eliminar la licencia.',
+      'license_notice' => 'Sobrelímite',
+      'view_license' => 'Revisar licencia',
+      'remove_license_title' => 'Quitar licencia',
+      'removing' => 'Eliminando...',
+      'toggle_key_visibility' => 'Mostrar/Ocultar',
+      'standard' => 'Estándar',
+      'syncing' => 'Sincronizando usuarios...',
+      'sync_failed' => 'No se pudieron sincronizar los usuarios',
+      'total' => 'Total',
+      'created' => 'Creados',
+      'attached' => 'Vinculados',
+      'failed' => 'Fallidos',
+    ),
+    'smtp_settings' => array(
+      'title' => 'Configuración de correo electrónico (SMTP)',
+      'error' => 'error',
+      'mail_mailer' => 'Correo postal',
+      'mail_mailer_note' => 'Elija el controlador de correo/enviador de correo que utilizará para enviar correos electrónicos (se recomienda SMTP para producción).',
+      'mail_host' => 'Anfitrión SMTP',
+      'mail_host_note' => 'Ingrese la dirección del servidor SMTP (por ejemplo, smtp.gmail.com, smtp.office365.com).',
+      'mail_port' => 'Puerto SMTP',
+      'mail_port_note' => 'Puertos comunes: 587 (TLS), 465 (SSL), 25 (inseguro). Utilice 587 para la mayoría de los servidores SMTP.',
+      'mail_username' => 'Nombre de usuario SMTP',
+      'mail_username_note' => 'Ingrese el nombre de usuario SMTP (generalmente su dirección de correo electrónico).',
+      'mail_password' => 'Contraseña SMTP',
+      'mail_password_placeholder' => 'Ingrese una nueva contraseña',
+      'mail_password_note' => 'Ingrese la contraseña SMTP o la contraseña de la aplicación. Déjelo en blanco para conservar la contraseña actual.',
+      'password_exists' => 'Actualmente hay una contraseña configurada. Déjelo en blanco para conservar la contraseña actual.',
+      'mail_encryption' => 'Cifrado',
+      'mail_encryption_note' => 'Se recomienda TLS para el puerto 587. Utilice SSL para el puerto 465. Elija Ninguno solo si el servidor no admite cifrado.',
+      'mail_from_address' => 'De la dirección',
+      'mail_from_address_note' => 'Esta dirección aparecerá como remitente de todos los correos electrónicos salientes.',
+      'mail_from_name' => 'Del nombre',
+      'mail_from_name_note' => 'Este nombre aparecerá como el nombre del remitente de todos los correos electrónicos salientes.',
+      'save_success' => 'La configuración SMTP se guardó correctamente.',
+      'save_error' => 'No se pudo guardar la configuración SMTP',
+      'test_email_title' => 'Probar la configuración del correo electrónico',
+      'test_email_info' => 'Envíe un correo electrónico de prueba para verificar que la configuración SMTP esté funcionando correctamente. Asegúrese de guardar la configuración antes de realizar la prueba.',
+      'test_email_address' => 'Dirección de correo electrónico de prueba',
+      'test_email_note' => 'Ingrese la dirección de correo electrónico donde desea recibir el correo electrónico de prueba.',
+      'send_test_email' => 'Enviar correo electrónico de prueba',
+      'test_email_success' => '¡El correo electrónico de prueba se envió correctamente! Por favor revisa tu bandeja de entrada.',
+      'test_email_error' => 'No se pudo enviar el correo electrónico de prueba',
+      'test_email_subject' => 'Correo electrónico de prueba: configuración SMTP',
+      'test_email_body' => 'Este es un correo electrónico de prueba para verificar que su configuración SMTP esté funcionando correctamente. Si recibió este correo electrónico, su configuración SMTP está configurada correctamente.',
+      'saving' => 'Guardando...',
+      'sending' => 'Enviando...',
+      'smtp_enabled' => 'Habilitar SMTP',
+      'smtp_enabled_note' => 'Alternar para habilitar o deshabilitar el envío de correo electrónico SMTP. Cuando está deshabilitado, no se enviarán correos electrónicos desde el sistema.',
+      'smtp_disabled_warning' => 'SMTP está actualmente deshabilitado. No se enviarán correos electrónicos desde el sistema hasta que se habilite SMTP.',
+      'smtp_disabled_save_success' => 'SMTP ha sido deshabilitado. No se enviarán correos electrónicos desde el sistema.',
+    ),
   ),
-  'frontend' => 
-  array (
-    'auth' => 
-    array (
+  'frontend' => array(
+    'auth' => array(
       'login_box_title' => 'Iniciar Sesión',
       'login_button' => 'Iniciar Sesión',
       'login_with' => 'Iniciar Sesión mediante :social_media',
@@ -1120,8 +1378,7 @@ return array (
       'register_button' => 'Registrarse',
       'remember_me' => 'Recordarme',
     ),
-    'contact' => 
-    array (
+    'contact' => array(
       'box_title' => 'Contáctenos',
       'button' => 'Enviar información',
       'keep_in_touch' => 'Mantener <span> en contacto. </span>',
@@ -1134,8 +1391,7 @@ return array (
       'your_email' => 'Tu correo electrónico',
       'your_name' => 'Tu nombre',
     ),
-    'passwords' => 
-    array (
+    'passwords' => array(
       'expired_password_box_title' => 'Tu contraseña a expirado.',
       'forgot_password' => 'Has olvidado la contraseña?',
       'reset_password_box_title' => 'Reiniciar contraseña',
@@ -1143,15 +1399,12 @@ return array (
       'update_password_button' => 'Actualizar contraseña',
       'send_password_reset_link_button' => 'Enviar el correo de verificación',
     ),
-    'user' => 
-    array (
-      'passwords' => 
-      array (
+    'user' => array(
+      'passwords' => array(
         'change' => 'Cambiar la contraseña',
       ),
-      'profile' => 
-      array (
-        'avatar' => 'Avatar',
+      'profile' => array(
+        'avatar' => 'avatar',
         'created_at' => 'Creado el',
         'edit_information' => 'Modificar la información',
         'email' => 'Correo',
@@ -1162,16 +1415,14 @@ return array (
         'update_information' => 'Actualizar la información',
       ),
     ),
-    'teacher' => 
-    array (
+    'teacher' => array(
       'title' => 'Espalda...',
       'students' => 'Estudiantes',
       'send_now' => 'Enviar ahora',
       'courses_by_teacher' => 'Cursos <span> Por profesor. </span>',
       'course_detail' => 'Detalle del curso',
     ),
-    'search_result' => 
-    array (
+    'search_result' => array(
       'trending' => 'Tendencias',
       'students' => 'Estudiantes',
       'starts' => 'Empieza',
@@ -1181,16 +1432,14 @@ return array (
       'course_type' => 'Tipo de curso',
       'featured' => 'Destacados',
       'none' => 'Ninguno',
-      'popular' => 'Popular',
+      'popular' => 'populares',
       'search_blog' => 'Buscar Blog',
       'sort_by' => '<b> Ordenar </b> Por',
     ),
-    'badges' => 
-    array (
+    'badges' => array(
       'trending' => 'Tendencias',
     ),
-    'blog' => 
-    array (
+    'blog' => array(
       'add_comment' => 'Agregar comentario',
       'blog_categories' => 'Blog <span> Categorías. </span>',
       'by' => 'Por',
@@ -1205,8 +1454,7 @@ return array (
       'title' => 'Blog',
       'write_a_comment' => 'Écrire un commentaire',
     ),
-    'cart' => 
-    array (
+    'cart' => array(
       'card_number' => 'Número de tarjeta',
       'card_number_placeholder' => 'Ingrese su número de tarjeta',
       'cart' => 'Carro',
@@ -1238,10 +1486,10 @@ return array (
       'starts' => 'Empieza',
       'stripe_error_message' => 'Por favor, corrija los errores e inténtelo de nuevo.',
       'success_message' => 'Felicidades. Disfruta tu curso',
-      'total' => 'Total',
+      'total' => 'totales',
       'your_payment_status' => 'Su <span> Estado de pago. </span>',
       'your_shopping_cart' => 'tu carrito de la compra',
-      'yy' => 'YY',
+      'yy' => 'AA',
       'product_name' => 'nombre del producto',
       'product_type' => 'tipo de producto',
       'connection_timeout' => 'El tiempo de conexión expiro',
@@ -1262,9 +1510,21 @@ return array (
       'price' => 'Precio',
       'sub_total' => 'Subtotal',
       'total_payable' => 'Total a pagar',
+      'instamojo' => 'Instamojo',
+      'pay_securely_instamojo' => 'Paga de forma segura con Instamojo',
+      'razorpay' => 'RazorPay',
+      'pay_securely_razorpay' => 'Pague de forma segura con RazorPay',
+      'cashfree' => 'Gratis en efectivo',
+      'pay_securely_cashfree' => 'Paga de forma segura con CashFree',
+      'user_email' => 'Correo electrónico',
+      'user_phone' => 'Teléfono',
+      'user_name' => 'Nombre',
+      'payu' => 'PayUMoney',
+      'pay_securely_payu' => 'Paga de forma segura con PayUMoney',
+      'flutter' => 'aleteo',
+      'pay_securely_flutter' => 'Paga de forma segura con Flutter',
     ),
-    'course' => 
-    array (
+    'course' => array(
       'add_review_now' => 'Añadir reseña ahora',
       'add_reviews' => 'Añadir <span> Comentarios. </span>',
       'add_to_cart' => 'Añadir a la cesta',
@@ -1301,7 +1561,7 @@ return array (
       'next' => 'SIGUIENTE',
       'no_reviews_yet' => 'Aún no hay comentarios.',
       'none' => 'Ninguno',
-      'popular' => 'Popular',
+      'popular' => 'populares',
       'prev' => 'Antes',
       'price' => 'Precio',
       'progress' => 'Progreso',
@@ -1332,16 +1592,34 @@ return array (
       'not_attempted' => 'No intentado',
       'find_your_bundle' => '<span> Encuentra </span> tu paquete',
       'select_category' => 'selecciona una categoría',
+      'start_assesment' => 'Iniciar evaluación',
+      're_attempt_assesment' => 'Volver a intentar la evaluación',
+      'assesment_completed' => 'Evaluación completada',
+      'give_feedback' => 'Dar comentarios',
+      'download_certificate' => 'Descargar Certificado',
+      'your_score' => 'Tu puntuación',
+      'your_result' => 'Tu resultado',
+      'live_lesson' => 'Lecciones en vivo',
+      'slot' => 'Ranura',
+      'available_slots' => 'Ranuras disponibles',
+      'date' => 'Fecha',
+      'live_lesson_join_url' => 'Unirse a la URL',
+      'live_lesson_meeting_password' => 'Contraseña',
+      'live_lesson_meeting_date' => 'Fecha de la reunión',
+      'live_lesson_meeting_id' => 'ID de reunión',
+      'live_lesson_meeting_duration' => 'Duraciones',
+      'book_slot' => 'Reservar un espacio',
+      'full_slot' => 'La ranura está llena',
+      'subscribe' => 'Suscríbete',
+      'original_price' => 'Precio original',
     ),
-    'faq' => 
-    array (
+    'faq' => array(
       'contact_us' => 'Contáctenos',
       'find' => 'Encuentra <span> Tus preguntas y respuestas. </span>',
       'make_question' => 'Hacer una pregunta',
       'title' => 'Con frecuencia, <span> Preguntas frecuentes </span>',
     ),
-    'home' => 
-    array (
+    'home' => array(
       'all_teachers' => 'Todos los maestros',
       'learn_new_skills' => 'Aprende nuevas habilidades',
       'online_available_courses' => 'Cursos en línea disponibles',
@@ -1352,14 +1630,17 @@ return array (
       'search_courses' => '<span> Buscar </span> Cursos.',
       'students_enrolled' => 'Estudiantes matriculados',
       'teachers' => 'Maestros',
-      'title' => 'Casa',
+      'title' => 'Home',
       'what_they_say_about_us' => 'Que dicen de nosotros',
       'no_data_available' => 'Datos no disponibles',
+      'our_category' => 'Nuestras categorias',
+      'category_1' => 'Categoria 1',
+      'category_2' => 'Categoria 2',
+      'category_3' => 'Categoria 3',
+      'category_4' => 'Categoria 4',
     ),
-    'layouts' => 
-    array (
-      'partials' => 
-      array (
+    'layouts' => array(
+      'partials' => array(
         'advantages' => 'Ventajas',
         'browse_course_by_category' => 'Buscar cursos <span> Por categoría. </span>',
         'browse_featured_course' => 'Navega por nuestro <span> Curso destacado. </span>',
@@ -1402,8 +1683,7 @@ return array (
         'offers' => 'Ofertas',
       ),
     ),
-    'modal' => 
-    array (
+    'modal' => array(
       'already_user_note' => '¿Ya eres usuario? Entre aquí',
       'login_now' => 'Inicia sesión ahora',
       'login_register' => '<a href="#" class="font-weight-bold go-login px-0"> LOGIN </a> en nuestro sitio web, o <a href = "#" class = "font-weight-bold go- registrar px-0 "id =" "> REGISTRO </a>',
@@ -1412,24 +1692,21 @@ return array (
       'register_now' => 'Regístrate ahora',
       'registration_message' => 'Registro exitoso. Por favor Iniciar sesión',
     ),
-    'certificate_verification' => 
-    array (
+    'certificate_verification' => array(
       'date_on_certificate' => 'Fecha en el certificado. Ex. 2018-11-25',
       'name_on_certificate' => 'Nombre en el certificado. Ex. Juan',
       'not_found' => 'Ningún certificado encontrado para la información dada.',
       'title' => 'Verificación del certificado',
       'verify_now' => 'verifica ahora',
     ),
-    'footer' => 
-    array (
+    'footer' => array(
       'useful_links' => 'Enlaces útiles',
       'trending_courses' => 'Cursos de tendencias',
       'popular_courses' => 'Cursos populares',
       'popular_categories' => 'Categorías Populares',
       'featured_courses' => 'Cursos destacados',
     ),
-    'offers' => 
-    array (
+    'offers' => array(
       'minimum_order_amount' => 'Cantidad mínima de pedido',
       'no_offers' => 'No hay ofertas',
       'per_user' => 'Por usuario',
@@ -1439,15 +1716,13 @@ return array (
       'validity' => 'Validez',
     ),
   ),
-  'lang' => 
-  array (
+  'lang' => array(
     'sp' => 'Español',
     'fr' => 'Francés',
     'en' => 'Inglés',
     'ar' => 'Arábica',
   ),
-  'teacher' => 
-  array (
+  'teacher' => array(
     'teacher_register' => 'Registrarse como profesor? Haga clic aquí',
     'teacher_register_box_title' => 'Registro de maestros',
     'facebook_link' => 'Enlace de Facebook',
@@ -1455,11 +1730,10 @@ return array (
     'linkedin_link' => 'Enlace Linkedin',
     'payment_details' => 'Detalles del pago',
     'bank' => 'Banco',
-    'paypal' => 'Paypal',
+    'paypal' => 'PayPal',
     'paypal_email' => 'e-mail de Paypal',
-    'bank_details' => 
-    array (
-      'name' => 'Bank Name',
+    'bank_details' => array(
+      'name' => 'Nombre del banco',
       'ifsc_code' => 'Código IFSC',
       'account' => 'Número de cuenta',
       'holder_name' => 'Nombre de la cuenta',
@@ -1467,5 +1741,68 @@ return array (
       'bank_code' => 'Codigo bancario',
     ),
     'description' => 'Descripción',
+  ),
+  'subscription' => array(
+    'title' => 'Plan de suscripción',
+    'quantity' => '{0} Acceso ilimitado|[1,*] Total :quantity Cantidad de acceso',
+    'course' => '{0} Acceso ilimitado a cursos|{99} Curso no disponible|[1,1]:quantity Curso|[2,*]:quantity Cursos',
+    'bundle' => '{0} Acceso ilimitado a paquetes|{99} Paquete no disponible|[1,1]:quantity Paquete|[2,*]:quantity Paquetes',
+    'button' => 'Suscríbete',
+    'plan' => 'Planificar',
+    'price' => 'Precio',
+    'trial_period' => 'Período de prueba :days Días',
+    'payment_status' => 'Estado de pago de suscripción',
+    'already_subscribe' => 'Ya Suscríbete',
+    'your_subscription_status' => 'Su <span>Estado de suscripción.</span>',
+    'go_to_home' => 'Inicio',
+    'go_to_plan' => 'Ir a Planes',
+    'done' => '¡Suscripción realizada con éxito!',
+    'update' => '¡Actualización de suscripción exitosa!',
+    'failed' => '¡Error! ¡La suscripción falló!',
+    'cancel' => '¡Suscripción cancelada!',
+    'resume' => '¡Reanudación de suscripción!',
+    'form' => array(
+      'name' => 'Nombre',
+      'email' => 'Correo electrónico',
+      'address' => 'Dirección',
+      'city' => 'ciudad',
+      'state' => 'Estado',
+      'zip' => 'Código postal',
+      'card' => 'Tarjeta',
+      'country_code' => 'Código de país',
+    ),
+  ),
+  'course_feedback_questions' => array(
+    'title' => 'Preguntas de comentarios sobre el curso',
+  ),
+  'notifications' => array(
+    'title' => 'Notificaciones',
+    'mark_all_as_read' => 'Marcar todo como leído',
+    'mark_as_read' => 'Marcar como leído',
+    'no_notifications_found' => 'No se encontraron notificaciones',
+    'settings' => array(
+      'title' => 'Configuración de notificaciones',
+      'global_channel_controls' => 'Controles de canales globales',
+      'email_notifications' => 'Notificaciones por correo electrónico',
+      'view_audit_log' => 'Ver registro de auditoría',
+      'failed_to_update' => 'No se pudo actualizar la configuración',
+      'failed_to_update_channel' => 'No se pudo actualizar la configuración del canal',
+    ),
+    'audit_log' => array(
+      'title' => 'Registro de auditoría de configuración de notificaciones',
+      'back_to_settings' => 'Volver a configuración',
+      'date_time' => 'Fecha/Hora',
+      'user' => 'Usuario',
+      'action' => 'acción',
+      'module' => 'Módulo',
+      'event' => 'Evento',
+      'channel' => 'canal',
+      'old_value' => 'Valor antiguo',
+      'new_value' => 'Nuevo valor',
+      'ip_address' => 'Dirección IP',
+      'enabled' => 'Habilitado',
+      'disabled' => 'Discapacitado',
+      'no_logs_found' => 'No se encontraron registros de auditoría',
+    ),
   ),
 );

@@ -39,7 +39,7 @@ width: 58% !important;
 
 <div class="container-fluid">
     <div class="grow pb-3">
-                <h4 class="text-20">@lang('Course Feedback Questions')</h4>
+                <h4 class="text-20">{{ __('user_feedback.feedback_questions.title') }}</h4>
               </div>
                <div class="card">
         <div class="card-body">
@@ -67,13 +67,18 @@ width: 58% !important;
     </div>
 </div> -->
 
-           <table id="myTable" class="table custom-teacher-table table-striped @can('lesson_delete') @if (request('show_deleted') != 1) dt-select @endif @endcan">
+                           <table id="myTable" class="table custom-teacher-table table-striped @can('lesson_delete') @if (request('show_deleted') != 1) dt-select @endif @endcan">
                                  <thead>
                         <tr>
                             <th>S. No.</th>
                             <th>Course Name</th>
                             <th>Question</th>
                             <th class="text-center">Actions</th>
+                            <th>Add Question</th>
+                            <th>{{ __('user_feedback.feedback_questions.serial_no') }}</th>
+                            <th>{{ __('user_feedback.feedback_questions.course_name') }}</th>
+                            <th>{{ __('user_feedback.feedback_questions.question') }}</th>
+                            <th class="text-center">{{ __('user_feedback.feedback_questions.actions') }}</th>
                         </tr>
                     </thead>
                                 <tbody>
@@ -83,8 +88,57 @@ width: 58% !important;
 
         </div>
     </div>
-</div>
+    <div class="modal fade" id="addQuestionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form method="POST" action="{{ route('admin.course-feedback.add-questions') }}">
+                @csrf
 
+                <input type="hidden" name="course_id" id="modal_course_id">
+
+                <div class="modal-content">
+
+                    <!-- Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Questions to Course</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body">
+
+                        <!-- Course (readonly display) -->
+                        <div class="form-group">
+                            <label>Course</label>
+                            <input type="text" id="modal_course_name" class="form-control" readonly>
+                        </div>
+
+                        <!-- Questions Multi Select -->
+                        <div class="form-group">
+                            <label>Select Questions</label>
+                            <select name="question_ids[]" id="question_select" class="form-control select2" multiple required>
+                                @foreach($questions as $question)
+                                    <option value="{{ $question->id }}">
+                                        {{ strip_tags($question->question) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Cancel
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
    
 
 @stop
@@ -93,6 +147,37 @@ width: 58% !important;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{ asset('js/modal/confirm-modal.js') }}"></script>
     <script>
+        $(document).on('click', '.add-question-btn', function () {
+
+    let courseId = $(this).data('course');
+    let courseName = $(this).data('course-name');
+
+    // Set values
+    $('#modal_course_id').val(courseId);
+    $('#modal_course_name').val(courseName);
+
+    // Reset previous selections
+    $('#question_select').val(null).trigger('change');
+
+    // OPTIONAL: fetch already assigned questions (for duplicate prevention)
+    $.ajax({
+        url: '/admin/course-feedback-questions/assigned/' + courseId,
+        type: 'GET',
+        success: function (assignedIds) {
+
+            // Disable already assigned questions
+            $('#question_select option').each(function () {
+                if (assignedIds.includes(parseInt($(this).val()))) {
+                    $(this).prop('disabled', true);
+                } else {
+                    $(this).prop('disabled', false);
+                }
+            });
+
+            $('#question_select').trigger('change');
+        }
+    });
+});
         $(document).ready(function() {
             let course_id;
             const dtTable = $('#myTable').DataTable({
@@ -129,7 +214,7 @@ width: 58% !important;
         //     $('#custom-loader').hide();
         // }
                 },
-                language:{search:""
+                language:{lengthMenu: '{{ trans('datatable.length_menu') }}',search:""
     //                               paginate: {
     //     previous: '<i class="fa fa-angle-left"></i>',
     //     next: '<i class="fa fa-angle-right"></i>'
@@ -151,7 +236,14 @@ width: 58% !important;
                     },
                     {
                         data: "actions",
-                    }
+                    },
+                    {
+                        data: 'add_question', 
+                        name: 'add_question', 
+                        orderable: false, 
+                        searchable: false 
+                    },
+
                 ],
                 initComplete: function () {
                     let $searchInput = $('#myTable_filter input[type="search"]');

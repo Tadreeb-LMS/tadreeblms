@@ -16,6 +16,7 @@ use App\Models\CourseFeedback;
 use App\Models\FeedbackQuestion;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CourseFeedbackController extends Controller
 {
@@ -25,7 +26,7 @@ class CourseFeedbackController extends Controller
 
         // $courses = Course::get();
         $courses = $courses = Course::has('category')->whereHas('courseFeedback')->pluck('title', 'id')->prepend('All', '');
-
+        $questions = FeedbackQuestion::all(); 
 
         if ($request->ajax()) {
             $course_id = $request->course_id;
@@ -59,20 +60,57 @@ class CourseFeedbackController extends Controller
                     ->addColumn('actions', function ($single) {
 
                         // $edit_route = route('admin.course.coursefeedbackquestion.edit',[$single->id]);
-$edit_route = route('admin.course-feedback-questions.edit', $single->id);
+        $edit_route = route('admin.course-feedback-questions.edit', $single->id);
                         $actions = '<div class="action-pill">';
                         $actions .= '<a title="Edit" href="'.$edit_route.'"><i class="fa fa-edit"></i></a>';
                         $actions .= '<a title="Delete" href="#" class="delete-record" data-name="course feedback question" data-type="delete" data-url="/user/course-feedback-questions/delete/' . $single->id . '"><i class="fa fa-trash"></i></a>';
                         $actions .= '</div>';
                         return $actions;
                     })
-                    ->rawColumns(['actions'])
+                    ->addColumn('add_question', function ($single) {
+                        return '
+                        <button class="btn btn-sm btn-primary add-question-btn"
+                            data-toggle="modal"
+                            data-target="#addQuestionModal"
+                            data-course="'.$single->course_id.'"
+                            data-course-name="'.$single->course->title.'">
+                            + Add Question
+                        </button>
+                        ';
+                    })
+                    ->rawColumns(['actions', 'add_question'])
                     ->make(true);
         }
 
 
-        return view('backend.course_feedback_question.index', compact('courses'));
+        return view('backend.course_feedback_question.index', compact('courses' , 'questions'));
     }
+
+    public function addQuestionsToCourse(Request $request)
+{
+    $request->validate([
+        'course_id' => 'required|exists:courses,id',
+        'question_ids' => 'required|array',
+    ]);
+
+    foreach ($request->question_ids as $questionId) {
+
+        $exists = DB::table('courses_feedbacks')
+            ->where('course_id', $request->course_id)
+            ->where('feedback_question_id', $questionId)
+            ->exists();
+
+        if (!$exists) {
+            DB::table('courses_feedbacks')->insert([
+                'course_id' => $request->course_id,
+                'feedback_question_id' => $questionId,
+                'created_by' => auth()->id(),
+            ]);
+        }
+    }
+
+    return redirect()->back()->with('success', 'Questions added successfully!');
+}
 
     public function destroy($id)
     {

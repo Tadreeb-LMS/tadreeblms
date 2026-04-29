@@ -592,6 +592,30 @@ class CoursesController extends Controller
 
         if ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
 
+            $teacherId = \Auth::user()->isAdmin()
+                ? $request->input('teacher_id')
+                : \Auth::user()->id;
+            $teachers = [$teacherId]; // force single teacher
+
+            $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
+            // Cast meeting_duration to int to avoid TypeError in Carbon::addUnit
+            $meetingDuration = (int)$request->meeting_duration;
+            $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
+
+            $overlappingMeetings = \DB::table('courses')
+                ->join('course_user', 'courses.id', '=', 'course_user.course_id')
+                ->whereIn('course_user.user_id', $teachers)
+                ->whereNotNull('courses.meeting_start_at')
+                ->whereNotNull('courses.meeting_duration')
+                ->where(function ($query) use ($meetingStart, $meetingEnd) {
+                    $query->whereRaw('? < DATE_ADD(courses.meeting_start_at, INTERVAL courses.meeting_duration MINUTE)', [$meetingStart])
+                          ->whereRaw('? > courses.meeting_start_at', [$meetingEnd]);
+                })
+                ->exists();
+
+            if ($overlappingMeetings) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'meeting_start_at' => ['Overlapping date, time, and duration for the same teacher is not allowed.']
             // Validate based on schedule type
             if ($request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
                 // Schedule-based validation
@@ -699,10 +723,9 @@ class CoursesController extends Controller
 
             $uniqueId = uniqid();
 
-            if (!$request->category_id) {
-                $defaultCategory = Category::first();   // get any existing category
-                $request->merge(['category_id' => $defaultCategory->id]);
-            }
+            $request->merge([
+                'include_in_kpi' => $request->boolean('include_in_kpi', true),
+            ]);
 
             if ($request->course_type !== 'Offline') {
                 $request->merge([
@@ -1235,6 +1258,11 @@ $teachers = [$teacherId];
                 'meeting_start_at' => null,
                 'meeting_duration' => null,
                 'meeting_timezone' => null,
+                'include_in_kpi' => $request->boolean('include_in_kpi', true),
+            ]);
+        } else {
+            $request->merge([
+                'include_in_kpi' => $request->boolean('include_in_kpi', true),
             ]);
         }
         

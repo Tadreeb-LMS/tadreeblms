@@ -1,8 +1,7 @@
 <?php
 
-return array (
-  'frontend' => 
-  array (
+return array(
+  'frontend' => array(
     'contact' => 'اتصل',
     'courses' => 'الدورات',
     'dashboard' => 'لوحة القيادة',
@@ -10,8 +9,7 @@ return array (
     'login' => 'تسجيل الدخول',
     'macros' => 'وحدات الماكرو',
     'register' => 'تسجيل',
-    'user' => 
-    array (
+    'user' => array(
       'account' => 'حسابي',
       'administration' => 'الادارة',
       'change_password' => 'غير كلمة السر',
@@ -20,8 +18,7 @@ return array (
       'edit_account' => 'تحرير الحساب',
     ),
   ),
-  'general' => 
-  array (
+  'general' => array(
     'home' => 'الصفحة الرئيسية',
     'login' => 'تسجيل الدخول',
     'logout' => 'الخروج',

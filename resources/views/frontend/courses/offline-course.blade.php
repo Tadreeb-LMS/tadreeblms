@@ -84,7 +84,7 @@
                                     {{-- Post-attendance flow: assessment / feedback / certificate --}}
                                     @if ($nextTasks['open_assesment'])
                                         <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                            target="_blank" href="{{ htmlspecialchars_decode($assessment_link) }}">
+                                            href="{{ htmlspecialchars_decode($assessment_link) }}">
                                             {{ trans('course.btn.start_assesment') }}
                                         </a>
                                     @endif
@@ -104,7 +104,7 @@
                                         <p class="text text-danger">@lang("Sorry! you didn't qualify the assignment. So certificate could not be issued.")</p>
                                         @if ($assessment_link)
                                             <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                                target="_blank" href="{{ htmlspecialchars_decode($assessment_link) }}">{{ trans('course.btn.re_attempt_assigment') }}</a>
+                                                href="{{ htmlspecialchars_decode($assessment_link) }}">{{ trans('course.btn.re_attempt_assigment') }}</a>
                                         @endif
                                     @endif
                                 @else
@@ -314,7 +314,7 @@
 
                                     @if ($nextTasks['open_assesment'])
                                         <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                            target="_blank" href="{{ htmlspecialchars_decode($assessment_link) }}">
+                                            href="{{ htmlspecialchars_decode($assessment_link) }}">
                                             {{ trans('course.btn.start_assesment') }}
                                         </a>
                                     @endif
@@ -337,7 +337,7 @@
                                         <p class="text text-danger">@lang("Sorry! you didn't qualify the assignment. So certificate could not be issued.")</p>
                                         @if ($assessment_link)
                                             <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                                target="_blank" href="{{ htmlspecialchars_decode($assessment_link) }}">{{ trans('course.btn.re_attempt_assigment') }}</a>
+                                                href="{{ htmlspecialchars_decode($assessment_link) }}">{{ trans('course.btn.re_attempt_assigment') }}</a>
                                         @endif
                                     @endif
 

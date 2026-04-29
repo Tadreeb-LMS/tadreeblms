@@ -1,12 +1,9 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'roles' => 
-      array (
+return array(
+  'backend' => array(
+    'access' => array(
+      'roles' => array(
         'already_exists' => 'Ese papel ya existe. Por favor, elija un nombre diferente.',
         'cant_delete_admin' => 'No se puede eliminar la función de administrador.',
         'create_error' => 'Hubo un problema creando este rol. Inténtalo de nuevo.',
@@ -16,8 +13,7 @@ return array (
         'not_found' => 'Ese papel no existe.',
         'update_error' => 'Hubo un problema al actualizar este rol. Inténtalo de nuevo.',
       ),
-      'users' => 
-      array (
+      'users' => array(
         'already_confirmed' => 'Este usuario ya está confirmado.',
         'cant_confirm' => 'Hubo un problema al confirmar la cuenta de usuario.',
         'cant_deactivate_self' => 'No puedes hacer eso a ti mismo.',
@@ -44,12 +40,9 @@ return array (
       ),
     ),
   ),
-  'frontend' => 
-  array (
-    'auth' => 
-    array (
-      'confirmation' => 
-      array (
+  'frontend' => array(
+    'auth' => array(
+      'confirmation' => array(
         'already_confirmed' => 'Tu cuenta ya está confirmada.',
         'confirm' => '¡Confirme su cuenta!',
         'created_confirm' => 'Tu cuenta fue creada exitosamente. Le hemos enviado un correo electrónico para confirmar su cuenta.',
@@ -63,8 +56,7 @@ return array (
       ),
       'deactivated' => 'Tu cuenta ha sido desactivada.',
       'email_taken' => 'Esa dirección de correo electrónico ya está tomada.',
-      'password' => 
-      array (
+      'password' => array(
         'change_mismatch' => 'Esa no es tu antigua contraseña.',
         'reset_problem' => 'Hubo un problema al restablecer su contraseña. Por favor, vuelva a enviar el correo electrónico de restablecimiento de contraseña.',
       ),

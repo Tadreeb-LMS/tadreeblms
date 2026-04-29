@@ -19,6 +19,7 @@ use App\Models\stripe\Subscription;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Support\Facades\Schema;
 
 class CalenderController extends Controller
 {
@@ -40,6 +41,7 @@ class CalenderController extends Controller
         $this->path = $path;
     }
 
+    
     public function show_list()
     {
         $logged_in_user = Auth::user();
@@ -49,13 +51,17 @@ class CalenderController extends Controller
 
         // ─── 1. Regular Lessons (existing) ───
         $lesson_data = [];
+$lessons_data = collect();
+
+if (Schema::hasTable('lessons') && Schema::hasTable('courses')) {
+    try {
         if ($isAdmin) {
             $lessons_data = DB::table('lessons')
                 ->select('courses.title as course_name', 'courses.slug as course_slug', 'lessons.title', 'lessons.lesson_start_date')
                 ->leftJoin('courses', 'courses.id', 'lessons.course_id')
                 ->whereNull('courses.deleted_at')
                 ->get();
-        } elseif ($isTeacher) {
+        } elseif ($isTeacher && Schema::hasTable('course_user')) {
             $lessons_data = DB::table('lessons')
                 ->select('courses.title as course_name', 'courses.slug as course_slug', 'lessons.title', 'lessons.lesson_start_date')
                 ->leftJoin('courses', 'courses.id', 'lessons.course_id')
@@ -63,7 +69,7 @@ class CalenderController extends Controller
                 ->where('course_user.user_id', $employee_id)
                 ->whereNull('courses.deleted_at')
                 ->get();
-        } else {
+        } elseif (Schema::hasTable('subscribe_courses')) {
             $lessons_data = DB::table('subscribe_courses')
                 ->select('courses.title as course_name', 'courses.slug as course_slug', 'lessons.title', 'lessons.lesson_start_date')
                 ->leftJoin('courses', 'courses.id', 'subscribe_courses.course_id')
@@ -72,8 +78,12 @@ class CalenderController extends Controller
                 ->whereNull('courses.deleted_at')
                 ->get();
         }
+    } catch (\Exception $e) {
+        \Log::error('Lessons fetch failed: ' . $e->getMessage());
+    }
+}
 
-        if ($lessons_data) {
+        if ($lessons_data->isNotEmpty()) {
             foreach ($lessons_data as $key => $data) {
                 if (!$data->lesson_start_date) continue;
                 $lesson_data[] = [
@@ -87,6 +97,10 @@ class CalenderController extends Controller
 
         // ─── 2. Course-Level Live Sessions (Zoom/Teams/Meet) ───
         $live_session_data = [];
+$meetings_data = collect();
+
+if (Schema::hasTable('courses')) {
+    try {
         $meetingQuery = DB::table('courses')
             ->select(
                 'courses.title', 'courses.slug', 'courses.meeting_provider',
@@ -97,19 +111,24 @@ class CalenderController extends Controller
             ->whereNotNull('courses.meeting_provider')
             ->whereNull('courses.deleted_at');
 
-        if ($isAdmin) {
-            // no additional filter
-        } elseif ($isTeacher) {
+        if ($isTeacher && Schema::hasTable('course_user')) {
             $meetingQuery->join('course_user', 'course_user.course_id', '=', 'courses.id')
                 ->where('course_user.user_id', $employee_id);
-        } else {
+        } elseif (!$isAdmin && Schema::hasTable('subscribe_courses')) {
             $meetingQuery->join('subscribe_courses', 'subscribe_courses.course_id', '=', 'courses.id')
                 ->where('subscribe_courses.user_id', $employee_id);
         }
 
         $meetings_data = $meetingQuery->get();
 
+    } catch (\Exception $e) {
+        \Log::error('Meetings fetch failed: ' . $e->getMessage());
+    }
+}
+
         foreach ($meetings_data as $data) {
+            if (!$data->meeting_start_at) continue; // ✅ prevent crash
+
             $providerLabel = ucfirst($data->meeting_provider);
             $start = Carbon::parse($data->meeting_start_at);
             // Teachers/Admins get host link, students get join link
@@ -170,6 +189,14 @@ class CalenderController extends Controller
 
         // ─── 4. Live Lesson Slots ───
         $live_slot_data = [];
+$slots_data = collect();
+
+if (
+    Schema::hasTable('live_lesson_slots') &&
+    Schema::hasTable('lessons') &&
+    Schema::hasTable('courses')
+) {
+    try {
         $slotQuery = DB::table('live_lesson_slots')
             ->select(
                 'live_lesson_slots.topic', 'live_lesson_slots.start_at',
@@ -183,19 +210,23 @@ class CalenderController extends Controller
             ->whereNull('live_lesson_slots.deleted_at')
             ->whereNull('courses.deleted_at');
 
-        if ($isAdmin) {
-            // no additional filter
-        } elseif ($isTeacher) {
+        if ($isTeacher && Schema::hasTable('course_user')) {
             $slotQuery->join('course_user', 'course_user.course_id', '=', 'courses.id')
                 ->where('course_user.user_id', $employee_id);
-        } else {
+        } elseif (!$isAdmin && Schema::hasTable('subscribe_courses')) {
             $slotQuery->join('subscribe_courses', 'subscribe_courses.course_id', '=', 'courses.id')
                 ->where('subscribe_courses.user_id', $employee_id);
         }
 
         $slots_data = $slotQuery->get();
 
+    } catch (\Exception $e) {
+        \Log::error('Live slots fetch failed: ' . $e->getMessage());
+    }
+}
+
         foreach ($slots_data as $data) {
+            if (!$data->start_at) continue; 
             $start = Carbon::parse($data->start_at);
             // Teachers/Admins get host (start) link, students get join link
             $slotUrl = ($isAdmin || $isTeacher)

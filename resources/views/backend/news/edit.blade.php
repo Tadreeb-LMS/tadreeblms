@@ -21,14 +21,14 @@
             <div class="card-header">
                 <h3 class="page-title d-inline">Update News</h3>
                 <div class="float-right">
-                    <a href="{{ route('admin.news.index') }}" class="btn btn-success">View All</a>
+                    <a href="{{ route('admin.news.index') }}" class="btn btn-success">@lang('labels.general.view_all')</a>
                 </div>
             </div>
             <div class="card-body">
                 <div class="col-md-3 mb-4">
                     <select name="lang" id="change-lang" class="form-control">
-                        <option value="en" @if (request()->lang == 'en') selected @endif>English</option>
-                        <option value="ar" @if (request()->lang == 'ar') selected @endif>Arabic</option>
+                        <option value="en" @if (request()->lang == 'en') selected @endif>{{ locale_label('en') }}</option>
+                        <option value="ar" @if (request()->lang == 'ar') selected @endif>{{ locale_label('ar') }}</option>
                     </select>
                 </div>
 

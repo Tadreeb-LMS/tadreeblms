@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return array(
   'next' => 'التالي & raquo؛',
   'previous' => 'وقوو]؛ سابق',
 );

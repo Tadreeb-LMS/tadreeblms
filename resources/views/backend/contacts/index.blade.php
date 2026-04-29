@@ -11,7 +11,7 @@
     <h4 >Contact Request</h4>
     @can('blog_create')
         <div >
-            <a href="#" class="add-btn">View All</a>
+            <a href="#" class="add-btn">@lang('labels.general.view_all')</a>
         </div>
     @endcan
 </div>
