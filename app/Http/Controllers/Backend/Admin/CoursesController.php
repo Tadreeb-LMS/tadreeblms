@@ -1049,6 +1049,9 @@ $teachers = [$teacherId];
         }
         $course = Course::findOrFail($id);
 
+        // Initialize teachers with empty array - will be updated based on course type
+        $teachers = [];
+
         if ($request->course_type !== 'Online') {
             $request->validate([
                 'start_date' => 'required|date',
