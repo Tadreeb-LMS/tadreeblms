@@ -11,6 +11,7 @@ use App\Helpers\Frontend\Auth\Socialite;
 use App\Events\Frontend\Auth\UserLoggedIn;
 use App\Events\Frontend\Auth\UserLoggedOut;
 use App\Helpers\CustomHelper;
+use App\Helpers\CaptchaGenerator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
@@ -44,35 +45,37 @@ class LoginController extends Controller
     }
 
     /**
-     * Show login form with simple captcha
+     * Show login form with visual captcha
      */
     public function showLoginForm()
     {
         if (request()->ajax()) {
-            $captcha_string = CustomHelper::getCaptcha();
+            $captcha = CaptchaGenerator::generate();
 
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
-                'captcha' => $captcha_string,
-                'captcha_question' => $captcha_string,
-                'captha' => $captcha_string, // backward compatibility
+                'captcha_image' => $captcha['image'],
+                'captcha_question' => 'Enter the code shown above',
+                'captha' => $captcha['code'], // backward compatibility
             ];
         }
 
-        $captcha_string = CustomHelper::getCaptcha();
+        $captcha = CaptchaGenerator::generate();
 
         return view('frontend.auth.login', [
-            'captha' => $captcha_string,
+            'captcha_image' => $captcha['image'],
+            'captha' => $captcha['code'],
         ]);
     }
 
     public function refreshCaptcha()
     {
-        $captcha = CustomHelper::getCaptcha();
+        $captcha = CaptchaGenerator::generate();
 
         return response()->json([
-            'captcha' => $captcha,
-            'captcha_question' => $captcha,
+            'captcha' => $captcha['code'],
+            'captcha_question' => 'Enter the code shown above',
+            'captcha_image' => $captcha['image'],
         ]);
     }
 
@@ -111,7 +114,7 @@ class LoginController extends Controller
         }
 
         // CAPTCHA CHECK
-        if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
+        if (!CaptchaGenerator::validate($request->captcha)) {
             return response([
                 'success' => false,
                 'errors' => [
