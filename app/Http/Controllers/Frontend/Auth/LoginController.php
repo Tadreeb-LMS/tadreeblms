@@ -111,11 +111,14 @@ class LoginController extends Controller
         }
 
         // CAPTCHA CHECK
-        if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
+        $inputCaptcha = trim($request->captcha);
+        $actualCaptcha = trim($request->captcha_hidden);
+
+        if (strtolower($inputCaptcha) !== strtolower($actualCaptcha)) {
             return response([
                 'success' => false,
                 'errors' => [
-                    'captcha' => [__('auth.invalid_captcha')],
+                    'captcha' => ['Invalid captcha'],
                 ],
             ], 422);
         }
