@@ -283,7 +283,7 @@
                             href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                     </div>
                 </div>
-            @endif
+            
 
                         <div class="row">
                             <div class="col-md-12 form-group">
