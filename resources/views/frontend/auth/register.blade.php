@@ -81,8 +81,19 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
-                                <label>{{ __('auth_pages.login.captcha') }}: {{ session('captcha_question') }}</label>
-                                <input type="text" name="captcha" class="form-control" required>
+                                    <label>{{ __('auth_pages.login.captcha') }}</label>
+                                    <div class="captcha-container">
+                                        <img id="register-captcha-image" src="{{ session('captcha_image') }}" alt="Captcha" class="captcha-image" width="150" height="50">
+                                        <button type="button" id="register-captcha-refresh" class="captcha-refresh-btn" title="Refresh Captcha">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 2v6h-6"></path>
+                                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                                <path d="M3 22v-6h6"></path>
+                                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <input type="text" name="captcha" class="form-control" placeholder="Enter captcha code" required>
                                 </div><!--form-group-->
                             </div><!--col-->
                         </div><!--row-->
@@ -111,7 +122,67 @@
     </div><!-- row -->
 @endsection
 
+@push('after-styles')
+<style>
+    .captcha-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .captcha-image {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f9f9f9;
+    }
+
+    .captcha-refresh-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        color: #7ba91f;
+        font-size: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .captcha-refresh-btn:hover {
+        transform: rotate(180deg);
+        color: #5a8a0f;
+    }
+
+    .captcha-refresh-btn:active {
+        transform: rotate(360deg);
+    }
+</style>
+@endpush
+
 @push('after-scripts')
+<script>
+    const refreshCaptchaUrl = "{{ route('refresh.captcha') }}";
+
+    function refreshCaptcha() {
+        fetch(refreshCaptchaUrl + '?t=' + new Date().getTime())
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('register-captcha-image').src = data.captcha_image;
+            })
+            .catch(error => {
+                console.error('Error refreshing captcha:', error);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const refreshBtn = document.getElementById('register-captcha-refresh');
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                refreshCaptcha();
+            });
+        }
+    });
+</script>
     @if(config('access.captcha.registration'))
         {!! Captcha::script() !!}
     @endif

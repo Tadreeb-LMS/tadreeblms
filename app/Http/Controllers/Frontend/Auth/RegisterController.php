@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Helpers\Frontend\Auth\Socialite;
+use App\Helpers\CaptchaGenerator;
 use App\Events\Frontend\Auth\UserRegistered;
 use App\Mail\Frontend\Auth\AdminRegistered;
 use App\Models\Auth\User;
@@ -68,6 +69,9 @@ class RegisterController extends Controller
     {
         abort_unless(config('access.registration'), 404);
 
+        // Generate captcha for registration form
+        $captcha = \App\Helpers\CaptchaGenerator::generate();
+        session(['captcha_image' => $captcha['image']]);
 
         return view('frontend.auth.register')
             ->withSocialiteLinks((new Socialite)->getSocialLinks());
@@ -117,11 +121,11 @@ class RegisterController extends Controller
 
         if ($validator->passes()) {
             // Store your user in database
-            if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
+            if (!CaptchaGenerator::validate($request->captcha)) {
                 return response([
                     'success' => false,
                     'error_type'=>'captcha',
-                    'message' => 'Invalid captcha answer'
+                    'message' => __('auth.invalid_captcha')
                 ], Response::HTTP_OK);
             }
 
