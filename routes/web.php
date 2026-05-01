@@ -124,11 +124,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/user/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
-    Route::post('/user/lessons/store', [LessonController::class, 'store'])->name('lessons.store');
-});
-
 /*
  * Backend Routes
  * Namespaces indicate folder structure
