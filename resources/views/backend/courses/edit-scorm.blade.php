@@ -215,7 +215,8 @@
                                     href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
                             </div>
                         </div>
-                        <div class="custom-select-wrapper mt-2">
+                        </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-12 form-group">
                                 <input type="hidden" name="include_in_kpi" value="0">
@@ -260,9 +261,6 @@
                                 name="title" type="text" value="{{ old('title', $course->title) }}">
                         </div>
                         </div>
-
-
-                    </div>
                     <div class="col-md-6 col-12 form-group">
                         <div class="form-group">
                             <label for="description"
@@ -274,8 +272,6 @@
                         </div>
                     </div>
                 </div>
-
-
 
 
 

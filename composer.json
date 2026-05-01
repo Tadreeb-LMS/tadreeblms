@@ -86,7 +86,7 @@
     "repositories": [
     {
         "type": "path",
-        "url": "../packages/laravel-scorm",
+        "url": "packages/laravel-scorm",
         "options": {
             "symlink": false
         }
