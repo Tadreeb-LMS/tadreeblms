@@ -1,0 +1,32 @@
+<?php
+
+return array(
+  'contribute' => array(
+    'page_title' => 'Language Contribution',
+    'title' => 'Language Contribution',
+    'subtitle' => 'Submit your translated JSON package for :locale.',
+    'invitation_details' => 'Invitation Details',
+    'contributor' => 'Contributor',
+    'default_contributor' => 'Contributor',
+    'email' => 'Email',
+    'status' => 'Status',
+    'expires' => 'Expires',
+    'no_expiry' => 'No expiry',
+    'source_package' => 'Source Package (:locale)',
+    'source_package_help' => 'Download the current source package, translate it, then upload the translated JSON below.',
+    'download_source_package' => 'Download source package',
+    'auto_detected_title' => 'Auto-detected untranslated labels',
+    'auto_detected_desc' => 'We detected :count untranslated labels by comparing source :source with target :target. Fill any fields below and submit directly.',
+    'no_source_modules' => 'No source modules were found for the selected source locale. Publish a valid source package first, or use EN source.',
+    'module' => 'Module',
+    'source' => 'Source',
+    'current' => 'Current',
+    'insert_translation' => 'Insert translation',
+    'no_untranslated_labels' => 'No untranslated labels detected for this language pair.',
+    'upload_translated_json_file' => 'Upload translated JSON file',
+    'or_paste_translated_json' => 'Or paste translated JSON',
+    'message_to_reviewer' => 'Message to reviewer',
+    'optional_note' => 'Optional note for the admin reviewer',
+    'submit_translation' => 'Submit translation',
+  ),
+);

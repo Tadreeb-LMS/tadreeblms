@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -24,7 +25,7 @@ class StoreLessonsRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'course_id' => 'required|integer|exists:courses,id',
             'title' => 'required|array|min:1',
             'title.*' => 'required|string|max:255',
@@ -33,10 +34,31 @@ class StoreLessonsRequest extends FormRequest
             'lesson_start_date.*' => 'nullable|date',
             'expire_at' => 'nullable|date|after_or_equal:start_date',
         ];
+
+        if (is_array($this->input('published'))) {
+            $rules['published'] = 'nullable|array';
+            $rules['published.*'] = 'boolean';
+        } else {
+            $rules['published'] = 'nullable|boolean';
+        }
+
+        return $rules;
     }
 
     protected function prepareForValidation()
     {
+        if (is_array($this->input('published'))) {
+            $published = array_map(function ($value) {
+                return (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            }, $this->input('published', []));
+
+            $this->merge([
+                'published' => $published,
+            ]);
+
+            return;
+        }
+
         $this->merge([
             'published' => (int) $this->boolean('published'),
         ]);

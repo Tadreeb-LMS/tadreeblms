@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class NotificationSetting extends Model
 {
@@ -28,128 +29,144 @@ class NotificationSetting extends Model
     {
         return [
             'users' => [
-                'label' => 'User Management',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.users'),
                 'icon' => 'fas fa-users',
                 'events' => [
                     'user_created' => [
-                        'label' => 'User Created',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.user_created'),
                         'channels' => ['email'],
                     ],
                     'user_updated' => [
-                        'label' => 'User Updated',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.user_updated'),
                         'channels' => ['email'],
                     ],
                     'user_activated' => [
-                        'label' => 'User Activated / Deactivated',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.user_activated'),
                         'channels' => ['email'],
                     ],
                     'role_assigned' => [
-                        'label' => 'Role Assigned',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.role_assigned'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'courses' => [
-                'label' => 'Courses',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.courses'),
                 'icon' => 'fas fa-graduation-cap',
                 'events' => [
                     'course_created' => [
-                        'label' => 'Course Created',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.course_created'),
                         'channels' => ['email'],
                     ],
                     'course_published' => [
-                        'label' => 'Course Published / Unpublished',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.course_published'),
                         'channels' => ['email'],
                     ],
                     'course_expired' => [
-                        'label' => 'Course Expired',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.course_expired'),
                         'channels' => ['email'],
                     ],
                     'course_enrollment' => [
-                        'label' => 'Course Enrollment',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.course_enrollment'),
                         'channels' => ['email'],
                     ],
                     'course_due_reminder' => [
-                        'label' => 'Course Due Reminder',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.course_due_reminder'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'lessons' => [
-                'label' => 'Lessons',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.lessons'),
                 'icon' => 'fas fa-file-alt',
                 'events' => [
                     'lesson_added' => [
-                        'label' => 'Lesson Added',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.lesson_added'),
                         'channels' => ['email'],
                     ],
                     'lesson_updated' => [
-                        'label' => 'Lesson Updated',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.lesson_updated'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'assessments' => [
-                'label' => 'Assessments / Tests',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.assessments'),
                 'icon' => 'fas fa-clipboard-check',
                 'events' => [
                     'test_assigned' => [
-                        'label' => 'Test Assigned',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.test_assigned'),
                         'channels' => ['email'],
                     ],
                     'test_completed' => [
-                        'label' => 'Test Completed',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.test_completed'),
                         'channels' => ['email'],
                     ],
                     'test_results_published' => [
-                        'label' => 'Test Results Published',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.test_results_published'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'trainees' => [
-                'label' => 'Trainees',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.trainees'),
                 'icon' => 'fas fa-user-graduate',
                 'events' => [
                     'trainee_enrolled' => [
-                        'label' => 'Trainee Enrolled',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.trainee_enrolled'),
                         'channels' => ['email'],
                     ],
                     'trainee_completed_course' => [
-                        'label' => 'Trainee Completed Course',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.trainee_completed_course'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'trainers' => [
-                'label' => 'Trainers',
-                'icon' => 'fas fa-chalkboard-teacher',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.trainers'),
+                'icon' => 'fas fa-chalkboard-user',
                 'events' => [
                     'trainer_assigned' => [
-                        'label' => 'Trainer Assigned to Course',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.trainer_assigned'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
             'system' => [
-                'label' => 'System / Security',
+                'label' => self::translateLabel('admin_pages.notification_settings.modules.system'),
                 'icon' => 'fas fa-shield-alt',
                 'events' => [
                     'login_alerts' => [
-                        'label' => 'Login Alerts',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.login_alerts'),
                         'channels' => ['email'],
                     ],
                     'password_reset' => [
-                        'label' => 'Password Reset',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.password_reset'),
                         'channels' => ['email'],
                     ],
                     'failed_login' => [
-                        'label' => 'Failed Login Attempts',
+                        'label' => self::translateLabel('admin_pages.notification_settings.events.failed_login'),
                         'channels' => ['email'],
                     ],
                 ],
             ],
         ];
+    }
+
+    protected static function translateLabel(string $key): string
+    {
+        $translated = __($key);
+        if ($translated !== $key) {
+            return $translated;
+        }
+
+        $fallbackLocale = (string) config('app.fallback_locale', 'en');
+        $fallback = trans($key, [], $fallbackLocale);
+        if ($fallback !== $key) {
+            return $fallback;
+        }
+
+        return Str::headline((string) last(explode('.', $key)));
     }
 
     /**

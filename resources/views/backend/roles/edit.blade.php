@@ -9,8 +9,8 @@
 </style>
 <div class="card">
     <div class="card-header">
-        <h5>Edit Role</h5>
-        <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary float-end">Back</a>
+        <h5>{{ __('admin_pages.roles.edit_role') }}</h5>
+        <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary float-end">{{ __('admin_pages.roles.back') }}</a>
     </div>
 
     <div class="card-body">
@@ -19,12 +19,12 @@
             @method('PUT')
 
             <div class="mb-3">
-                <label for="name" class="form-label">Role Name</label>
+                <label for="name" class="form-label">{{ __('admin_pages.roles.role_name') }}</label>
                 <input type="text" name="name" id="name" readonly class="form-control" value="{{ $role->name }}" required>
             </div>
 
             <div class="mb-3">
-                <h6>Permissions</h6>
+                <h6>{{ __('admin_pages.roles.permissions') }}</h6>
 
                 <div class="permission-blocks row">
                 @foreach($permissions as $module => $modulePermissions)
@@ -32,7 +32,7 @@
                         <strong>{{ ucfirst($module) }}</strong>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input select-all" data-module="{{ $module }}" id="select_all_{{ $module }}">
-                            <label class="form-check-label" for="select_all_{{ $module }}">Select All</label>
+                            <label class="form-check-label" for="select_all_{{ $module }}">{{ __('admin_pages.roles.select_all') }}</label>
                         </div>
 
                         @foreach($modulePermissions as $permission)
@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success">Update Role</button>
+            <button type="submit" class="btn btn-success">{{ __('admin_pages.roles.update_role') }}</button>
         </form>
     </div>
 </div>

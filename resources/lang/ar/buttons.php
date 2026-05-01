@@ -1,12 +1,9 @@
 <?php
 
-return array (
-  'backend' => 
-  array (
-    'access' => 
-    array (
-      'users' => 
-      array (
+return array(
+  'backend' => array(
+    'access' => array(
+      'users' => array(
         'activate' => 'تفعيل',
         'change_password' => 'غير كلمة السر',
         'clear_session' => 'جلسة واضحة',
@@ -21,20 +18,16 @@ return array (
       ),
     ),
   ),
-  'emails' => 
-  array (
-    'auth' => 
-    array (
+  'emails' => array(
+    'auth' => array(
       'confirm_account' => 'تأكيد الحساب',
       'reset_password' => 'إعادة تعيين كلمة المرور',
     ),
   ),
-  'general' => 
-  array (
+  'general' => array(
     'cancel' => 'إلغاء',
     'continue' => 'استمر',
-    'crud' => 
-    array (
+    'crud' => array(
       'create' => 'خلق',
       'delete' => 'حذف',
       'edit' => 'تصحيح',
@@ -46,5 +39,5 @@ return array (
     'view' => 'رأي',
   ),
   'Attend-Course' => 'حضور الدورة',
-  'admin-will-add-lesson-later' => 'تم عمل درس هذه الدورة عن طريق الرابط، وسوف يقوم المشرف بإضافة الدروس قريبًا'
+  'admin-will-add-lesson-later' => 'تم عمل درس هذه الدورة عن طريق الرابط، وسوف يقوم المشرف بإضافة الدروس قريبًا',
 );

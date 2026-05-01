@@ -475,6 +475,8 @@ return array(
         'mail_password_note' => 'Add your email password you want to configure for sending emails',
         'mail_encryption' => 'Mail Encryption',
         'mail_encryption_note' => 'Use <b>tls</b> if your site uses <b>HTTP</b> protocol and <b>ssl</b> if you site uses <b>HTTPS</b> protocol',
+        'site_logo' => 'Site Logo',
+        'save_settings' => 'Save Settings',
         'note' => '<b>Important Note</b> : IF you are using <b>GMAIL</b> for Mail configuration, make sure you have completed following process before updating:
       <ul>
       <li>Go to <a target="_blank" href="https://myaccount.google.com/security">My Account</a> from your Google Account you want to configure and Login</li>
@@ -615,6 +617,7 @@ return array(
         'right_to_left' => 'Right to Left',
         'left_to_right' => 'Left to right',
         'display_type' => 'Display Type',
+        'download_base_language_file' => 'Download Base Language File',
       ),
       'user_registration_settings' =>
       array(
@@ -1249,6 +1252,7 @@ return array(
     ),
     'zoom_setting' => array(
       'management' => 'Zoom Setting',
+      'select_timezone' => 'Select Timezone',
       'audio_options' => array(
         'both' => 'Both',
         'voip' => 'VoIP',
@@ -1370,6 +1374,14 @@ return array(
       'view_license' => 'Review License',
       'remove_license_title'=> 'Remove License',
       'removing'=>'Removing...',
+      'toggle_key_visibility' => 'Show/Hide',
+      'standard' => 'Standard',
+      'syncing' => 'Syncing...',
+      'sync_failed' => 'Failed to sync users',
+      'total' => 'Total',
+      'created' => 'Created',
+      'attached' => 'Attached',
+      'failed' => 'Failed',
     ],
     'smtp_settings' => array(
       'title' => 'Email Settings (SMTP)',
@@ -1435,6 +1447,7 @@ return array(
     'trash' => 'Trash',
     'delete' => 'Delete',
     'no_data_available' => 'No data available',
+    'not_available' => 'N/A',
     'edit' => 'Edit',
     'copyright' => 'Copyright',
     'delete_selected' => 'Delete Selected',
@@ -1445,6 +1458,7 @@ return array(
     'toggle_navigation' => 'Toggle Navigation',
     'sr_no' => 'Sr No.',
     'read_more' => 'Read More',
+    'view_all' => 'View All',
   ),
   'frontend' =>
   array(
@@ -1676,6 +1690,11 @@ return array(
       'all_teachers' => 'All Trainers',
       'what_they_say_about_us' => 'What they say about us',
       'no_data_available' => 'No data available',
+      'our_category' => 'Our Category',
+      'category_1' => 'Category 1',
+      'category_2' => 'Category 2',
+      'category_3' => 'Category 3',
+      'category_4' => 'Category 4',
     ),
     'layouts' =>
     array(

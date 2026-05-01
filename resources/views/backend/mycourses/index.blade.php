@@ -420,7 +420,7 @@ $local_lang = App::getLocale() ?? 'en';
                    
                 @if (isset($learning_pathways) && count($learning_pathways) > 0)
                     <div class="col-12 pt-5 heading-text">
-                        <h4 class="mypaths">@lang('My Learning Paths')</h4>
+                        <h4 class="mypaths">{{ __('user_dashboard.learning_paths.title') }}</h4>
                     </div>
 
                     @foreach ($learning_pathways as $learning_pathway)
@@ -449,7 +449,7 @@ $local_lang = App::getLocale() ?? 'en';
                                     )
                                     <img src="/assets/img/lock-icon.png" class="lock-image" alt="">
                                 @endif
-                                <div class="levelrow"> <div> Level</div> <span class="leveitem"> {{ $item->position }}</span></div>
+                                <div class="levelrow"> <div>{{ __('user_dashboard.learning_paths.level') }}</div> <span class="leveitem"> {{ $item->position }}</span></div>
                                 <div class="user-course-card best-course-pic-text position-relative mb-4">
                                     <div class="best-course-pic position-relative overflow-hidden"
                                         @if ($item->course->course_image != '') style="background-image: url({{ asset('storage/uploads/' . $item->course->course_image) }});border-radius: 5px;" @endif>
@@ -547,7 +547,7 @@ $local_lang = App::getLocale() ?? 'en';
                                             <?php
 
                                             if ($item->subscribedCourse->due_date) {
-                                                echo '<i class="ri-calendar-schedule-line"></i> Due Date: ' . date('d/m/Y', strtotime($item->subscribedCourse->due_date));
+                                                echo '<i class="ri-calendar-schedule-line"></i> <span style="color: #64748b;">' . __('user_dashboard.learning_paths.due_date_prefix') . ' ' . date('d/m/Y', strtotime($item->subscribedCourse->due_date)) . '</span>';
                                             }
 
                                             ?>

@@ -185,7 +185,7 @@
         <div class="page-breadcrumb-content text-center">
             <div class="page-breadcrumb-title">
                 <h2 class="breadcrumb-head black bold">
-                    Login To Account
+                    {{ __('auth_pages.login.title') }}
                 </h2>
             </div>
         </div>
@@ -196,8 +196,8 @@
         <div class="card">
 
             <div class="card-header">
-                <h2>My Account</h2>
-                <p>Login to continue</p>
+                <h2>{{ __('auth_pages.login.my_account') }}</h2>
+                <p>{{ __('auth_pages.login.login_to_continue') }}</p>
             </div>
 
             <div class="card-body">
@@ -256,7 +256,7 @@
                     <div class="form-group">
                         <div class="captcha-container">
                             <span class="captcha-text" id="captcha-text">
-                                Captcha: {{ $captha }}
+                                {{ __('auth_pages.login.captcha') }}: {{ $captha }}
                             </span>
                             <button type="button" id="refresh-captcha" style="border:none; background:none; cursor:pointer;">
                                 🔄
@@ -266,7 +266,7 @@
                                 id="captcha-input"
                                 name="captcha"
                                 class="form-control captcha-input"
-                                placeholder="Code"
+                                placeholder="{{ __('auth_pages.login.code') }}"
                                 required
                             >
                             @if ($errors->has('captcha'))
@@ -335,7 +335,7 @@ $(document).ready(function () {
 
             error: function (xhr) {
 
-                let message = 'Something went wrong. Please try again.';
+                let message = @json(__('course_pages.admin_lessons_create.something_went_wrong'));
 
                 if (xhr.status === 422 && xhr.responseJSON?.errors) {
                     // Validation error – show first message
@@ -353,7 +353,7 @@ $(document).ready(function () {
                 $('#captcha-input').val('').focus();
             },
             complete: function () {
-                $('#loginBtn').prop('disabled', false).text('Login');
+                $('#loginBtn').prop('disabled', false).text(@json(__('labels.frontend.auth.login_button')));
             }
         });
     });
@@ -363,7 +363,7 @@ function refreshCaptcha() {
     fetch("{{ route('refresh.captcha') }}")
         .then(response => response.json())
         .then(data => {
-            $('#captcha-text').html("Captcha: " + data.captcha);
+            $('#captcha-text').html(@json(__('auth_pages.login.captcha')) + ': ' + data.captcha);
             $('#captcha-input').val('');
         })
         .catch(() => {
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
 
-                captchaText.innerHTML = "Captcha: " + data.captcha;
+                captchaText.innerHTML = @json(__('auth_pages.login.captcha')) + ': ' + data.captcha;
 
                 // Clear input
                 captchaInput.value = '';

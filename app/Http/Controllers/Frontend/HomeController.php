@@ -80,10 +80,7 @@ class HomeController extends Controller
             abort(404);
         }
 
-        $type = (string) (config('theme_layout') ?: '1');
-        if (!in_array($type, ['1', '2', '3', '4'], true)) {
-            $type = '1';
-        }
+        $type = theme_layout_id(config('theme_layout'));
 
         $sections = Config::where('key', '=', 'layout_' . $type)->first();
         if (!$sections && $type !== '1') {

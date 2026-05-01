@@ -11,6 +11,7 @@ use App\Helpers\Frontend\Auth\Socialite;
 use App\Events\Frontend\Auth\UserLoggedIn;
 use App\Events\Frontend\Auth\UserLoggedOut;
 use App\Helpers\CustomHelper;
+use App\Helpers\CaptchaGenerator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
@@ -44,35 +45,37 @@ class LoginController extends Controller
     }
 
     /**
-     * Show login form with simple captcha
+     * Show login form with visual captcha
      */
     public function showLoginForm()
     {
         if (request()->ajax()) {
-            $captcha_string = CustomHelper::getCaptcha();
+            $captcha = CaptchaGenerator::generate();
 
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
-                'captcha' => $captcha_string,
-                'captcha_question' => $captcha_string,
-                'captha' => $captcha_string, // backward compatibility
+                'captcha_image' => $captcha['image'],
+                'captcha_question' => 'Enter the code shown above',
+                'captha' => $captcha['code'], // backward compatibility
             ];
         }
 
-        $captcha_string = CustomHelper::getCaptcha();
+        $captcha = CaptchaGenerator::generate();
 
         return view('frontend.auth.login', [
-            'captha' => $captcha_string,
+            'captcha_image' => $captcha['image'],
+            'captha' => $captcha['code'],
         ]);
     }
 
     public function refreshCaptcha()
     {
-        $captcha = CustomHelper::getCaptcha();
+        $captcha = CaptchaGenerator::generate();
 
         return response()->json([
-            'captcha' => $captcha,
-            'captcha_question' => $captcha,
+            'captcha' => $captcha['code'],
+            'captcha_question' => 'Enter the code shown above',
+            'captcha_image' => $captcha['image'],
         ]);
     }
 
@@ -97,7 +100,9 @@ class LoginController extends Controller
                 'captcha' => 'required',
             ],
             [
-                'captcha.required' => 'Please solve the captcha',
+                'captcha.required' => __('validation.required', [
+                    'attribute' => __('auth_pages.login.captcha'),
+                ]),
             ]
         );
 
@@ -109,13 +114,13 @@ class LoginController extends Controller
         }
 
         // CAPTCHA CHECK
-        if ((int) $request->captcha !== (int) Session::get('captcha_answer')) {
-        return response([
-            'success' => false,
-            'errors' => [
-                'captcha' => ['Invalid captcha answer']
-            ]
-        ], 422);
+        if (!CaptchaGenerator::validate($request->captcha)) {
+            return response([
+                'success' => false,
+                'errors' => [
+                    'captcha' => [__('auth.invalid_captcha')],
+                ],
+            ], 422);
         }
 
         $credentials = [
@@ -125,6 +130,8 @@ class LoginController extends Controller
         ];
 
         if (LaravelAuth::attempt($credentials, $request->has('remember'))) {
+            $request->session()->regenerate();
+
             $user = auth()->user();
 
             if ($user->hasRole('administrator')) {
@@ -161,8 +168,10 @@ class LoginController extends Controller
                 if (!$ldapUser) {
                     return response([
                         'success' => false,
-                        'message' => 'User not found in LDAP',
-                    ], Response::HTTP_FORBIDDEN);
+                        'errors' => [
+                            'email' => [__('auth.failed')],
+                        ],
+                    ], 422);
                 }
 
                 $dn = $ldapUser->getDn();
@@ -172,11 +181,13 @@ class LoginController extends Controller
                     ->auth()
                     ->attempt($dn, $request->password);
 
-                                if (!$auth) {
+                if (!$auth) {
                     return response([
                         'success' => false,
-                        'message' => 'Invalid LDAP password',
-                    ], Response::HTTP_FORBIDDEN);
+                        'errors' => [
+                            'email' => [__('auth.failed')],
+                        ],
+                    ], 422);
                 }
 
                 // Create or sync user in LMS database
@@ -194,6 +205,7 @@ class LoginController extends Controller
                 $user->assignRole('student');
 
                 LaravelAuth::login($user, $request->has('remember'));
+                $request->session()->regenerate();
 
                 $redirect = route('admin.dashboard');
 
@@ -204,15 +216,17 @@ class LoginController extends Controller
             } catch (\Exception $e) {
                 return response([
                     'success' => false,
-                    'message' => 'LDAP Error: ' . $e->getMessage(),
+                    'message' => __('auth.unknown'),
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
 
         return response([
             'success' => false,
-            'message' => 'Login failed. Account not found',
-        ], Response::HTTP_FORBIDDEN);
+            'errors' => [
+                'email' => [__('auth.failed')],
+            ],
+        ], 422);
     }
 
     /**
@@ -231,7 +245,10 @@ class LoginController extends Controller
             throw new GeneralException(__('exceptions.frontend.auth.deactivated'));
         }
 
-        if (isset($user->employee_type)) {
+        if ($user->isAdmin()) {
+            // Admins should always land in the full sidebar mode.
+            Session::put('setvaluesession', 1);
+        } elseif (isset($user->employee_type)) {
             if (empty($user->employee_type)) {
                 Session::put('setvaluesession', 1);
             } elseif ($user->employee_type === 'internal') {

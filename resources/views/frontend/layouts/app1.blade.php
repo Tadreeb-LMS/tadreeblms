@@ -150,7 +150,7 @@
                 <div class="nav-item px-3 dropdown">
                     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="{{ url('/') }}" role="button"
                         aria-haspopup="true" aria-expanded="false">
-                        <span class="d-md-down-none">@lang('menus.language-picker.language') ({{ strtoupper(app()->getLocale()) }})</span>
+                        <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }} ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
                     </a>
 
                     @include('includes.partials.lang')

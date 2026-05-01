@@ -64,6 +64,35 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                             {{session('success')}}
                         </div>
                     @endif
+                    @if(isset($nextTasks) && is_array($nextTasks))
+                        @if(!empty($nextTasks['open_assesment']) || !empty($nextTasks['reattempt_assesment']) || !empty($nextTasks['open_feedback']))
+                            <div class="alert alert-info fade show">
+                                <strong>Completion checklist:</strong>
+                                <ul class="mb-0 mt-2" style="padding-left: 18px;">
+                                    @if(!empty($nextTasks['open_assesment']))
+                                        <li>Complete the final course assessment to continue completion (lesson quizzes alone are not enough when a final assessment is configured).</li>
+                                    @endif
+                                    @if(!empty($nextTasks['reattempt_assesment']))
+                                        <li>Re-attempt the assessment to meet the passing criteria.</li>
+                                    @endif
+                                    @if(!empty($nextTasks['open_feedback']))
+                                        <li>Submit course feedback to unlock certificate/completion.</li>
+                                    @endif
+                                </ul>
+                                <div class="mt-3 d-flex flex-wrap" style="gap: 8px;">
+                                    @if(!empty($nextTasks['open_assesment']) && !empty($assessment_link))
+                                        <a class="btn btn-sm btn-success" href="{{ htmlspecialchars_decode($assessment_link) }}">Start Assessment</a>
+                                    @endif
+                                    @if(!empty($nextTasks['reattempt_assesment']) && !empty($assessment_link))
+                                        <a class="btn btn-sm btn-warning text-white" href="{{ htmlspecialchars_decode($assessment_link) }}">Re-attempt Assessment</a>
+                                    @endif
+                                    @if(!empty($nextTasks['open_feedback']))
+                                        <a class="btn btn-sm btn-info text-white" href="{{ route('course-feedback', $course->id) }}">Give Feedback</a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endif
                     <div class="course-details-item border-bottom-0 mb-0">
                         <div class="course-single-pic mb30">
                             @if($course->course_image != "")
@@ -265,7 +294,7 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                                 </div>
                                             </div>
                                             @if($meetUrl)
-                                                <a href="{{ $meetUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                <a href="{{ $meetUrl }}" class="btn btn-warning mt-2">
                                                     <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
                                                 </a>
                                             @endif
@@ -296,7 +325,7 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                                     </div>
                                                 </div>
                                                 @if($sessionUrl)
-                                                    <a href="{{ $sessionUrl }}" target="_blank" class="btn btn-warning mt-2">
+                                                    <a href="{{ $sessionUrl }}" class="btn btn-warning mt-2">
                                                         <span class="text-white font-weight-bold"><i class="fas fa-sign-in-alt"></i> Join</span>
                                                     </a>
                                                 @endif
@@ -627,15 +656,14 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                     <span >  {{$lessonCount}} </span></li>
                                 {{--<li>Language <span>English</span></li>--}}
                                 <li class="d-inline-block w-100"><em>@lang('labels.frontend.course.category')</em><span><a
-                                                href="{{route('courses.category',['category'=>$course->category->slug])}}"
-                                                target="_blank">{{$course->category->name}}</a> </span></li>
+                                                href="{{route('courses.category',['category'=>$course->category->slug])}}">{{$course->category->name}}</a> </span></li>
                                 <li> <em>@lang('labels.frontend.course.author') </em> <span>
 
                                         @foreach($course->teachers as $key=>$teacher)
 
                                             @if($teacher->hasRole('teacher'))
                                             @php $key++ @endphp
-                                            <a href="{{route('teachers.show',['id'=>$teacher->id])}}" target="_blank">
+                                            <a href="{{route('teachers.show',['id'=>$teacher->id])}}">
                                                 {{$teacher->full_name}}@if($key < count($course->teachers )), @endif
                                             </a>
                                             @endif
@@ -743,44 +771,44 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                         <input type="hidden" name="amount" value="{{($course->free == 1) ? 0 : $course->price}}"/>
                         <input type="hidden" name="slug" value="{{$course->slug}}"/>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Enter Your Email address</label>
-                            <input type="email"  class="form-control" name="email" id="email" placeholder="Enter email" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.enter_email') }}</label>
+                            <input type="email"  class="form-control" name="email" id="email" placeholder="{{ __('course_pages.registration.placeholder_email') }}" value="" required>
                         </div>
                         <div class="row">
                             <div class="col-sm-6 col-12">
                             <div class="form-group">
-                            <label for="exampleInputEmail1">First Name</label>
-                            <input type="text"  class="form-control" name="first_name" id="first_name" placeholder="Enter first name" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.first_name') }}</label>
+                            <input type="text"  class="form-control" name="first_name" id="first_name" placeholder="{{ __('course_pages.registration.placeholder_first') }}" value="" required>
                         </div>
                             </div>
                             <div class="col-sm-6 col-12">
                             <div class="form-group">
-                            <label for="exampleInputEmail1">Last name</label>
-                            <input type="text"  class="form-control" name="last_name" id="last_name" placeholder="Enter last name" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.last_name') }}</label>
+                            <input type="text"  class="form-control" name="last_name" id="last_name" placeholder="{{ __('course_pages.registration.placeholder_last') }}" value="" required>
                         </div>
                             </div>
                             <div class="col-sm-6 col-12">
                             <div class="form-group">
-                            <label for="exampleInputEmail1">Phone</label>
-                            <input type="text"  class="form-control" name="phone" id="phone" placeholder="Enter phone" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.phone') }}</label>
+                            <input type="text"  class="form-control" name="phone" id="phone" placeholder="{{ __('course_pages.registration.placeholder_phone') }}" value="" required>
 
                         </div>
                             </div>
                             <div class="col-sm-6 col-12">
                             <div class="form-group">
-                            <label for="exampleInputEmail1">ID number</label>
-                            <input type="text"  class="form-control" name="id_no" id="id_no" placeholder="Enter ID No" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.id_number') }}</label>
+                            <input type="text"  class="form-control" name="id_no" id="id_no" placeholder="{{ __('course_pages.registration.placeholder_id') }}" value="" required>
                         </div>
                             </div>
 
                             <div class="col-sm-6 col-12"><div class="form-group">
-                            <label for="exampleInputEmail1">Classification number</label>
-                            <input type="text"  class="form-control" name="classification_no" id="classification_no" placeholder="Classification number" value="">
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.classification') }}</label>
+                            <input type="text"  class="form-control" name="classification_no" id="classification_no" placeholder="{{ __('course_pages.registration.placeholder_classification') }}" value="">
                         </div></div>
                             <div class="col-sm-6 col-12">
                             <div class="form-group">
-                            <label for="exampleInputEmail1">Specialization</label>
-                            <input type="text"  class="form-control" name="specialization" id="specialization" placeholder="specialization" value="" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.specialization') }}</label>
+                            <input type="text"  class="form-control" name="specialization" id="specialization" placeholder="{{ __('course_pages.registration.placeholder_specialization') }}" value="" required>
 
                         </div>
                             </div>
@@ -788,33 +816,33 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                         </div>
 
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Nationality</label>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.nationality') }}</label>
                             <select name="nationality" class="form-control" required>
-                                <option>Select Country</option>
+                                <option>{{ __('course_pages.registration.select_country') }}</option>
                                 @foreach($countries as $country)
                                 <option value="{{ $country->id }}">{{ $country->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Gender</label>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.gender') }}</label>
                             <select name="gender" class="form-control" required>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
+                                <option value="male">{{ __('course_pages.registration.male') }}</option>
+                                <option value="female">{{ __('course_pages.registration.female') }}</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Password</label>
-                            <input type="password"  class="form-control" name="password" id="password" placeholder="Enter password" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.password') }}</label>
+                            <input type="password"  class="form-control" name="password" id="password" placeholder="{{ __('course_pages.registration.placeholder_password') }}" required>
 
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Confirm Password</label>
-                            <input type="password"  class="form-control" name="confirm_password" id="confirm_password" placeholder="Enter Confirm Password" required>
+                            <label for="exampleInputEmail1">{{ __('course_pages.registration.confirm_password') }}</label>
+                            <input type="password"  class="form-control" name="confirm_password" id="confirm_password" placeholder="{{ __('course_pages.registration.placeholder_confirm') }}" required>
 
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Register on course</button>
+                        <button type="submit" class="btn btn-primary">{{ __('course_pages.registration.register_button') }}</button>
                     </form>
 
                     </div>

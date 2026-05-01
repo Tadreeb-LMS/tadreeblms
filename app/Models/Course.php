@@ -37,7 +37,8 @@ class Course extends Model
     protected $fillable = [
         'temp_id',
         'current_step',
-        'category_id', 
+        'category_id',
+        'include_in_kpi', 
         'title', 
         'slug', 
         'description', 
@@ -80,6 +81,7 @@ class Course extends Model
     protected $casts = [
         'schedule_days' => 'array',
         'last_session_date' => 'date',
+        'include_in_kpi' => 'boolean',
     ];
 
     //    protected $dates = ['expire_at'];
@@ -305,6 +307,11 @@ public function getStatusLabelAttribute()
     public function teachers()
     {
         return $this->belongsToMany(User::class, 'course_user')->withPivot('user_id');
+    }
+
+    public function kpis()
+    {
+        return $this->belongsToMany(Kpi::class, 'kpi_course')->withTimestamps();
     }
 
     

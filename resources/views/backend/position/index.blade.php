@@ -1,15 +1,15 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Position | ' . app_name())
+@section('title', __('position_pages.index.title') . ' | ' . app_name())
 
 @section('content')
 
     <div class="card">
         <div class="card-header">
-            <h3 class="page-title d-inline">Position</h3>
+            <h3 class="page-title d-inline">{{ __('position_pages.index.title') }}</h3>
             @can('blog_create')
                 <div class="float-right">
-                    <a href="{{ route('admin.position.create') }}" class="btn btn-success">Add Position</a>
+                    <a href="{{ route('admin.position.create') }}" class="btn btn-success">{{ __('position_pages.index.add_position') }}</a>
                 </div>
             @endcan
 
@@ -30,11 +30,11 @@
                 <div class="d-block">
                     <ul class="list-inline">
                         <li class="list-inline-item">
-                            <a href="{{ route('admin.position.index') }}" style="{{ request('show_deleted') == 1 ? '' : 'font-weight: 700' }}">All</a>
+                            <a href="{{ route('admin.position.index') }}" style="{{ request('show_deleted') == 1 ? '' : 'font-weight: 700' }}">{{ __('position_pages.index.all') }}</a>
                         </li>
                         |
                         <li class="list-inline-item">
-                            <a href="{{ route('admin.position.index') }}?show_deleted=1" style="{{ request('show_deleted') == 1 ? 'font-weight: 700' : '' }}">Trash</a>
+                            <a href="{{ route('admin.position.index') }}?show_deleted=1" style="{{ request('show_deleted') == 1 ? 'font-weight: 700' : '' }}">{{ __('position_pages.index.trash') }}</a>
                         </li>
                     </ul>
                 </div>
@@ -49,15 +49,15 @@
                                 </th>
                             @endif
                         @endcan
-                        <th>Sr No</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Created</th>
+                        <th>{{ __('position_pages.index.sr_no') }}</th>
+                        <th>{{ __('position_pages.index.table_title') }}</th>
+                        <th>{{ __('position_pages.index.description') }}</th>
+                        <th>{{ __('position_pages.index.status') }}</th>
+                        <th>{{ __('position_pages.index.created') }}</th>
                         @if(request('show_deleted') == 1)
-                            <th>Actions</th>
+                            <th>{{ __('position_pages.index.actions') }}</th>
                         @else
-                            <th>Actions</th>
+                            <th>{{ __('position_pages.index.actions') }}</th>
                         @endif
                     </tr>
                     </thead>
@@ -133,17 +133,20 @@
                 },
                 language: {
                     url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
+                    lengthMenu: '{{ trans('datatable.length_menu') }}',
+                    search: '',
                     buttons: {
-                        colvis: 'ColVis',
-                        pdf: 'PDF',
-                        csv: 'CSV',
-                    }
+                        colvis: '{{ trans('datatable.colvis') }}',
+                        pdf: '{{ trans('datatable.pdf') }}',
+                        csv: '{{ trans('datatable.csv') }}',
+                    },
+                    emptyTable: '{{ __('position_pages.index.no_data_available') }}'
                 }
             });
 
             @can('blog_delete')
                 @if(request('show_deleted') != 1)
-                    $('.actions').html('<a href="' + '{{ route('admin.position.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>');
+                    $('.actions').html('<a href="' + '{{ route('admin.position.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('position_pages.index.delete_selected') }}</a>');
                 @endif
             @endcan
 

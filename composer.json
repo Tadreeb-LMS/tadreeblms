@@ -5,6 +5,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-gd": "*",
         "barryvdh/laravel-dompdf": "^3.0",
         "barryvdh/laravel-translation-manager": "^0.6",
         "bdhabib/laravel-menu": "^2.2",

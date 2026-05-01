@@ -80,7 +80,16 @@ Route::get('email-test', function () {
 });
 
 // Switch between the included languages
-Route::get('lang/{lang}', [LanguageController::class, 'swap']);
+Route::get('lang/{lang}', [LanguageController::class, 'swap'])
+    ->where('lang', '[A-Za-z_-]+')
+    ->name('locale.swap');
+
+Route::get('language-marketplace/contribute/{token}', [\App\Http\Controllers\LanguageContributionController::class, 'show'])
+    ->name('language-marketplace.contribute');
+Route::post('language-marketplace/contribute/{token}', [\App\Http\Controllers\LanguageContributionController::class, 'submit'])
+    ->name('language-marketplace.contribute.submit');
+Route::get('language-marketplace/packages/{package}/download', [\App\Http\Controllers\LanguageContributionController::class, 'downloadPublishedPackage'])
+    ->name('language-marketplace.packages.download');
 
 
 Route::get('/sitemap-' . \Illuminate\Support\Str::slug(config('app.name')) . '/{file?}', 'SitemapController@index');

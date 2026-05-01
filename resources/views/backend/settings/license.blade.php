@@ -70,7 +70,7 @@
                                         <td class="text-muted" width="40%">{{ __('labels.backend.license_settings.license_key') }}</td>
                                         <td>
                                             <code id="maskedKey">{{ $license->masked_key }}</code>
-                                            <button type="button" class="btn btn-link btn-sm p-0 ml-2" id="toggleKeyVisibility" title="Show/Hide">
+                                            <button type="button" class="btn btn-link btn-sm p-0 ml-2" id="toggleKeyVisibility" title="{{ __('labels.backend.license_settings.toggle_key_visibility') }}">
                                                 <i class="fas fa-eye" id="keyVisibilityIcon"></i>
                                             </button>
                                             <span id="fullKey" class="d-none">{{ $license->license_key }}</span>
@@ -86,11 +86,11 @@
                                     </tr>
                                     <tr>
                                         <td class="text-muted">{{ __('labels.backend.license_settings.license_type') }}</td>
-                                        <td>{{ ucfirst($license->license_type ?? 'Standard') }}</td>
+                                        <td>{{ ucfirst($license->license_type ?? __('labels.backend.license_settings.standard')) }}</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">{{ __('labels.backend.license_settings.licensed_to') }}</td>
-                                        <td>{{ $license->licensed_to ?? '-' }}</td>
+                                        <td>{{ $license->licensed_to ?? __('labels.general.not_available') }}</td>
                                     </tr>
                                     @if($license->licensee_email)
                                     <tr>
@@ -152,14 +152,14 @@
                                                     <span class="badge badge-secondary ml-2">{{ __('labels.backend.license_settings.expired') }}</span>
                                                 @endif
                                             @else
-                                                -
+                                                {{ __('labels.general.not_available') }}
                                             @endif
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">{{ __('labels.backend.license_settings.last_validated') }}</td>
                                         <td>
-                                            {{ $license->last_validated_at ? $license->last_validated_at->diffForHumans() : '-' }}
+                                            {{ $license->last_validated_at ? $license->last_validated_at->diffForHumans() : __('labels.general.not_available') }}
                                         </td>
                                     </tr>
                                 </table>
@@ -330,7 +330,7 @@ $(document).ready(function() {
     $('#btnSyncUsers').on('click', function() {
         var btn = $(this);
         var btnHtml = btn.html();
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Syncing...');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> {{ __("labels.backend.license_settings.syncing") }}');
 
         $.ajax({
             url: '{{ route("admin.license.sync-users") }}',
@@ -338,10 +338,10 @@ $(document).ready(function() {
             data: { _token: '{{ csrf_token() }}' },
             dataType: 'json',
             success: function(response) {
-                var details = 'Total: ' + (response.total || 0) +
-                    ', Created: ' + (response.created || 0) +
-                    ', Attached: ' + (response.attached || 0) +
-                    ', Failed: ' + (response.failed || 0);
+                var details = '{{ __("labels.backend.license_settings.total") }}: ' + (response.total || 0) +
+                    ', {{ __("labels.backend.license_settings.created") }}: ' + (response.created || 0) +
+                    ', {{ __("labels.backend.license_settings.attached") }}: ' + (response.attached || 0) +
+                    ', {{ __("labels.backend.license_settings.failed") }}: ' + (response.failed || 0);
                 showAlert('success', response.message + ' (' + details + ')');
                 btn.prop('disabled', false).html(btnHtml);
                 setTimeout(function() {
@@ -349,15 +349,15 @@ $(document).ready(function() {
                 }, 2000);
             },
             error: function(xhr) {
-                var msg = 'Failed to sync users';
+                var msg = '{{ __("labels.backend.license_settings.sync_failed") }}';
                 var details = '';
                 if (xhr.responseJSON) {
                     if (xhr.responseJSON.message) {
                         msg = xhr.responseJSON.message;
                     }
-                    details = ' (Total: ' + (xhr.responseJSON.total || 0) +
-                        ', Created: ' + (xhr.responseJSON.created || 0) +
-                        ', Failed: ' + (xhr.responseJSON.failed || 0) + ')';
+                    details = ' ({{ __("labels.backend.license_settings.total") }}: ' + (xhr.responseJSON.total || 0) +
+                        ', {{ __("labels.backend.license_settings.created") }}: ' + (xhr.responseJSON.created || 0) +
+                        ', {{ __("labels.backend.license_settings.failed") }}: ' + (xhr.responseJSON.failed || 0) + ')';
                     if (xhr.responseJSON.errors && xhr.responseJSON.errors.length > 0) {
                         details += '<br><small>' + xhr.responseJSON.errors.join('<br>') + '</small>';
                     }
