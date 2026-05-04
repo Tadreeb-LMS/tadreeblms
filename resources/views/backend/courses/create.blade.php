@@ -204,7 +204,7 @@
                                         href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                                 </div>
                             </div>
-                @endif
+                
 
                         @if (Auth::user()->isAdmin())
                             {{-- <div class="row">
