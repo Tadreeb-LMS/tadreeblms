@@ -131,14 +131,15 @@ if (Schema::hasTable('courses')) {
 
             $providerLabel = ucfirst($data->meeting_provider);
             $start = Carbon::parse($data->meeting_start_at);
-            // Teachers/Admins get host link, students get join link
-            $meetingUrl = ($isAdmin || $isTeacher)
-                ? ($data->meeting_host_url ?: $data->meeting_join_url)
-                : $data->meeting_join_url;
+            // Route through LMS course page instead of direct meeting link
             $event = [
                 'title' => "[$providerLabel] " . $data->title,
                 'start' => $start->toIso8601String(),
-                'url'   => $meetingUrl ?: route('courses.show', $data->slug),
+                'url'   => route('courses.show', $data->slug) . '?joined=1',
+                'extendedProps' => [
+                    'eventType' => 'course_meeting',
+                    'provider' => $data->meeting_provider,
+                ],
             ];
             if ($data->meeting_duration) {
                 $event['end'] = $start->copy()->addMinutes((int)$data->meeting_duration)->toIso8601String();
@@ -150,9 +151,8 @@ if (Schema::hasTable('courses')) {
         $scheduled_session_data = [];
         $scheduledQuery = DB::table('live_sessions')
             ->select(
-                'live_sessions.session_date', 'live_sessions.session_time',
-                'live_sessions.duration', 'live_sessions.meeting_link',
-                'live_sessions.host_url', 'live_sessions.provider',
+                'live_sessions.id', 'live_sessions.session_date', 'live_sessions.session_time',
+                'live_sessions.duration', 'live_sessions.provider',
                 'courses.title as course_title', 'courses.slug as course_slug'
             )
             ->join('courses', 'courses.id', '=', 'live_sessions.course_id')
@@ -173,13 +173,16 @@ if (Schema::hasTable('courses')) {
         foreach ($scheduled_data as $data) {
             $providerLabel = ucfirst($data->provider ?? 'Live');
             $start = Carbon::parse($data->session_date . ' ' . $data->session_time);
-            $sessionUrl = ($isAdmin || $isTeacher)
-                ? ($data->host_url ?: $data->meeting_link)
-                : $data->meeting_link;
+            // Route through LMS course page with session_id parameter
             $event = [
                 'title' => "[$providerLabel] " . $data->course_title,
                 'start' => $start->toIso8601String(),
-                'url'   => $sessionUrl ?: route('courses.show', $data->course_slug),
+                'url'   => route('courses.show', $data->course_slug) . '?joined=1&session_id=' . $data->id,
+                'extendedProps' => [
+                    'eventType' => 'scheduled_session',
+                    'sessionId' => $data->id,
+                    'provider' => $data->provider,
+                ],
             ];
             if ($data->duration) {
                 $event['end'] = $start->copy()->addMinutes((int)$data->duration)->toIso8601String();
@@ -199,9 +202,8 @@ if (
     try {
         $slotQuery = DB::table('live_lesson_slots')
             ->select(
-                'live_lesson_slots.topic', 'live_lesson_slots.start_at',
-                'live_lesson_slots.duration', 'live_lesson_slots.join_url',
-                'live_lesson_slots.start_url',
+                'live_lesson_slots.id', 'live_lesson_slots.topic', 'live_lesson_slots.start_at',
+                'live_lesson_slots.duration',
                 'courses.title as course_name', 'courses.slug as course_slug',
                 'lessons.title as lesson_title'
             )
@@ -228,14 +230,15 @@ if (
         foreach ($slots_data as $data) {
             if (!$data->start_at) continue; 
             $start = Carbon::parse($data->start_at);
-            // Teachers/Admins get host (start) link, students get join link
-            $slotUrl = ($isAdmin || $isTeacher)
-                ? ($data->start_url ?: $data->join_url)
-                : $data->join_url;
+            // Route through LMS course page with slot_id parameter
             $event = [
                 'title' => '[Live] ' . ($data->topic ?: $data->lesson_title),
                 'start' => $start->toIso8601String(),
-                'url'   => $slotUrl ?: route('courses.show', $data->course_slug),
+                'url'   => route('courses.show', $data->course_slug) . '?joined=1&slot_id=' . $data->id,
+                'extendedProps' => [
+                    'eventType' => 'lesson_slot',
+                    'slotId' => $data->id,
+                ],
             ];
             if ($data->duration) {
                 $event['end'] = $start->copy()->addMinutes((int)$data->duration)->toIso8601String();
