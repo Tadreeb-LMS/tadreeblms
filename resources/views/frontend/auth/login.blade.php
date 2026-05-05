@@ -255,14 +255,10 @@
                     {{-- Captcha --}}
                     <div class="form-group">
                         <div class="captcha-container">
-                            <!-- <span class="captcha-text" id="captcha-text">
-                                {{ __('auth_pages.login.captcha') }}: {{ $captha }}
-                            </span> -->
-                            <canvas id="captchaCanvas" width="150" height="50"></canvas>
+                            <img src="{{ isset($captcha_image) ? $captcha_image : '' }}" id="captchaImage" alt="captcha" />
                             <button type="button" id="refreshCaptcha" style="border:none; background:none; cursor:pointer;">
                                 🔄
                             </button>
-                            <input type="hidden" id="captchaHidden" name="captcha_hidden">
 
                             <input type="text"
                                 id="captcha-input"
@@ -309,71 +305,11 @@
 @push('after-scripts')
 
 <script>
-    function generateCaptchaText(length = 6) {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-        let captcha = '';
-        for (let i = 0; i < length; i++) {
-            captcha += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return captcha;
-    }
-
-    function drawCaptcha(text) {
-        const canvas = document.getElementById('captchaCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Background
-        ctx.fillStyle = '#f2f2f2';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Text
-        ctx.font = '24px Arial';
-        ctx.fillStyle = '#333';
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-        for (let i = 0; i < text.length; i++) {
-            const x = 10 + i * 20;
-            const y = 30 + Math.random() * 5;
-            const angle = Math.random() * 0.3;
-
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-            ctx.fillText(text[i], 0, 0);
-            ctx.restore();
-        }
-
-        // Noise: lines
-        for (let i = 0; i < 2; i++) {
-            ctx.strokeStyle = '#999';
-            ctx.beginPath();
-            ctx.moveTo(Math.random() * 150, Math.random() * 50);
-            ctx.lineTo(Math.random() * 150, Math.random() * 50);
-            ctx.stroke();
-        }
-
-        // Noise: dots
-        for (let i = 0; i < 30; i++) {
-            ctx.fillRect(Math.random() * 150, Math.random() * 50, 1, 1);
-        }
-    }
-
-    function generateNewCaptcha() {
-        const captcha = generateCaptchaText();
-        document.getElementById('captchaHidden').value = captcha;
-        drawCaptcha(captcha);
-    }
-
     // Init
     document.addEventListener('DOMContentLoaded', function () {
-        generateNewCaptcha();
-
         // Refresh button
         document.getElementById('refreshCaptcha')
-            .addEventListener('click', generateNewCaptcha);
+            .addEventListener('click', refreshCaptcha);
     });
 
 $(document).ready(function () {
@@ -432,37 +368,15 @@ function refreshCaptcha() {
     fetch("{{ route('refresh.captcha') }}")
         .then(response => response.json())
         .then(data => {
-            $('#captcha-text').html(@json(__('auth_pages.login.captcha')) + ': ' + data.captcha);
+            if (data.captcha_image) {
+                $('#captchaImage').attr('src', data.captcha_image);
+            }
             $('#captcha-input').val('');
         })
         .catch(() => {
             console.error('Captcha refresh failed');
         });
 }
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const refreshBtn = document.getElementById('refresh-captcha');
-    const captchaText = document.getElementById('captcha-text');
-    const captchaInput = document.getElementById('captcha-input');
-
-    refreshBtn.addEventListener('click', function () {
-
-        fetch("{{ route('refresh.captcha') }}")
-            .then(response => response.json())
-            .then(data => {
-
-                captchaText.innerHTML = @json(__('auth_pages.login.captcha')) + ': ' + data.captcha;
-
-                // Clear input
-                captchaInput.value = '';
-
-            })
-            .catch(error => console.error('Captcha refresh error:', error));
-    });
-
-});
 </script>
 @endpush
 
