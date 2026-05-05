@@ -13,8 +13,13 @@ if (!$basePath) {
     exit;
 }
 
+<<<<<<< HEAD
 $envFile = $basePath . '/.env';
 $dbConfigFile = __DIR__ . '/db_config.json';
+=======
+$envFile           = $basePath . '/.env';
+$dbConfigFile      = $basePath . '/storage/app/installer/db_config.json';
+>>>>>>> upstream/main
 $migrationDoneFile = $basePath . '/.migrations_done';
 $seedDoneFile = $basePath . '/.seed_done';
 $installedFlag = $basePath . '/installed';
@@ -181,7 +186,7 @@ try {
                     if (version_compare($m[1], '2.7.8', '>=')) {
                         $msg .= "✔ Composer {$m[1]} OK<br>";
                     } else {
-                        $msg .= "❌ Composer 2.7.8+ required, found {$m[1]}<br>";
+                        $msg .= "❌ Composer 2.7.8+ required, found {$m[1]}. Please upgrade using: composer self-update<br>";
                         $ok = false;
                     }
                 } else {
@@ -191,10 +196,18 @@ try {
             } else {
 
                 $composerVersion = trim(shell_exec("$phpBin $composerBin --version 2>&1"));
-                if (strpos($composerVersion, '2.7.8') !== false) {
-                    $msg .= "✔ Composer $composerVersion OK<br>";
-                } else {
-                    $msg .= "❌ Composer 2.7 required, found $composerVersion<br>";
+                if (preg_match('/Composer version ([0-9.]+)/', $composerVersion, $m)) {
+                        if (version_compare($m[1], '2.7.8', '>=')) {
+                                $msg .= "✔ Composer $composerVersion OK<br>";
+                        }
+                        else {
+                                $msg .= "❌ Composer 2.7 required, found $composerVersion. Please upgrade using: composer self-update<br>";
+                                $ok = false;
+                            }
+                }
+                else
+                {
+                    $msg .= "❌ Unable to detect Composer version<br>";
                     $ok = false;
                 }
             }
@@ -286,9 +299,17 @@ try {
                 fail("Failed to read .env");
             }
 
+            $scheme = ( !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ) ? 'https' : 'http'; 
+            $baseUri = rtrim(dirname($_SERVER['SCRIPT_NAME']),'/');
+            $appUrl = $scheme .'://'.$_SERVER['HTTP_HOST'].($baseUri==='/' ? '' : $baseUri);
             // Prepare DB values
             $replacements = [
+<<<<<<< HEAD
                 'DB_HOST' => $config['host'] ?? '',
+=======
+                'APP_URL' => $appUrl,
+                'DB_HOST'     => $config['host'] ?? '',
+>>>>>>> upstream/main
                 'DB_DATABASE' => $config['database'] ?? '',
                 'DB_USERNAME' => $config['username'] ?? '',
                 'DB_PASSWORD' => $config['password'] ?? '',
@@ -348,6 +369,16 @@ try {
                 fail("Failed to replace .env");
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | FIX: Clear stale Laravel config cache
+            |--------------------------------------------------------------------------
+            |
+            | Prevents old cached APP_KEY / env values from being used.
+            |
+            */
+            @unlink($basePath . '/bootstrap/cache/config.php');
+
             echo json_encode([
                 'success' => true,
                 'message' => '.env created ✔',
@@ -371,6 +402,31 @@ try {
     */
         case 'migrate':
             blockIfNoVendor($basePath);
+            $dbConfig = json_decode(file_get_contents($dbConfigFile), true);
+            if (!is_array($dbConfig)) {
+                fail("Invalid DB config");
+            }
+            try {
+                
+                    // Quick database connectivity check
+                    $dsn = "mysql:host={$dbConfig['host']};charset=utf8mb4";
+
+                    $pdo = new PDO(
+                        $dsn,
+                        $dbConfig['username'],
+                        $dbConfig['password'],
+                        [
+                            PDO::ATTR_TIMEOUT => 5,
+                            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        ]
+                    );
+
+                } catch (PDOException $e) {
+                    fail(
+                        "Database connection failed. Please verify host, database name, username, and password.\n".
+                        "Connection error: " . $e->getMessage()
+                    );
+                }
             exec("$phpBin \"$basePath/artisan\" migrate --force 2>&1", $out, $ret);
             if ($ret !== 0)
                 fail("Migration failed:\n" . implode("\n", $out));
@@ -394,10 +450,45 @@ try {
     | PERMISSIONS
     */
         case 'permissions':
+<<<<<<< HEAD
             foreach (['storage', 'bootstrap/cache'] as $dir) {
                 if (!is_writable("$basePath/$dir"))
                     fail("$dir is not writable");
             }
+=======
+            $paths = [
+                        $basePath . '/storage',
+                        $basePath . '/storage/app',
+                        $basePath . '/storage/app/installer',
+                        $basePath . '/storage/framework',
+                        $basePath . '/storage/framework/cache',
+                        $basePath . '/storage/framework/sessions',
+                        $basePath . '/storage/framework/views',
+                        $basePath . '/storage/logs',
+                        $basePath . '/bootstrap/cache',
+                    ];
+
+                foreach ($paths as $path) {
+
+                    // Create if missing
+                    if (!file_exists($path)) {
+                        mkdir($path, 0755, true);
+                    }
+
+                    // Fix permissions if not writable
+                    if (!is_writable($path)) {
+                        chmod($path, 0775);
+                    }
+
+                    // Final check
+                    if (!is_writable($path)) {
+                        fail("❌ Permission issue: $path is not writable");
+                    }
+                }
+            // foreach (['storage', 'bootstrap/cache'] as $dir) {
+            //     if (!is_writable("$basePath/$dir")) fail("$dir is not writable");
+            // }
+>>>>>>> upstream/main
             echo json_encode(['message' => '✔ Permissions OK', 'next' => 'finish']);
             exit;
 
@@ -418,7 +509,15 @@ try {
             // Remove db_config.json now that credentials are in .env
             @unlink($dbConfigFile);
 
-            echo json_encode(['message' => "✔ Installation complete! <a href='/'>Open Application</a>", 'next' => null]);
+            // Extract APP_URL from .env
+            $appUrl = '/';
+
+            if (preg_match('/^APP_URL=(.*)$/m', $env, $matches)) {
+                $appUrl = trim($matches[1], " \t\n\r\0\x0B\"'");
+            }
+
+
+            echo json_encode(['message' => "✔ Installation complete! <a href='{$appUrl}' style='color:blue;'>Open Application</a>", 'next' => null]);
             exit;
 
         default:

@@ -8,6 +8,7 @@ return array(
   'socialite' => array(
     'unacceptable' => ': proveedor no es un tipo de inicio de sesión aceptable.',
   ),
+  'invalid_captcha' => 'Respuesta de captcha no válida.',
   'throttle' => 'Demasiados intentos de inicio de sesión. Por favor, intente de nuevo en: segundos segundos.',
   'unknown' => 'Un error desconocido ocurrió',
   'welcome' => 'Bienvenido, :attribute',

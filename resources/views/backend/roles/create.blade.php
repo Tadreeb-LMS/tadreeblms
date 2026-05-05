@@ -33,7 +33,7 @@
                 <div class="permission-blocks row">
                 @foreach($permissions as $module => $modulePermissions)
                     <div class="mb-2 border p-2 rounded">
-                        <strong>{{ ucfirst($module) }}</strong>
+                        <strong>{{ ucfirst(str_replace('_', ' ', $module)) }}</strong>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input select-all" data-module="{{ $module }}" id="select_all_{{ $module }}">
                             <label class="form-check-label" for="select_all_{{ $module }}">{{ __('admin_pages.roles.select_all') }}</label>

@@ -112,7 +112,7 @@
     }
 
     .captcha-input {
-        width: 100px !important;
+        width: 200px !important;
         height: 34px !important;
         font-size: 13px;
         text-align: center;
@@ -255,10 +255,8 @@
                     {{-- Captcha --}}
                     <div class="form-group">
                         <div class="captcha-container">
-                            <span class="captcha-text" id="captcha-text">
-                                {{ __('auth_pages.login.captcha') }}: {{ $captha }}
-                            </span>
-                            <button type="button" id="refresh-captcha" style="border:none; background:none; cursor:pointer;">
+                            <img src="{{ isset($captcha_image) ? $captcha_image : '' }}" id="captchaImage" alt="captcha" />
+                            <button type="button" id="refreshCaptcha" style="border:none; background:none; cursor:pointer;">
                                 🔄
                             </button>
 
@@ -266,7 +264,7 @@
                                 id="captcha-input"
                                 name="captcha"
                                 class="form-control captcha-input"
-                                placeholder="{{ __('auth_pages.login.code') }}"
+                                placeholder="Enter Captcha"
                                 required
                             >
                             @if ($errors->has('captcha'))
@@ -307,6 +305,13 @@
 @push('after-scripts')
 
 <script>
+    // Init
+    document.addEventListener('DOMContentLoaded', function () {
+        // Refresh button
+        document.getElementById('refreshCaptcha')
+            .addEventListener('click', refreshCaptcha);
+    });
+
 $(document).ready(function () {
 
     $('#loginPageForm').on('submit', function (e) {
@@ -363,37 +368,15 @@ function refreshCaptcha() {
     fetch("{{ route('refresh.captcha') }}")
         .then(response => response.json())
         .then(data => {
-            $('#captcha-text').html(@json(__('auth_pages.login.captcha')) + ': ' + data.captcha);
+            if (data.captcha_image) {
+                $('#captchaImage').attr('src', data.captcha_image);
+            }
             $('#captcha-input').val('');
         })
         .catch(() => {
             console.error('Captcha refresh failed');
         });
 }
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const refreshBtn = document.getElementById('refresh-captcha');
-    const captchaText = document.getElementById('captcha-text');
-    const captchaInput = document.getElementById('captcha-input');
-
-    refreshBtn.addEventListener('click', function () {
-
-        fetch("{{ route('refresh.captcha') }}")
-            .then(response => response.json())
-            .then(data => {
-
-                captchaText.innerHTML = @json(__('auth_pages.login.captcha')) + ': ' + data.captcha;
-
-                // Clear input
-                captchaInput.value = '';
-
-            })
-            .catch(error => console.error('Captcha refresh error:', error));
-    });
-
-});
 </script>
 @endpush
 

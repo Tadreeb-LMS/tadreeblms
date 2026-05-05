@@ -12,6 +12,8 @@ use Spatie\Permission\Models\Permission;
 
 class RolesController extends Controller
 {
+    private const PERMISSION_ACTIONS = ['access', 'create', 'edit', 'view', 'delete'];
+
     /**
      * Display a listing of Role.
      *
@@ -42,7 +44,7 @@ class RolesController extends Controller
         }
 
         $permissions = Permission::all()->groupBy(function ($perm) {
-            return explode('_', $perm->name)[0]; // e.g., 'user', 'course', 'lesson'
+            return $this->permissionModule($perm->name);
         });
 
         return view('backend.roles.create', compact('permissions'));
@@ -86,7 +88,7 @@ class RolesController extends Controller
             return abort(401);
         }
         $permissions = Permission::all()->groupBy(function ($perm) {
-            return explode('_', $perm->name)[0];
+            return $this->permissionModule($perm->name);
         });
 
         $role = Role::findOrFail($id);
@@ -244,5 +246,17 @@ class RolesController extends Controller
         });
 
         return redirect()->route('admin.roles.index');
+    }
+
+    private function permissionModule(string $permissionName): string
+    {
+        $parts = explode('_', $permissionName);
+        $action = end($parts);
+
+        if (in_array($action, self::PERMISSION_ACTIONS, true) && count($parts) > 1) {
+            array_pop($parts);
+        }
+
+        return implode('_', $parts);
     }
 }

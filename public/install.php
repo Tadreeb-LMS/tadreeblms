@@ -50,12 +50,9 @@ if (file_exists($installedFlag)) {
     <style>
         body {
             font-family: Arial;
-
             padding: 20px;
-
             background-color: #d0dbb9;
             position: relative;
-
         }
 
         .container {
@@ -65,7 +62,6 @@ if (file_exists($installedFlag)) {
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
         }
 
         h2 {
@@ -94,7 +90,8 @@ if (file_exists($installedFlag)) {
             background: #fff;
             color: #0f0;
             padding: 10px;
-            height: 80px;
+            /* height: 80px; */
+            max-height: 250px;
             overflow: auto;
             font-family: monospace;
         }
@@ -120,7 +117,6 @@ if (file_exists($installedFlag)) {
 
         .dropdown-toggle::after {
             display: none !important;
-
         }
     </style>
 </head>

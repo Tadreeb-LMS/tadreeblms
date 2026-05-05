@@ -6668,7 +6668,7 @@ footer hr {
   margin: 30px 0 50px;
   background-color: #ffffff42;
 }
-.footer-logo img{ margin-bottom:10px}
+.footer-logo img{ margin-bottom:10px; max-width:100%; height:auto; object-fit:contain}
 
 .dload .footer-list{display: flex; align-items: center;}
 .dload .footer-list li{ padding:0 5px 0 0}

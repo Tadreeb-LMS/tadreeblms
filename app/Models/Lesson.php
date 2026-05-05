@@ -32,6 +32,27 @@ class Lesson extends Model
      */
     protected static function booted()
     {
+        parent::boot();
+
+        static::saving(function ($lesson) {
+            $course = $lesson->course;
+
+            if (!$course) return;
+
+            $lessonDate = \Carbon\Carbon::parse($lesson->lesson_start_date)->startOfDay();
+            $courseStart = \Carbon\Carbon::parse($course->start_date)->startOfDay();
+            $courseEnd = \Carbon\Carbon::parse($course->expire_at)->endOfDay();
+
+            if (
+                $lessonDate->lt($courseStart) ||
+                $lessonDate->gt($courseEnd)
+            )
+            {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'lesson_start_date' => 'Lesson date must be within course duration.'
+                ]);
+            }
+        });
 
         static::deleting(function ($lesson) { // before delete() method call this
             if ($lesson->isForceDeleting()) {

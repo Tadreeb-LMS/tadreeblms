@@ -8,6 +8,7 @@ return array(
   'socialite' => array(
     'unacceptable' => ': مزود ليس نوع تسجيل الدخول مقبول.',
   ),
+  'invalid_captcha' => 'إجابة الكابتشا غير صحيحة.',
   'throttle' => 'محاولات تسجيل الدخول كثيرة جدًا. يرجى المحاولة مرة أخرى بعد: ثوانٍ.',
   'unknown' => 'حدث خطأ غير معروف',
   'welcome' => ':attribute أهلا وسهلا',

@@ -34,18 +34,20 @@ class EmailNotificationController extends Controller
     public function sendEmailNotificationPost(Request $request)
     {
         $validated = $request->validate([
+            'recipient_mode' => 'required|in:users,department,import,all',
             'users' => 'nullable|array',
             'users.*' => 'integer|exists:users,id',
             'department_id' => 'nullable|integer|exists:department,id',
-            'select_all_users' => 'nullable|boolean',
             'import_users' => 'nullable|file|mimes:xlsx,xls|max:5120',
             'email_content' => 'required|max:5000',
             'subject' => 'required|max:500',
             'register_button' => 'required',
         ], [
-            'users.*.exists' => 'One or more selected users are invalid.',
-            'department_id.exists' => 'Selected department does not exist.',
-            'import_users.mimes' => 'Import file must be in xlsx or xls format.',
+            'recipient_mode.required' => __('admin_pages.email_notifications.messages.recipient_mode_required'),
+            'recipient_mode.in' => __('admin_pages.email_notifications.messages.recipient_mode_required'),
+            'users.*.exists' => __('admin_pages.email_notifications.messages.invalid_selected_users'),
+            'department_id.exists' => __('admin_pages.email_notifications.messages.department_not_found'),
+            'import_users.mimes' => __('admin_pages.email_notifications.messages.invalid_import_format'),
         ]);
 
         $smtpConfigMissing = empty(config('mail.mailers.smtp.host'))
@@ -54,15 +56,15 @@ class EmailNotificationController extends Controller
 
         if ($smtpConfigMissing) {
             return response()->json([
-                'message' => 'SMTP is not configured. Please set MAIL_HOST, MAIL_PORT, and MAIL_FROM_ADDRESS first.',
+                'message' => __('admin_pages.email_notifications.messages.smtp_not_configured'),
             ], 400);
         }
 
         try {
-            $selectedUserIds = $request->input('users', []);
-            $selectedDepartmentId = $request->input('department_id');
+            $recipientMode = $validated['recipient_mode'];
+            $user_emails = [];
 
-            if ($request->boolean('select_all_users')) {
+            if ($recipientMode === 'all') {
                 $user_emails = User::whereHas('roles', function ($query) {
                     $query->where('name', 'student');
                 })
@@ -70,29 +72,61 @@ class EmailNotificationController extends Controller
                     ->whereNotNull('email')
                     ->pluck('email')
                     ->toArray();
-            } else {
+
+            } elseif ($recipientMode === 'department') {
+                $selectedDepartmentId = $request->input('department_id');
+
+                if (empty($selectedDepartmentId)) {
+                    return response()->json([
+                        'errors' => [
+                            'department_id' => [__('admin_pages.email_notifications.messages.no_department_selected')],
+                        ],
+                    ], 422);
+                }
+
+                $user_emails = DB::table('users')
+                    ->join('employee_profiles', 'employee_profiles.user_id', '=', 'users.id')
+                    ->where('employee_profiles.department', $selectedDepartmentId)
+                    ->where('users.active', 1)
+                    ->whereNull('users.deleted_at')
+                    ->whereNotNull('users.email')
+                    ->pluck('users.email')
+                    ->toArray();
+
+                if (empty($user_emails)) {
+                    return response()->json([
+                        'errors' => [
+                            'department_id' => [__('admin_pages.email_notifications.messages.no_active_users_in_department')],
+                        ],
+                    ], 422);
+                }
+
+            } elseif ($recipientMode === 'users') {
+                $selectedUserIds = $request->input('users', []);
+
+                if (empty($selectedUserIds)) {
+                    return response()->json([
+                        'errors' => [
+                            'users' => [__('admin_pages.email_notifications.messages.no_users_selected')],
+                        ],
+                    ], 422);
+                }
+
                 $user_emails = User::whereIn('id', $selectedUserIds)
                     ->active()
                     ->whereNotNull('email')
                     ->pluck('email')
                     ->toArray();
 
-                if (!empty($selectedDepartmentId)) {
-                    $departmentUserEmails = DB::table('users')
-                        ->join('employee_profiles', 'employee_profiles.user_id', '=', 'users.id')
-                        ->where('employee_profiles.department', $selectedDepartmentId)
-                        ->where('users.active', 1)
-                        ->whereNull('users.deleted_at')
-                        ->whereNotNull('users.email')
-                        ->pluck('users.email')
-                        ->toArray();
-
-                    $user_emails = array_merge($user_emails, $departmentUserEmails);
+            } elseif ($recipientMode === 'import') {
+                if (!$request->hasFile('import_users')) {
+                    return response()->json([
+                        'errors' => [
+                            'import_users' => [__('admin_pages.email_notifications.messages.no_import_file')],
+                        ],
+                    ], 422);
                 }
-            }
 
-            $imported_emails = [];
-            if ($request->hasFile('import_users')) {
                 $file = $request->file('import_users');
                 $collection = Excel::toCollection(null, $file);
 
@@ -101,34 +135,27 @@ class EmailNotificationController extends Controller
                         $email = trim($cell);
 
                         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            $imported_emails[] = $email;
+                            $user_emails[] = $email;
                         }
                     }
                 }
+
+                if (empty($user_emails)) {
+                    return response()->json([
+                        'errors' => [
+                            'import_users' => [__('admin_pages.email_notifications.messages.no_valid_emails_in_import')],
+                        ],
+                    ], 422);
+                }
             }
 
-            $user_emails = array_values(array_unique(array_filter(array_merge($user_emails, $imported_emails))));
+            $user_emails = array_values(array_unique(array_filter($user_emails)));
 
             if (empty($user_emails)) {
-                $hasDepartmentSelection = !empty($selectedDepartmentId);
-                $hasSelectedUsers = !empty($selectedUserIds);
-                $hasImportedUsers = !empty($imported_emails);
-                $hasSelectAllUsers = $request->boolean('select_all_users');
-
-                $errors = [];
-
-                if ($hasDepartmentSelection && !$hasSelectedUsers && !$hasImportedUsers && !$hasSelectAllUsers) {
-                    $errors['department_id'] = [
-                        'No active users were found in the selected department. Please choose a different department or another recipient source.'
-                    ];
-                } else {
-                    $errors['recipient'] = [
-                        'Please select at least one recipient source (users, department with assigned users, import file, or send to all users).'
-                    ];
-                }
-
                 return response()->json([
-                    'errors' => $errors,
+                    'errors' => [
+                        'recipient_mode' => [__('admin_pages.email_notifications.messages.select_at_least_one_recipient')],
+                    ],
                 ], 422);
             }
 
@@ -156,12 +183,12 @@ class EmailNotificationController extends Controller
                 EmailCampainUser::insert($user_emails_data);
             }
 
-            unset($validated['import_users']);
+            unset($validated['import_users'], $validated['recipient_mode']);
 
             dispatch(new BulkEmailDispatchJob($campain_id, $user_emails, $validated));
 
             return response()->json([
-                'message' => 'Notification queued successfully',
+                'message' => __('admin_pages.email_notifications.messages.notification_queued_successfully'),
                 'redirect_route' => '/user/send-email-notification',
             ]);
         } catch (Exception $e) {
