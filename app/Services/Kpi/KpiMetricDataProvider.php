@@ -4,15 +4,21 @@ namespace App\Services\Kpi;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class KpiMetricDataProvider
 {
+    public function supportsType(string $type): bool
+    {
+        return $this->resolveCalculatorMethod($type) !== null;
+    }
+
     /**
      * @param string $type
      * @param array $courseIds
      * @return float
      */
-    public function getMetricValueForType($type, array $courseIds = [])
+    public function getMetricValueForType($type, array $courseIds = []): float
     {
         $scopedCourseIds = $this->resolveIncludedCourseIds($courseIds);
         // Empty after resolution means no included courses exist at all — return nothing.
@@ -20,18 +26,24 @@ class KpiMetricDataProvider
             return 0.0;
         }
 
-        switch ((string) $type) {
-            case 'completion':
-                return $this->calculateCompletionValue($scopedCourseIds);
-            case 'score':
-                return $this->calculateScoreValue($scopedCourseIds);
-            case 'activity':
-                return $this->calculateActivityValue($scopedCourseIds);
-            case 'time':
-                return $this->calculateTimeValue($scopedCourseIds);
-            default:
-                return 0.0;
+        $method = $this->resolveCalculatorMethod((string) $type);
+        if ($method === null) {
+            return 0.0;
         }
+
+        return $this->{$method}($scopedCourseIds);
+    }
+
+    protected function resolveCalculatorMethod(string $type): ?string
+    {
+        $normalizedType = trim($type);
+        if ($normalizedType === '') {
+            return null;
+        }
+
+        $method = 'calculate' . Str::studly($normalizedType) . 'Value';
+
+        return method_exists($this, $method) ? $method : null;
     }
 
     protected function calculateCompletionValue(array $courseIds)

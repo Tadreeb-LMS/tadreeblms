@@ -238,6 +238,27 @@
                 </div>
 
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
+                    Progress Status
+                    <div class="custom-select-wrapper mt-2">
+                        <select name="progress_status" id="progress_status" class="form-control custom-select-box select2">
+                            <option value="">All</option>
+                            <option value="not_started" {{ request()->progress_status == 'not_started' ? 'selected' : '' }}>
+                                Not Started
+                            </option>
+                            <option value="in_progress" {{ request()->progress_status == 'in_progress' ? 'selected' : '' }}>
+                                In Progress
+                            </option>
+                            <option value="completed" {{ request()->progress_status == 'completed' ? 'selected' : '' }}>
+                                Completed
+                            </option>
+                        </select>
+                        <span class="custom-select-icon">
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
                     <div>
                         <div class="mb-2">
                             {{ __('admin_pages.internal_attendance.assign_from_date') }}
@@ -415,6 +436,26 @@
             enforceMaxRangeOnFromChange();
         });
 
+        $('#reset').click(function (){
+                //initializeDates();
+            $('#user').val(null).trigger('change');
+            $('#emp_name').val(null).trigger('change');
+            $('#emp_code').val(null).trigger('change');
+            $('#course_id').val(null).trigger('change');
+            $('#dept_id').val(null).trigger('change');
+            $('#assign_from_date').val(null);
+            $('#assign_to_date').val(null);
+            $('#progress_status').val(null).trigger('change');
+            $('#due_date').val(null);
+
+            $('#advace_filter').submit();
+            //location.reload(`{{ route('admin.employee.internal-attendence-report') }}`) local
+        })
+
+        $('#advace_filter').submit(function (e) {
+            e.preventDefault();
+            $('#advance-search-btn').prop('disabled', true);
+            loadDataTable(); // 👉 filter submission
         toDateInput.addEventListener('change', () => {
             enforceMaxRangeOnToChange();
         });
@@ -452,6 +493,28 @@
         const user_by = $('#user_by').val();
         let user_id = null;
 
+            dataTableInstance = $('#myTable').DataTable({
+                processing: true,
+                serverSide: true,
+                iDisplayLength: 10,
+                retrieve: true,
+                dom: "<'table-controls'lB>" +
+                    "<'table-responsive't>" +
+                    "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
+
+                ajax: {
+                    url: "{{ route('admin.employee.internal-attendence-report') }}",
+                    type: "GET",
+                    data: function (d) {
+                        d.user_id = user_id;
+                        d.course_id = course_id;
+                        d.dept_id = dept_id;
+                        d.from = $('#assign_from_date').val();
+                        d.to = $('#assign_to_date').val();
+                        d.due_date = $('#due_date').val();
+                        d.progress_status = $('#progress_status').val();
+                    }
+                },
         if (user_by === 'email') {
             user_id = $('#user').val();
         } else if (user_by === 'name') {
@@ -467,6 +530,11 @@
             dataTableInstance.clear().destroy();
             $('#myTable tbody').empty();
         }
+        $(document).ready(function () {
+    loadDataTable(); 
+});
+    </script>
+@endpush
 
         dataTableInstance = $('#myTable').DataTable({
             processing: true,

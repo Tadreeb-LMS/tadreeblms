@@ -13,7 +13,7 @@ class ArchiveKpiTest extends TestCase
     {
         parent::setUp();
 
-        Gate::define('category_access', function () {
+        Gate::define('kpi_delete', function () {
             return true;
         });
     }

@@ -14,7 +14,11 @@ class KpiWeightValidationTest extends TestCase
     {
         parent::setUp();
 
-        Gate::define('category_access', function () {
+        Gate::define('kpi_create', function () {
+            return true;
+        });
+
+        Gate::define('kpi_edit', function () {
             return true;
         });
     }
@@ -138,5 +142,69 @@ class KpiWeightValidationTest extends TestCase
 
         $response->assertRedirect(route('admin.kpis.index'));
         $response->assertSessionHas('flash_warning');
+    }
+
+    #[Test]
+    public function it_blocks_storing_unsupported_kpi_type()
+    {
+        $admin = $this->loginAsAdmin();
+        $category = Category::query()->create([
+            'name' => 'KPI Category D',
+            'slug' => 'kpi-category-d',
+            'status' => 1,
+        ]);
+
+        $response = $this->post(route('admin.kpis.store'), [
+            'name' => 'Unsupported Type KPI',
+            'code' => 'UNSUPPORTED_TYPE_KPI',
+            'type' => 'custom_formula',
+            'description' => 'Should fail due to unsupported type.',
+            'weight' => 10,
+            'category_ids' => [$category->id],
+            'course_ids' => [],
+        ]);
+
+        $response->assertSessionHasErrors('type');
+        $this->assertDatabaseMissing('kpis', ['code' => 'UNSUPPORTED_TYPE_KPI']);
+    }
+
+    #[Test]
+    public function it_blocks_updating_to_unsupported_kpi_type()
+    {
+        $admin = $this->loginAsAdmin();
+        $category = Category::query()->create([
+            'name' => 'KPI Category E',
+            'slug' => 'kpi-category-e',
+            'status' => 1,
+        ]);
+
+        $kpi = Kpi::query()->create([
+            'name' => 'Updatable KPI',
+            'code' => 'UPDATABLE_KPI',
+            'type' => 'completion',
+            'description' => 'Updatable KPI.',
+            'weight' => 10,
+            'is_active' => true,
+            'created_by' => $admin->id,
+            'updated_by' => $admin->id,
+        ]);
+
+        $kpi->categories()->sync([$category->id]);
+
+        $response = $this->put(route('admin.kpis.update', $kpi->id), [
+            'name' => 'Updatable KPI',
+            'code' => 'UPDATABLE_KPI',
+            'type' => 'custom_formula',
+            'description' => 'Attempt unsupported type update.',
+            'weight' => 10,
+            'category_ids' => [$category->id],
+            'course_ids' => [],
+        ]);
+
+        $response->assertSessionHasErrors('type');
+        $this->assertDatabaseHas('kpis', [
+            'id' => $kpi->id,
+            'type' => 'completion',
+        ]);
     }
 }

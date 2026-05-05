@@ -31,12 +31,23 @@ class KpiSnapshotServiceTest extends TestCase
 
         $calculationService = Mockery::mock(KpiCalculationService::class);
         $calculationService
-            ->shouldReceive('calculateForKpi')
+            ->shouldReceive('calculateBaseForKpi')
             ->once()
             ->andReturn([
                 'excluded' => false,
                 'value' => 80.5,
                 'weighted_score' => 20.13,
+            ]);
+
+        $calculationService
+            ->shouldReceive('calculateTargetComparison')
+            ->twice()
+            ->andReturn([
+                'target' => null,
+                'target_scope' => 'none',
+                'deviation_value' => null,
+                'deviation_percentage' => null,
+                'deviation_direction' => null,
             ]);
 
         $this->app->instance(KpiCalculationService::class, $calculationService);
@@ -77,12 +88,23 @@ class KpiSnapshotServiceTest extends TestCase
 
         $calculationService = Mockery::mock(KpiCalculationService::class);
         $calculationService
-            ->shouldReceive('calculateForKpi')
+            ->shouldReceive('calculateBaseForKpi')
             ->twice()
             ->andReturn([
                 'excluded' => false,
                 'value' => 60.0,
                 'weighted_score' => 24.0,
+            ]);
+
+        $calculationService
+            ->shouldReceive('calculateTargetComparison')
+            ->twice()
+            ->andReturn([
+                'target' => null,
+                'target_scope' => 'none',
+                'deviation_value' => null,
+                'deviation_percentage' => null,
+                'deviation_direction' => null,
             ]);
 
         $this->app->instance(KpiCalculationService::class, $calculationService);
