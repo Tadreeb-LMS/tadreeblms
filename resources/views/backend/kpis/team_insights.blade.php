@@ -1,11 +1,11 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Team KPI Insights | ' . app_name())
+@section('title', __('kpi.titles.team_insights') . ' | ' . app_name())
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
-        <h4 class="mb-0">Team KPI Insights</h4>
-        <a href="{{ route('admin.kpis.index') }}" class="btn btn-outline-secondary">Back to KPI Management</a>
+        <h4 class="mb-0">@lang('kpi.titles.team_insights')</h4>
+        <a href="{{ route('admin.kpis.index') }}" class="btn btn-outline-secondary">@lang('kpi.actions.back_to_management')</a>
     </div>
 
     <div class="card mb-3">
@@ -13,29 +13,29 @@
             <form method="GET" action="{{ route('admin.kpis.team-insights') }}">
                 <div class="form-row align-items-end">
                     <div class="col-md-4 mb-2">
-                        <label for="team_id">Team</label>
+                        <label for="team_id">@lang('kpi.labels.team')</label>
                         <select id="team_id" name="team_id" class="form-control" required>
-                            <option value="">Select team</option>
+                            <option value="">@lang('kpi.placeholders.select_team')</option>
                             @foreach($teams as $team)
                                 <option value="{{ $team->id }}" {{ (int) $selectedTeamId === (int) $team->id ? 'selected' : '' }}>
-                                    {{ $team->title ?: ('Team #' . $team->id) }}
+                                    {{ $team->title ?: __('kpi.labels.team_number', ['id' => $team->id]) }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="col-md-3 mb-2">
-                        <label for="date_from">From</label>
+                        <label for="date_from">@lang('kpi.labels.from')</label>
                         <input type="date" id="date_from" name="date_from" class="form-control" value="{{ $dateFrom }}">
                     </div>
 
                     <div class="col-md-3 mb-2">
-                        <label for="date_to">To</label>
+                        <label for="date_to">@lang('kpi.labels.to')</label>
                         <input type="date" id="date_to" name="date_to" class="form-control" value="{{ $dateTo }}">
                     </div>
 
                     <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-primary btn-block">Apply</button>
+                        <button type="submit" class="btn btn-primary btn-block">@lang('kpi.actions.apply')</button>
                     </div>
                 </div>
             </form>
@@ -44,14 +44,14 @@
 
     @if($teams->isEmpty())
         <div class="alert alert-warning">
-            No teams are available for your account.
+            @lang('kpi.messages.no_teams')
         </div>
     @else
         <div class="row mb-3">
             <div class="col-md-4">
                 <div class="card border-left-primary h-100">
                     <div class="card-body">
-                        <small class="text-muted text-uppercase">Team Members</small>
+                        <small class="text-muted text-uppercase">@lang('kpi.labels.team_members')</small>
                         <div class="h4 mb-0">{{ $insights['team_member_count'] }}</div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
             <div class="col-md-4">
                 <div class="card border-left-success h-100">
                     <div class="card-body">
-                        <small class="text-muted text-uppercase">Evaluated Members</small>
+                        <small class="text-muted text-uppercase">@lang('kpi.labels.evaluated_members')</small>
                         <div class="h4 mb-0">{{ $insights['evaluated_member_count'] }}</div>
                     </div>
                 </div>
@@ -67,10 +67,10 @@
             <div class="col-md-4">
                 <div class="card border-left-info h-100">
                     <div class="card-body">
-                        <small class="text-muted text-uppercase">Team Average Score</small>
+                        <small class="text-muted text-uppercase">@lang('kpi.labels.team_average_score')</small>
                         <div class="h4 mb-0">
                             @if($insights['team_score_average'] === null)
-                                <span class="text-muted">N/A</span>
+                                <span class="text-muted">@lang('kpi.states.not_applicable')</span>
                             @else
                                 {{ number_format((float) $insights['team_score_average'], 2) }}
                             @endif
@@ -81,20 +81,20 @@
         </div>
 
         <div class="card mb-3">
-            <div class="card-header">Team-Level KPI Metrics</div>
+            <div class="card-header">@lang('kpi.messages.team_level_metrics')</div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered mb-0">
                         <thead>
                             <tr>
-                                <th>KPI</th>
-                                <th>Type</th>
-                                <th>Weight</th>
-                                <th>Team Average</th>
-                                <th>Members Evaluated</th>
-                                <th>Top Performer</th>
-                                <th>Bottom Performer</th>
-                                <th>Spread</th>
+                                <th>@lang('kpi.labels.kpi')</th>
+                                <th>@lang('kpi.labels.type')</th>
+                                <th>@lang('kpi.labels.weight')</th>
+                                <th>@lang('kpi.labels.team_average')</th>
+                                <th>@lang('kpi.labels.members_evaluated')</th>
+                                <th>@lang('kpi.labels.top_performer')</th>
+                                <th>@lang('kpi.labels.bottom_performer')</th>
+                                <th>@lang('kpi.labels.spread')</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -108,7 +108,7 @@
                                     <td>{{ number_format((float) $summary['weight'], 2) }}</td>
                                     <td>
                                         @if($summary['team_average'] === null)
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-muted">@lang('kpi.states.not_applicable')</span>
                                         @else
                                             {{ number_format((float) $summary['team_average'], 2) }}
                                         @endif
@@ -119,7 +119,7 @@
                                             {{ $summary['top_performer']['name'] }}
                                             <div class="text-success small">{{ number_format((float) $summary['top_performer']['value'], 2) }}</div>
                                         @else
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-muted">@lang('kpi.states.not_applicable')</span>
                                         @endif
                                     </td>
                                     <td>
@@ -127,12 +127,12 @@
                                             {{ $summary['bottom_performer']['name'] }}
                                             <div class="text-danger small">{{ number_format((float) $summary['bottom_performer']['value'], 2) }}</div>
                                         @else
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-muted">@lang('kpi.states.not_applicable')</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($summary['spread'] === null)
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-muted">@lang('kpi.states.not_applicable')</span>
                                         @else
                                             {{ number_format((float) $summary['spread'], 2) }}
                                         @endif
@@ -140,7 +140,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">No active KPI data found for the selected filters.</td>
+                                    <td colspan="8" class="text-center text-muted">@lang('kpi.messages.no_team_data')</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -152,7 +152,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="card mb-3">
-                    <div class="card-header">Top Performers</div>
+                    <div class="card-header">@lang('kpi.messages.top_performers')</div>
                     <div class="card-body">
                         @if(!empty($insights['top_performers']))
                             <ul class="list-group list-group-flush">
@@ -164,7 +164,7 @@
                                 @endforeach
                             </ul>
                         @else
-                            <p class="text-muted mb-0">No performer ranking available for the selected filters.</p>
+                            <p class="text-muted mb-0">@lang('kpi.messages.no_ranking')</p>
                         @endif
                     </div>
                 </div>
@@ -172,7 +172,7 @@
 
             <div class="col-md-6">
                 <div class="card mb-3">
-                    <div class="card-header">Bottom Performers</div>
+                    <div class="card-header">@lang('kpi.messages.bottom_performers')</div>
                     <div class="card-body">
                         @if(!empty($insights['bottom_performers']))
                             <ul class="list-group list-group-flush">
@@ -184,7 +184,7 @@
                                 @endforeach
                             </ul>
                         @else
-                            <p class="text-muted mb-0">No performer ranking available for the selected filters.</p>
+                            <p class="text-muted mb-0">@lang('kpi.messages.no_ranking')</p>
                         @endif
                     </div>
                 </div>

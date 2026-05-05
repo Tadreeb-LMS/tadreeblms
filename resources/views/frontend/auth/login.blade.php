@@ -255,10 +255,14 @@
                     {{-- Captcha --}}
                     <div class="form-group">
                         <div class="captcha-container">
+<<<<<<< HEAD
                             <!-- <span class="captcha-text" id="captcha-text">
                                 {{ __('auth_pages.login.captcha') }}: {{ $captha }}
                             </span> -->
                             <canvas id="captchaCanvas" width="150" height="50"></canvas>
+=======
+                            <img src="{{ isset($captcha_image) ? $captcha_image : '' }}" id="captchaImage" alt="captcha" />
+>>>>>>> upstream/main
                             <button type="button" id="refreshCaptcha" style="border:none; background:none; cursor:pointer;">
                                 🔄
                             </button>
@@ -309,6 +313,7 @@
 @push('after-scripts')
 
 <script>
+<<<<<<< HEAD
     function generateCaptchaText(length = 6) {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
         let captcha = '';
@@ -374,6 +379,13 @@
         // Refresh button
         document.getElementById('refreshCaptcha')
             .addEventListener('click', generateNewCaptcha);
+=======
+    // Init
+    document.addEventListener('DOMContentLoaded', function () {
+        // Refresh button
+        document.getElementById('refreshCaptcha')
+            .addEventListener('click', refreshCaptcha);
+>>>>>>> upstream/main
     });
 
 $(document).ready(function () {
@@ -432,37 +444,15 @@ function refreshCaptcha() {
     fetch("{{ route('refresh.captcha') }}")
         .then(response => response.json())
         .then(data => {
-            $('#captcha-text').html(@json(__('auth_pages.login.captcha')) + ': ' + data.captcha);
+            if (data.captcha_image) {
+                $('#captchaImage').attr('src', data.captcha_image);
+            }
             $('#captcha-input').val('');
         })
         .catch(() => {
             console.error('Captcha refresh failed');
         });
 }
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const refreshBtn = document.getElementById('refresh-captcha');
-    const captchaText = document.getElementById('captcha-text');
-    const captchaInput = document.getElementById('captcha-input');
-
-    refreshBtn.addEventListener('click', function () {
-
-        fetch("{{ route('refresh.captcha') }}")
-            .then(response => response.json())
-            .then(data => {
-
-                captchaText.innerHTML = @json(__('auth_pages.login.captcha')) + ': ' + data.captcha;
-
-                // Clear input
-                captchaInput.value = '';
-
-            })
-            .catch(error => console.error('Captcha refresh error:', error));
-    });
-
-});
 </script>
 @endpush
 

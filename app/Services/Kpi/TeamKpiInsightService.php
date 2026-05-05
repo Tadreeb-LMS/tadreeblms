@@ -93,7 +93,7 @@ class TeamKpiInsightService
 
                 return [
                     'user_id' => (int) $userId,
-                    'name' => $memberDirectory[$userId] ?? ('User #' . $userId),
+                    'name' => $memberDirectory[$userId] ?? __('kpi.labels.user_number', ['id' => $userId]),
                     'overall_score' => $overall,
                 ];
             })
@@ -272,7 +272,7 @@ class TeamKpiInsightService
 
         return [
             'user_id' => $userId,
-            'name' => $memberDirectory[$userId] ?? ('User #' . $userId),
+            'name' => $memberDirectory[$userId] ?? __('kpi.labels.user_number', ['id' => $userId]),
             'value' => round((float) ($performer['value'] ?? 0), 2),
         ];
     }

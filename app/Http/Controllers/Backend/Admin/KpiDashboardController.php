@@ -56,6 +56,6 @@ class KpiDashboardController extends Controller
 
         return redirect()
             ->route('admin.kpis.dashboard-settings.edit')
-            ->withFlashSuccess('KPI dashboard settings updated successfully.');
+            ->withFlashSuccess(__('kpi.messages.dashboard_updated'));
     }
 }
