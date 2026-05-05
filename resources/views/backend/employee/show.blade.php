@@ -129,6 +129,51 @@
                         @endphp
                     </table>
                     @endif
+                     <div class="card mt-4">
+    <div class="card-header">
+        <h5>Assigned Courses</h5>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Category</th>
+                        <th>Assigned Date</th>
+                        <th>Due Date</th>
+                        <th>Assigned By</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($assignments as $assignment)
+                        <tr>
+                            <td>{{ $assignment->course->title ?? '-' }}</td>
+                            <td>{{ $assignment->course->category->name ?? '-' }}</td>
+                            <td>{{ $assignment->assign_date ?? '-' }}</td>
+                            <td>{{ $assignment->due_date ?? '-' }}</td>
+                            <td>{{ $assignment->assignedBy->name ?? '-' }}</td>
+                            <td>
+                                <span class="badge badge-info">
+                                    Assigned
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                No courses assigned
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
                 </div>
             </div><!-- Nav tabs -->
         </div>

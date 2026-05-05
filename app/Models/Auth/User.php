@@ -160,7 +160,17 @@ class User extends Authenticatable
 
     public function courses()
     {
-        return $this->belongsToMany(Course::class, 'course_user');
+         return $this->belongsToMany(\App\Models\Course::class,
+            'course_user',
+            'user_id',
+            'course_id'
+        )
+        ->withPivot(['assigned_at', 'due_date', 'status']);
+    }
+
+    public function courseAssignments()
+    {
+        return $this->hasMany(\App\Models\CourseAssignment::class, 'assign_to', 'id');
     }
 
     public function bundles()
