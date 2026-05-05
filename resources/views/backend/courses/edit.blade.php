@@ -230,17 +230,6 @@
                                     href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
                             </div>
                         </div>
-                        <div class="custom-select-wrapper mt-2">
-                            <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single" required>
-                                @foreach($teachers as $id => $name)
-                                   <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
-                                        {{ $name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <span class="custom-select-icon">
-                                <i class="fa fa-chevron-down"></i>
-                            </span>
 
                         <div class="row">
                             <div class="col-md-12 form-group">
@@ -320,11 +309,6 @@
                     </div> --}}
                 @endif
 
-            <div class="row">
-
-                {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
-                    {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
-                    {!! Form::text('arabic_title', old('arabic_title'), [
                 @if (Auth::user()->isAdmin())
                     {{-- <div class="row">
                         <div class="col-10 form-group">
@@ -335,7 +319,7 @@
                             'multiple', 'required' => false]) !!}
                         </div>
                     </div> --}}
-        
+                @endif
 
                 <div class="row">
 
@@ -399,11 +383,6 @@
 
                     </div>
 
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    <input class="course-type mr-2 " type="radio" @if($course->is_online == 'Online') checked @endif name="course_type" value="Online" /> E-Learning
-                    <input class="course-type ml-2 mr-2" type="radio" @if($course->is_online == 'Offline') checked @endif name="course_type" value="Offline" /> Live-Online
-                    <input class="course-type ml-2 mr-2" type="radio" @if($course->is_online == 'Live-Classroom') checked @endif name="course_type" value="Live-Classroom" /> Live-Classroom
                     <div id="date-fields" class="row">
                         <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                             <label for="start_date"
@@ -949,9 +928,9 @@
             });
 
             $(".js-example-placeholder-single").select2({
-        placeholder: "Select Teacher",
-        allowClear: false
-    });
+                placeholder: "Select Teacher",
+                allowClear: false
+            });
 
             $(".js-example-internal-student-placeholder-multiple").select2({
                 placeholder: "{{ trans('labels.backend.courses.select_internal_students') }}",
@@ -1207,22 +1186,22 @@
             // Add custom session row
             $(document).on('click', '#add-session-btn', function () {
                 var row = `<div class="row custom-session-row mb-2">
-                    <div class="col-md-4 form-group">
-                        <label>Date *</label>
-                        <input type="date" name="custom_dates[]" class="form-control custom-session-date">
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label>Time *</label>
-                        <input type="time" name="custom_times[]" class="form-control">
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label>Duration (mins) *</label>
-                        <input type="number" name="custom_durations[]" class="form-control" value="60" min="1">
-                    </div>
-                    <div class="col-md-2 form-group d-flex align-items-end">
-                        <button type="button" class="btn btn-danger btn-sm remove-session-btn">&times; Remove</button>
-                    </div>
-                </div>`;
+                                <div class="col-md-4 form-group">
+                                    <label>Date *</label>
+                                    <input type="date" name="custom_dates[]" class="form-control custom-session-date">
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>Time *</label>
+                                    <input type="time" name="custom_times[]" class="form-control">
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>Duration (mins) *</label>
+                                    <input type="number" name="custom_durations[]" class="form-control" value="60" min="1">
+                                </div>
+                                <div class="col-md-2 form-group d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger btn-sm remove-session-btn">&times; Remove</button>
+                                </div>
+                            </div>`;
                 $('#custom-sessions-container').append(row);
                 updateRemoveButtons();
             });

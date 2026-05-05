@@ -172,8 +172,8 @@
                 </div>
             </div> --}}
 
-        <div class="card-body">
-         
+            <div class="card-body">
+                @if (Auth::user()->isAdmin())
 
 
                     <div class="row">
@@ -204,7 +204,7 @@
                                         href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                                 </div>
                             </div>
-                
+                @endif
 
                         @if (Auth::user()->isAdmin())
                             {{-- <div class="row">
@@ -261,74 +261,7 @@
                                     href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
                             </div>
                         </div>
-                        <div class="custom-select-wrapper mt-2">
 
-    <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single">
-        @foreach($teachers as $id => $teacher)
-            <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
-                {{ $teacher }}
-            </option>
-        @endforeach
-    </select>
-    <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
-</div>
-                    </div>
-                    <div class="col-md-1 col-12 d-flex form-group flex-column"><span class="ortext">
-                        OR
-                       </span></div>
-                    <div class="col-md-3 col-12 d-flex form-group flex-column">
-                         <a target="_blank" class="btn btn-primary mt-auto"
-                            href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
-                    </div>
-                </div>            
-
-           
-                {{-- <div class="row">
-                        <div class="col-10 form-group">
-                            <label for="internal_students" class="control-label">
-                                {{ trans('labels.backend.courses.fields.internal_students') }}
-                            </label>
-                            <input class="form-control" placeholder="{{ trans('labels.backend.courses.fields.internal_students') }}" name="internal_students" type="text" value="{{ old('internal_students') }}">
-                        </div>
-                    </div> --}}
-           
-
-                {{-- <div class="row">
-            <div class="col-10 form-group">
-               {!! Form::label('external_students',trans('labels.backend.courses.fields.external_students'), ['class' => 'control-label']) !!}
-               {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents'), ['class' => 'form-control select2 js-example-external-student-placeholder-multiple', 'multiple' => 'multiple', 'required' => false]) !!}
-            </div>
-        </div> --}}
-      
-
-            <div class="row">
-                <div class="col-md-8 col-12 form-group">
-                    <div>Category</div>
-                   <div class="custom-select-wrapper mt-2">
-    <select name="category_id" class="form-control custom-select-box select2 js-example-placeholder-single">
-        <option value="">Select Category</option>
-        @foreach($categories as $id => $category)
-            <option value="{{ $id }}" @if(old('category_id') == $id) selected @endif>
-                {{ $category }}
-            </option>
-        @endforeach
-    </select>
-    <span class="custom-select-icon">
-        <i class="fa fa-chevron-down"></i>
-    </span>
-</div>
-                </div> <div class="col-md-1 col-12 d-flex form-group flex-column">
-                <span class="ortext">
-                        OR
-                       </span>
-                       </div>
-                <div class="col-md-3 col-12 d-flex form-group flex-column">
-                     <a target="_blank" class="btn btn-primary mt-auto"
-                        href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
-                </div>
-            </div>
                         <div class="row">
                             <div class="col-md-12 form-group">
                                 <input type="hidden" name="include_in_kpi" value="0">
@@ -871,10 +804,9 @@
             });
 
 
-    $(".js-example-placeholder-single").select2({
-        placeholder: "Select Teacher",
-        allowClear: false
-    });
+            $(".js-example-placeholder-single").select2({
+                placeholder: "{{ trans('labels.backend.courses.select_category') }}",
+            });
 
             $(".js-example-placeholder-single").select2({
                 placeholder: "Select Teacher",
@@ -1204,22 +1136,22 @@
             // Add custom session row
             $(document).on('click', '#add-session-btn', function () {
                 var row = `<div class="row custom-session-row mb-2">
-                <div class="col-md-4 form-group">
-                    <label>Date *</label>
-                    <input type="date" name="custom_dates[]" class="form-control custom-session-date">
-                </div>
-                <div class="col-md-3 form-group">
-                    <label>Time *</label>
-                    <input type="time" name="custom_times[]" class="form-control">
-                </div>
-                <div class="col-md-3 form-group">
-                    <label>Duration (mins) *</label>
-                    <input type="number" name="custom_durations[]" class="form-control" value="60" min="1">
-                </div>
-                <div class="col-md-2 form-group d-flex align-items-end">
-                    <button type="button" class="btn btn-danger btn-sm remove-session-btn">&times; Remove</button>
-                </div>
-            </div>`;
+                    <div class="col-md-4 form-group">
+                        <label>Date *</label>
+                        <input type="date" name="custom_dates[]" class="form-control custom-session-date">
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Time *</label>
+                        <input type="time" name="custom_times[]" class="form-control">
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Duration (mins) *</label>
+                        <input type="number" name="custom_durations[]" class="form-control" value="60" min="1">
+                    </div>
+                    <div class="col-md-2 form-group d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm remove-session-btn">&times; Remove</button>
+                    </div>
+                </div>`;
                 $('#custom-sessions-container').append(row);
                 updateRemoveButtons();
             });
