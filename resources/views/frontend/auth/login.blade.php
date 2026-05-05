@@ -112,7 +112,7 @@
     }
 
     .captcha-input {
-        width: 100px !important;
+        width: 200px !important;
         height: 34px !important;
         font-size: 13px;
         text-align: center;
@@ -255,18 +255,20 @@
                     {{-- Captcha --}}
                     <div class="form-group">
                         <div class="captcha-container">
-                            <span class="captcha-text" id="captcha-text">
+                            <!-- <span class="captcha-text" id="captcha-text">
                                 {{ __('auth_pages.login.captcha') }}: {{ $captha }}
-                            </span>
-                            <button type="button" id="refresh-captcha" style="border:none; background:none; cursor:pointer;">
+                            </span> -->
+                            <canvas id="captchaCanvas" width="150" height="50"></canvas>
+                            <button type="button" id="refreshCaptcha" style="border:none; background:none; cursor:pointer;">
                                 🔄
                             </button>
+                            <input type="hidden" id="captchaHidden" name="captcha_hidden">
 
                             <input type="text"
                                 id="captcha-input"
                                 name="captcha"
                                 class="form-control captcha-input"
-                                placeholder="{{ __('auth_pages.login.code') }}"
+                                placeholder="Enter Captcha"
                                 required
                             >
                             @if ($errors->has('captcha'))
@@ -307,6 +309,73 @@
 @push('after-scripts')
 
 <script>
+    function generateCaptchaText(length = 6) {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        let captcha = '';
+        for (let i = 0; i < length; i++) {
+            captcha += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return captcha;
+    }
+
+    function drawCaptcha(text) {
+        const canvas = document.getElementById('captchaCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Background
+        ctx.fillStyle = '#f2f2f2';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Text
+        ctx.font = '24px Arial';
+        ctx.fillStyle = '#333';
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        for (let i = 0; i < text.length; i++) {
+            const x = 10 + i * 20;
+            const y = 30 + Math.random() * 5;
+            const angle = Math.random() * 0.3;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.fillText(text[i], 0, 0);
+            ctx.restore();
+        }
+
+        // Noise: lines
+        for (let i = 0; i < 2; i++) {
+            ctx.strokeStyle = '#999';
+            ctx.beginPath();
+            ctx.moveTo(Math.random() * 150, Math.random() * 50);
+            ctx.lineTo(Math.random() * 150, Math.random() * 50);
+            ctx.stroke();
+        }
+
+        // Noise: dots
+        for (let i = 0; i < 30; i++) {
+            ctx.fillRect(Math.random() * 150, Math.random() * 50, 1, 1);
+        }
+    }
+
+    function generateNewCaptcha() {
+        const captcha = generateCaptchaText();
+        document.getElementById('captchaHidden').value = captcha;
+        drawCaptcha(captcha);
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', function () {
+        generateNewCaptcha();
+
+        // Refresh button
+        document.getElementById('refreshCaptcha')
+            .addEventListener('click', generateNewCaptcha);
+    });
+
 $(document).ready(function () {
 
     $('#loginPageForm').on('submit', function (e) {

@@ -129,10 +129,10 @@
                         @endcan
                         <th>@lang('labels.general.sr_no')</th>
                         <th>@lang('labels.backend.lessons.fields.title')</th>
-                        <th>{{ trans('labels.backend.lessons.fields.course') }}</th>
-                        <th>{{ __('course_pages.admin_lessons_index.lesson_start_date') }}</th>
-                        <th>{{ __('course_pages.admin_lessons_index.duration_minutes') }}</th>
-                        <th>{{ __('course_pages.admin_lessons_index.attendance_count') }}</th>
+                        <th>Course</th>
+                        <th>@lang('Lesson Start Date')</th>
+                        <th>@lang('Duration [minutes]')</th>
+                        <th>@lang('Attendance [count]')</th>
                         <th>@lang('labels.backend.courses.fields.qr_code')</th>
                         <th>@lang('labels.backend.lessons.fields.published')</th>
                         <th style="text-align:center;">@lang('strings.backend.general.actions') &nbsp;</th>
@@ -196,6 +196,18 @@
                         text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>',
                         className: '',
                     },
+                        @endif
+                    {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
+                    //{data: "id", name: 'id'},
+
+                    {data: "title", name: 'title'},
+                    {data: "course", name: 'course.title', defaultContent: 'N/A'},
+                    {data: "lesson_start_date", name: 'lesson_start_date'},
+                    {data: "duration", name: 'duration'},
+                    {data: "attendance", name: 'attendance'},
+                    {data: "qr_code" , name: "qr_code"},
+                    {data: "published", name: "published"},
+                    {data: "actions", name: "actions"}
                 ],
                 ajax: ajaxRoute,
                 columns: [

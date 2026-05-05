@@ -59,8 +59,8 @@ class KpiTypeCatalog
             }
 
             $supported[$key] = [
-                'label' => (string) $row->label,
-                'description' => (string) ($row->description ?? ''),
+                'label' => $this->translateType($key, 'label', (string) $row->label),
+                'description' => $this->translateType($key, 'description', (string) ($row->description ?? '')),
             ];
         }
 
@@ -77,5 +77,13 @@ class KpiTypeCatalog
         }
 
         return ucfirst(str_replace('_', ' ', $type));
+    }
+
+    protected function translateType(string $key, string $field, string $fallback): string
+    {
+        $translationKey = 'kpi.types.' . $key . '.' . $field;
+        $translated = __($translationKey);
+
+        return $translated === $translationKey ? $fallback : $translated;
     }
 }

@@ -89,7 +89,7 @@ class KpiExportDatasetService
         $userEmails = [];
         foreach ($users as $user) {
             $fullName = trim((string) $user->first_name . ' ' . (string) $user->last_name);
-            $userNames[(int) $user->id] = $fullName !== '' ? $fullName : ((string) $user->email ?: ('User #' . $user->id));
+            $userNames[(int) $user->id] = $fullName !== '' ? $fullName : ((string) $user->email ?: __('kpi.labels.user_number', ['id' => $user->id]));
             $userEmails[(int) $user->id] = (string) $user->email;
         }
 
@@ -110,9 +110,9 @@ class KpiExportDatasetService
                 $weightedScore = round(((float) $metricValue * (float) $kpi->weight) / $totalActiveWeight, 2);
 
                 yield [
-                    $roleFilter !== '' ? $roleFilter : 'all',
+                    $roleFilter !== '' ? $roleFilter : __('kpi.states.all'),
                     (int) $userId,
-                    $userNames[(int) $userId] ?? ('User #' . $userId),
+                    $userNames[(int) $userId] ?? __('kpi.labels.user_number', ['id' => $userId]),
                     $userEmails[(int) $userId] ?? '',
                     (int) $kpi->id,
                     (string) $kpi->code,

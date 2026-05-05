@@ -32,6 +32,25 @@ class Lesson extends Model
      */
     protected static function booted()
     {
+        parent::boot();
+
+        static::saving(function ($lesson) {
+            $course = $lesson->course;
+
+            if (!$course) return;
+
+            if (
+                $lesson->lesson_start_date < $course->start_date ||
+                $lesson->lesson_start_date > $course->expire_at
+            )
+            {
+                throw new \Illuminate\Validation\ValidationException(
+                    validator([], [])
+                        ->errors()
+                        ->add('lesson_start_date', 'Lesson date must be within course duration.')
+                );
+            }
+        });
 
         static::deleting(function ($lesson) { // before delete() method call this
             if ($lesson->isForceDeleting()) {

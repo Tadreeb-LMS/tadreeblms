@@ -230,6 +230,17 @@
                                     href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
                             </div>
                         </div>
+                        <div class="custom-select-wrapper mt-2">
+                            <select name="teacher_id" class="form-control custom-select-box select2 js-example-placeholder-single" required>
+                                @foreach($teachers as $id => $name)
+                                   <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
+                                        {{ $name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="custom-select-icon">
+                                <i class="fa fa-chevron-down"></i>
+                            </span>
 
                         <div class="row">
                             <div class="col-md-12 form-group">
@@ -309,6 +320,11 @@
                     </div> --}}
                 @endif
 
+            <div class="row">
+
+                {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                    {!! Form::label('slug', trans('Title In Arabic') . ' *', ['class' => 'control-label']) !!}
+                    {!! Form::text('arabic_title', old('arabic_title'), [
                 @if (Auth::user()->isAdmin())
                     {{-- <div class="row">
                         <div class="col-10 form-group">
@@ -319,7 +335,7 @@
                             'multiple', 'required' => false]) !!}
                         </div>
                     </div> --}}
-                @endif
+        
 
                 <div class="row">
 
@@ -383,6 +399,11 @@
 
                     </div>
 
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <input class="course-type mr-2 " type="radio" @if($course->is_online == 'Online') checked @endif name="course_type" value="Online" /> E-Learning
+                    <input class="course-type ml-2 mr-2" type="radio" @if($course->is_online == 'Offline') checked @endif name="course_type" value="Offline" /> Live-Online
+                    <input class="course-type ml-2 mr-2" type="radio" @if($course->is_online == 'Live-Classroom') checked @endif name="course_type" value="Live-Classroom" /> Live-Classroom
                     <div id="date-fields" class="row">
                         <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                             <label for="start_date"
@@ -928,9 +949,9 @@
             });
 
             $(".js-example-placeholder-single").select2({
-                placeholder: "Select Teacher",
-                allowClear: false
-            });
+        placeholder: "Select Teacher",
+        allowClear: false
+    });
 
             $(".js-example-internal-student-placeholder-multiple").select2({
                 placeholder: "{{ trans('labels.backend.courses.select_internal_students') }}",
