@@ -21,10 +21,6 @@
       @lang('labels.backend.courses.title')
    </h4>
    <div class="d-flex">
-   <div class="">
-       <a href="{{ route('admin.courses.cms-course') }}" class="btn btn-outline-success create_done mr-3">{{ __('course_pages.admin_index.view_cme_course') }}</a>
-
-     </div>
        @can('course_create')
           <div class="">
               <a href="{{ route('admin.courses.create') }}" class="btn add-btn">@lang('strings.backend.general.app_add_new')</a>
@@ -45,10 +41,6 @@
 
                 </div>
             @endcan
-            <div class="float-right">
-                <a href="{{ route('admin.courses.cms-course') }}" class="btn create_done">@lang('View CME Course')</a>
-
-            </div>
         </div> -->
         <div class="card-body">
             {{-- Advanced Filters Section --}}

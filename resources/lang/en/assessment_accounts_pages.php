@@ -15,7 +15,7 @@ return array(
     'course_category' => 'Course Category',
     'assign_by' => 'Assign. By',
     'assign_date' => 'Assign. Date',
-    'assign_to_department' => 'Assign. to Department',
+    'assign_to_department' => 'Assign. to User Group',
     'assign_to_specific_user' => 'Assign. to Specific User',
     'due_date' => 'Due Date',
     'meeting_end_datetime' => 'Meeting End DateTime',

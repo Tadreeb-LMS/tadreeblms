@@ -129,10 +129,10 @@
                         @endcan
                         <th>@lang('labels.general.sr_no')</th>
                         <th>@lang('labels.backend.lessons.fields.title')</th>
-                        <th>{{ trans('labels.backend.lessons.fields.course') }}</th>
-                        <th>{{ __('course_pages.admin_lessons_index.lesson_start_date') }}</th>
-                        <th>{{ __('course_pages.admin_lessons_index.duration_minutes') }}</th>
-                        <th>{{ __('course_pages.admin_lessons_index.attendance_count') }}</th>
+                        <th>Course</th>
+                        <th>@lang('Lesson Start Date')</th>
+                        <th>@lang('Duration [minutes]')</th>
+                        <th>@lang('Attendance [count]')</th>
                         <th>@lang('labels.backend.courses.fields.qr_code')</th>
                         <th>@lang('labels.backend.lessons.fields.published')</th>
                         <th style="text-align:center;">@lang('strings.backend.general.actions') &nbsp;</th>

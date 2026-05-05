@@ -47,6 +47,38 @@
         height: 30px !important;
     }
 
+    .captcha-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .captcha-image {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f9f9f9;
+    }
+
+    .captcha-refresh-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        color: #7ba91f;
+        font-size: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .captcha-refresh-btn:hover {
+        transform: rotate(180deg);
+        color: #5a8a0f;
+    }
+
+    .captcha-refresh-btn:active {
+        transform: rotate(360deg);
+    }
+
     @media (max-width: 768px) {
         .modal-dialog {
             min-height: calc(100vh - 20px);
@@ -126,8 +158,19 @@
                             </div>
 
                             <div class="contact-info mb-2 catcha-block">
-                                <label>{{ __('auth_pages.login.captcha') }}: <span id="login-captcha-question"></span></label>
-                                <input type="text" name="captcha" class="captcha" required>
+                                <label>{{ __('auth_pages.login.captcha') }}</label>
+                                <div class="captcha-container">
+                                    <img id="login-captcha-image" src="" alt="Captcha" class="captcha-image" width="150" height="50">
+                                    <button type="button" id="login-captcha-refresh" class="captcha-refresh-btn" title="Refresh Captcha">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 2v6h-6"></path>
+                                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                            <path d="M3 22v-6h6"></path>
+                                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <input type="text" name="captcha" class="captcha" placeholder="Enter captcha code" required>
                                 <span id="login-captcha-error" class="text-danger"></span>
                             </div>
 
@@ -270,8 +313,19 @@
                             @endif
 
                             <div class="contact-info mb-2 catcha-block">
-                                <label>{{ __('auth_pages.login.captcha') }}: <span id="register-captcha-question"></span></label>
-                                <input type="text" name="captcha" class="captcha" required>
+                                <label>{{ __('auth_pages.login.captcha') }}</label>
+                                <div class="captcha-container">
+                                    <img id="register-captcha-image" src="" alt="Captcha" class="captcha-image" width="150" height="50">
+                                    <button type="button" id="register-captcha-refresh" class="captcha-refresh-btn" title="Refresh Captcha">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 2v6h-6"></path>
+                                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                            <path d="M3 22v-6h6"></path>
+                                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <input type="text" name="captcha" class="captcha" placeholder="Enter captcha code" required>
                                 <span id="captcha-error" class="text-danger"></span>
                             </div>
 
@@ -347,16 +401,52 @@
                 .then(res => res.json())
                 .then(data => {
                     if(mode == 'login') {
-                        document.getElementById('login-captcha-question').innerText =
-                        data.captcha_question;
+                        document.getElementById('login-captcha-image').src = data.captcha_image;
                     }
                     if(mode == 'register') {
-                        //alert("hi")
-                        document.getElementById('register-captcha-question').innerText =
-                        data.captcha_question;
+                        document.getElementById('register-captcha-image').src = data.captcha_image;
                     }
+                })
+                .catch(error => {
+                    console.error('Error loading captcha:', error);
                 });
         }
+
+        function refreshCaptcha(mode) {
+            fetch(refreshCaptchaUrl + '?t=' + new Date().getTime())
+                .then(res => res.json())
+                .then(data => {
+                    if(mode == 'login') {
+                        document.getElementById('login-captcha-image').src = data.captcha_image;
+                        document.getElementById('login-captcha-error').textContent = '';
+                    }
+                    if(mode == 'register') {
+                        document.getElementById('register-captcha-image').src = data.captcha_image;
+                        document.getElementById('register-captcha-error').textContent = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing captcha:', error);
+                });
+        }
+
+        // Event listeners for refresh buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginRefreshBtn = document.getElementById('login-captcha-refresh');
+            const registerRefreshBtn = document.getElementById('register-captcha-refresh');
+            
+            if (loginRefreshBtn) {
+                loginRefreshBtn.addEventListener('click', function() {
+                    refreshCaptcha('login');
+                });
+            }
+            
+            if (registerRefreshBtn) {
+                registerRefreshBtn.addEventListener('click', function() {
+                    refreshCaptcha('register');
+                });
+            }
+        });
 
         
 
@@ -393,7 +483,6 @@
 
                             loadCaptcha('login');
 
-                            $('#login-captcha-question').html(response.captcha_question)
                             $('#socialLinks').html(response.socialLinks)
                             const $modal = $('#myModal');
 
@@ -419,7 +508,6 @@
                         success: function (response) {
                             $('#socialLinks').html(response.socialLinks);
                             loadCaptcha('register');
-                             $('#register-captcha-question').html(response.captcha_question);
                             let form = $('#myRegisterModal').find('form')[0];
                             if (form) form.reset();
 

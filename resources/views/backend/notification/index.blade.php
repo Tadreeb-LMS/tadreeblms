@@ -205,8 +205,8 @@
                     <div class="form-group row mt-2 recipient-source-group" data-recipient-mode="all">
                         <label class="col-lg-3 col-md-12 col-sm-12 form-control-label required"
                             for="first_name">{{ __('admin_pages.email_notifications.send_to_all_users') }}</label>
-                        <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
-                            <input class="form-check-input" type="checkbox" value="1" id="select_all_users" name="select_all_users">
+                        <div class="col-lg-9 col-md-12 col-sm-12 mb-3">
+                            <p class="text-muted mb-0">{{ __('admin_pages.email_notifications.send_to_all_confirmation') }}</p>
                         </div>
                     </div>
 
@@ -258,7 +258,6 @@
         const usersSelect = $('[name="users[]"]');
         const departmentSelect = $('[name="department_id"]');
         const importInput = $('[name="import_users"]');
-        const allUsersCheckbox = $('#select_all_users');
 
         $('.recipient-source-group').each(function() {
             const groupMode = $(this).data('recipient-mode');
@@ -281,11 +280,6 @@
             $('[for="customFileInput"]').html('<i class="fa fa-upload mr-1"></i> {{ __('admin_pages.email_notifications.choose_file') }}');
         }
 
-        if (mode === 'all') {
-            allUsersCheckbox.prop('disabled', false).prop('checked', true);
-        } else {
-            allUsersCheckbox.prop('checked', false).prop('disabled', true);
-        }
     }
 
     $(document).ready(function() {
