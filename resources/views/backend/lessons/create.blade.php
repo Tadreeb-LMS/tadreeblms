@@ -297,7 +297,8 @@
                             <div class="col-md-4 col-sm-12 start_date">
                                 <div for="duration" class="form-control-label mb-2">{{ __('course_pages.admin_lessons_create.lesson_start_date') }}</div>
                                 <div>
-                                    <input class="form-control lesson-date" type="text" name="lesson_start_date[]">
+                                    <input class="form-control" type="date" name="lesson_start_date[]"
+                                        id="lesson_start_date">
                                 </div>
                             </div>
 
@@ -352,56 +353,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script>
-    let courseStart = "{{ optional($course)->start_date ?? '' }}";
-    let courseEnd = "{{ optional($course)->expire_at ?? '' }}";
-function toDate(str) {
-    return new Date(str + 'T00:00:00');
-}
-    function applyDateLimits($input, start, end) {
-
-    $input.datetimepicker({
-        format: 'Y-m-d',
-        timepicker: false,
-        minDate: start || false,
-        maxDate: end || false,
-
-        onShow: function (ct) {
-            this.setOptions({
-                minDate: start || false,
-                maxDate: end || false
-            });
-        },
-
-        onChangeDateTime: function (dp, $input) {
-            let selected = $input.val();
-
-            if (start && toDate(selected) < toDate(start)) {
-                alert('Date cannot be before course start date');
-                $input.val('');
-            }
-
-            if (end && toDate(selected) > toDate(end)) {
-                alert('Date cannot be after course end date');
-                $input.val('');
-            }
-
-        }
-    });
-
-    // 🔴 Prevent manual invalid typing
-    $input.on('blur', function () {
-        let val = $(this).val();
-
-        if (start && val < start) {
-            alert('Invalid date (before start)');
-            $(this).val('');
-        }
-        if (end && toDate(val) > toDate(end)) {
-            alert('Invalid date (after end)');
-            $(this).val('');
-        }
-    });
-}
     function generateEditorId() {
         return 'editor_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
     }
@@ -428,32 +379,6 @@ function toDate(str) {
             $textarea.data('ckeditorInitialized', true);
         });
     }
-
-     $(document).on('change', '.course_id', function () {
-    const $currentLesson = $(this).closest('.lesson-box');
-
-    $.ajax({
-        url: "{{ route('lessons.course.check') }}",
-        data: { id: $(this).val() },
-        success: function (data) {
-
-            if (data.success && data.category == 'Internal') {
-                $currentLesson.find('.start_date').hide();
-            } else {
-                $currentLesson.find('.start_date').show();
-            }
-
-            // ✅ IMPORTANT: Apply date restriction here
-            let $dateInput = $currentLesson.find('.lesson-date');
-
-            applyDateLimits(
-                $dateInput,
-                data.start_date,
-                data.expire_at
-            );
-        }
-    });
-});
 
     function toggleVideoFields($videoItem) {
         const type = ($videoItem.find('.video-type').val() || '').toLowerCase();
@@ -504,8 +429,8 @@ function toDate(str) {
         $(document).on('click', '.addVideo', function () {
             const $parent = $(this).closest('.parent_group');
             let template = $parent.find('.video-template').first().html();
-            let lessonIndex = $('.lesson-box').index($(this).closest('.lesson-box'));
-            template = template.replace(/INDEX/g, videoIndex).replace(/LESSON_INDEX/g, lessonIndex);
+
+            template = template.replace(/INDEX/g, videoIndex);
 
             const $newVideo = $(template);
             $newVideo.find('input, select, textarea').prop('disabled', false);
@@ -546,35 +471,29 @@ function toDate(str) {
             });
         });
 
-        
+        $(document).on('change', '.course_id', function () {
+            const $currentSelect = $(this);
+            const $currentLesson = $currentSelect.closest('.lesson-box');
+
+            $.ajax({
+                url: "{{ route('lessons.course.check') }}",
+                method: "GET",
+                data: {
+                    id: $currentSelect.val()
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.success && data.category == 'Internal') {
+                        $currentLesson.find('.start_date').hide();
+                    } else {
+                        $currentLesson.find('.start_date').show();
+                    }
+                }
+            });
+        });
 
         $('.videos-wrapper .video-item').each(function () {
             toggleVideoFields($(this));
-        });
-
-        $('.lesson-box').each(function () {
-            let $lesson = $(this);
-            let courseId = $lesson.find('.course_id').val();
-
-            if (courseId) {
-                $.ajax({
-                    url: "{{ route('lessons.course.check') }}",
-                    data: { id: courseId },
-                    success: function (data) {
-                        if (data.success && data.category == 'Internal') {
-                            $lesson.find('.start_date').hide();
-                        } else {
-                            $lesson.find('.start_date').show();
-                        }
-
-                        applyDateLimits(
-                            $lesson.find('.lesson-date'),
-                            data.start_date,
-                            data.expire_at
-                        );
-                    }
-                });
-            }
         });
     });
 
@@ -686,34 +605,24 @@ function toDate(str) {
 
                 console.log(xhr.responseText);
 
-            let message = 'Something went wrong';
+                let message = '{{ __('course_pages.admin_lessons_create.something_went_wrong') }}';
 
-            if (xhr.responseJSON) {
+                if (xhr.responseJSON && xhr.responseJSON.clientmsg) {
+                    message = xhr.responseJSON.clientmsg;
+                } else if (xhr.status === 413) {
+                    message = 'Upload is too large for server limits. Please reduce the video size and try again.';
+                } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                    if (firstKey && xhr.responseJSON.errors[firstKey] && xhr.responseJSON.errors[firstKey][0]) {
+                        message = xhr.responseJSON.errors[firstKey][0];
+                    }
+                } else if (xhr.responseText && xhr.responseText.indexOf('POST Content-Length') !== -1) {
+                    message = 'Upload is too large for current server limits (post_max_size/upload_max_filesize). Increase PHP limits and try again.';
+                }
 
-        // ✅ Laravel validation errors
-        if (xhr.responseJSON.errors) {
-            let errors = xhr.responseJSON.errors;
-            let firstKey = Object.keys(errors)[0];
-
-            if (firstKey && errors[firstKey][0]) {
-                message = errors[firstKey][0];
+                alert(message);
             }
-        }
-
-        // ✅ Custom backend message
-        else if (xhr.responseJSON.clientmsg) {
-            message = xhr.responseJSON.clientmsg;
-        }
-
-        // ✅ General message
-        else if (xhr.responseJSON.message) {
-            message = xhr.responseJSON.message;
-        }
-    }
-
-    alert(message);
-;
-        }
+        });
     });
 
     var i = 1;
@@ -762,8 +671,6 @@ function toDate(str) {
 
         initEditors(clone);
         renumberLessonFileInputs();
-         let $newDateInput = clone.find('.lesson-date');
-        applyDateLimits($newDateInput, courseStart, courseEnd);
     });
 
     function removeLesslug(el) {
