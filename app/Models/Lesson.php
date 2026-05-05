@@ -39,16 +39,18 @@ class Lesson extends Model
 
             if (!$course) return;
 
+            $lessonDate = \Carbon\Carbon::parse($lesson->lesson_start_date)->startOfDay();
+            $courseStart = \Carbon\Carbon::parse($course->start_date)->startOfDay();
+            $courseEnd = \Carbon\Carbon::parse($course->expire_at)->endOfDay();
+
             if (
-                $lesson->lesson_start_date < $course->start_date ||
-                $lesson->lesson_start_date > $course->expire_at
+                $lessonDate->lt($courseStart) ||
+                $lessonDate->gt($courseEnd)
             )
             {
-                throw new \Illuminate\Validation\ValidationException(
-                    validator([], [])
-                        ->errors()
-                        ->add('lesson_start_date', 'Lesson date must be within course duration.')
-                );
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'lesson_start_date' => 'Lesson date must be within course duration.'
+                ]);
             }
         });
 

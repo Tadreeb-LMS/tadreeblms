@@ -196,18 +196,6 @@
                         text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>',
                         className: '',
                     },
-                        @endif
-                    {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
-                    //{data: "id", name: 'id'},
-
-                    {data: "title", name: 'title'},
-                    {data: "course", name: 'course.title', defaultContent: 'N/A'},
-                    {data: "lesson_start_date", name: 'lesson_start_date'},
-                    {data: "duration", name: 'duration'},
-                    {data: "attendance", name: 'attendance'},
-                    {data: "qr_code" , name: "qr_code"},
-                    {data: "published", name: "published"},
-                    {data: "actions", name: "actions"}
                 ],
                 ajax: ajaxRoute,
                 columns: [
