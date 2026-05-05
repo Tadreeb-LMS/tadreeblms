@@ -1,11 +1,11 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Create KPI | ' . app_name())
+@section('title', __('kpi.titles.create') . ' | ' . app_name())
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
-        <h4 class="mb-0">Create KPI</h4>
-        <a href="{{ route('admin.kpis.index') }}" class="btn btn-primary">View KPIs</a>
+        <h4 class="mb-0">@lang('kpi.titles.create')</h4>
+        <a href="{{ route('admin.kpis.index') }}" class="btn btn-primary">@lang('kpi.actions.view_kpis')</a>
     </div>
 
     <div class="card">
@@ -15,30 +15,30 @@
 
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label for="name">KPI Name *</label>
+                        <label for="name">@lang('kpi.labels.kpi_name') *</label>
                         <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>
                     </div>
 
                     <div class="col-md-6 form-group">
-                        <label for="code">KPI Code *</label>
+                        <label for="code">@lang('kpi.labels.kpi_code') *</label>
                         <input
                             type="text"
                             id="code"
                             name="code"
                             class="form-control"
                             value="{{ old('code') }}"
-                            placeholder="Example: COURSE_COMPLETION_RATE"
+                            placeholder="{{ __('kpi.placeholders.code_example') }}"
                             required
                         >
-                        <small class="form-text text-muted">Use uppercase letters, numbers, and underscores only.</small>
+                        <small class="form-text text-muted">@lang('kpi.help.code_format')</small>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label for="type">KPI Type *</label>
+                        <label for="type">@lang('kpi.labels.kpi_type') *</label>
                         <select id="type" name="type" class="form-control" required>
-                            <option value="">Select a KPI type</option>
+                            <option value="">@lang('kpi.placeholders.select_type')</option>
                             @foreach($kpiTypes as $typeKey => $typeConfig)
                                 <option
                                     value="{{ $typeKey }}"
@@ -49,11 +49,11 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Formulas are system-managed. Admin selects only supported KPI types.</small>
+                        <small class="form-text text-muted">@lang('kpi.help.formulas_managed')</small>
                     </div>
 
                     <div class="col-md-6 form-group">
-                        <label for="weight">Weight *</label>
+                        <label for="weight">@lang('kpi.labels.weight') *</label>
                         <input
                             type="number"
                             id="weight"
@@ -65,11 +65,11 @@
                             value="{{ old('weight', $defaultWeight) }}"
                             required
                         >
-                        <small class="form-text text-muted">Set relative importance. Allowed range: 0 to {{ $maxWeight }}.</small>
+                        <small class="form-text text-muted">{{ __('kpi.help.weight_range', ['max' => $maxWeight]) }}</small>
                         <div class="mt-2 small text-muted">
-                            Current active total: <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
+                            @lang('kpi.messages.current_active_total') <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
                             <br>
-                            Projected active total after save: <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
+                            @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
                         </div>
                         <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
                     </div>
@@ -77,7 +77,7 @@
 
                 <div class="row">
                     <div class="col-12 form-group">
-                        <label for="category_ids">Mapped Course Categories *</label>
+                        <label for="category_ids">@lang('kpi.labels.mapped_course_categories') *</label>
                         <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ in_array($category->id, old('category_ids', []), true) ? 'selected' : '' }}>
@@ -85,11 +85,11 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Select one or more learning domains. KPI calculations will include only courses in these categories with KPI inclusion enabled.</small>
+                        <small class="form-text text-muted">@lang('kpi.help.category_scope')</small>
                     </div>
 
                     <div class="col-12 form-group">
-                        <label for="course_ids">Legacy Explicit Courses (Optional)</label>
+                        <label for="course_ids">@lang('kpi.labels.legacy_courses') (@lang('kpi.labels.optional'))</label>
                         <select id="course_ids" name="course_ids[]" class="form-control" multiple>
                             @foreach($courses as $course)
                                 <option value="{{ $course->id }}" {{ in_array($course->id, old('course_ids', []), true) ? 'selected' : '' }}>
@@ -97,22 +97,22 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Only used for backward compatibility. Category mapping is the primary KPI scope.</small>
+                        <small class="form-text text-muted">@lang('kpi.help.legacy_courses')</small>
                     </div>
 
                     <div class="col-12 form-group">
-                        <label for="description">Description *</label>
+                        <label for="description">@lang('kpi.labels.description') *</label>
                         <textarea id="description" name="description" rows="4" class="form-control" required>{{ old('description') }}</textarea>
                     </div>
                 </div>
 
                 <div class="text-right">
-                    <button type="submit" class="add-btn">Save KPI</button>
+                    <button type="submit" class="add-btn">@lang('kpi.actions.save_kpi')</button>
                 </div>
             </form>
 
             <div class="mt-3">
-                <h6 class="mb-2">KPI Type Guide</h6>
+                <h6 class="mb-2">@lang('kpi.help.type_guide')</h6>
                 <ul class="mb-0 pl-3">
                     @foreach($kpiTypes as $typeConfig)
                         <li><strong>{{ $typeConfig['label'] }}:</strong> {{ $typeConfig['description'] }}</li>
@@ -153,15 +153,15 @@
 
                 var warnings = [];
                 if (weight >= extremeThreshold) {
-                    warnings.push('This weight is in the extreme range and may dominate final KPI scoring.');
+                    warnings.push(@json(__('kpi.js.weight_extreme')));
                 }
 
                 if (!validationEnabled && projectedTotal <= 0) {
-                    warnings.push('Projected active total is 0, so weighted scores will all be 0.');
+                    warnings.push(@json(__('kpi.js.projected_zero')));
                 }
 
                 if (validationEnabled && Math.abs(projectedTotal - validationTarget) > validationTolerance) {
-                    warnings.push('Projected total is outside the strict validation target range.');
+                    warnings.push(@json(__('kpi.js.projected_outside_target')));
                 }
 
                 if (warnings.length === 0) {

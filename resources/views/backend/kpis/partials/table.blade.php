@@ -42,44 +42,44 @@
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Code</th>
+                <th>@lang('kpi.labels.id')</th>
+                <th>@lang('kpi.labels.name')</th>
+                <th>@lang('kpi.labels.code')</th>
                 <th>
                     <button type="button" class="btn btn-link btn-sm p-0 text-dark js-kpi-sort" data-sort-column="type">
-                        Type {!! $typeSort['icon'] !!}
+                        @lang('kpi.labels.type') {!! $typeSort['icon'] !!}
                     </button>
-                    <i class="fa fa-question-circle text-muted ml-1" title="KPI category that maps to a predefined system calculation logic."></i>
+                    <i class="fa fa-question-circle text-muted ml-1" title="{{ __('kpi.tooltips.type') }}"></i>
                 </th>
                 <th>
                     <button type="button" class="btn btn-link btn-sm p-0 text-dark js-kpi-sort" data-sort-column="weight">
-                        Weight {!! $weightSort['icon'] !!}
+                        @lang('kpi.labels.weight') {!! $weightSort['icon'] !!}
                     </button>
-                    <i class="fa fa-question-circle text-muted ml-1" title="Relative importance of this KPI in weighted scoring."></i>
+                    <i class="fa fa-question-circle text-muted ml-1" title="{{ __('kpi.tooltips.weight') }}"></i>
                 </th>
                 <th>
                     <button type="button" class="btn btn-link btn-sm p-0 text-dark js-kpi-sort" data-sort-column="is_active">
-                        Status {!! $statusSort['icon'] !!}
+                        @lang('kpi.labels.status') {!! $statusSort['icon'] !!}
                     </button>
-                    <i class="fa fa-question-circle text-muted ml-1" title="Active KPIs are included in calculations; inactive KPIs are excluded."></i>
+                    <i class="fa fa-question-circle text-muted ml-1" title="{{ __('kpi.tooltips.status') }}"></i>
                 </th>
                 <th>
                     <button type="button" class="btn btn-link btn-sm p-0 text-dark js-kpi-sort" data-sort-column="current_value">
-                        Current Value {!! $currentValueSort['icon'] !!}
+                        @lang('kpi.labels.current_value') {!! $currentValueSort['icon'] !!}
                     </button>
-                    <i class="fa fa-question-circle text-muted ml-1" title="Latest computed KPI value produced by the mapped KPI type logic."></i>
+                    <i class="fa fa-question-circle text-muted ml-1" title="{{ __('kpi.tooltips.current_value') }}"></i>
                 </th>
                 <th>
                     <button type="button" class="btn btn-link btn-sm p-0 text-dark js-kpi-sort" data-sort-column="weighted_score">
-                        Weighted Score {!! $weightedScoreSort['icon'] !!}
+                        @lang('kpi.labels.weighted_score') {!! $weightedScoreSort['icon'] !!}
                     </button>
-                    <i class="fa fa-question-circle text-muted ml-1" title="KPI contribution after applying its weight relative to total active weight."></i>
+                    <i class="fa fa-question-circle text-muted ml-1" title="{{ __('kpi.tooltips.weighted_score') }}"></i>
                 </th>
-                <th>Mapped Categories</th>
-                <th>Target</th>
-                <th>Deviation</th>
-                <th>Updated</th>
-                <th class="text-center">Actions</th>
+                <th>@lang('kpi.labels.mapped_categories')</th>
+                <th>@lang('kpi.labels.target')</th>
+                <th>@lang('kpi.labels.deviation')</th>
+                <th>@lang('kpi.labels.updated')</th>
+                <th class="text-center">@lang('kpi.labels.actions')</th>
             </tr>
         </thead>
         <tbody>
@@ -94,21 +94,21 @@
                     <td>{{ number_format((float) $kpi->weight, 2) }}</td>
                     <td>
                         @if($kpi->is_active)
-                            <span class="badge badge-success">Active</span>
+                            <span class="badge badge-success">@lang('kpi.states.active')</span>
                         @else
-                            <span class="badge badge-secondary">Inactive</span>
+                            <span class="badge badge-secondary">@lang('kpi.states.inactive')</span>
                         @endif
                     </td>
                     <td>
                         @if($kpi->calculation['excluded'])
-                            <span class="text-muted">Excluded</span>
+                            <span class="text-muted">@lang('kpi.states.excluded')</span>
                         @else
                             {{ number_format((float) $kpi->calculation['value'], 2) }}
                         @endif
                     </td>
                     <td>
                         @if($kpi->calculation['excluded'])
-                            <span class="text-muted">Excluded</span>
+                            <span class="text-muted">@lang('kpi.states.excluded')</span>
                         @else
                             {{ number_format((float) $kpi->calculation['weighted_score'], 2) }}
                         @endif
@@ -117,28 +117,32 @@
                         @forelse($kpi->categories as $category)
                             <span class="badge badge-light border mr-1 mb-1">{{ $category->name }}</span>
                         @empty
-                            <span class="text-muted">Uncategorized</span>
+                            <span class="text-muted">@lang('kpi.states.uncategorized')</span>
                         @endforelse
                     </td>
                     <td>
                         @if(($kpi->calculation['target'] ?? null) === null)
-                            <span class="text-muted">Not set</span>
+                            <span class="text-muted">@lang('kpi.states.not_set')</span>
                         @else
+                            @php
+                                $targetScopeKey = 'kpi.states.scope_' . ($kpi->calculation['target_scope'] ?? 'global');
+                                $targetScopeLabel = __($targetScopeKey);
+                            @endphp
                             {{ number_format((float) $kpi->calculation['target'], 2) }}
                             <br>
-                            <small class="text-muted">{{ str_replace('_', ' ', $kpi->calculation['target_scope'] ?? 'global') }}</small>
+                            <small class="text-muted">{{ $targetScopeLabel === $targetScopeKey ? ucfirst(str_replace('_', ' ', (string) ($kpi->calculation['target_scope'] ?? 'global'))) : $targetScopeLabel }}</small>
                         @endif
                     </td>
                     <td>
                         @if(($kpi->calculation['deviation_direction'] ?? null) === null)
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">@lang('kpi.states.not_applicable')</span>
                         @else
                             @if($kpi->calculation['deviation_direction'] === 'on_target')
-                                <span class="badge badge-success">On target</span>
+                                <span class="badge badge-success">@lang('kpi.states.on_target')</span>
                             @elseif($kpi->calculation['deviation_direction'] === 'over')
-                                <span class="badge badge-info">Over</span>
+                                <span class="badge badge-info">@lang('kpi.states.over')</span>
                             @else
-                                <span class="badge badge-warning">Under</span>
+                                <span class="badge badge-warning">@lang('kpi.states.under')</span>
                             @endif
                             <br>
                             <small>
@@ -152,32 +156,32 @@
                     <td>{{ optional($kpi->updated_at)->diffForHumans() }}</td>
                     <td class="text-center">
                         @can('kpi_edit')
-                            <a href="{{ route('admin.kpis.edit', $kpi->id) }}" class="btn btn-sm btn-info">Edit</a>
+                            <a href="{{ route('admin.kpis.edit', $kpi->id) }}" class="btn btn-sm btn-info">@lang('kpi.actions.edit')</a>
 
                             <form method="POST" action="{{ route('admin.kpis.toggle-status', $kpi->id) }}" class="d-inline-block">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-warning">
-                                    {{ $kpi->is_active ? 'Deactivate' : 'Activate' }}
+                                    {{ $kpi->is_active ? __('kpi.actions.deactivate') : __('kpi.actions.activate') }}
                                 </button>
                             </form>
                         @endcan
 
                         @can('kpi_delete')
-                            <form method="POST" action="{{ route('admin.kpis.destroy', $kpi->id) }}" class="d-inline-block" onsubmit="return confirm('Archive this KPI? It will be soft-deleted and historical records stay intact.');">
+                            <form method="POST" action="{{ route('admin.kpis.destroy', $kpi->id) }}" class="d-inline-block" onsubmit="return confirm(@json(__('kpi.confirm.archive')));">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Archive</button>
+                                <button type="submit" class="btn btn-sm btn-danger">@lang('kpi.actions.archive')</button>
                             </form>
                         @endcan
 
                         @cannot('kpi_edit')
-                            <span class="text-muted small">Read-only</span>
+                            <span class="text-muted small">@lang('kpi.states.read_only')</span>
                         @endcannot
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="13" class="text-center">No KPIs found.</td>
+                    <td colspan="13" class="text-center">@lang('kpi.messages.no_kpis_found')</td>
                 </tr>
             @endforelse
         </tbody>

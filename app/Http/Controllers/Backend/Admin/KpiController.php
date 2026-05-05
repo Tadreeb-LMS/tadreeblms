@@ -87,7 +87,11 @@ class KpiController extends Controller
         $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $kpiCategoryGroups = $this->buildCategoryGroups($calculatedKpis);
         $exportRoles = Role::query()->orderBy('name')->pluck('name');
-        $exportKpis = Kpi::query()->where('is_active', true)->orderBy('name')->select('id', 'name', 'code')->get();
+        $exportKpis = (clone $query)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->select('id', 'name', 'code')
+            ->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -235,7 +239,7 @@ class KpiController extends Controller
             ]);
         }
 
-        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess('KPI created successfully.');
+        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess(__('kpi.messages.created'));
 
         $warnings = $this->buildPostSaveWeightWarnings($kpi);
         if (!empty($warnings)) {
@@ -303,7 +307,7 @@ class KpiController extends Controller
             ]);
         }
 
-        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess('KPI updated successfully.');
+        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess(__('kpi.messages.updated'));
 
         $warnings = $this->buildPostSaveWeightWarnings($kpiModel);
         if (!empty($warnings)) {
@@ -333,7 +337,7 @@ class KpiController extends Controller
             'meta' => null,
         ]);
 
-        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI status updated successfully.');
+        return redirect()->route('admin.kpis.index')->withFlashSuccess(__('kpi.messages.status_updated'));
     }
 
     public function destroy($kpi)
@@ -356,7 +360,7 @@ class KpiController extends Controller
             'meta' => ['soft_deleted' => true],
         ]);
 
-        return redirect()->route('admin.kpis.index')->withFlashSuccess('KPI archived successfully.');
+        return redirect()->route('admin.kpis.index')->withFlashSuccess(__('kpi.messages.archived'));
     }
 
     protected function buildWeightInsights(float $totalActiveWeight)
@@ -390,24 +394,22 @@ class KpiController extends Controller
         $extremeThreshold = (float) config('kpi.extreme_weight_warning_threshold', 70);
 
         if ($kpi->is_active && (float) $kpi->weight >= $extremeThreshold) {
-            $warnings[] = sprintf(
-                'Warning: %s has weight %.2f, which is above the extreme configuration threshold (%.2f).',
-                $kpi->name,
-                (float) $kpi->weight,
-                $extremeThreshold
-            );
+            $warnings[] = __('kpi.warnings.extreme_weight', [
+                'name' => $kpi->name,
+                'weight' => number_format((float) $kpi->weight, 2),
+                'threshold' => number_format($extremeThreshold, 2),
+            ]);
         }
 
         if ($totalActiveWeight <= 0) {
-            $warnings[] = 'Warning: active KPI total weight is 0. Weighted scores will remain 0 until active weights are increased.';
+            $warnings[] = __('kpi.warnings.zero_total');
         }
 
         if (!config('kpi.total_weight_validation.enabled', false) && abs($totalActiveWeight - $target) > $tolerance) {
-            $warnings[] = sprintf(
-                'Warning: active KPI total weight is %.2f (target %.2f). Consider rebalancing weights for more predictable distribution.',
-                $totalActiveWeight,
-                $target
-            );
+            $warnings[] = __('kpi.warnings.target_total', [
+                'total' => number_format($totalActiveWeight, 2),
+                'target' => number_format($target, 2),
+            ]);
         }
 
         return $warnings;
@@ -420,7 +422,7 @@ class KpiController extends Controller
         foreach ($kpis as $kpi) {
             $assignedCategories = $kpi->categories;
             if ($assignedCategories->isEmpty()) {
-                $assignedCategories = collect([(object) ['id' => 0, 'name' => 'Uncategorized']]);
+                $assignedCategories = collect([(object) ['id' => 0, 'name' => __('kpi.states.uncategorized')]]);
             }
 
             foreach ($assignedCategories as $category) {

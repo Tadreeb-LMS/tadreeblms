@@ -45,10 +45,11 @@ class CaptchaGenerator
         // Create image
         $width = 150;
         $height = 50;
-        $image = imagecreate($width, $height);
+        $image = imagecreatetruecolor($width, $height);
         
         // Background color
         $backgroundColor = imagecolorallocate($image, 240, 240, 240);
+        imagefill($image, 0, 0, $backgroundColor);
         
         // Text color
         $textColor = imagecolorallocate($image, 50, 50, 50);
@@ -90,11 +91,19 @@ class CaptchaGenerator
             imageline($image, rand(0, $width), rand(0, $height), rand(0, $width), rand(0, $height), $noiseColor);
         }
         
+        // Scale image by 1.5x to make it slightly bigger
+        $scale = 1.5;
+        $newWidth = (int)($width * $scale);
+        $newHeight = (int)($height * $scale);
+        $scaledImage = imagecreatetruecolor($newWidth, $newHeight);
+        imagecopyresampled($scaledImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        
         // Output image as base64
         ob_start();
-        imagepng($image);
+        imagepng($scaledImage);
         $imageData = ob_get_clean();
         imagedestroy($image);
+        imagedestroy($scaledImage);
         
         return 'data:image/png;base64,' . base64_encode($imageData);
     }
