@@ -190,6 +190,8 @@ class LessonsController extends Controller
         return response()->json([
             'success'  => true,
             'category' => $course->category->name ?? null,
+            'start_date'  => $course->start_date,
+            'expire_at'    => $course->expire_at,
         ]);
     }
 

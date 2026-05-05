@@ -212,11 +212,9 @@
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
 
+                // Always route through LMS course page, never open external meeting links directly
                 if (info.event.url) {
-                    var newWindow = window.open(info.event.url, '_blank');
-                    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                        window.location.href = info.event.url;
-                    }
+                    window.location.href = info.event.url;
                 }
             },
 
