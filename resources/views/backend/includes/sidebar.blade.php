@@ -92,7 +92,7 @@
                     @can('feedback_access')
                         <li
                             class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['user/employee*', 'user/external-employee*']), 'open') }}">
-                            <a class="nav-link nav-dropdown-toggle d-flex {{ active_class(Active::checkUriPattern('admin/*')) }}"
+                            <a class="nav-link nav-dropdown-toggle d-flex {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}
                                 href="#">
                                 <div>
                                     <i class="nav-icon fas fa-comments"></i>
@@ -187,7 +187,7 @@
                             <a class="nav-link nav-dropdown-toggle d-flex align-items-center" href="#">
                                 <div>
                                     <i class="nav-icon fa fa-bullseye"></i>
-                                    <span class="title">KPI Management</span>
+                                    <span class="title">@lang('kpi.sidebar.management')</span>
                                 </div>
                                 <i class="arrow-icon-new fa fa-chevron-down ml-auto"></i>
                             </a>
@@ -195,7 +195,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ $request->segment(2) == 'kpis' ? 'active' : '' }}"
                                         href="{{ route('admin.kpis.index') }}">
-                                        <span class="title">KPIs</span>
+                                        <span class="title">@lang('kpi.sidebar.kpis')</span>
                                     </a>
                                 </li>
 
@@ -203,7 +203,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-role-configs' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-role-configs.index') }}">
-                                            <span class="title">Role Configurations</span>
+                                            <span class="title">@lang('kpi.sidebar.role_configurations')</span>
                                         </a>
                                     </li>
                                 @endif
@@ -212,7 +212,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-targets' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-targets.index') }}">
-                                            <span class="title">Targets</span>
+                                            <span class="title">@lang('kpi.sidebar.targets')</span>
                                         </a>
                                     </li>
                                 @endif
@@ -221,7 +221,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-templates' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-templates.index') }}">
-                                            <span class="title">Templates</span>
+                                            <span class="title">@lang('kpi.sidebar.templates')</span>
                                         </a>
                                     </li>
                                 @endif
@@ -252,7 +252,7 @@
                     @can('course_access')
                         <li
                             class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['user/courses*', 'user/lessons*', 'user/tests*', 'user/live-lessons*', 'user/live-lesson-slots*']), 'open') }}">
-                            <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/*')) }}"
+                            <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}"
                                 href="#">
                                 <div class="d-flex">
                                     <i class="nav-icon fas fa-graduation-cap" style="margin-top: 4px;"></i>
@@ -378,7 +378,7 @@
                 @can('learning_pathway_access')
                     <li
                         class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['user/learning-pathways', 'user/pathway-assignments', 'user/pathway-assignments/create']), 'open') }}">
-                        <a class="d-flex align-items-center nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/*')) }}"
+                        <a class="d-flex align-items-center nav-link nav-dropdown-toggle {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}}"
                             href="#">
                             <div class="d-flex">
                                 <i class="nav-icon fas fa-puzzle-piece" style="margin-top: 5px;"></i>
@@ -434,7 +434,7 @@
                     @can('reports_access')
                         <li
                             class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern(['user/employee*', 'user/external-employee*']), 'open') }}">
-                            <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/*')) }}"
+                            <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}"
                                 href="#">
                                 <i class="nav-icon fas fa-chart-bar min-icon"></i>
                                 <span class="title min-title" style="margin-left: 5px;">
@@ -470,7 +470,7 @@
                     @can('site_management_access')
                         <li
                             class="nav-item nav-dropdown  {{ active_class(Active::checkUriPattern(['user/contact', 'user/sponsors*', 'user/testimonials*', 'user/faqs*', 'user/footer*', 'user/blogs', 'user/sitemap*']), 'open') }}">
-                            <a class="nav-link nav-dropdown-toggle  d-flex {{ active_class(Active::checkUriPattern('admin/*')) }}"
+                            <a class="nav-link nav-dropdown-toggle  d-flex {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}"
                                 href="#">
                                 <i class="nav-icon fas fa-folder mt-1 min-icon"></i>
                                 <span class="min-title" style="margin-left: 5px;">
@@ -736,8 +736,8 @@
                         (null !== Session::get('setvaluesession') && Session::get('setvaluesession') == 1)
                     )
                     @can('settings_access')
-                        <li class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('admin/*'), 'open') }}">
-                            <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/settings*')) }}"
+                            <li class="nav-item nav-dropdown {{ request()->routeIs('admin.languages.*') ? 'open' : '' }}">
+                                <a class="nav-link nav-dropdown-toggle d-flex align-items-center {{ active_class(Active::checkUriPattern('admin/settings*')) }}"
                                 href="#">
                                 <div>
                                     <i class="nav-icon fas fa-cog"></i>
@@ -756,6 +756,12 @@
                                     </a>
                                 </li>
 
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.languages.index') }}"
+                                        class="nav-link {{ request()->routeIs('admin.languages.*') ? 'active' : '' }}">
+                                        <p>Language Settings</p>
+                                    </a>
+                                </li>
                                 <li class="nav-item ">
                                     <a class="nav-link {{ active_class(Active::checkUriPattern('admin/landing-page-setting')) }}"
                                         href="{{ route('admin.landing-page-setting') }}">

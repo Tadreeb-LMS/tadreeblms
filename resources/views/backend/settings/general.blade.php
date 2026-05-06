@@ -131,13 +131,22 @@
     <div class="card">
         <div class="card-body">
             <div class="col-md-3 mb-4 pl-0 custom-select-wrapper">
-                <select name="lang" id="change-lang" class="form-control custom-select-box">
-                    <option value="en" @if (request()->lang == 'en') selected @endif>{{ locale_label('en') }}</option>
-                    <option value="ar" @if (request()->lang == 'ar') selected @endif>{{ locale_label('ar') }}</option>
+
+                @php
+                    $languages = \App\Models\Language::where('is_enabled', 1)->get();
+                @endphp
+
+                <select name="app__locale" class="form-control custom-select-box" required>
+                    @foreach($languages as $lang)
+                        <option value="{{ $lang->code }}"
+                            {{ ($settings['app__locale'] ?? '') == $lang->code ? 'selected' : '' }}>    
+                            {{ $lang->name }}
+                        </option>
+                    @endforeach
                 </select>
                 <span class="custom-select-icon" style="right: 23px;">
-        <i class="fa fa-chevron-down"></i>
-        </span>
+                    <i class="fa fa-chevron-down"></i>
+                </span>
             </div>
             <div class="row">
                 <div class="col-sm-12">
