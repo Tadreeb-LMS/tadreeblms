@@ -14,8 +14,8 @@
     /* Breadcrumb - Compact */
     .breadcrumb-section {
         background-color: #c1902d4a;
-        padding: 20px 0 !important; /* Reduced from 75px */
-    }
+        padding: 120px 0 40px !important;
+}
 
     /* Card Styling - Glassmorphic & Compact */
     .card {
