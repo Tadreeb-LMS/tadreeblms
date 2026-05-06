@@ -58,12 +58,11 @@ class StoreKpiRequest extends FormRequest
             if (abs($projectedTotal - $target) > $tolerance) {
                 $validator->errors()->add(
                     'weight',
-                    sprintf(
-                        'Projected active KPI total weight (%.2f) must be within %.2f of target %.2f.',
-                        $projectedTotal,
-                        $tolerance,
-                        $target
-                    )
+                    __('kpi.validation.projected_total', [
+                        'total' => number_format($projectedTotal, 2),
+                        'tolerance' => number_format($tolerance, 2),
+                        'target' => number_format($target, 2),
+                    ])
                 );
             }
         });
@@ -72,8 +71,8 @@ class StoreKpiRequest extends FormRequest
     public function messages()
     {
         return [
-            'code.regex' => 'KPI code must start with an uppercase letter and use only uppercase letters, numbers, and underscores.',
-            'type.in' => 'Selected KPI type is not supported.',
+            'code.regex' => __('kpi.validation.code_regex'),
+            'type.in' => __('kpi.validation.type_in'),
         ];
     }
 }

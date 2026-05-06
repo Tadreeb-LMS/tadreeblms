@@ -57,7 +57,7 @@ class KpiTargetController extends Controller
             ]
         );
 
-        return redirect()->back()->with('flash_success', 'KPI target saved.');
+        return redirect()->back()->with('flash_success', __('kpi.messages.target_saved'));
     }
 
     public function destroy(KpiTarget $kpiTarget)
@@ -68,7 +68,7 @@ class KpiTargetController extends Controller
 
         $kpiTarget->delete();
 
-        return redirect()->back()->with('flash_success', 'KPI target removed.');
+        return redirect()->back()->with('flash_success', __('kpi.messages.target_removed'));
     }
 
     protected function canAccessTargets(): bool

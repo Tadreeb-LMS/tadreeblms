@@ -8,12 +8,12 @@
 <div class="row">
     <div class="col-12 mb-2 d-flex justify-content-between align-items-center">
         <div>
-            <h5 class="mb-1">KPI Dashboard</h5>
-            <p class="text-muted mb-0">Visible KPI cards are controlled from KPI dashboard settings.</p>
+            <h5 class="mb-1">@lang('kpi.titles.dashboard')</h5>
+            <p class="text-muted mb-0">@lang('kpi.help.dashboard_controlled')</p>
         </div>
 
         @if(auth()->user()->hasRole('administrator') && auth()->user()->can('kpi_edit'))
-            <a href="{{ route('admin.kpis.dashboard-settings.edit') }}" class="btn btn-outline-primary btn-sm">Configure KPI Cards</a>
+            <a href="{{ route('admin.kpis.dashboard-settings.edit') }}" class="btn btn-outline-primary btn-sm">@lang('kpi.actions.configure_cards')</a>
         @endif
     </div>
 
@@ -40,12 +40,12 @@
                             <h5 class="mb-1">{{ $kpi->name }}</h5>
                             <div class="text-muted small">{{ $kpi->type_label }}</div>
                         </div>
-                        <span class="badge badge-light">Weight {{ number_format((float) $kpi->weight, 2) }}</span>
+                        <span class="badge badge-light">@lang('kpi.labels.weight') {{ number_format((float) $kpi->weight, 2) }}</span>
                     </div>
 
                     <div class="kpi-dashboard-value mb-2">
                         @if($value === null || ($kpi->calculation['excluded'] ?? false))
-                            <span class="text-muted">No data</span>
+                            <span class="text-muted">@lang('kpi.states.no_data')</span>
                         @else
                             {{ number_format((float) $value, 2) }}
                         @endif
@@ -54,32 +54,32 @@
                     @if($presentation === 'detail')
                         <div class="row text-muted small">
                             <div class="col-sm-6 mb-2">
-                                <strong class="d-block text-dark">Weighted Score</strong>
-                                {{ $weightedScore === null ? 'N/A' : number_format((float) $weightedScore, 2) }}
+                                <strong class="d-block text-dark">@lang('kpi.labels.weighted_score')</strong>
+                                {{ $weightedScore === null ? __('kpi.states.not_applicable') : number_format((float) $weightedScore, 2) }}
                             </div>
                             <div class="col-sm-6 mb-2">
-                                <strong class="d-block text-dark">Target</strong>
-                                {{ $target === null ? 'No target' : number_format((float) $target, 2) }}
+                                <strong class="d-block text-dark">@lang('kpi.labels.target')</strong>
+                                {{ $target === null ? __('kpi.states.no_target') : number_format((float) $target, 2) }}
                             </div>
                             <div class="col-sm-6 mb-2">
-                                <strong class="d-block text-dark">Target Status</strong>
+                                <strong class="d-block text-dark">@lang('kpi.labels.target_status')</strong>
                                 <span class="badge {{ $targetBadgeClass }}">
-                                    {{ $deviationDirection ? ucfirst(str_replace('_', ' ', $deviationDirection)) : 'Not set' }}
+                                    {{ $deviationDirection ? __('kpi.states.' . $deviationDirection) : __('kpi.states.not_set') }}
                                 </span>
                             </div>
                             <div class="col-sm-6 mb-2">
-                                <strong class="d-block text-dark">Categories</strong>
-                                {{ $categoryNames !== '' ? $categoryNames : 'All / unmapped' }}
+                                <strong class="d-block text-dark">@lang('kpi.labels.categories')</strong>
+                                {{ $categoryNames !== '' ? $categoryNames : __('kpi.states.all_unmapped') }}
                             </div>
                         </div>
                     @else
                         <div class="d-flex justify-content-between text-muted small">
-                            <span>Weighted: {{ $weightedScore === null ? 'N/A' : number_format((float) $weightedScore, 2) }}</span>
+                            <span>@lang('kpi.labels.weighted_score'): {{ $weightedScore === null ? __('kpi.states.not_applicable') : number_format((float) $weightedScore, 2) }}</span>
                             <span>
                                 @if($target === null)
-                                    No target
+                                    @lang('kpi.states.no_target')
                                 @else
-                                    Target {{ number_format((float) $target, 2) }}
+                                    @lang('kpi.labels.target') {{ number_format((float) $target, 2) }}
                                 @endif
                             </span>
                         </div>

@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title', 'KPI Management | ' . app_name())
+@section('title', __('kpi.titles.management') . ' | ' . app_name())
 
 @push('after-styles')
     <style>
@@ -32,60 +32,60 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
-        <h4 class="mb-0">KPI Management</h4>
+        <h4 class="mb-0">@lang('kpi.titles.management')</h4>
 
           <div class="d-flex align-items-center kpi-action-toolbar">
             @can('category_access')
-                <a href="{{ route('admin.categories.index') }}" class="btn kpi-action-btn">Manage Categories</a>
+                <a href="{{ route('admin.categories.index') }}" class="btn kpi-action-btn">@lang('kpi.actions.manage_categories')</a>
             @endcan
 
             @can('kpi_template_access')
-                <a href="{{ route('admin.kpi-templates.index') }}" class="btn kpi-action-btn">Templates</a>
+                <a href="{{ route('admin.kpi-templates.index') }}" class="btn kpi-action-btn">@lang('kpi.actions.templates')</a>
             @endcan
 
             <a href="{{ route('admin.kpis.team-insights') }}" class="btn kpi-action-btn">
-                Team Insights
+                @lang('kpi.actions.team_insights')
             </a>
 
             <button type="button" class="btn kpi-action-btn" data-toggle="modal" data-target="#kpiExportModal">
-                Export KPI Data
+                @lang('kpi.actions.export_data')
             </button>
 
             @can('kpi_target_access')
-                <a href="{{ route('admin.kpi-targets.index') }}" class="btn kpi-action-btn">Manage Targets</a>
+                <a href="{{ route('admin.kpi-targets.index') }}" class="btn kpi-action-btn">@lang('kpi.actions.manage_targets')</a>
             @endcan
 
             @can('kpi_create')
-                <a href="{{ route('admin.kpis.create') }}" class="add-btn">Add KPI</a>
+                <a href="{{ route('admin.kpis.create') }}" class="add-btn">@lang('kpi.actions.add_kpi')</a>
             @endcan
         </div>
     </div>
 
     @cannot('kpi_edit')
         <div class="alert alert-secondary">
-            Read-only mode: you can view KPI data, but only authorized users can create, edit, activate, or archive KPIs.
+            @lang('kpi.messages.read_only_kpis')
         </div>
     @endcannot
 
     <div class="alert alert-info">
-        Active KPI total weight: <strong id="kpi-active-total-weight">{{ number_format($totalActiveWeight, 2) }}</strong>
+        @lang('kpi.messages.active_total_weight') <strong id="kpi-active-total-weight">{{ number_format($totalActiveWeight, 2) }}</strong>
     </div>
 
     @if($weightInsights['zero_weight_count'] > 0)
         <div class="alert alert-warning">
-            {{ $weightInsights['zero_weight_count'] }} active KPI(s) currently have zero weight and will contribute 0 to weighted scoring.
+            {{ __('kpi.messages.zero_weight_warning', ['count' => $weightInsights['zero_weight_count']]) }}
         </div>
     @endif
 
     @if($weightInsights['extreme_weight_count'] > 0)
         <div class="alert alert-warning">
-            {{ $weightInsights['extreme_weight_count'] }} active KPI(s) are at or above the extreme-weight threshold. Review distribution to avoid over-concentration.
+            {{ __('kpi.messages.extreme_weight_warning', ['count' => $weightInsights['extreme_weight_count']]) }}
         </div>
     @endif
 
     @if(!$weightInsights['validation_enabled'] && !$weightInsights['is_total_on_target'])
         <div class="alert alert-secondary">
-            Optional guidance: active total weight differs from target {{ number_format($weightInsights['target'], 2) }}. Enable strict total-weight validation in KPI config if required.
+            {{ __('kpi.messages.optional_weight_guidance', ['target' => number_format($weightInsights['target'], 2)]) }}
         </div>
     @endif
 
@@ -93,7 +93,7 @@
         @include('backend.kpis.partials.category_groups', ['kpiCategoryGroups' => $kpiCategoryGroups])
     </div>
 
-    <p class="text-muted small">Click a sortable header to cycle through ascending, descending, and off. Multiple active sorts are applied automatically.</p>
+    <p class="text-muted small">@lang('kpi.help.sort_headers')</p>
 
     <div class="card">
         <div class="card-body">
@@ -105,22 +105,22 @@
                             id="kpi-search"
                             name="search"
                             class="form-control"
-                            placeholder="Search by name, code, or type"
+                            placeholder="{{ __('kpi.placeholders.search') }}"
                             value="{{ request('search') }}"
                             autocomplete="off"
                         >
-                        <small class="form-text text-muted">Instant search enabled</small>
+                        <small class="form-text text-muted">@lang('kpi.help.instant_search')</small>
                     </div>
                     <div class="col-md-4">
                         <select id="kpi-category-filter" name="category_id" class="form-control">
-                            <option value="">All mapped categories</option>
+                            <option value="">@lang('kpi.states.all_mapped_categories')</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ (string) request('category_id') === (string) $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Filter KPIs by mapped category</small>
+                        <small class="form-text text-muted">@lang('kpi.help.filter_category')</small>
                     </div>
                 </div>
             </form>
@@ -135,17 +135,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="kpiExportModalLabel">Export KPI Data</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h5 class="modal-title" id="kpiExportModalLabel">@lang('kpi.actions.export_data')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('kpi.actions.close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <form id="kpi-export-form">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="kpi-export-role">Role</label>
+                            <label for="kpi-export-role">@lang('kpi.labels.role')</label>
                             <select id="kpi-export-role" name="role" class="form-control">
-                                <option value="">All roles</option>
+                                <option value="">@lang('kpi.states.all_roles')</option>
                                 @foreach($exportRoles as $roleName)
                                     <option value="{{ $roleName }}">{{ $roleName }}</option>
                                 @endforeach
@@ -154,38 +154,38 @@
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label for="kpi-export-date-from">Date From</label>
+                                <label for="kpi-export-date-from">@lang('kpi.labels.date_from')</label>
                                 <input id="kpi-export-date-from" type="date" name="date_from" class="form-control">
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="kpi-export-date-to">Date To</label>
+                                <label for="kpi-export-date-to">@lang('kpi.labels.date_to')</label>
                                 <input id="kpi-export-date-to" type="date" name="date_to" class="form-control">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="kpi-export-kpis">KPI Filter</label>
+                            <label for="kpi-export-kpis">@lang('kpi.labels.kpi_filter')</label>
                             <select id="kpi-export-kpis" name="kpi_ids[]" class="form-control" multiple size="6">
                                 @foreach($exportKpis as $exportKpi)
                                     <option value="{{ $exportKpi->id }}">{{ $exportKpi->name }} ({{ $exportKpi->code }})</option>
                                 @endforeach
                             </select>
-                            <small class="form-text text-muted">Leave empty to export all active KPIs.</small>
+                            <small class="form-text text-muted">@lang('kpi.help.export_empty')</small>
                         </div>
 
                         <div class="form-group mb-0">
-                            <label for="kpi-export-format">Format</label>
+                            <label for="kpi-export-format">@lang('kpi.labels.format')</label>
                             <select id="kpi-export-format" name="format" class="form-control" required>
-                                <option value="csv" selected>CSV</option>
-                                <option value="xlsx">Excel (XLSX)</option>
+                                <option value="csv" selected>@lang('kpi.states.csv')</option>
+                                <option value="xlsx">@lang('kpi.states.excel')</option>
                             </select>
                         </div>
 
                         <div id="kpi-export-status" class="alert alert-info mt-3 d-none mb-0"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" id="kpi-export-submit" class="btn btn-primary">Start Export</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('kpi.actions.close')</button>
+                        <button type="submit" id="kpi-export-submit" class="btn btn-primary">@lang('kpi.actions.start_export')</button>
                     </div>
                 </form>
             </div>
@@ -381,7 +381,7 @@
 
             function setSubmitting(isSubmitting) {
                 submitButton.disabled = isSubmitting;
-                submitButton.textContent = isSubmitting ? 'Preparing...' : 'Start Export';
+                submitButton.textContent = isSubmitting ? @json(__('kpi.actions.preparing')) : @json(__('kpi.actions.start_export'));
             }
 
             function triggerDownload(url) {
@@ -420,10 +420,10 @@
                             return;
                         }
 
-                        var progressText = 'Progress: ' + (data.progress || 0) + '%';
+                        var progressText = @json(__('kpi.js.progress')) + ' ' + (data.progress || 0) + '%';
                         var rowsText = '';
                         if ((data.total_rows || 0) > 0) {
-                            rowsText = ' (' + (data.processed_rows || 0) + ' / ' + data.total_rows + ' rows)';
+                            rowsText = ' (' + (data.processed_rows || 0) + ' / ' + data.total_rows + ' ' + @json(__('kpi.js.rows')) + ')';
                         }
 
                         if (data.state === 'completed') {
@@ -436,7 +436,7 @@
                                 downloadedExportId = data.export_id;
                             }
 
-                            showStatus('Export completed and download started automatically.', 'alert-success');
+                            showStatus(@json(__('kpi.js.export_completed')), 'alert-success');
                             return;
                         }
 
@@ -444,14 +444,14 @@
                             clearInterval(pollingHandle);
                             pollingHandle = null;
                             setSubmitting(false);
-                            showStatus('Export failed: ' + (data.error_message || 'Unknown error'), 'alert-danger');
+                            showStatus(@json(__('kpi.js.export_failed')) + ' ' + (data.error_message || @json(__('kpi.js.unknown_error'))), 'alert-danger');
                             return;
                         }
 
-                        showStatus('Export is running. ' + progressText + rowsText, 'alert-info');
+                        showStatus(@json(__('kpi.js.export_running')) + ' ' + progressText + rowsText, 'alert-info');
                     })
                     .catch(function () {
-                        showStatus('Unable to fetch export status. Retrying...', 'alert-warning');
+                        showStatus(@json(__('kpi.js.fetch_retry')), 'alert-warning');
                     });
                 }, 2500);
             }
@@ -460,7 +460,7 @@
                 e.preventDefault();
 
                 setSubmitting(true);
-                showStatus('Export request submitted. Queueing job...', 'alert-info');
+                showStatus(@json(__('kpi.js.queueing')), 'alert-info');
 
                 fetch('{{ route('admin.kpis.exports.store') }}', {
                     method: 'POST',
@@ -473,15 +473,15 @@
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
                     if (!data || data.status !== true) {
-                        throw new Error('Invalid export response');
+                        throw new Error(@json(__('kpi.js.invalid_response')));
                     }
 
-                    showStatus(data.message + ' Tracking progress...', 'alert-info');
+                    showStatus(data.message + ' ' + @json(__('kpi.js.tracking')), 'alert-info');
                     startPolling(data.export_id);
                 })
                 .catch(function () {
                     setSubmitting(false);
-                    showStatus('Could not start KPI export. Please check your filters and try again.', 'alert-danger');
+                    showStatus(@json(__('kpi.js.start_failed')), 'alert-danger');
                 });
             });
         })();

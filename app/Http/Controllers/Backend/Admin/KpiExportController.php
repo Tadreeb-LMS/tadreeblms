@@ -38,7 +38,7 @@ class KpiExportController extends Controller
             ->update([
                 'status' => 'failed',
                 'progress' => 100,
-                'error_message' => 'Canceled by newer export request.',
+                'error_message' => __('kpi.messages.export_canceled'),
             ]);
 
         $export = KpiExportNotification::query()->create([
@@ -54,7 +54,7 @@ class KpiExportController extends Controller
         return response()->json([
             'status' => true,
             'export_id' => (int) $export->id,
-            'message' => 'KPI export started. Please wait while the file is generated.',
+            'message' => __('kpi.messages.export_started'),
         ]);
     }
 

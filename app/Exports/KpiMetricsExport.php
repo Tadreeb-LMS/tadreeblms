@@ -42,19 +42,19 @@ class KpiMetricsExport implements FromGenerator, WithHeadings
     public function headings(): array
     {
         return [
-            'Role Filter',
-            'User ID',
-            'User Name',
-            'User Email',
-            'KPI ID',
-            'KPI Code',
-            'KPI Name',
-            'KPI Type',
-            'Metric Value',
-            'KPI Weight',
-            'Weighted Score',
-            'Date From',
-            'Date To',
+            __('kpi.labels.role_filter'),
+            __('kpi.labels.user_id'),
+            __('kpi.labels.user_name'),
+            __('kpi.labels.user_email'),
+            __('kpi.labels.kpi_id'),
+            __('kpi.labels.kpi_code'),
+            __('kpi.labels.kpi_name'),
+            __('kpi.labels.kpi_type'),
+            __('kpi.labels.metric_value'),
+            __('kpi.labels.weight'),
+            __('kpi.labels.weighted_score'),
+            __('kpi.labels.date_from'),
+            __('kpi.labels.date_to'),
         ];
     }
 }
