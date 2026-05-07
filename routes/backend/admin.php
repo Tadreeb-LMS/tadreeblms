@@ -3,10 +3,6 @@
 use App\Http\Controllers\Backend\Admin\TestsController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\Admin\RolesController;
-use App\Http\Controllers\Backend\Auth\User\AccountController;
-use App\Http\Controllers\Backend\Auth\User\ProfileController;
-use \App\Http\Controllers\Backend\Auth\User\UpdatePasswordController;
-use \App\Http\Controllers\Backend\Auth\User\UserPasswordController;
 use App\Http\Controllers\UserCourseRequestController;
 use FontLib\Table\Type\name;
 
@@ -487,11 +483,7 @@ Route::post('media/remove', ['uses' => 'Admin\MediaController@destroy', 'as' => 
 
 
 //===== User Account Routes =====//
-Route::group(['middleware' => ['auth', 'password_expires']], function () {
-    Route::get('account', [AccountController::class, 'index'])->name('account');
-    Route::patch('account/{email?}', [UserPasswordController::class, 'update'])->name('account.post');
-    Route::patch('profile/update', [ProfileController::class, 'update'])->name('profile.update');
-});
+// (Moved to web.php to ensure access for all authenticated users including Teachers)
 
 
 Route::group(['middleware' => 'role:teacher'], function () {

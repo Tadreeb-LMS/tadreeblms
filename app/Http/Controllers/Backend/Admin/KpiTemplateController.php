@@ -119,7 +119,7 @@ class KpiTemplateController extends Controller
             ->values();
 
         if ($allItems->isEmpty()) {
-            return redirect()->back()->withInput()->with('flash_danger', 'Please add at least one KPI item or select existing KPIs.');
+            return redirect()->back()->withInput()->with('flash_danger', __('kpi.messages.template_item_required'));
         }
 
         $normalizedCodes = $allItems->pluck('code')->map(function ($code) {
@@ -127,7 +127,7 @@ class KpiTemplateController extends Controller
         });
 
         if ($normalizedCodes->count() !== $normalizedCodes->unique()->count()) {
-            return redirect()->back()->withInput()->with('flash_danger', 'Template item codes must be unique within the template.');
+            return redirect()->back()->withInput()->with('flash_danger', __('kpi.messages.template_codes_unique'));
         }
 
         $template = KpiTemplate::query()->create([
@@ -154,7 +154,7 @@ class KpiTemplateController extends Controller
 
         $template->update(['item_count' => $template->items()->count()]);
 
-        return redirect()->route('admin.kpi-templates.show', $template->id)->with('flash_success', 'Template created successfully. You can now preview and apply it.');
+        return redirect()->route('admin.kpi-templates.show', $template->id)->with('flash_success', __('kpi.messages.template_created'));
     }
 
     /**
@@ -193,20 +193,19 @@ class KpiTemplateController extends Controller
         }
 
         if ($result['success']) {
-            $message = sprintf(
-                'Template "%s" applied successfully. %d KPI(s) created.',
-                $kpiTemplate->name,
-                $result['created_count']
-            );
+            $message = __('kpi.messages.template_applied', [
+                'name' => $kpiTemplate->name,
+                'count' => $result['created_count'],
+            ]);
 
             if ($result['skipped_count'] > 0) {
-                $message .= sprintf(' %d KPI(s) skipped (already exist).', $result['skipped_count']);
+                $message .= ' ' . __('kpi.messages.template_skipped', ['count' => $result['skipped_count']]);
             }
 
             return redirect()->route('admin.kpis.index')->with('flash_success', $message);
         }
 
-        $message = 'No new KPIs were created. All template items may already exist.';
+        $message = __('kpi.messages.template_none_created');
 
         return redirect()->back()->with('flash_danger', $message);
     }

@@ -25,7 +25,7 @@ class KpiTemplateService
                 $skipped[] = [
                     'code' => $item->code,
                     'name' => $item->name,
-                    'reason' => 'KPI with this code already exists',
+                    'reason' => __('kpi.messages.kpi_code_exists'),
                 ];
                 continue;
             }
@@ -144,17 +144,17 @@ class KpiTemplateService
         $items = $template->activeItems()->get();
 
         if ($items->isEmpty()) {
-            $errors[] = 'Template has no active items.';
+            $errors[] = __('kpi.validation.template_no_active_items');
         }
 
         $codes = $items->pluck('code');
         if ($codes->count() !== $codes->unique()->count()) {
-            $errors[] = 'Template contains duplicate KPI codes.';
+            $errors[] = __('kpi.validation.template_duplicate_codes');
         }
 
         $totalWeight = $items->sum('weight');
         if ($totalWeight <= 0) {
-            $errors[] = 'Total weight must be greater than 0.';
+            $errors[] = __('kpi.validation.template_total_weight_positive');
         }
 
         return [

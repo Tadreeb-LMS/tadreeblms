@@ -66,7 +66,7 @@ class KpiRoleConfigController extends Controller
             $attrs
         );
 
-        return redirect()->back()->with('flash_success', 'Role KPI configuration saved.');
+        return redirect()->back()->with('flash_success', __('kpi.messages.role_config_saved'));
     }
 
     /**
@@ -81,6 +81,6 @@ class KpiRoleConfigController extends Controller
 
         $kpiRoleConfig->delete();
 
-        return redirect()->back()->with('flash_success', 'Role override removed. Global default will apply.');
+        return redirect()->back()->with('flash_success', __('kpi.messages.role_override_removed'));
     }
 }

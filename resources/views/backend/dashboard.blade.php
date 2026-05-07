@@ -978,6 +978,14 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
     });
 
     $(document).ready(function () {
+        $('#reset').on('click', function () {
+            $('#user_id').val('').trigger('change');
+            $('#department_id').val('').trigger('change');
+            $('#course_id').val('').trigger('change');
+            $('#category_id').val('').trigger('change');
+            $('#assign_from_date').val('');
+        });
+
         $('#dashboard-form-filter').on('submit', function (e) {
             e.preventDefault();
 

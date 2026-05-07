@@ -187,7 +187,7 @@
                             <a class="nav-link nav-dropdown-toggle d-flex align-items-center" href="#">
                                 <div>
                                     <i class="nav-icon fa fa-bullseye"></i>
-                                    <span class="title">KPI Management</span>
+                                    <span class="title">@lang('kpi.sidebar.management')</span>
                                 </div>
                                 <i class="arrow-icon-new fa fa-chevron-down ml-auto"></i>
                             </a>
@@ -195,7 +195,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ $request->segment(2) == 'kpis' ? 'active' : '' }}"
                                         href="{{ route('admin.kpis.index') }}">
-                                        <span class="title">KPIs</span>
+                                        <span class="title">@lang('kpi.sidebar.kpis')</span>
                                     </a>
                                 </li>
 
@@ -203,7 +203,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-role-configs' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-role-configs.index') }}">
-                                            <span class="title">Role Configurations</span>
+                                            <span class="title">@lang('kpi.sidebar.role_configurations')</span>
                                         </a>
                                     </li>
                                 @endif
@@ -212,7 +212,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-targets' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-targets.index') }}">
-                                            <span class="title">Targets</span>
+                                            <span class="title">@lang('kpi.sidebar.targets')</span>
                                         </a>
                                     </li>
                                 @endif
@@ -221,7 +221,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ $request->segment(2) == 'kpi-templates' ? 'active' : '' }}"
                                             href="{{ route('admin.kpi-templates.index') }}">
-                                            <span class="title">Templates</span>
+                                            <span class="title">@lang('kpi.sidebar.templates')</span>
                                         </a>
                                     </li>
                                 @endif

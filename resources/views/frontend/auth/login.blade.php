@@ -14,8 +14,8 @@
     /* Breadcrumb - Compact */
     .breadcrumb-section {
         background-color: #c1902d4a;
-        padding: 20px 0 !important; /* Reduced from 75px */
-    }
+        padding: 120px 0 40px !important;
+}
 
     /* Card Styling - Glassmorphic & Compact */
     .card {
@@ -432,37 +432,15 @@ function refreshCaptcha() {
     fetch("{{ route('refresh.captcha') }}")
         .then(response => response.json())
         .then(data => {
-            $('#captcha-text').html(@json(__('auth_pages.login.captcha')) + ': ' + data.captcha);
+            if (data.captcha_image) {
+                $('#captchaImage').attr('src', data.captcha_image);
+            }
             $('#captcha-input').val('');
         })
         .catch(() => {
             console.error('Captcha refresh failed');
         });
 }
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const refreshBtn = document.getElementById('refresh-captcha');
-    const captchaText = document.getElementById('captcha-text');
-    const captchaInput = document.getElementById('captcha-input');
-
-    refreshBtn.addEventListener('click', function () {
-
-        fetch("{{ route('refresh.captcha') }}")
-            .then(response => response.json())
-            .then(data => {
-
-                captchaText.innerHTML = @json(__('auth_pages.login.captcha')) + ': ' + data.captcha;
-
-                // Clear input
-                captchaInput.value = '';
-
-            })
-            .catch(error => console.error('Captcha refresh error:', error));
-    });
-
-});
 </script>
 @endpush
 
