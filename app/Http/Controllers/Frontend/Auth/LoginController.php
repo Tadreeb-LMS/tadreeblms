@@ -11,7 +11,6 @@ use App\Helpers\Frontend\Auth\Socialite;
 use App\Events\Frontend\Auth\UserLoggedIn;
 use App\Events\Frontend\Auth\UserLoggedOut;
 use App\Helpers\CustomHelper;
-use App\Helpers\CaptchaGenerator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
@@ -50,34 +49,14 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         if (request()->ajax()) {
-            $captcha = CaptchaGenerator::generate();
-
             return [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
-                'captcha_image' => $captcha['image'],
-                'captcha_question' => 'Enter the code shown above',
-                'captha' => $captcha['code'], // backward compatibility
             ];
         }
 
-        $captcha = CaptchaGenerator::generate();
-
-        return view('frontend.auth.login', [
-            'captcha_image' => $captcha['image'],
-            'captha' => $captcha['code'],
-        ]);
+        return view('frontend.auth.login');
     }
 
-    public function refreshCaptcha()
-    {
-        $captcha = CaptchaGenerator::generate();
-
-        return response()->json([
-            'captcha' => $captcha['code'],
-            'captcha_question' => 'Enter the code shown above',
-            'captcha_image' => $captcha['image'],
-        ]);
-    }
 
     /**
      * Get login username field
@@ -97,12 +76,6 @@ class LoginController extends Controller
             [
                 'email' => 'required|email|max:255',
                 'password' => 'required|min:6',
-                'captcha' => 'required',
-            ],
-            [
-                'captcha.required' => __('validation.required', [
-                    'attribute' => __('auth_pages.login.captcha'),
-                ]),
             ]
         );
 
@@ -113,15 +86,6 @@ class LoginController extends Controller
             ], 422);
         }
 
-        // CAPTCHA CHECK
-        if (!CaptchaGenerator::validate($request->captcha)) {
-            return response([
-                'success' => false,
-                'errors' => [
-                    'captcha' => ['Invalid captcha'],
-                ],
-            ], 422);
-        }
 
         $credentials = [
             'email'      => $request->email,
