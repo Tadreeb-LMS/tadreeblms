@@ -132,7 +132,7 @@
         <nav class="navbar navbar-expand-lg navbar-light">
            
                 <div class="navbar-header float-left">
-                    <a class="navbar-brand text-uppercase" href="{{ route('home') }}">
+                    <a class="navbar-brand text-uppercase" href="{{ url('/') }}">
                         @if( isset($site_logo->value) )
                        <img src="{{ asset('assets/img/logo.png') }}" alt="logo" class="logoimg">
                        @else
