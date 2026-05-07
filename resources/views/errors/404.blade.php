@@ -147,7 +147,7 @@
                             @lang('http.404.description2')
                         </p>
                         <div class="nws-button genius-btn text-center  d-inline-block gradient-bg text-uppercase">
-                            <a href="{{url('/')}}">@lang('http.404.back')</a>
+                            <a href="{{ route('home') }}">@lang('http.404.back')</a>
                         </div>
                     </div>
                 </div>
