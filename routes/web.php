@@ -55,7 +55,7 @@ Route::post(
     [AssessmentAccountsController::class, 'courseAssignment']
 )->name('admin.assessment_accounts.course-assignment');
 
-Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
+Route::get('/refresh-captcha/{mode?}',[LoginController::class, 'refreshCaptcha'])->name('refresh_captcha');
 
 Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
