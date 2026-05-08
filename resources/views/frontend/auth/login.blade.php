@@ -309,7 +309,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Refresh button
         document.getElementById('refreshCaptcha')
-            .addEventListener('click', refreshCaptcha);
+            .addEventListener('click', refreshLoginCaptcha);
     });
 
 $(document).ready(function () {
@@ -364,7 +364,7 @@ $(document).ready(function () {
     });
 
 });
-function refreshCaptcha() {
+function refreshLoginCaptcha() {
     fetch("{{ route('refresh.captcha') }}")
         .then(response => response.json())
         .then(data => {
