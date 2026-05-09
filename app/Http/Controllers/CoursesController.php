@@ -1327,7 +1327,7 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
 })
 
             ->addColumn('download_certificate', function ($q) {
-                $download_certificate = route('admin.certificates.generate', ['course_id' => $q->course->id, 'user_id' => auth()->id()]);
+                $download_certificate = route('admin.certificates.generate', ['course_id' => $q->course->id, 'user_id' => auth()->id(), 'download' => 1]);
                 return $q->subscribedCourse->grant_certificate ? "<a class='btn btn-success' download
                                                             href=" . $download_certificate . "> " . trans('course.btn.download_certificate') . "
                                                             </a>" : '-';

@@ -231,7 +231,13 @@ class CertificateController extends Controller
                                     ->groupBy('course_id')
                                     ->get();
                 foreach ($subscribe_courses as $key => $subscribe_course) {
-                    if ($subscribe_course->course->grant_certificate) {
+                    $courseAllowsCertificate = (bool) ($subscribe_course->course->grant_certificate ?? false);
+                    $subscriptionAllowsCertificate = (bool) ($subscribe_course->grant_certificate ?? false);
+
+                    // Support both schema variants:
+                    // 1) courses.grant_certificate (legacy)
+                    // 2) subscribe_courses.grant_certificate (current in this workspace)
+                    if ($courseAllowsCertificate || $subscriptionAllowsCertificate) {
                         $course_for_certificate[] = $subscribe_course->course_id;
                     }
                 }
@@ -241,8 +247,8 @@ class CertificateController extends Controller
             return DataTables::of($courses)
                 ->addIndexColumn()
                 ->addColumn('link', function ($row) {
-                    $url = route('admin.certificates.generate', ['course_id' => $row->id, 'user_id' => auth()->id()]);
-                    return "<a target='_blank' class=\"btn btn-success\"
+                    $url = route('admin.certificates.generate', ['course_id' => $row->id, 'user_id' => auth()->id(), 'download' => 1]);
+                    return "<a class=\"btn btn-success\"
                             href=\"$url\"> " . trans('labels.backend.certificates.fields.download-certificate') .   " </a>";
                 })
                 ->rawColumns(['link'])
@@ -280,7 +286,11 @@ class CertificateController extends Controller
 
         $user = User::findOrFail($user_id);
 
-        if (!$course->grantCertificate($user_id)) {
+        $courseGrantAllowed = (bool) $course->grantCertificate($user_id);
+        $subscriptionGrantAllowed = (bool) ($subscribed_course->grant_certificate ?? false);
+
+        // Support environments where certificate eligibility is tracked directly on subscribe_courses.grant_certificate.
+        if (!$courseGrantAllowed && !$subscriptionGrantAllowed) {
             abort(403, 'Certificate is not available for this course.');
         }
 
@@ -353,7 +363,13 @@ class CertificateController extends Controller
         $pdf = PDF::loadView('certificate.index', compact('data'));
         $pdf->setPaper('A4', 'landscape');
 
-        return $pdf->stream("Certificate-{$certificate->certificate_id}.pdf");
+        $fileName = "Certificate-{$certificate->certificate_id}.pdf";
+
+        if ($request->boolean('download')) {
+            return $pdf->download($fileName);
+        }
+
+        return $pdf->stream($fileName);
     }
 
     /**
