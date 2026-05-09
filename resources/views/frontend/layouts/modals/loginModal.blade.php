@@ -58,6 +58,8 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         background: #f9f9f9;
+        height: 70px;
+        width: auto;
     }
 
     .captcha-refresh-btn {

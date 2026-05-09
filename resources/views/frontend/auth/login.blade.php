@@ -101,6 +101,12 @@
     border-radius: 6px;
     border: 1px solid #e0e0e0;
 }
+
+    .captcha-container img {
+        height: 70px;
+        width: auto;
+        border-radius: 4px;
+    }
     
     
     .captcha-text {
