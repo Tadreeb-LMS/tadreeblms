@@ -382,7 +382,7 @@ class LessonsController extends Controller
             return null;
         }
 
-        $baseQuery = Lesson::with(['downloadableMedia', 'mediaVideo', 'mediaPDF'])
+        $baseQuery = Lesson::with(['downloadableMedia', 'mediaVideo', 'mediaPDF', 'videos'])
             ->where('course_id', $course_id)
             ->where('published', 1);
 
@@ -659,7 +659,7 @@ class LessonsController extends Controller
 
 
         //dd($lesson, $lesson->mediaVideo()->exists());
-        if ($lesson instanceof Lesson && !$lesson->mediaVideo()->exists()) {
+        if ($lesson instanceof Lesson && !$lesson->mediaVideo()->exists() && !$lesson->videos()->exists()) {
 
             $custom_helper = new CustomHelper();
             $custom_helper->updateUserProgress($logged_in_user_id, $course_id);
@@ -667,8 +667,8 @@ class LessonsController extends Controller
 
 
 
-        if ((int)config('lesson_timer') == 0) {
-            if (!$lesson->live_lesson && !$lesson->mediaVideo) {
+        if ((int)config('lesson_timer') == 0 && $lesson instanceof Lesson) {
+            if (!$lesson->live_lesson && !$lesson->mediaVideo && $lesson->videos->isEmpty()) {
                 if ($lesson->chapterStudents()->where('user_id', \Auth::id())->count() == 0) {
                     $lesson->chapterStudents()->create([
                         'model_type' => get_class($lesson),
