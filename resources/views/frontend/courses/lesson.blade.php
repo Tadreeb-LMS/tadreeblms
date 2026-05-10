@@ -129,6 +129,117 @@
             display: none !important;
         }
 
+        .lesson-video-section {
+            margin: 24px 0 32px;
+        }
+
+        .lesson-video-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .lesson-video-heading h4 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .lesson-video-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            padding: 3px 10px;
+            border-radius: 13px;
+            background: #eef5f8;
+            color: #236071;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .lesson-video-stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .lesson-video-item {
+            border: 1px solid #e8edf1;
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(20, 34, 47, 0.06);
+        }
+
+        .lesson-video-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #eef1f4;
+        }
+
+        .lesson-video-title {
+            min-width: 0;
+            margin: 0;
+            color: #222;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .lesson-video-type {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            padding: 2px 9px;
+            border-radius: 12px;
+            background: #f7f4ec;
+            color: #866322;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .lesson-video-frame {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #111820;
+        }
+
+        .lesson-video-frame iframe,
+        .lesson-video-frame video,
+        .lesson-video-frame .plyr,
+        .lesson-video-frame .plyr__video-wrapper {
+            width: 100%;
+            height: 100%;
+        }
+
+        .lesson-video-frame iframe {
+            display: block;
+            border: 0;
+        }
+
+        @media screen and (max-width: 576px) {
+            .lesson-video-heading,
+            .lesson-video-meta {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .lesson-video-heading h4 {
+                font-size: 18px;
+            }
+        }
+
         @media screen and (max-width: 768px) {}
     </style>
 @endpush
@@ -387,10 +498,19 @@
 
 
                         @if ($lesson->mediaVideo)
-                            <div class="course-single-text">
+                            <div class="course-single-text lesson-video-section">
                                 @if ($lesson->mediavideo != '')
-                                    <div class="course-details-content mt-3">
-                                        <div class="video-container mb-5" data-id="{{ $lesson->mediavideo->id }}">
+                                    <div class="lesson-video-heading">
+                                        <h4>{{ __('course_pages.admin_lessons_create.lesson_videos') }}</h4>
+                                        <span class="lesson-video-count">1</span>
+                                    </div>
+                                    <div class="lesson-video-stack">
+                                        <div class="video-container lesson-video-item" data-id="{{ $lesson->mediavideo->id }}">
+                                            <div class="lesson-video-meta">
+                                                <h5 class="lesson-video-title">{{ $lesson->title }}</h5>
+                                                <span class="lesson-video-type">{{ $lesson->mediavideo->type }}</span>
+                                            </div>
+                                            <div class="lesson-video-frame">
                                             @if ($lesson->mediavideo->type == 'youtube')
                                                 <div id="player" onclick="videoPer(this);" class="js-player"
                                                     data-plyr-provider="youtube"
@@ -406,11 +526,14 @@
                                             @elseif($lesson->mediavideo->type == 'embed')
                                                 {!! $lesson->mediavideo->url !!}
                                             @endif
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
                             </div>
                         @endif
+
+                        @include('frontend.courses.partials.lesson-videos')
 
                         @if ($lesson->media)
                             <div class="course-single-text mb-5">
@@ -665,6 +788,14 @@
 
 
     <script>
+        document.querySelectorAll('.lesson-video-player').forEach(function(playerElement) {
+            new Plyr(playerElement, {
+                youtube: {
+                    noCookie: true
+                }
+            });
+        });
+
         @if ($lesson->mediaPDF)
             $(function() {
                 $("#myPDF").pdf({

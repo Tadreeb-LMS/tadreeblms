@@ -299,6 +299,113 @@
             <div class="row">
                 <div class="col-md-12 form-group">
                      <label for="add_video" class="control-label">{{ trans('labels.backend.lessons.fields.add_video') }}</label>
+
+                     @if($mediavideo && $lesson->videos->isEmpty())
+                        <div class="video-item card p-3 mb-3">
+                            <h5 class="mb-3">{{ __('course_pages.admin_lessons_create.preview_video') }}</h5>
+
+                            <label class="mt-2">Type</label>
+                            <select name="media_type" class="form-control video-type">
+                                <option value="upload" {{ $mediavideo->type == 'upload' ? 'selected' : '' }}>Upload</option>
+                                <option value="youtube" {{ $mediavideo->type == 'youtube' ? 'selected' : '' }}>YouTube</option>
+                                <option value="vimeo" {{ $mediavideo->type == 'vimeo' ? 'selected' : '' }}>Vimeo</option>
+                                <option value="embed" {{ $mediavideo->type == 'embed' ? 'selected' : '' }}>Embed</option>
+                            </select>
+
+                            <div class="video-url mt-2" {{ $mediavideo->type == 'upload' ? 'style=display:none;' : '' }}>
+                                <label>Video URL</label>
+                                <input type="text" name="video" class="form-control" value="{{ $mediavideo->url }}">
+                            </div>
+
+                            <div class="video-file mt-2" {{ $mediavideo->type != 'upload' ? 'style=display:none;' : '' }}>
+                                <label>Upload File</label>
+                                <input type="file" name="video_file" class="form-control">
+
+                                @if($mediavideo->url)
+                                    <div class="mt-2">
+                                        <a href="{{ $mediavideo->url }}" target="_blank">Current File</a>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <video width="320" controls>
+                                            <source src="{{ $mediavideo->url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($mediavideo->type == 'youtube' && $mediavideo->url)
+                                @php
+                                    $youtubeUrl = trim((string) $mediavideo->url);
+                                    $youtubeEmbedUrl = null;
+                                    $videoId = '';
+
+                                    $parts = parse_url($youtubeUrl);
+                                    $host = strtolower($parts['host'] ?? '');
+                                    $path = $parts['path'] ?? '';
+                                    $query = $parts['query'] ?? '';
+
+                                    if (strpos($host, 'youtu.be') !== false) {
+                                        $videoId = trim($path, '/');
+                                    } elseif (strpos($host, 'youtube.com') !== false || strpos($host, 'youtube-nocookie.com') !== false) {
+                                        if (preg_match('#^/shorts/([^/?]+)#', $path, $m)) {
+                                            $videoId = $m[1];
+                                        } elseif (preg_match('#^/embed/([^/?]+)#', $path, $m)) {
+                                            $videoId = $m[1];
+                                        } else {
+                                            parse_str($query, $queryParams);
+                                            $videoId = $queryParams['v'] ?? '';
+                                        }
+                                    } elseif (preg_match('/^[a-zA-Z0-9_-]{11}$/', $youtubeUrl)) {
+                                        $videoId = $youtubeUrl;
+                                    }
+
+                                    if ($videoId !== '') {
+                                        $youtubeEmbedUrl = 'https://www.youtube.com/embed/' . $videoId;
+                                    }
+                                @endphp
+
+                                @if($youtubeEmbedUrl)
+                                    <div class="mt-3">
+                                        <iframe width="420" height="250"
+                                            src="{{ $youtubeEmbedUrl }}"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerpolicy="strict-origin-when-cross-origin"
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                @endif
+                            @endif
+
+                            @if($mediavideo->type == 'vimeo' && $mediavideo->url)
+                                @php
+                                    $vimeoUrl = trim((string) $mediavideo->url);
+                                    $vimeoEmbedUrl = null;
+                                    if (preg_match('#(?:vimeo\.com/(?:video/|channels/[^/]+/|groups/[^/]+/videos/|album/[^/]+/video/)?|player\.vimeo\.com/video/)(\d+)#i', $vimeoUrl, $vm)) {
+                                        $vimeoEmbedUrl = 'https://player.vimeo.com/video/' . $vm[1];
+                                    }
+                                @endphp
+                                @if($vimeoEmbedUrl)
+                                    <div class="mt-3">
+                                        <iframe width="420" height="250"
+                                            src="{{ $vimeoEmbedUrl }}"
+                                            frameborder="0"
+                                            allow="autoplay; fullscreen; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                @endif
+                            @endif
+
+                            @if($mediavideo->type == 'embed' && $mediavideo->url)
+                                <div class="mt-3">
+                                    {!! $mediavideo->url !!}
+                                </div>
+                            @endif
+                        </div>
+                     @endif
                      
                      <div id="videos-wrapper">
     @forelse($lesson->videos as $index => $video)
@@ -436,7 +543,9 @@
             <input type="hidden" name="videos[{{ $index }}][delete]" class="delete-flag" value="0">
         </div>
     @empty
-        <p class="text-muted">No videos associated with this lesson.</p>
+        @unless($mediavideo)
+            <p class="text-muted">No videos associated with this lesson.</p>
+        @endunless
     @endforelse
 </div>
                     <button type="button" id="addVideo" class="btn btn-outline-info mt-2">Add Video</button>
