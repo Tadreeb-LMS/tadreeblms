@@ -50,11 +50,11 @@
 
 @if(null !== (Session::get('setvaluesession')))
 @if((Session::get('setvaluesession')) == 1)
-@lang('menus.backend.sidebar.general')  
+@lang('menus.backend.sidebar.general')
 @elseif((Session::get('setvaluesession')) == 2)
-@lang('menus.backend.sidebarr.internal')  
+@lang('menus.backend.sidebar.internal')
 @elseif((Session::get('setvaluesession')) == 3)
-@lang('menus.backend.sidebar.external') 
+@lang('menus.backend.sidebar.external')
 @endif
 @else
 @lang('menus.backend.sidebar.general')
