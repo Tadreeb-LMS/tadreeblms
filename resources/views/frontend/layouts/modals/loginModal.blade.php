@@ -550,34 +550,44 @@
                                     $('#login-password-error').html(response.errors.password[0]);
                                 }
 
-                                var captcha = "g-recaptcha-response";
-                                if (response.errors[captcha]) {
-                                    $('#login-captcha-error').html(response.errors[captcha][0]);
+                                var gCaptcha = "g-recaptcha-response";
+                                if (response.errors[gCaptcha]) {
+                                    $('#login-captcha-error').html(response.errors[gCaptcha][0]);
+                                }
+                                
+                                if (response.errors.captcha) {
+                                    $('#login-captcha-error').html(response.errors.captcha[0]);
+                                    refreshCaptcha('login');
+                                    $('#login').find('.captcha').val('');
                                 }
                             }
 
                             if (response.success) {
                                 window.location.href = response.redirect;
-
-                                //location.reload();
-
-                                // $('#loginForm')[0].reset();
-                                // if (response.redirect == 'back') {
-                                //     if (redirect_url) {
-                                //         window.location.href = redirect_url;
-                                //         return;
-                                //     }else{
-                                //         location.reload();
-                                //     }
-                                // } else {
-                                //     window.location.href = "{{route('admin.dashboard')}}"
-                                // }
                             }
                         },
                         error: function (jqXHR) {
                             var response = $.parseJSON(jqXHR.responseText);
                             console.log(jqXHR)
-                            if (response.message) {
+                            
+                            $('#login-email-error').empty();
+                            $('#login-password-error').empty();
+                            $('#login-captcha-error').empty();
+                            $('#login').find('span.error-response').empty();
+
+                            if (response.errors) {
+                                if (response.errors.email) {
+                                    $('#login-email-error').html(response.errors.email[0]);
+                                }
+                                if (response.errors.password) {
+                                    $('#login-password-error').html(response.errors.password[0]);
+                                }
+                                if (response.errors.captcha) {
+                                    $('#login-captcha-error').html(response.errors.captcha[0]);
+                                    refreshCaptcha('login');
+                                    $('#login').find('.captcha').val('');
+                                }
+                            } else if (response.message) {
                                 $('#login').find('span.error-response').html(response.message)
                             }
                         }
@@ -628,6 +638,8 @@
 
                             if(data.success == false && data.error_type == 'captcha') {
                                 $('#register-captcha-error').html(data.message);
+                                refreshCaptcha('register');
+                                $('#register').find('.captcha').val('');
                                 $button.text("{{ __('labels.frontend.modal.register_now') }}").prop('disabled', false);
                             }
 
