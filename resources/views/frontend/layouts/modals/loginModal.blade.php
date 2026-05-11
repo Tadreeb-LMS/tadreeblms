@@ -193,7 +193,7 @@
 
 
     <div class="modal fade" id="myRegisterModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
             <!-- Header -->
@@ -213,8 +213,6 @@
             <div class="modal-body">
                 <div class="tab-content">
                     <div class="tab-pane container active" id="register">
-
-                        <span id="register-captcha-error" class="captcha-error text-danger"></span>
                         <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
                         <form id="registerForm" class="contact_form" method="POST" action="#">
                             @csrf
@@ -224,18 +222,23 @@
 
                             <input type="hidden" name="active_page" class="active_page" value="{{ Route::currentRouteName() }}">
 
-                            <div class="contact-info mb-2">
-                                <input type="text" name="first_name" class="form-control mb-0"
-                                       maxlength="191"
-                                       placeholder="{{ __('validation.attributes.frontend.first_name') }}">
-                                <span id="first-name-error" class="text-danger"></span>
-                            </div>
-
-                            <div class="contact-info mb-2">
-                                <input type="text" name="last_name" class="form-control mb-0"
-                                       maxlength="191"
-                                       placeholder="{{ __('validation.attributes.frontend.last_name') }}">
-                                <span id="last-name-error" class="text-danger"></span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="contact-info mb-2">
+                                        <input type="text" name="first_name" class="form-control mb-0"
+                                               maxlength="191"
+                                               placeholder="{{ __('validation.attributes.frontend.first_name') }}">
+                                        <span id="first-name-error" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="contact-info mb-2">
+                                        <input type="text" name="last_name" class="form-control mb-0"
+                                               maxlength="191"
+                                               placeholder="{{ __('validation.attributes.frontend.last_name') }}">
+                                        <span id="last-name-error" class="text-danger"></span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="contact-info mb-2">
@@ -245,15 +248,20 @@
                                 <span id="email-error" class="text-danger"></span>
                             </div>
 
-                            <div class="contact-info mb-2">
-                                <input type="password" name="password" class="form-control mb-0"
-                                       placeholder="{{ __('validation.attributes.frontend.password') }}">
-                            </div>
-
-                            <div class="contact-info mb-2">
-                                <input type="password" name="password_confirmation" class="form-control mb-0"
-                                       placeholder="{{ __('validation.attributes.frontend.password_confirmation') }}">
-                                <span id="password-error" class="text-danger"></span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="contact-info mb-2">
+                                        <input type="password" name="password" class="form-control mb-0"
+                                               placeholder="{{ __('validation.attributes.frontend.password') }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="contact-info mb-2">
+                                        <input type="password" name="password_confirmation" class="form-control mb-0"
+                                               placeholder="{{ __('validation.attributes.frontend.password_confirmation') }}">
+                                        <span id="password-error" class="text-danger"></span>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Language Select -->
@@ -314,21 +322,27 @@
                                 @endforeach
                             @endif
 
-                            <div class="contact-info mb-2 catcha-block">
-                                <label>{{ __('auth_pages.login.captcha') }}</label>
-                                <div class="captcha-container">
-                                    <img id="register-captcha-image" src="" alt="Captcha" class="captcha-image" width="150" height="50">
-                                    <button type="button" id="register-captcha-refresh" class="captcha-refresh-btn" title="Refresh Captcha">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21 2v6h-6"></path>
-                                            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                                            <path d="M3 22v-6h6"></path>
-                                            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-                                        </svg>
-                                    </button>
+                            <div class="contact-info mb-4 mt-3">
+                                <label class="font-weight-bold d-block mb-2">{{ __('auth_pages.login.captcha') }}</label>
+                                <div class="row align-items-center mb-2">
+                                    <div class="col-6 d-flex align-items-center" style="gap: 15px;">
+                                        <div style="border: 1px solid #ced4da; border-radius: 4px; padding: 2px; background: #fff;">
+                                            <img id="register-captcha-image" src="" alt="Captcha" style="border-radius: 3px; height: 60px; width: 180px; object-fit: cover;">
+                                        </div>
+                                        <button type="button" id="register-captcha-refresh" class="btn btn-outline-secondary btn-sm" title="Refresh Captcha" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 2v6h-6"></path>
+                                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                                <path d="M3 22v-6h6"></path>
+                                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="captcha" class="form-control form-control-lg mb-1" placeholder="Enter captcha" required style="font-size: 1.1rem; padding: 10px 15px;">
+                                    </div>
                                 </div>
-                                <input type="text" name="captcha" class="captcha" placeholder="Enter captcha code" required>
-                                <span id="captcha-error" class="text-danger"></span>
+                                <span id="register-captcha-error" class="text-danger d-block font-weight-bold"></span>
                             </div>
 
                             <div class="nws-button text-center white text-capitalize">
