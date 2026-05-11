@@ -121,16 +121,16 @@
                 </div>
             
                 <div class="col-12 col-md-2">
-                    <label>Marks</label>
-                    <input 
-                        type="number" 
-                        class="form-control" 
-                        name="score" 
-                        id="score" 
-                        placeholder="Enter Marks" 
-                        required 
-                        value="{{$question->score}}" 
-                        min="1"       
+                    <label>Marks <span style="color:red">*</span></label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        name="score"
+                        id="score"
+                        placeholder="Enter Marks"
+                        required
+                        value="{{$question->score}}"
+                        min="1"
                         max="999"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
                     />
