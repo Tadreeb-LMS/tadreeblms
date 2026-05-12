@@ -13897,6 +13897,8 @@ canvas {
 
 .app-header .navbar-brand .navbar-brand-minimized {
   display: none;
+  height: 31px;
+  margin-left: 0;
 }
 
 .app-header .navbar-toggler {
