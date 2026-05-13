@@ -36,6 +36,9 @@
                 <label for="title" class="control-label">{{ trans('labels.backend.reasons.fields.title') }} *</label>
                 <input class="form-control" placeholder="{{ trans('labels.backend.reasons.fields.title') }}" name="title" type="text" value="{{ old('title') }}">
 
+                @error('title')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="col-md-12 col-lg-4 form-group">
