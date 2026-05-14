@@ -46,17 +46,10 @@ trait UserAttribute
     public function getConfirmedLabelAttribute()
     {
         if ($this->isConfirmed()) {
-            if ($this->id != 1 && $this->id != auth()->id()) {
-                return '<a href="'.route(
-                    'admin.auth.user.unconfirm',
-                        $this
-                ).'" data-toggle="tooltip" data-placement="top" title="'.__('buttons.backend.access.users.unconfirm').'" name="confirm_item"><span class="pill-publish" style="cursor:pointer">'.__('labels.general.yes').'</span></a>';
-            } else {
-                return '<span class="pill-publish">'.__('labels.general.yes').'</span>';
-            }
+            return "<span class='badge badge-success'>Yes</span>";
         }
 
-        return '<a href="'.route('admin.auth.user.confirm', $this).'" data-toggle="tooltip" data-placement="top" title="'.__('buttons.backend.access.users.confirm').'" name="confirm_item"><span class="badge badge-danger" style="cursor:pointer">'.__('labels.general.no').'</span></a>';
+        return "<span class='badge badge-danger'>No</span>";
     }
 
     /**
