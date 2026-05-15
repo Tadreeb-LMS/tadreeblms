@@ -51,12 +51,12 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-12 col-lg-6 form-group">
-                    <label for="title" class="control-label">{{ trans('labels.backend.blogs.fields.title') }}</label>
+                    <label for="title" class="control-label required">{{ trans('labels.backend.blogs.fields.title') }}</label>
                     <input class="form-control" placeholder="{{ trans('labels.backend.blogs.fields.title') }}" name="title" type="text" value="{{ old('title') }}" id="title">
                 </div>
 
                 <div class="col-12 col-lg-6 form-group">
-                    <label for="category" class="control-label">{{ trans('labels.backend.blogs.fields.category') }}</label>
+                    <label for="category" class="control-label required">{{ trans('labels.backend.blogs.fields.category') }}</label>
                     <select class="form-control select2" name="category" id="category">
                         @foreach($category as $key => $value)
                             <option value="{{ $key }}" {{ (old('category') == $key) ? 'selected' : '' }}>{{ $value }}</option>
@@ -90,7 +90,7 @@
 
             <div class="row">
                 <div class="col-12 form-group">
-                    <label for="content" class="control-label">{{ trans('labels.backend.blogs.fields.content') }}</label>
+                    <label for="content" class="control-label required">{{ trans('labels.backend.blogs.fields.content') }}</label>
                     <textarea class="form-control editor" placeholder="" id="editor" name="content" cols="50" rows="10">{{ old('content') }}</textarea>
 
                 </div>
