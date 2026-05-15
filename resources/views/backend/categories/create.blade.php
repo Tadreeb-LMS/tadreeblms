@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-12">
 
-                    <form method="POST" id="addcategory" enctype="multipart/form-data">
+                    <form method="POST" id="addcategory" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row">
@@ -40,8 +40,6 @@
 
 
                 </div>
-                <input type="hidden" id="teacher" value="{{ route('admin.categories.index') }}">
-                <input type="hidden" id="new-assisment" value="{{ route('admin.courses.create') }}">
             </div>
         </div>
     </div>
@@ -70,49 +68,5 @@
         })
 
     </script>
-
-<script>
-
-$(document).on('submit', '#addcategory', function (e) {
-    e.preventDefault();
-    hrefurl=$(location).attr("href");
-  last_part=hrefurl.substr(hrefurl.lastIndexOf('/') + 8)
-//   alert(last_part)
-    // setTimeout(() => {
-        let data = $('#addcategory').serialize();
-        let url = '{{route('admin.categories.store')}}'
-        var redirect_url=$("#teacher").val()
-        var redirect_url_assi=$("#new-assisment").val()
-    $.ajax({
-            type: 'POST',
-            url: url,
-            data: data,
-            datatype: "json",
-            success: function (res) {
-            console.log(res)
-            // alert(last_part)
-                if(last_part == 'create'){
-                    window.location.href = redirect_url_assi;
-                    return;
-                }
-                else{
-                    window.location.href = redirect_url;
-                    return;
-                }
-            },
-            error: function(xhr, status, error) {
-                console.log(xhr)
-                res= JSON.parse(xhr.responseText)
-                if (res.errors) {
-                    var firstError = Object.values(res.errors)[0][0];
-                    alert(firstError);
-                } else {
-                    alert('An error occurred. Please try again.');
-                }
-            }
-        })
-    // }, 100);
-})
-</script>
 
 @endpush
