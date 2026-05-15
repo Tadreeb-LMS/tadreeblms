@@ -35,7 +35,6 @@ Route::get('/ldap-test', function () {
         return "❌ LDAP connection failed: " . $e->getMessage();
     }
 });
-
 Route::get('/ldap-users', function () {
     $users = LdapUser::query()->get();
 
@@ -141,7 +140,10 @@ Route::middleware(['auth'])->group(function () {
 Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
 Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
     ->name('course-feedback-questions.edit');
-
+Route::delete(
+    'questions/{id}',
+    [CourseFeedbackController::class, 'destroy']
+)->name('questions.destroy');
 Route::post('course-feedback-questions/{id}/update', [CourseFeedbackController::class, 'update'])
     ->name('course-feedback-questions.update');
         
