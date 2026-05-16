@@ -142,18 +142,18 @@ class UserRepository extends BaseRepository
         $user = $this->getById($id);
         $user->first_name = $input['first_name'];
         $user->last_name = $input['last_name'];
-        $user->arabic_first_name = $input['arabic_first_name'];
-        $user->arabic_last_name = $input['arabic_last_name'];
-        $user->avatar_type = $input['avatar_type'];
-        $user->fav_lang = $input['fav_lang'];
-        $user->dob = isset($input['dob']) ? $input['dob'] : NULL ;
-        $user->phone = isset($input['phone']) ? $input['phone'] : NULL ;
-        $user->gender = isset($input['gender']) ? $input['gender'] : NULL;
-        $user->address = isset($input['address']) ? $input['address'] : NULL;
-        $user->city =  isset($input['city']) ? $input['city'] : NULL;
-        $user->pincode = isset($input['pincode']) ? $input['pincode'] : NULL;
-        $user->state = isset($input['state']) ? $input['state'] : NULL;
-        $user->country = isset($input['country']) ? $input['country'] : NULL;
+        $user->arabic_first_name = $input['arabic_first_name'] ?? $user->arabic_first_name;
+        $user->arabic_last_name = $input['arabic_last_name'] ?? $user->arabic_last_name;
+        $user->avatar_type = $input['avatar_type'] ?? $user->avatar_type;
+        $user->fav_lang = $input['fav_lang'] ?? $user->fav_lang;
+        $user->dob = $input['dob'] ?? $user->dob;
+        $user->phone = $input['phone'] ?? $user->phone;
+        $user->gender = $input['gender'] ?? $user->gender;
+        $user->address = $input['address'] ?? $user->address;
+        $user->city =  $input['city'] ?? $user->city;
+        $user->pincode = $input['pincode'] ?? $user->pincode;
+        $user->state = $input['state'] ?? $user->state;
+        $user->country = $input['country'] ?? $user->country;
         $user->save();
 
         // Upload profile image if necessary

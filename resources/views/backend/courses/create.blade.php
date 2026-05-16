@@ -436,8 +436,8 @@
                             @if(count($enabledMeetingProviders ?? []))
                                 {{-- Meeting Provider & Timezone (always visible for Live-Online) --}}
                                 <div class="card mt-3" id="meeting-provider-section">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i>
+                                    <div class="card-header bg-primary text-white" style="background-color: #007bff !important; color: #ffffff !important;">
+                                        <h5 class="mb-0" style="color: #ffffff !important;"><i class="fa fa-video-camera mr-2"></i>
                                             {{ __('course_pages.admin_create.meeting_configuration') }}</h5>
                                     </div>
                                     <div class="card-body">
@@ -492,8 +492,8 @@
 
                             {{-- Live Session Scheduling Section --}}
                             <div class="card mt-3" id="schedule-section">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0"><i class="fa fa-calendar mr-2"></i> Live Session Scheduling</h5>
+                                <div class="card-header bg-success text-white" style="background-color: #28a745 !important; color: #ffffff !important;">
+                                    <h5 class="mb-0" style="color: #ffffff !important;"><i class="fa fa-calendar mr-2"></i> Live Session Scheduling</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group">

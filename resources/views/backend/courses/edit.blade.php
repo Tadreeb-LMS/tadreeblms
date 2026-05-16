@@ -421,8 +421,8 @@
                             Live-Online type course is a course can be done on goole meet/Zoom link.
                             @if(count($enabledMeetingProviders ?? []))
                                 <div class="card mt-3" id="meeting-provider-section">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
+                                    <div class="card-header bg-primary text-white" style="background-color: #007bff !important; color: #ffffff !important;">
+                                        <h5 class="mb-0" style="color: #ffffff !important;"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
@@ -473,8 +473,8 @@
 
                             {{-- Live Session Scheduling Section --}}
                             <div class="card mt-3" id="schedule-section">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0"><i class="fa fa-calendar mr-2"></i> Live Session Scheduling</h5>
+                                <div class="card-header bg-success text-white" style="background-color: #28a745 !important; color: #ffffff !important;">
+                                    <h5 class="mb-0" style="color: #ffffff !important;"><i class="fa fa-calendar mr-2"></i> Live Session Scheduling</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group">
@@ -590,8 +590,8 @@
                             {{-- Existing Live Sessions Table --}}
                             @if($course->liveSessions && $course->liveSessions->count() > 0)
                                 <div class="card mt-3">
-                                    <div class="card-header bg-info text-white">
-                                        <h5 class="mb-0"><i class="fa fa-list mr-2"></i> Scheduled Sessions
+                                    <div class="card-header bg-info text-white" style="background-color: #17a2b8 !important; color: #ffffff !important;">
+                                        <h5 class="mb-0" style="color: #ffffff !important;"><i class="fa fa-list mr-2"></i> Scheduled Sessions
                                             ({{ $course->liveSessions->count() }})</h5>
                                     </div>
                                     <div class="card-body p-0">
