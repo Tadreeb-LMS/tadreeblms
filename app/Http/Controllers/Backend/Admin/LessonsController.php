@@ -99,13 +99,14 @@ class LessonsController extends Controller
                 return $actions;
             })
             ->editColumn('course', function ($q) {
-    if ($q->course) {
-        return '<a href="'.route('admin.courses.edit', $q->course->id).'">'
-            . e($q->course->title) .
-        '</a>';
-    }
-    return 'N/A';
-})
+                if ($q->course) {
+                    return '<a href="' . route('admin.courses.edit', $q->course->id) . '" class="text-primary">'
+                        . e($q->course->title) .
+                    '</a>';
+                }
+
+                return 'N/A';
+            })
             ->addColumn('attendance', function ($q) {
                 $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
 
@@ -157,7 +158,7 @@ class LessonsController extends Controller
             })
             ->editColumn('free_lesson', fn($q) => $q->free_lesson == 1 ? 'Yes' : 'No')
             ->editColumn('published', fn($q) => $q->published == 1 ? 'Yes' : 'No')
-            ->rawColumns(['lesson_image', 'qr_code', 'attendance', 'actions'])
+            ->rawColumns(['lesson_image', 'course', 'qr_code', 'attendance', 'actions'])
             ->make();
     }
 
