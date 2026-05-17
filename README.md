@@ -48,7 +48,7 @@ As an **open-source platform**, TadreebLMS gives organizations full control over
 ## 📦 Installation Guide
 
 For complete step-by-step instructions, please refer to our official documentation:
-👉 **[TadreebLMS Installation Guide](https://tadreeblms.com/docs/installation)**
+👉 **[TadreebLMS Installation Guide]([https://tadreeblms.com/docs/installation](https://tadreeblms.com/docs/installation/install))**
 
 ### Quick Start (Development)
 1. Clone the repository: `git clone https://github.com/Tadreeb-LMS/tadreeblms.git`
