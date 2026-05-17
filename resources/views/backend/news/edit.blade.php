@@ -83,7 +83,7 @@
                     </div>
 
                     <div class="col-12 form-group text-center">
-                        <button type="submit" class="btn mt-auto btn-danger">
+                        <button type="submit" class="btn mt-auto btn-primary">
                             {{ trans('strings.backend.general.app_save') }}
                         </button>
                     </div>
