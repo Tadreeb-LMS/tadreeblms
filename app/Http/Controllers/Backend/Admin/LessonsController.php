@@ -48,6 +48,7 @@ class LessonsController extends Controller
         $has_delete = auth()->user()->can('lesson_delete');
 
         $lessons = Lesson::query()
+            ->select('lessons.*')
             ->with(['attendance_list', 'course'])
             ->where(function ($query) {
                 $query->where('live_lesson', 0)->orWhereNull('live_lesson');
@@ -68,7 +69,7 @@ class LessonsController extends Controller
             $lessons->where('course_id', (int) $request->course_id);
         }
 
-        $lessons->orderBy('id', 'asc');
+        $lessons->orderBy('lessons.id', 'asc');
 
         return DataTables::of($lessons)
             ->addIndexColumn()
