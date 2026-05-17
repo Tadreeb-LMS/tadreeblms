@@ -161,7 +161,7 @@ width: 58% !important;
 
     // OPTIONAL: fetch already assigned questions (for duplicate prevention)
     $.ajax({
-        url: '/admin/course-feedback-questions/assigned/' + courseId,
+        url: '{{ route('admin.course-feedback-questions.assigned', ['course' => ':course']) }}'.replace(':course', courseId),
         type: 'GET',
         success: function (assignedIds) {
 

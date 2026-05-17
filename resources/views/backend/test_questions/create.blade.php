@@ -459,7 +459,7 @@
                 </button>
                 <button type="button" class="question-roadmap-step {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-target="options">
                     <span class="question-roadmap-step-number">2</span>
-                    Options
+                    {{ __('labels.backend.questions.options') }}
                 </button>
                 <button type="button" class="question-roadmap-step" data-roadmap-target="marks">
                     <span class="question-roadmap-step-number">3</span>
@@ -489,13 +489,13 @@
                 <fieldset class="question-roadmap-panel notextarea {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-panel="options">
                     <legend>
                         <span class="question-roadmap-panel-icon"><i class="fa fa-check-square-o"></i></span>
-                        Options
+                        {{ __('labels.backend.questions.options') }}
                     </legend>
                     <div class="question-roadmap-panel-body">
-                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="Scrivi l'opzione di risposta qui..."></textarea>
+                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
                         <div class="addoptbtn mt-3">
                             <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
-                                <i class="fa fa-plus-circle mr-2"></i>Aggiungi Opzione
+                                <i class="fa fa-plus-circle mr-2"></i>{{ __('labels.backend.questions.add_option') }}
                             </button>
                         </div>
                         <div class="addoptiontable mt-4">
@@ -554,6 +554,19 @@
 <script type="text/javascript">
     var options = [];
     var flag = 0;
+    var questionOptionLabels = {
+        addOption: @json(__('labels.backend.questions.add_option')),
+        optionField: @json(__('labels.backend.questions.fields.option_text')),
+        optionAdded: @json(__('labels.backend.questions.option_added')),
+        options: @json(__('labels.backend.questions.options')),
+        correct: @json(__('labels.backend.questions.fields.correct')),
+        noOptionsAdded: @json(__('labels.backend.questions.no_options_added')),
+        emptyOptionsHelp: @json(__('labels.backend.questions.empty_options_help')),
+        questionOptions: @json(__('labels.backend.questions.question_options')),
+        removeOption: @json(__('labels.backend.questions.remove_option')),
+        removeOptionTitle: @json(__('labels.backend.questions.remove_option_title')),
+        optionRequired: @json(__('labels.backend.questions.option_required')),
+    };
 
     function removeOptions(pos) {
         options.splice(pos, 1);
@@ -590,8 +603,8 @@
             container.innerHTML = `
                 <div class="option-item empty-state">
                     <i class="fa fa-inbox"></i>
-                    <p><strong>Nessuna opzione aggiunta</strong></p>
-                    <small>Compila il campo "Option" e fai clic su "Add Option" per iniziare</small>
+                    <p><strong>${questionOptionLabels.noOptionsAdded}</strong></p>
+                    <small>${questionOptionLabels.emptyOptionsHelp}</small>
                 </div>
             `;
             return;
@@ -601,9 +614,9 @@
             <div class="option-area-header">
                 <div class="title">
                     <i class="fa fa-list-ol" style="color: #4e73df;"></i>
-                    Opzioni della domanda
+                    ${questionOptionLabels.questionOptions}
                 </div>
-                <div class="option-count">${options.length} Opzioni</div>
+                <div class="option-count">${options.length} ${questionOptionLabels.options}</div>
             </div>
         `;
 
@@ -621,12 +634,12 @@
                     </div>
                     <div class="correct-indicator" onclick="markAsCorrectOption(${i}${show_remove_options ? '' : ', false'})">
                         <input type="${inputType}" ${isCorrect ? 'checked="checked"' : ''} class="option-checkbox" style="cursor: pointer;">
-                        <label style="margin-left: 6px; margin-bottom: 0; cursor: pointer; font-size: 0.75rem; color: #4a5568; font-weight: 600;">Corretta</label>
+                        <label style="margin-left: 6px; margin-bottom: 0; cursor: pointer; font-size: 0.75rem; color: #4a5568; font-weight: 600;">${questionOptionLabels.correct}</label>
                     </div>
                     ${show_remove_options ? `
                     <div class="option-actions">
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="Rimuovi questa opzione">
-                            <i class="fa fa-trash"></i> Rimuovi
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="${questionOptionLabels.removeOptionTitle}">
+                            <i class="fa fa-trash"></i> ${questionOptionLabels.removeOption}
                         </button>
                     </div>
                     ` : ''}
@@ -645,7 +658,7 @@
         // Visual feedback
         const btn = document.getElementById('add_option');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-check mr-2"></i>Opzione Aggiunta!';
+        btn.innerHTML = '<i class="fa fa-check mr-2"></i>' + questionOptionLabels.optionAdded;
         btn.style.background = '#1cc88a';
         setTimeout(() => {
             btn.innerHTML = originalText;
@@ -658,7 +671,7 @@
         if (getEditorContent("option") != "") {
             addOptions();
         } else {
-            alert('Per favore, compila il campo opzione prima di aggiungerla.');
+            alert(questionOptionLabels.optionRequired);
         }
         showOptions();
     });
