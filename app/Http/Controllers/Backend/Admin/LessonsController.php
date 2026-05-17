@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -47,6 +48,7 @@ class LessonsController extends Controller
         $has_delete = auth()->user()->can('lesson_delete');
 
         $lessons = Lesson::query()
+            ->select('lessons.*')
             ->with(['attendance_list', 'course'])
             ->where(function ($query) {
                 $query->where('live_lesson', 0)->orWhereNull('live_lesson');
@@ -67,7 +69,7 @@ class LessonsController extends Controller
             $lessons->where('course_id', (int) $request->course_id);
         }
 
-        $lessons->orderBy('id', 'asc');
+        $lessons->orderBy('lessons.id', 'asc');
 
         return DataTables::of($lessons)
             ->addIndexColumn()
@@ -97,13 +99,14 @@ class LessonsController extends Controller
                 return $actions;
             })
             ->editColumn('course', function ($q) {
-    if ($q->course) {
-        return '<a href="'.route('admin.courses.edit', $q->course->id).'">'
-            . e($q->course->title) .
-        '</a>';
-    }
-    return 'N/A';
-})
+                if ($q->course) {
+                    return '<a href="' . route('admin.courses.edit', $q->course->id) . '" class="text-primary">'
+                        . e($q->course->title) .
+                    '</a>';
+                }
+
+                return 'N/A';
+            })
             ->addColumn('attendance', function ($q) {
                 $courseId = (int) ($q->course_id ?? optional($q->course)->id ?? 0);
 
@@ -155,7 +158,7 @@ class LessonsController extends Controller
             })
             ->editColumn('free_lesson', fn($q) => $q->free_lesson == 1 ? 'Yes' : 'No')
             ->editColumn('published', fn($q) => $q->published == 1 ? 'Yes' : 'No')
-            ->rawColumns(['lesson_image', 'qr_code', 'attendance', 'actions'])
+            ->rawColumns(['lesson_image', 'course', 'qr_code', 'attendance', 'actions'])
             ->make();
     }
 
@@ -409,11 +412,121 @@ class LessonsController extends Controller
 
 
         $courses    = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
-        $lesson     = Lesson::with(['media', 'mediaVideo'])->findOrFail($id);
+        $lesson     = Lesson::with(['media', 'mediaVideo', 'videos'])->findOrFail($id);
         $videos     = $lesson->media ? $lesson->media()->pluck('url')->implode(',') : '';
         $mediavideo = $lesson->mediaVideo;
 
         return view('backend.lessons.edit', compact('mediavideo', 'lesson', 'courses', 'videos'));
+    }
+
+    private function syncLessonVideos(Request $request, Lesson $lesson): void
+    {
+        $submittedVideos = $request->input('videos', []);
+
+        if (!is_array($submittedVideos)) {
+            return;
+        }
+
+        $sortOrder = 0;
+        $allowedTypes = ['upload', 'youtube', 'vimeo', 'embed'];
+
+        foreach ($submittedVideos as $index => $videoData) {
+            if (!is_array($videoData)) {
+                continue;
+            }
+
+            $lessonVideo = null;
+            if (!empty($videoData['id'])) {
+                $lessonVideo = LessonVideo::where('lesson_id', $lesson->id)
+                    ->where('id', (int) $videoData['id'])
+                    ->first();
+            }
+
+            if (($videoData['delete'] ?? '0') === '1') {
+                if ($lessonVideo) {
+                    if ($lessonVideo->file_path) {
+                        Storage::disk('public')->delete($lessonVideo->file_path);
+                    }
+                    $lessonVideo->delete();
+                }
+
+                continue;
+            }
+
+            $type = in_array(($videoData['type'] ?? 'upload'), $allowedTypes, true)
+                ? $videoData['type']
+                : 'upload';
+
+            $filePath = $lessonVideo->file_path ?? null;
+            if ($request->hasFile("videos.$index.file")) {
+                if ($filePath) {
+                    Storage::disk('public')->delete($filePath);
+                }
+
+                $filePath = $request->file("videos.$index.file")->store('lesson_videos', 'public');
+            }
+
+            if ($type !== 'upload') {
+                if ($filePath) {
+                    Storage::disk('public')->delete($filePath);
+                }
+                $filePath = null;
+            }
+
+            $submittedUrl = trim((string) ($videoData['url'] ?? ''));
+            $url = $type === 'upload'
+                ? ($submittedUrl !== '' ? $submittedUrl : ($lessonVideo->url ?? null))
+                : $submittedUrl;
+
+            $hasVideoSource = $type === 'upload'
+                ? ($filePath || $url)
+                : $url !== '';
+
+            if (!$lessonVideo && !$hasVideoSource && blank($videoData['title'] ?? null)) {
+                continue;
+            }
+
+            $lessonVideo = $lessonVideo ?: new LessonVideo(['lesson_id' => $lesson->id]);
+            $lessonVideo->title = $videoData['title'] ?? null;
+            $lessonVideo->type = $type;
+            $lessonVideo->url = $url ?: null;
+            $lessonVideo->file_path = $filePath;
+            $lessonVideo->sort_order = $sortOrder;
+            $lessonVideo->is_preview = isset($videoData['is_preview']) ? 1 : 0;
+            $lessonVideo->save();
+
+            $sortOrder++;
+        }
+    }
+
+    private function extractVideoIdentifier(?string $url, string $type): string
+    {
+        $url = trim((string) $url);
+        if ($url === '') {
+            return '';
+        }
+
+        if ($type === 'youtube') {
+            if (preg_match('/(?:v=|\/)([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+                return $matches[1];
+            }
+
+            if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $url)) {
+                return $url;
+            }
+        }
+
+        if ($type === 'vimeo') {
+            if (preg_match('/vimeo\.com\/(?:video\/)?([0-9]+)/', $url, $matches)) {
+                return $matches[1];
+            }
+
+            if (preg_match('/^[0-9]+$/', $url)) {
+                return $url;
+            }
+        }
+
+        return '';
     }
 
     public function update(UpdateLessonsRequest $request, $id)
@@ -431,11 +544,24 @@ class LessonsController extends Controller
                 return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
             }
 
-            $lesson                    = Lesson::findOrFail($id);
-            $lesson->update($request->except('downloadable_files', 'lesson_image'));
+            $lesson                    = Lesson::with('videos')->findOrFail($id);
+            $lesson->update($request->except('downloadable_files', 'lesson_image', 'videos', 'media_type', 'video', 'video_file', 'lesson_start_date'));
             $lesson->slug              = $slug;
             $lesson->duration          = $request->duration;
-            $lesson->lesson_start_date = date('Y-m-d H:i', strtotime($request->lesson_start_date));
+            if ($request->has('lesson_start_date')) {
+                if ($request->filled('lesson_start_date')) {
+                    $submittedLessonDate = date('Y-m-d', strtotime($request->lesson_start_date));
+                    $currentLessonDate = $lesson->lesson_start_date
+                        ? date('Y-m-d', strtotime($lesson->lesson_start_date))
+                        : null;
+
+                    if ($submittedLessonDate !== $currentLessonDate) {
+                        $lesson->lesson_start_date = date('Y-m-d H:i', strtotime($request->lesson_start_date));
+                    }
+                } else {
+                    $lesson->lesson_start_date = null;
+                }
+            }
             $lesson->save();
 
             try {
@@ -456,7 +582,7 @@ class LessonsController extends Controller
                 if ($request->media_type !== 'upload') {
                     $url      = $request->video;
                     $videoId  = in_array($request->media_type, ['youtube', 'vimeo'])
-                        ? array_last(explode('/', $request->video))
+                        ? $this->extractVideoIdentifier($request->video, $request->media_type)
                         : '';
 
                     $media->model_type = Lesson::class;
@@ -497,6 +623,8 @@ class LessonsController extends Controller
                 }
             }
 
+            $this->syncLessonVideos($request, $lesson);
+
 
             if ($request->hasFile('add_pdf')) {
                 optional($lesson->mediaPDF)->delete();
@@ -528,6 +656,10 @@ class LessonsController extends Controller
                 ->withFlashSuccess(__('alerts.backend.general.updated'));
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error('Lesson update failed: ' . $e->getMessage(), [
+                'lesson_id' => $id,
+                'request_video_type' => $request->media_type,
+            ]);
 
             return back()->withFlashDanger('Error while updating...');
         }
