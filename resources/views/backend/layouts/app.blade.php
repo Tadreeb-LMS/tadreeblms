@@ -272,8 +272,26 @@
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-$(document).on('click', '.js-delete-question', function (e) {
+$(document).on('click', '.js-status-toggle', function(e){
+    e.preventDefault();
+
+    let url = $(this).data('url');
+    let action = $(this).data('action');
+
+    Swal.fire({
+        title: action === 'activate' ? 'Are you sure you want to ACTIVATE this user?' : 'Are you sure you want to DEACTIVATE this user?',
+        icon: action === 'activate' ? 'question' : 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes'
+    }).then((result) => {
+        if(result.isConfirmed){
+            window.location.href = url;
+        }
+    });
+});
+</script>
 
     e.preventDefault();
 
