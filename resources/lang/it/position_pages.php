@@ -15,6 +15,9 @@ return array(
     'delete_selected' => 'Elimina selezionati',
     'no_data_available' => 'Nessun dato disponibile.',
   ),
+  'table' => array(
+    'position_name' => 'Nome posizione',
+  ),
   'create' => array(
     'title' => 'Crea posizione',
     'view_positions' => 'Visualizza posizioni',

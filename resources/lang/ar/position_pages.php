@@ -15,6 +15,9 @@ return array(
     'delete_selected' => 'حذف المحدد',
     'no_data_available' => 'لا توجد بيانات متاحة.',
   ),
+  'table' => array(
+    'position_name' => 'اسم المنصب',
+  ),
   'create' => array(
     'title' => 'إنشاء منصب',
     'view_positions' => 'عرض المناصب',
