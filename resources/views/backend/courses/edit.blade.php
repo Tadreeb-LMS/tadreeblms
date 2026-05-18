@@ -62,10 +62,35 @@
     }
 
     span.course-type-desc {
+        display: block;
+        width: 100%;
+        color: #343a40;
         padding: 0 0 0 20px;
         font-size: 12px;
         font-weight: bold;
         font-style: italic;
+    }
+
+    .course-live-online-section {
+        display: block;
+        width: 100%;
+        font-style: normal;
+    }
+
+    .course-live-online-section .card-header {
+        background: #eef3f8 !important;
+        border: 1px solid #d8e2ef;
+        border-left: 4px solid #233e74;
+        color: #233e74 !important;
+        padding-left: 1.25rem;
+    }
+
+    .course-live-online-section .card-header h5,
+    .course-live-online-section .card-header i {
+        color: #233e74 !important;
+        font-weight: 600;
+        margin-left: 0.5em;
+        margin-top: 0.5em;
     }
 
     .create_done {
@@ -417,7 +442,7 @@
                         <span id="e-learning">
                             E-Learning type course is a course which can be taken online.
                         </span>
-                        <span id="live-online" style="display: none;">
+                        <span id="live-online" class="course-live-online-section" style="display: none;">
                             Live-Online type course is a course can be done on goole meet/Zoom link.
                             @if(count($enabledMeetingProviders ?? []))
                                 <div class="card mt-3" id="meeting-provider-section">
@@ -997,7 +1022,7 @@
             } else {
                 // Live Courses
                 $('#e-learning').hide();
-                type === 'Offline' ? $('#live-online').show() : $('#live-classroom').show();
+                type === 'Offline' ? $('#live-online').show().css('display', 'block') : $('#live-classroom').show();
 
                 $('#date-fields').show();
                 $('#start_date, #expire_at').prop('required', true);
@@ -1052,7 +1077,7 @@
 
             // course description
             $('#e-learning').toggle(type === 'Online');
-            $('#live-online').toggle(type === 'Offline');
+            $('#live-online').toggle(type === 'Offline').css('display', type === 'Offline' ? 'block' : 'none');
             $('#live-classroom').toggle(type === 'Live-Classroom');
         }
 
