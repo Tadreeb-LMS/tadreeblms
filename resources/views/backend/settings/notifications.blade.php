@@ -11,11 +11,35 @@
         margin-bottom: 0px;
         vertical-align: middle;
     }
+    .notification-setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f1f1;
+        gap: 20px;
+    }
+
+    .notification-setting-row:last-child {
+        border-bottom: none;
+    }
+
+    .notification-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0;
+    }
+
     .toggle-group {
         display: flex;
-        gap: 20px;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: flex-start;
+        min-width: 60px;
+    }
+
+    .switch.switch-3d {
+        margin-bottom: 0 !important;
     }
     .card {
         margin-bottom: 20px;
@@ -48,19 +72,18 @@
 
         <div class="row mt-4 mb-4">
             <div class="col">
-                <div class="form-group row">
-                    <label class="col-md-6 form-control-label">{{ __('labels.notifications.settings.email_notifications') }}</label>
-                    <div class="col-md-6">
-                        <div class="toggle-group">
-                            <label class="switch switch-3d switch-primary">
-                                <input type="checkbox" class="switch-input channel-master-toggle" data-channel="email" checked>
-                                <span class="switch-label"></span>
-                                <span class="switch-handle"></span>
-                            </label>
-                        </div>
+                <div class="notification-setting-row">
+                    <label class="notification-label">
+                        {{ __('labels.notifications.settings.email_notifications') }}
+                    </label>
+                    <div class="toggle-group">
+                        <label class="switch switch-3d switch-primary">
+                            <input type="checkbox" class="switch-input channel-master-toggle" data-channel="email" checked>
+                            <span class="switch-label"></span>
+                            <span class="switch-handle"></span>
+                        </label>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -82,25 +105,27 @@
         <div class="row mt-4 mb-4">
             <div class="col">
                 @foreach($module['events'] as $eventKey => $event)
-                <div class="form-group row">
-                    <label class="col-md-6 form-control-label">{{ $event['label'] }}</label>
-                    <div class="col-md-6">
-                        <div class="toggle-group">
-                            @php $emailChannel = $event['channels']['email'] ?? null; @endphp
-                            @if($emailChannel)
+                <div class="notification-setting-row">
+                    <label class="notification-label">
+                        {{ $event['label'] }}
+                    </label>
+                    <div class="toggle-group">
+                        @php $emailChannel = $event['channels']['email'] ?? null; @endphp
+                        @if($emailChannel)
                             <label class="switch switch-3d switch-primary">
                                 <input type="checkbox"
                                     class="switch-input notification-toggle"
                                     data-module="{{ $moduleKey }}"
                                     data-event="{{ $eventKey }}"
                                     data-channel="email"
-                                    {{ $emailChannel['enabled'] ? 'checked' : '' }}>
+                                    {{ $emailChannel['enabled'] ? 'checked' : '' }}
+                                >
                                 <span class="switch-label"></span>
                                 <span class="switch-handle"></span>
                             </label>
-                            @endif
-                        </div>
+                        @endif
                     </div>
+
                 </div>
                 @endforeach
             </div>
