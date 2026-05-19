@@ -62,10 +62,35 @@
     }
 
     span.course-type-desc {
+        display: block;
+        width: 100%;
+        color: #343a40;
         padding: 0 0 0 20px;
         font-size: 12px;
         font-weight: bold;
         font-style: italic;
+    }
+
+    .course-live-online-section {
+        display: block;
+        width: 100%;
+        font-style: normal;
+    }
+
+    .course-live-online-section .card-header {
+        background: #eef3f8 !important;
+        border: 1px solid #d8e2ef;
+        border-left: 4px solid #233e74;
+        color: #233e74 !important;
+        padding-left: 1.25rem;
+    }
+
+    .course-live-online-section .card-header h5,
+    .course-live-online-section .card-header i {
+        color: #233e74 !important;
+        font-weight: 600;
+        margin-left: 0.5em;
+        margin-top: 0.5em;
     }
 
     .create_done {
@@ -431,7 +456,7 @@
                         <span id="e-learning">
                             {{ __('course_pages.admin_create.e_learning_desc') }}
                         </span>
-                        <span id="live-online" style="display: none;">
+                        <span id="live-online" class="course-live-online-section" style="display: none;">
                             {{ __('course_pages.admin_create.live_online_desc') }}
                             @if(count($enabledMeetingProviders ?? []))
                                 {{-- Meeting Provider & Timezone (always visible for Live-Online) --}}
@@ -886,7 +911,7 @@
 
             } else if (type === 'Offline') { // Live-Online
                 $('#e-learning').hide();
-                $('#live-online').show();
+                $('#live-online').show().css('display', 'block');
                 $('#live-classroom').hide();
 
                 $('#main-flow').hide();

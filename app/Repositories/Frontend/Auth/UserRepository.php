@@ -140,20 +140,28 @@ class UserRepository extends BaseRepository
     public function update($id, array $input, $image = false)
     {
         $user = $this->getById($id);
-        $user->first_name = $input['first_name'];
-        $user->last_name = $input['last_name'];
-        $user->arabic_first_name = $input['arabic_first_name'];
-        $user->arabic_last_name = $input['arabic_last_name'];
-        $user->avatar_type = $input['avatar_type'];
-        $user->fav_lang = $input['fav_lang'];
-        $user->dob = isset($input['dob']) ? $input['dob'] : NULL ;
-        $user->phone = isset($input['phone']) ? $input['phone'] : NULL ;
-        $user->gender = isset($input['gender']) ? $input['gender'] : NULL;
-        $user->address = isset($input['address']) ? $input['address'] : NULL;
-        $user->city =  isset($input['city']) ? $input['city'] : NULL;
-        $user->pincode = isset($input['pincode']) ? $input['pincode'] : NULL;
-        $user->state = isset($input['state']) ? $input['state'] : NULL;
-        $user->country = isset($input['country']) ? $input['country'] : NULL;
+
+        foreach ([
+            'first_name',
+            'last_name',
+            'arabic_first_name',
+            'arabic_last_name',
+            'avatar_type',
+            'fav_lang',
+            'dob',
+            'phone',
+            'gender',
+            'address',
+            'city',
+            'pincode',
+            'state',
+            'country',
+        ] as $field) {
+            if (array_key_exists($field, $input)) {
+                $user->{$field} = $input[$field];
+            }
+        }
+
         $user->save();
 
         // Upload profile image if necessary
@@ -161,7 +169,7 @@ class UserRepository extends BaseRepository
             $user->avatar_location = $image->store('/avatars', 'public');
         } else {
             // No image being passed
-            if ($input['avatar_type'] == 'storage') {
+            if ($user->avatar_type == 'storage') {
                 // If there is no existing image
                 if (! strlen(auth()->user()->avatar_location)) {
                     throw new GeneralException('You must supply a profile image.');
@@ -176,7 +184,7 @@ class UserRepository extends BaseRepository
             }
         }
 
-        if ($user->canChangeEmail()) {
+        if ($user->canChangeEmail() && array_key_exists('email', $input)) {
             //Address is not current address so they need to reconfirm
             if ($user->email != $input['email']) {
                 //Emails have to be unique

@@ -459,7 +459,7 @@
                 </button>
                 <button type="button" class="question-roadmap-step {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-target="options">
                     <span class="question-roadmap-step-number">2</span>
-                    Options
+                    {{ __('labels.backend.questions.options') }}
                 </button>
                 <button type="button" class="question-roadmap-step" data-roadmap-target="marks">
                     <span class="question-roadmap-step-number">3</span>
@@ -492,7 +492,7 @@
                         {{ __('labels.backend.questions.options') }}
                     </legend>
                     <div class="question-roadmap-panel-body">
-                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1"></textarea>
+                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
                         <div class="addoptbtn mt-3">
                             <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
                                 <i class="fa fa-plus-circle mr-2"></i>{{ __('labels.backend.questions.add_option') }}
@@ -555,14 +555,18 @@
     var options = [];
     var flag = 0;
     var questionOptionLabels = {
+        addOption: @json(__('labels.backend.questions.add_option')),
+        optionField: @json(__('labels.backend.questions.fields.option_text')),
+        optionAdded: @json(__('labels.backend.questions.option_added')),
         options: @json(__('labels.backend.questions.options')),
         questionOptions: @json(__('labels.backend.questions.question_options')),
-        addOption: @json(__('labels.backend.questions.add_option')),
         removeOption: @json(__('labels.backend.questions.remove_option')),
+        removeOptionTitle: @json(__('labels.backend.questions.remove_option_title')),
         correct: @json(__('labels.backend.questions.fields.correct')),
         noOptionsAdded: @json(__('labels.backend.questions.no_options_added')),
+        emptyOptionsHelp: @json(__('labels.backend.questions.empty_options_help')),
         optionEmptyHelp: @json(__('labels.backend.questions.option_empty_help')),
-        optionRequired: @json(__('labels.backend.questions.option_required'))
+        optionRequired: @json(__('labels.backend.questions.option_required')),
     };
 
     function removeOptions(pos) {
@@ -601,7 +605,7 @@
                 <div class="option-item empty-state">
                     <i class="fa fa-inbox"></i>
                     <p><strong>${questionOptionLabels.noOptionsAdded}</strong></p>
-                    <small>${questionOptionLabels.optionEmptyHelp}</small>
+                    <small>${questionOptionLabels.emptyOptionsHelp || questionOptionLabels.optionEmptyHelp}</small>
                 </div>
             `;
             return;
@@ -635,7 +639,7 @@
                     </div>
                     ${show_remove_options ? `
                     <div class="option-actions">
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="${questionOptionLabels.removeOption}">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="${questionOptionLabels.removeOptionTitle || questionOptionLabels.removeOption}">
                             <i class="fa fa-trash"></i> ${questionOptionLabels.removeOption}
                         </button>
                     </div>
@@ -655,7 +659,7 @@
         // Visual feedback
         const btn = document.getElementById('add_option');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-check mr-2"></i>Opzione Aggiunta!';
+        btn.innerHTML = '<i class="fa fa-check mr-2"></i>' + questionOptionLabels.optionAdded;
         btn.style.background = '#1cc88a';
         setTimeout(() => {
             btn.innerHTML = originalText;

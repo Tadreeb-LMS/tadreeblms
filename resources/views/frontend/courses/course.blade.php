@@ -161,10 +161,10 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
                                     @foreach($lessons as $key=> $lesson)
                                         @if($lesson->model && $lesson->model->published == 1)
                                             @php $count++ @endphp
-                                            <div class="panel position-relative">
+                                            <div class="panel position-relative @if(auth()->check() && in_array($lesson->model->id,$completed_lessons)) course-timeline-panel-completed @endif">
                                                 @if(auth()->check())
                                                     @if(in_array($lesson->model->id,$completed_lessons))
-                                                        <div class="position-absolute" style="right: 0;top:0px">
+                                                        <div class="course-timeline-completed-badge">
                                                             <span class="gradient-bg p-1 text-white font-weight-bold completed">@lang('labels.frontend.course.completed')</span>
                                                         </div>
                                                     @endif

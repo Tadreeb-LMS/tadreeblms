@@ -330,13 +330,23 @@ class SubscriptionController extends Controller
         return redirect()->route('admin.subscription.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
 
-    public function updateStatus()
+    public function updateStatus(Request $request)
     {
-        //dd('sfs');
-        $teacher = SubscribeCourse::find(request('id'));
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:subscribe_courses,id'],
+        ]);
+
+        $teacher = SubscribeCourse::findOrFail($request->id);
         $teacher->status = $teacher->status == 1? 0 : 1;
 
         $status = $teacher->save();
+        if (! $status) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Unable to update status. Please try again.'),
+            ], 500);
+        }
+
         if($teacher->status == 1) {
             DB::table('course_student')->insert([
                 'course_id' => $teacher->course_id,
@@ -351,6 +361,12 @@ class SubscriptionController extends Controller
                 'user_id' => $teacher->user_id
                ])->delete();
         }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Status updated successfully.'),
+            'updated_status' => $teacher->status,
+        ]);
     }
 
 
