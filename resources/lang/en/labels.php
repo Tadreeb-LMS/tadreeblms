@@ -381,6 +381,13 @@ return array(
       'edit' => 'Edit Question',
       'view' => 'View Questions',
       'test' => 'Test',
+      'options' => 'Options',
+      'question_options' => 'Question options',
+      'add_option' => 'Add Option',
+      'remove_option' => 'Remove',
+      'no_options_added' => 'No options added',
+      'option_empty_help' => 'Fill the option field and click Add Option to start.',
+      'option_required' => 'Please fill the option field before adding it.',
     ),
     'reasons' =>
     array(

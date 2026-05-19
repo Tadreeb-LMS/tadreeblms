@@ -772,6 +772,10 @@ public function getStatusLabelAttribute()
 
     public function assignmentStatus($user_id, $progress = null)
     {
+        if (CustomHelper::hasPendingAssessmentEvaluation($this->id, $user_id)) {
+            return 'Pending Evaluation';
+        }
+
         $assignmentScoreValue = 0;
         try {
             $assignmentScoreValue = $this->assignmentScoreValue($user_id, $progress);

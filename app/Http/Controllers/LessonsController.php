@@ -206,22 +206,13 @@ class LessonsController extends Controller
         // Build the assessment URL
         if ($assessment) {
 
-            $test_taken = CustomHelper::assignmentAttempts($assessment->id, $logged_in_user_id);
-
-            //dd($test_taken);
-
-            $allowedAssignmentRetake = 2;
-            //dd($allowedAssignmentRetake, $test_taken);
-
-            if ($test_taken < $allowedAssignmentRetake) {
-                return route('online_assessment', [
-                    'assignment'     => $assessment->url_code,
-                    'verify_code'    => $assessment->verify_code,
-                    'id'             => $assignment->id,
-                    'assessment_id'  => $assessment->id,
-                    'course_id'      => $course_id
-                ]);
-            }
+            return route('online_assessment', [
+                'assignment'     => $assessment->url_code,
+                'verify_code'    => $assessment->verify_code,
+                'id'             => $assignment->id,
+                'assessment_id'  => $assessment->id,
+                'course_id'      => $course_id
+            ]);
         }
 
         return '';
@@ -354,17 +345,7 @@ class LessonsController extends Controller
 
         $dd = DataTables::of($assignments)->addColumn('assesment_url', function ($q) use ($logged_in_user_id, $course_id) {
             if ($q->assessment) {
-                $test_taken = CustomHelper::assignmentAttempts($q->assessment->id, $logged_in_user_id);
-                //echo '<pre>';   print_r([$test_taken]);die;
-
-                $allowedAssignmentRetake = 2;
-
-                if ($test_taken < $allowedAssignmentRetake) {
-                    $test_link = route('online_assessment', ['assignment' => $q->assessment->url_code, 'verify_code' => $q->assessment->verify_code, 'id' => $q->id, 'assessment_id' => $q->assessment->id, 'course_id' => $course_id]);
-                    return  $test_link;
-                } else {
-                    return false;
-                }
+                return route('online_assessment', ['assignment' => $q->assessment->url_code, 'verify_code' => $q->assessment->verify_code, 'id' => $q->id, 'assessment_id' => $q->assessment->id, 'course_id' => $course_id]);
             } else {
                 return false;
             }
@@ -524,7 +505,14 @@ class LessonsController extends Controller
                     $lesson_quiz_percentage = $question_count > 0
                         ? ($lesson_quiz_result->test_result / $question_count) * 100
                         : 0;
-                    $lesson_quiz_pass = ($lesson_quiz_percentage >= 100) ? 'Pass' : 'Failed';
+                    $hasPendingShortAnswer = DB::table('lesson_quiz_answers')
+                        ->where('tests_result_id', $lesson_quiz_result->id)
+                        ->whereNull('is_correct')
+                        ->exists();
+
+                    $lesson_quiz_pass = $hasPendingShortAnswer
+                        ? 'Pending Evaluation'
+                        : (($lesson_quiz_percentage >= 100) ? 'Pass' : 'Failed');
                 }
             }
         }
@@ -545,8 +533,8 @@ class LessonsController extends Controller
         $completed_lessons = "";
 
         $test_pass = "";
-        $total_questions = "";
-        $percentage = "";
+        $total_questions = 0;
+        $percentage = null;
         $assessment_link = "";
 
         $logged_in_user_id = auth()->user()->id;
@@ -643,8 +631,13 @@ class LessonsController extends Controller
                 // get the tes't score
 
                 $total_questions = $lesson->questions->count();
-                $percentage = $test_result->test_result / $total_questions * 100;
-                $test_pass = ($percentage < $lesson->passing_score) ? "Failed" : "Pass";
+
+                if ($total_questions > 0) {
+                    $percentage = $test_result->test_result / $total_questions * 100;
+                    $test_pass = ($percentage < $lesson->passing_score) ? "Failed" : "Pass";
+                } else {
+                    $test_pass = "Score unavailable";
+                }
             }
         }
 
@@ -994,9 +987,15 @@ class LessonsController extends Controller
         }
 
         if ($request->boolean('retest')) {
-            TestsResult::where('test_id', $lessonTest->id)
+            $resultIds = TestsResult::where('test_id', $lessonTest->id)
                 ->where('user_id', auth()->id())
-                ->delete();
+                ->pluck('id');
+
+            if ($resultIds->isNotEmpty()) {
+                DB::table('lesson_quiz_answers')->whereIn('tests_result_id', $resultIds)->delete();
+
+                TestsResult::whereIn('id', $resultIds)->delete();
+            }
 
             return back();
         }
@@ -1007,28 +1006,82 @@ class LessonsController extends Controller
             return back()->with('flash_warning', 'Please select an answer for each question before submitting.');
         }
 
+        $questions = $lessonTest->test_active_questions()->keyBy('id');
         $correct = 0;
-        foreach ($submitted as $question_id => $selected_option_id) {
-            $isRight = DB::table('test_question_options')
-                ->where('id', (int) $selected_option_id)
-                ->where('question_id', (int) $question_id)
-                ->where('is_right', 1)
-                ->exists();
+        $answerRows = [];
+
+        foreach ($questions as $question_id => $question) {
+            $questionType = (int) $question->question_type;
+            $answer = $submitted[$question_id] ?? null;
+            $isRight = false;
+            $answerText = null;
+            $optionIds = null;
+
+            if ($questionType === 1) {
+                $isRight = DB::table('test_question_options')
+                    ->where('id', (int) $answer)
+                    ->where('question_id', (int) $question_id)
+                    ->where('is_right', 1)
+                    ->exists();
+                $optionIds = json_encode([(int) $answer]);
+            } elseif ($questionType === 2) {
+                $selectedOptionIds = is_array($answer) ? array_map('intval', $answer) : [];
+                sort($selectedOptionIds);
+
+                $correctOptionIds = DB::table('test_question_options')
+                    ->where('question_id', (int) $question_id)
+                    ->where('is_right', 1)
+                    ->pluck('id')
+                    ->map(function ($id) {
+                        return (int) $id;
+                    })
+                    ->sort()
+                    ->values()
+                    ->all();
+
+                $isRight = !empty($selectedOptionIds) && $selectedOptionIds === $correctOptionIds;
+                $optionIds = json_encode($selectedOptionIds);
+            } elseif ($questionType === 3) {
+                $answerText = trim((string) $answer);
+                $isRight = null;
+            }
+
             if ($isRight) {
                 $correct++;
             }
+
+            $answerRows[] = [
+                'question_id' => (int) $question_id,
+                'user_id' => auth()->id(),
+                'answer_text' => $answerText,
+                'option_ids' => $optionIds,
+                'is_correct' => $isRight === null ? null : ($isRight ? 1 : 0),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
 
         // Replace any previous attempt so the student always sees their latest score.
-        TestsResult::where('test_id', $lessonTest->id)
+        $previousResultIds = TestsResult::where('test_id', $lessonTest->id)
             ->where('user_id', auth()->id())
-            ->delete();
+            ->pluck('id');
 
-        TestsResult::create([
+        if ($previousResultIds->isNotEmpty()) {
+            DB::table('lesson_quiz_answers')->whereIn('tests_result_id', $previousResultIds)->delete();
+
+            TestsResult::whereIn('id', $previousResultIds)->delete();
+        }
+
+        $testResult = TestsResult::create([
             'test_id'     => $lessonTest->id,
             'user_id'     => auth()->id(),
             'test_result' => $correct,
         ]);
+
+        foreach ($answerRows as $answerRow) {
+            $answerRow['tests_result_id'] = $testResult->id;
+            DB::table('lesson_quiz_answers')->insert($answerRow);
+        }
 
         app(LmsEventRecorder::class)->record(
             auth()->id(),
@@ -1038,7 +1091,7 @@ class LessonsController extends Controller
                 'test_id' => (int) $lessonTest->id,
                 'attempt_scope' => 'lesson',
                 'score' => (float) $correct,
-                'total_questions' => count($submitted),
+                'total_questions' => $questions->count(),
             ]
         );
 

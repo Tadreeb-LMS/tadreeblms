@@ -355,11 +355,23 @@ public function courseAssignment(Request $request)
     public function submit_result(HttpRequest $request)
     {
         $assignment_submit = json_decode($request->all_data);
+        $course_id = null;
+        $user_id = null;
+
         foreach ($assignment_submit as $key => $value) {
             $question = DB::table('assignment_questions')->where('id', "=", $value->question_id)->first();
             $test_question = DB::table('test_questions')->where('id', "=", $question->question_id)->first();
             DB::table('assignment_questions')->where('id', $value->question_id)->update(['is_correct' => $value->is_correct, 'marks' => $value->is_correct == 1 ? $test_question->marks : 0]);
+
+            $assignment = DB::table('assignments')->where('id', $question->assignment_id)->first();
+            $course_id = $assignment->course_id ?? $course_id;
+            $user_id = $question->assessment_account_id ?? $user_id;
         }
+
+        if ($course_id && $user_id) {
+            CustomHelper::updateUserProgress($user_id, $course_id);
+        }
+
         return json_encode([
             'status' => 200,
             'message' => "Answers are corrected."

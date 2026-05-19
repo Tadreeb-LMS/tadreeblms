@@ -28,6 +28,19 @@
     @php 
       $has_option = 0;
        $optiions = $question->option_json ? json_decode($question->option_json) : [];
+       $optiions = is_array($optiions) ? $optiions : [];
+       $correctOptionLabels = [];
+       foreach ($optiions as $existingOption) {
+           $optionText = is_array($existingOption)
+               ? ($existingOption[0] ?? $existingOption['option'] ?? $existingOption['option_text'] ?? '')
+               : ($existingOption->option ?? $existingOption->option_text ?? ($existingOption->{0} ?? ''));
+           $isCorrect = is_array($existingOption)
+               ? ($existingOption[1] ?? $existingOption['is_correct'] ?? $existingOption['is_right'] ?? 0)
+               : ($existingOption->is_correct ?? $existingOption->is_right ?? ($existingOption->{1} ?? 0));
+           if ((int) $isCorrect === 1 && trim(strip_tags((string) $optionText)) !== '') {
+               $correctOptionLabels[] = $optionText;
+           }
+       }
        if(count($optiions) > 0) {
          $has_option = 1;
        } 
@@ -68,79 +81,82 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <div class="mt-3 notextarea">
-                <label>Question </label>
-                <textarea class="form-control editor" rows="3" name="question" id="question" value="" required="required">@if(isset($question->id)){{$question->question_text}}@endif</textarea>
+        @if(count($correctOptionLabels) > 0)
+            <div class="alert alert-info mt-3">
+                <strong>Saved correct answer{{ count($correctOptionLabels) > 1 ? 's' : '' }}:</strong>
+                <ul class="mb-0 mt-2 pl-3">
+                    @foreach($correctOptionLabels as $correctOptionLabel)
+                        <li>{!! $correctOptionLabel !!}</li>
+                    @endforeach
+                </ul>
             </div>
- </div>
+        @elseif(!empty($question->solution))
+            <div class="alert alert-info mt-3">
+                <strong>Saved solution:</strong>
+                <div class="mt-2">{!! $question->solution !!}</div>
+            </div>
+        @endif
+        @php($isShortAnswerRoadmap = isset($question) && (int) $question->question_type === 3)
+        <div class="question-roadmap" data-question-roadmap>
+            <div class="question-roadmap-steps" aria-label="Question builder roadmap">
+                <button type="button" class="question-roadmap-step is-active" data-roadmap-target="question">
+                    <span class="question-roadmap-step-number">1</span>
+                    Question
+                </button>
+                <button type="button" class="question-roadmap-step {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-target="options">
+                    <span class="question-roadmap-step-number">2</span>
+                    Options
+                </button>
+                <button type="button" class="question-roadmap-step" data-roadmap-target="marks">
+                    <span class="question-roadmap-step-number">3</span>
+                    Marks
+                </button>
+                <button type="button" class="question-roadmap-step" data-roadmap-target="solution">
+                    <span class="question-roadmap-step-number">4</span>
+                    Solution
+                </button>
+                <button type="button" class="question-roadmap-step" data-roadmap-target="comment">
+                    <span class="question-roadmap-step-number">5</span>
+                    Comment
+                </button>
+            </div>
 
-            <div class="col-12 col-md-6 ">
- <div class="mt-3 notextarea">
-               
-                    <label>Option</label>
-                    <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
-                    <div class="addoptbtn">
-                    <button type="button" id="add_option" class="btn btn-primary">Add Option</button>
+            <div class="question-roadmap-content">
+                <fieldset class="question-roadmap-panel notextarea is-active" data-roadmap-panel="question">
+                    <legend>
+                        <span class="question-roadmap-panel-icon"><i class="fa fa-question-circle"></i></span>
+                        Question
+                    </legend>
+                    <div class="question-roadmap-panel-body">
+                        <textarea class="form-control editor" rows="3" name="question" id="question" value="" required="required">@if(isset($question->id)){{$question->question_text}}@endif</textarea>
                     </div>
-                    <div class="addoptiontable ">
-                         <div id="option-area"></div>
+                </fieldset>
+
+                <fieldset class="question-roadmap-panel notextarea {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-panel="options">
+                    <legend>
+                        <span class="question-roadmap-panel-icon"><i class="fa fa-check-square-o"></i></span>
+                        Options
+                    </legend>
+                    <div class="question-roadmap-panel-body">
+                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
+                        <div class="addoptbtn">
+                            <button type="button" id="add_option" class="btn btn-primary">Add Option</button>
                         </div>
-              </div>
-             
+                        <div class="addoptiontable">
+                            <div id="option-area"></div>
+                        </div>
+                    </div>
+                </fieldset>
 
+                @include('backend.test_questions.partials.footer-fields', ['question' => $question ?? null])
+            </div>
 
-        </div>
-
-
-
-
-        <!-- <div class="cb_question_setup">
-            
-            
-
-                <div class="col-6">
-                    
-                    
-                   
-                    
-                </div>
-            </div> -->
-            
+            <div class="question-roadmap-actions">
+                <button type="button" class="btn cancel-btn question-roadmap-prev">Back</button>
+                <button type="button" class="btn add-btn question-roadmap-next">Continue</button>
+            </div>
         </div>
     </div>
-
-
-
-
-<div class="row">
-                <div class="col-12 col-md-5 notextarea">
-                    <label>Solution</label>
-                    <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" value="$question->solution">@if(isset($question->id)){{$question->solution}}@endif</textarea>
-                </div>
-            
-                <div class="col-12 col-md-2">
-                    <label>Marks <span style="color:red">*</span></label>
-                    <input
-                        type="number"
-                        class="form-control"
-                        name="score"
-                        id="score"
-                        placeholder="Enter Marks"
-                        required
-                        value="{{$question->score}}"
-                        min="1"
-                        max="999"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
-                    />
-                </div>
-            
-                <div class="col-12 col-md-5 notextarea">
-                    <label>Comment</label>
-                    <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment">@if(isset($question->id)){{$question->comment}}@endif</textarea>
-                </div>
-            </div>
 
 
 
@@ -157,14 +173,24 @@
 
 <script src="{{asset('ckeditor/ckeditor.js')}}" type="text/javascript"></script>
 <script type="text/javascript">
+    var savedQuestionContent = @json($question->question_text ?? '');
+    var savedSolutionContent = @json($question->solution ?? '');
+    var savedCommentContent = @json($question->comment ?? '');
+
     CKEDITOR.replace('question');
-
-
     CKEDITOR.replace('option');
-    
     CKEDITOR.replace('solution');
-    
-    CKEDITOR.replace('comment')
+    CKEDITOR.replace('comment');
+
+    CKEDITOR.instances.question.on('instanceReady', function () {
+        this.setData(savedQuestionContent || '');
+    });
+    CKEDITOR.instances.solution.on('instanceReady', function () {
+        this.setData(savedSolutionContent || '');
+    });
+    CKEDITOR.instances.comment.on('instanceReady', function () {
+        this.setData(savedCommentContent || '');
+    });
     
 </script>
 @stop
@@ -177,6 +203,23 @@
     @endif;
     var flag = 0;
 
+    options = Array.isArray(options) ? options.map(function (option) {
+        if (Array.isArray(option)) {
+            return [option[0] || '', option[1] || 0];
+        }
+
+        if (option && typeof option === 'object') {
+            return [
+                option.option || option.option_text || '',
+                option.is_correct || option.is_right || 0
+            ];
+        }
+
+        return ['', 0];
+    }).filter(function (option) {
+        return option[0] !== '';
+    }) : [];
+
     function removeOptions(pos) {
         options.splice(pos, 1);
         showOptions();
@@ -185,6 +228,10 @@
     var has_option = $('#has_option').val();
     if(has_option) {
         showOptions();
+    }
+
+    function optionIsCorrect(option) {
+        return option && (option[1] === 1 || option[1] === '1' || option[1] === true);
     }
     
 
@@ -212,7 +259,7 @@
     }
 
     function dataCollection() {
-        var test_id = $("#test_id").val();
+        var test_id = $("#test_id").val() || $("#course_id").val();
         var question_type = $("#question_type").val();
         var question = CKEDITOR.instances["question"].getData();
         var solution = CKEDITOR.instances["solution"].getData();
@@ -231,7 +278,7 @@
 
     $(document).on('click', "#save", function() {
         flag = 0;
-        if (CKEDITOR.instances["question"].getData() != "" && $('#marks').val() != "" && $('#test_id').val() != "") {
+        if (CKEDITOR.instances["question"].getData() != "" && $('#score').val() != "" && ($('#test_id').val() || $('#course_id').val())) {
             if ($('#question_type').val() == 1) {
                 if ($('input:radio:checked').length > 0) {
                     sendData();
@@ -263,7 +310,9 @@
             type: 'post',
             data: data,
             success: function(response) {
-                response = JSON.parse(response);
+                if (typeof response === 'string') {
+                    response = JSON.parse(response);
+                }
                 if (response.code == 200) {
                     window.location.replace("{{route('admin.test_questions.index')}}");
                 } else {
@@ -299,7 +348,7 @@
                 } else {
                     option_text += '<td><input type="checkbox" class="cb_checkbox_mark" ';
                 }
-                if (option[1] === 1) {
+                if (optionIsCorrect(option)) {
                     option_text += 'checked="checked"';
                 }
                 option_text += ' onclick="markAsCorrectOption(' + i + ')"></td>';
@@ -315,7 +364,7 @@
                 option_text += '<tr>';
                 option_text += '<td>' + option[0] + '</td>';
                 option_text += '<td><input type="radio" ';
-                if (option[1] === 1) {
+                if (optionIsCorrect(option)) {
                     option_text += 'checked="checked"';
                 }
                 option_text += ' onclick="markAsCorrectOption(' + i + ',false)"></td>';

@@ -14,6 +14,11 @@ class TestsResult extends Model
         return $this->hasMany('App\Models\TestsResultsAnswer');
     }
 
+    public function lessonQuizAnswers()
+    {
+        return $this->hasMany('App\Models\LessonQuizAnswer', 'tests_result_id');
+    }
+
     public function test(){
         return $this->belongsTo(Test::class);
     }

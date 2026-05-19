@@ -452,6 +452,9 @@ Route::get('test_questions', 'Admin\TestQuestionController@index')->name('test_q
 Route::get('test_questions_delete/{id}', 'Admin\TestQuestionController@test_questions_delete')->name('test_questions_delete');
 
 
+Route::get('test_questions/lesson-quiz-short-answers', 'Admin\TestQuestionController@lessonQuizShortAnswers')->name('test_questions.lesson_quiz_short_answers');
+Route::post('test_questions/lesson-quiz-short-answers/{id}/review', 'Admin\TestQuestionController@reviewLessonQuizShortAnswer')->name('test_questions.lesson_quiz_short_answers.review');
+Route::post('test_questions/assessment-short-answers/{id}/review', 'Admin\TestQuestionController@reviewAssessmentShortAnswer')->name('test_questions.assessment_short_answers.review');
 Route::get('test_questions/create/{course_id?}/{temp_id?}/{onlytest?}', 'Admin\TestQuestionController@create')->name('test_questions.create');
 Route::post('test_questions/store', 'Admin\TestQuestionController@store')->name('test_questions.store');
 Route::get('test_questions/edit/{id}', 'Admin\TestQuestionController@edit')->name('test_questions.edit');
