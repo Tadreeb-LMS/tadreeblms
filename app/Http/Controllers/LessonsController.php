@@ -205,6 +205,10 @@ class LessonsController extends Controller
 
         // Build the assessment URL
         if ($assessment) {
+            $attempts = CustomHelper::assignmentAttempts($assessment->id, $logged_in_user_id);
+            if ((new CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $course_id, (int) $attempts)) {
+                return '';
+            }
 
             return route('online_assessment', [
                 'assignment'     => $assessment->url_code,
@@ -345,6 +349,11 @@ class LessonsController extends Controller
 
         $dd = DataTables::of($assignments)->addColumn('assesment_url', function ($q) use ($logged_in_user_id, $course_id) {
             if ($q->assessment) {
+                $attempts = CustomHelper::assignmentAttempts($q->assessment->id, $logged_in_user_id);
+                if ((new CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $course_id, (int) $attempts)) {
+                    return false;
+                }
+
                 return route('online_assessment', ['assignment' => $q->assessment->url_code, 'verify_code' => $q->assessment->verify_code, 'id' => $q->id, 'assessment_id' => $q->assessment->id, 'course_id' => $course_id]);
             } else {
                 return false;

@@ -100,6 +100,13 @@ class AssessmentController extends Controller
                 }
             }
 
+            $attempts = CustomHelper::assignmentAttempts($assignment->id, $logged_in_user_id);
+            if ((new \App\Helpers\CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $assignment->course_id, (int) $attempts)) {
+                return redirect()
+                    ->route('user.mycourses')
+                    ->withFlashWarning('You have reached the maximum number of attempts for this final assessment.');
+            }
+
             
 
             $test_questions = DB::table('test_questions')->select('test_questions.*', 'tests.title')
@@ -312,6 +319,13 @@ class AssessmentController extends Controller
                 return redirect()->route('online_assessment', 'assignment=' . $assignment->url_code)->withFlashSuccess("Assignment Not Found.");
             }
 
+            $attempts = CustomHelper::assignmentAttempts($assignment->id, $user_id);
+            if ((new \App\Helpers\CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $assignment->course_id, (int) $attempts)) {
+                return redirect()
+                    ->route('user.mycourses')
+                    ->withFlashWarning('You have reached the maximum number of attempts for this final assessment.');
+            }
+
             $assessment_account = AssessmentAccount::where('id', $user_id)->where('assignment_id', $assignment_id)->first();
             if ($assessment_account == null) {
                 Session::flash('message', 'Assignment is not valid!');
@@ -366,6 +380,19 @@ class AssessmentController extends Controller
         $assignment_id = $request->session()->get('assessment_assignment_id');
         $assessment_test_id = $request->session()->get('assessment_test_id');
         //dd($user_id, $assignment_id, $assessment_test_id); // 4063, 1351, 9
+        $assignment = Assignment::find($assessment_test_id);
+        if ($assignment) {
+            $attempts = CustomHelper::assignmentAttempts($assignment->id, $user_id);
+            if ((new \App\Helpers\CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $assignment->course_id, (int) $attempts)) {
+                return json_encode([
+                    'status' => 200,
+                    'has_feedback' => 0,
+                    'return_url' => route('user.mycourses'),
+                    'message' => 'You have reached the maximum number of attempts for this final assessment.'
+                ]);
+            }
+        }
+
         $all_assignment_answers = json_decode($request->all_data);
 
         $latestAttempt = AssignmentQuestion::where('assignment_id', $assignment_id)

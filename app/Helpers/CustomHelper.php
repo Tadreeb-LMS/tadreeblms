@@ -1651,6 +1651,10 @@ class CustomHelper
         $reattempt_assesment_count = $has_assessment_requirement
             ? $helper->getAttemptToAssesment($sc, $course_id)
             : 0;
+        $assessment_attempt_limit_reached = $has_assessment_requirement
+            && !$completed_assesment
+            && !$pending_assessment_evaluation
+            && $helper->isFinalAssessmentAttemptLimitReached($course_id, $reattempt_assesment_count);
 
         if ($reattempt_assesment_count > 0) {
             $open_assesment = false;
@@ -1659,6 +1663,12 @@ class CustomHelper
         if ($reattempt_assesment_count > 0 && !$completed_assesment && !$pending_assessment_evaluation) {
             $open_assesment = false;
             $reattempt_assesment = true;
+        }
+
+        if ($assessment_attempt_limit_reached) {
+            $open_assesment = false;
+            $reattempt_assesment = false;
+            $failed_in_assesment_all_attempts = true;
         }
 
         if ($pending_assessment_evaluation) {
@@ -1723,6 +1733,10 @@ class CustomHelper
         $reattempt_assesment_count = $has_assessment_requirement
             ? $helper->getAttemptToAssesment($sc, $course_id)
             : 0;
+        $assessment_attempt_limit_reached = $has_assessment_requirement
+            && !$completed_assesment
+            && !$pending_assessment_evaluation
+            && $helper->isFinalAssessmentAttemptLimitReached($course_id, $reattempt_assesment_count);
         //dd($reattempt_assesment_count);
 
         if ($reattempt_assesment_count > 0) {
@@ -1732,6 +1746,12 @@ class CustomHelper
         if ($reattempt_assesment_count > 0 && !$completed_assesment && !$pending_assessment_evaluation) {
             $open_assesment = false;
             $reattempt_assesment = true;
+        }
+
+        if ($assessment_attempt_limit_reached) {
+            $open_assesment = false;
+            $reattempt_assesment = false;
+            $failed_in_assesment_all_attempts = true;
         }
 
         if ($reattempt_assesment_count > 1) {
@@ -1772,6 +1792,20 @@ class CustomHelper
             'open_assesment' => $open_assesment,
             'open_feedback' => $open_feedback,
         ];
+    }
+
+    public function finalAssessmentMaxAttempts($course_id): ?int
+    {
+        $maxAttempts = Course::where('id', $course_id)->value('final_assessment_max_attempts');
+
+        return $maxAttempts ? (int) $maxAttempts : null;
+    }
+
+    public function isFinalAssessmentAttemptLimitReached($course_id, int $attempts): bool
+    {
+        $maxAttempts = $this->finalAssessmentMaxAttempts($course_id);
+
+        return $maxAttempts !== null && $attempts >= $maxAttempts;
     }
 
     public function getAttemptToAssesment($sc, $course_id)

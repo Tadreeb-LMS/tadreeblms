@@ -587,6 +587,7 @@ class CoursesController extends Controller
              'course_type' => 'required',
              'course_payment_type' => 'required',
              'teacher_id' => 'required|exists:users,id',
+             'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
@@ -727,6 +728,9 @@ class CoursesController extends Controller
 
             $request->merge([
                 'include_in_kpi' => $request->boolean('include_in_kpi', true),
+                'final_assessment_max_attempts' => $request->filled('final_assessment_max_attempts')
+                    ? (int) $request->input('final_assessment_max_attempts')
+                    : null,
             ]);
 
             if ($request->course_type !== 'Offline') {
@@ -1082,11 +1086,13 @@ $teachers = [$teacherId];
             $request->validate([
                 'start_date' => 'required|date',
                 'expire_at'  => 'required|date|after_or_equal:start_date',
+                'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
             ]);
         } else {
             $request->validate([
                 'start_date' => 'nullable|date',
                 'expire_at'  => 'nullable|date|after_or_equal:start_date',
+                'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
             ]);
         }
 
@@ -1264,10 +1270,16 @@ $teachers = [$teacherId];
                 'meeting_duration' => null,
                 'meeting_timezone' => null,
                 'include_in_kpi' => $request->boolean('include_in_kpi', true),
+                'final_assessment_max_attempts' => $request->filled('final_assessment_max_attempts')
+                    ? (int) $request->input('final_assessment_max_attempts')
+                    : null,
             ]);
         } else {
             $request->merge([
                 'include_in_kpi' => $request->boolean('include_in_kpi', true),
+                'final_assessment_max_attempts' => $request->filled('final_assessment_max_attempts')
+                    ? (int) $request->input('final_assessment_max_attempts')
+                    : null,
             ]);
         }
         
