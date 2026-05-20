@@ -110,6 +110,10 @@ class LibraryController extends Controller
     public function store(Request $request)
     {
 
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+        
         $reason = new  Library();
         $reason->title = $request->title;
         $reason->event_date = date('Y-m-d H:i:s', strtotime($request->event_date));

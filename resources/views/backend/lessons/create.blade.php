@@ -127,11 +127,11 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <div for="course_id" class="form-control-label">
-                                        {{ trans('labels.backend.lessons.fields.course') }}
+                                        {{ trans('labels.backend.lessons.fields.course') }} *
                                     </div>
                                     <div class="mt-2 custom-select-wrapper">
                                         <select id="course_id" name="course_id"
-                                            class="form-control custom-select-box course_id select2">
+                                            class="form-control custom-select-box course_id select2" required>
                                             @foreach ($courses as $key => $course)
                                                 <option value="{{ $key }}"
                                                     {{ old('course_id') == $key || request('course_id') == $key ? 'selected' : '' }}>
