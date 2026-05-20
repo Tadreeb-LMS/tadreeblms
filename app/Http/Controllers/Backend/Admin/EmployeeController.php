@@ -226,14 +226,13 @@ class EmployeeController extends Controller
                     $q->where('active', '1');
                 })
                 ->onlyTrashed()
-                ->groupBy('email')
                 ->orderBy('created_at', 'desc');
         } else {
             $teachers = User::query()->role('student')
             ->when($status == 'active', function ($q) {
                     $q->where('active', '1');
             })
-            ->groupBy('email')->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc');
         }      
 
         if (auth()->user()->isAdmin()) {

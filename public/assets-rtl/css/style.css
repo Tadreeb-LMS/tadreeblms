@@ -5186,6 +5186,10 @@ ul.product-tab li.active:after {
     color: #333;
 }
 
+.affiliate-market-accordion .panel-group .panel-title .btn-link {
+    padding-left: 150px;
+}
+
 .affiliate-market-accordion .panel-group .panel-title h3:before {
     display: none;
 }
@@ -5237,6 +5241,18 @@ ul.product-tab li.active:after {
 
 .affiliate-market-accordion .panel-group .btn-link.collapsed:after {
     color: #d9d9d9;
+}
+
+.affiliate-market-accordion .course-timeline-completed-badge {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.affiliate-market-accordion .course-timeline-panel-completed .panel-title .btn-link {
+    padding-left: 70px;
 }
 
 .course-by {

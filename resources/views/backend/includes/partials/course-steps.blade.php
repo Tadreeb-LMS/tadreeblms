@@ -155,9 +155,9 @@ if (!$course) {
                 </li>
             
 
-                
-                <li class="{{ $current_step == 4 ? 'completed' : ($current_step == 4 ? 'active' : '') }}">
-                    <span class="circle">{{ $current_step }}</span>
+
+                <li class="{{ $current_step > 4 ? 'completed' : ($current_step == 4 ? 'active' : '') }}">
+                    <span class="circle">4</span>
                     <span class="label">Feedback</span>
                 </li>
         @else
@@ -169,8 +169,8 @@ if (!$course) {
             
 
                 
-                <li class="{{ $current_step == 3 ? 'completed' : ($current_step == 3 ? 'active' : '') }}">
-                    <span class="circle">{{ $current_step }}</span>
+                <li class="{{ $current_step > 3 ? 'completed' : ($current_step == 3 ? 'active' : '') }}">
+                    <span class="circle">3</span>
                     <span class="label">Feedback</span>
                 </li>
                 

@@ -38,6 +38,8 @@ class Lesson extends Model
             $course = $lesson->course;
 
             if (!$course) return;
+            if (empty($lesson->lesson_start_date) || empty($course->start_date) || empty($course->expire_at)) return;
+            if ($lesson->exists && !$lesson->isDirty('lesson_start_date') && !$lesson->isDirty('course_id')) return;
 
             $lessonDate = \Carbon\Carbon::parse($lesson->lesson_start_date)->startOfDay();
             $courseStart = \Carbon\Carbon::parse($course->start_date)->startOfDay();
