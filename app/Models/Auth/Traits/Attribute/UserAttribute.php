@@ -46,17 +46,10 @@ trait UserAttribute
     public function getConfirmedLabelAttribute()
     {
         if ($this->isConfirmed()) {
-            if ($this->id != 1 && $this->id != auth()->id()) {
-                return '<a href="'.route(
-                    'admin.auth.user.unconfirm',
-                        $this
-                ).'" data-toggle="tooltip" data-placement="top" title="'.__('buttons.backend.access.users.unconfirm').'" name="confirm_item"><span class="pill-publish" style="cursor:pointer">'.__('labels.general.yes').'</span></a>';
-            } else {
-                return '<span class="pill-publish">'.__('labels.general.yes').'</span>';
-            }
+            return "<span class='badge badge-success'>Yes</span>";
         }
 
-        return '<a href="'.route('admin.auth.user.confirm', $this).'" data-toggle="tooltip" data-placement="top" title="'.__('buttons.backend.access.users.confirm').'" name="confirm_item"><span class="badge badge-danger" style="cursor:pointer">'.__('labels.general.no').'</span></a>';
+        return "<span class='badge badge-danger'>No</span>";
     }
 
     /**
@@ -204,28 +197,32 @@ trait UserAttribute
      * @return string
      */
     public function getStatusButtonAttribute()
-    {
-        if ($this->id != auth()->id()) {
-            switch ($this->active) {
-                case 0:
-                    return '<a title="Activate" href="'.route('admin.auth.user.mark', [
-                            $this,
-                            1,
-                        ]).'" class=""><i class="fas fa-check-circle"></i></a> ';
+{
+    if ($this->id != auth()->id()) {
 
-                case 1:
-                    return '<a title="Deactivate" href="'.route('admin.auth.user.mark', [
-                            $this,
-                            0,
-                        ]).'" class=""><i class="fas fa-ban"></i></a> ';
+        switch ($this->active) {
 
-                default:
-                    return '';
-            }
+            case 0:
+                return '<a class="js-status-toggle"
+                    data-url="'.route('admin.auth.user.mark', [$this, 1]).'"
+                    data-action="activate">
+                    <i class="fas fa-check-circle"></i>
+                </a>';
+
+            case 1:
+                return '<a class="js-status-toggle"
+                    data-url="'.route('admin.auth.user.mark', [$this, 0]).'"
+                    data-action="deactivate">
+                    <i class="fas fa-ban"></i>
+                </a>';
+
+            default:
+                return '';
         }
-
-        return '';
     }
+
+    return '';
+}
 
     /**
      * @return string

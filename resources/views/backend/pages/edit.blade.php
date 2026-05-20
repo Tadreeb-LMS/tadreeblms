@@ -144,14 +144,14 @@
                 <div class="col-12 form-group">
                     <div class="checkbox d-inline mr-4">
                         {!! Form::hidden('published', 0) !!}
-                        {!! Form::checkbox('published', 1, old('published'), []) !!}
+                        {!! Form::checkbox('published', 1, old('published', $page->published), []) !!}
                         {!! Form::label('published', trans('labels.backend.pages.fields.published'), [
                             'class' => 'checkbox control-label font-weight-bold',
                         ]) !!}
                     </div>
                     <div class="checkbox d-inline mr-3">
                         {!! Form::hidden('sidebar', 0) !!}
-                        {!! Form::checkbox('sidebar', 1, old('sidebar'), []) !!}
+                        {!! Form::checkbox('sidebar', 1, old('sidebar', $page->sidebar), []) !!}
                         {!! Form::label('sidebar', trans('labels.backend.courses.fields.sidebar'), [
                             'class' => 'checkbox control-label font-weight-bold',
                         ]) !!}

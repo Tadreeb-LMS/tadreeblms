@@ -14,8 +14,8 @@
     /* Breadcrumb - Compact */
     .breadcrumb-section {
         background-color: #c1902d4a;
-        padding: 20px 0 !important; /* Reduced from 75px */
-    }
+        padding: 120px 0 40px !important;
+}
 
     /* Card Styling - Glassmorphic & Compact */
     .card {
@@ -101,6 +101,12 @@
     border-radius: 6px;
     border: 1px solid #e0e0e0;
 }
+
+    .captcha-container img {
+        height: 70px;
+        width: auto;
+        border-radius: 4px;
+    }
     
     
     .captcha-text {
@@ -309,7 +315,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Refresh button
         document.getElementById('refreshCaptcha')
-            .addEventListener('click', refreshCaptcha);
+            .addEventListener('click', refreshLoginCaptcha);
     });
 
 $(document).ready(function () {
@@ -352,9 +358,10 @@ $(document).ready(function () {
                     }
                 }
                 
-
                 $('#error-msg').text(message).show();
-                refreshCaptcha();
+                if (typeof refreshLoginCaptcha === "function") {
+                    refreshLoginCaptcha();
+                }
                 $('#captcha-input').val('').focus();
             },
             complete: function () {
@@ -364,8 +371,13 @@ $(document).ready(function () {
     });
 
 });
-function refreshCaptcha() {
-    fetch("{{ route('refresh.captcha') }}")
+function refreshLoginCaptcha() {
+    fetch("{{ route('refresh.captcha') }}?t=" + new Date().getTime(), {
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             if (data.captcha_image) {

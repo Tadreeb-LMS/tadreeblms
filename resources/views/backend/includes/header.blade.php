@@ -5,7 +5,7 @@
     <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
         <!-- <img class="navbar-brand-full" src="{{asset('storage/logos/'.config('logo_b_image'))}}"  height="25" alt="Square Logo"> -->
         <img class="navbar-brand-full adminlogo" src="{{ asset('assets/img/logo.png') }}"    alt="Square Logo">
-        <img class="navbar-brand-minimized adminlogo" src="{{ asset('assets/img/logo.png') }}"  alt="Square Logo">
+        <img class="navbar-brand-minimized adminlogo" src="{{ asset('assets/img/logo-sm.png') }}"  alt="Square Logo">
         <!-- <img class="navbar-brand-minimized" src="{{asset('storage/logos/'.config('logo_popup'))}}" height="30" alt="Square Logo"> -->
     </a>
     <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button" data-toggle="sidebar-lg-show">
@@ -50,11 +50,11 @@
 
 @if(null !== (Session::get('setvaluesession')))
 @if((Session::get('setvaluesession')) == 1)
-@lang('menus.backend.sidebar.general')  
+@lang('menus.backend.sidebar.general')
 @elseif((Session::get('setvaluesession')) == 2)
-@lang('menus.backend.sidebarr.internal')  
+@lang('menus.backend.sidebar.internal')
 @elseif((Session::get('setvaluesession')) == 3)
-@lang('menus.backend.sidebar.external') 
+@lang('menus.backend.sidebar.external')
 @endif
 @else
 @lang('menus.backend.sidebar.general')

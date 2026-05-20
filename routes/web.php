@@ -55,7 +55,7 @@ Route::post(
     [AssessmentAccountsController::class, 'courseAssignment']
 )->name('admin.assessment_accounts.course-assignment');
 
-Route::get('/refresh-captcha/{mode?}',[LoginController::class,'refresh_captcha'])->name('refresh_captcha');
+Route::get('/refresh-captcha/{mode?}',[LoginController::class, 'refreshCaptcha'])->name('refresh_captcha');
 
 Route::get('syncCourseAssignment    AndSubscribeCourseData', function () {
     CustomHelper::syncCourseAssignmentAndSubscribeCourseData();
@@ -170,6 +170,11 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'm
     Route::post('messages/unread', ['uses' => 'MessagesController@getUnreadMessages', 'as' => 'messages.unread']);
     Route::post('messages/send', ['uses' => 'MessagesController@send', 'as' => 'messages.send']);
     Route::post('messages/reply', ['uses' => 'MessagesController@reply', 'as' => 'messages.reply']);
+
+    //==== User Account Routes =====//
+    Route::get('account', [\App\Http\Controllers\Backend\Auth\User\AccountController::class, 'index'])->name('account');
+    Route::patch('account/{email?}', [\App\Http\Controllers\Backend\Auth\User\UserPasswordController::class, 'update'])->name('account.post');
+    Route::patch('profile/update', [\App\Http\Controllers\Backend\Auth\User\ProfileController::class, 'update'])->name('profile.update');
 });
 
 

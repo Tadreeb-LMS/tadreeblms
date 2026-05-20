@@ -166,13 +166,10 @@ class TestsController extends Controller
 
     // Delete
     if ($has_delete) {
-        $actions .= '
-            <form method="POST" action="' . route('admin.tests.destroy', $q->id) . '" class="" >
-                ' . csrf_field() . method_field('DELETE') . '
-                <button title="Delete" type="submit" class="" onclick="return confirm(\'Are you sure?\')">
-                     <i class="fa fa-trash" aria-hidden="true"></i>
-                </button>
-            </form>';
+        $actions .= view('backend.datatable.action-delete')
+            ->with([
+                'route' => route('admin.tests.destroy', ['test' => $q->id])
+            ])->render();
     }
 
     $actions .= '</div>';
