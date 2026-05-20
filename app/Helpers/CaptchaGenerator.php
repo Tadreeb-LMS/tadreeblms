@@ -42,9 +42,9 @@ class CaptchaGenerator
      */
     private static function generateCaptchaImage($code)
     {
-        // Create image
-        $width = 200;
-        $height = 60;
+        // Create image with smaller base to make font appear larger when scaled
+        $width = 120;
+        $height = 40;
         $image = imagecreatetruecolor($width, $height);
         
         // Background color

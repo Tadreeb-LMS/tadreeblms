@@ -358,9 +358,10 @@ $(document).ready(function () {
                     }
                 }
                 
-
                 $('#error-msg').text(message).show();
-                refreshCaptcha();
+                if (typeof refreshLoginCaptcha === "function") {
+                    refreshLoginCaptcha();
+                }
                 $('#captcha-input').val('').focus();
             },
             complete: function () {
@@ -371,7 +372,12 @@ $(document).ready(function () {
 
 });
 function refreshLoginCaptcha() {
-    fetch("{{ route('refresh.captcha') }}")
+    fetch("{{ route('refresh.captcha') }}?t=" + new Date().getTime(), {
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             if (data.captcha_image) {
