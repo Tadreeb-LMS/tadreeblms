@@ -4,6 +4,7 @@
 
 @push('after-styles')
 <link rel="stylesheet" href="{{asset('assets/css/colors/switch.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
  <style>
        
 
@@ -75,6 +76,7 @@
 @stop
 
 @push('after-scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
 
         $(document).ready(function () {
@@ -191,10 +193,15 @@
                     _token:'{{ csrf_token() }}',
                     id: id,
                 },
-            }).done(function() {
-                var table = $('#myTable').DataTable();
-		        table.ajax.reload();
-            });
+                success: function () {
+                    $('#myTable').DataTable().ajax.reload(null, false);
+                    toastr.success('Status updated successfully');
+                },
+
+                 error: function () {
+                    toastr.error('Failed to update status');
+                }
+            })
         })
 
     </script>

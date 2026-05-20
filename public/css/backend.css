@@ -13897,6 +13897,8 @@ canvas {
 
 .app-header .navbar-brand .navbar-brand-minimized {
   display: none;
+  height: 31px;
+  margin-left: 0;
 }
 
 .app-header .navbar-toggler {
@@ -23699,8 +23701,8 @@ table.dataTable tbody tr {
 .ltitle{ margin-top: 30px;}
 #cke_4_contents{    height: 100px !important;}
 .permission-blocks{ margin: 0; gap: 20px;}
-.permission-blocks .mb-2.border.p-2.rounded{    width: 23.7%;
     background: #fff; 
+.permission-blocks .mb-2.border.p-2.rounded{    min-width: 20%;
     padding: 15px !important;
     box-shadow: 0 0 0px #233e7421;
     border-radius: 10px !important;

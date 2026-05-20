@@ -3,10 +3,6 @@
 use App\Http\Controllers\Backend\Admin\TestsController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\Admin\RolesController;
-use App\Http\Controllers\Backend\Auth\User\AccountController;
-use App\Http\Controllers\Backend\Auth\User\ProfileController;
-use \App\Http\Controllers\Backend\Auth\User\UpdatePasswordController;
-use \App\Http\Controllers\Backend\Auth\User\UserPasswordController;
 use App\Http\Controllers\UserCourseRequestController;
 use FontLib\Table\Type\name;
 
@@ -429,6 +425,8 @@ Route::get('lessons/add', function () {
 
 Route::resource('lessons', 'Admin\LessonsController');
 Route::resource('course-feedback-questions', 'Admin\CourseFeedbackController');
+Route::post('course-feedback/add-questions', 'Admin\CourseFeedbackController@addQuestionsToCourse')->name('course-feedback.add-questions');
+Route::get('course-feedback-questions/assigned/{course}', 'Admin\CourseFeedbackController@assignedQuestions')->name('course-feedback-questions.assigned');
 Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeedbackController@destroy');
 Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeedbackController@edit')->name('course.coursefeedbackquestion.edit');
 Route::post('course-feedback-questions/update', 'Admin\CourseFeedbackController@update');
@@ -487,11 +485,7 @@ Route::post('media/remove', ['uses' => 'Admin\MediaController@destroy', 'as' => 
 
 
 //===== User Account Routes =====//
-Route::group(['middleware' => ['auth', 'password_expires']], function () {
-    Route::get('account', [AccountController::class, 'index'])->name('account');
-    Route::patch('account/{email?}', [UserPasswordController::class, 'update'])->name('account.post');
-    Route::patch('profile/update', [ProfileController::class, 'update'])->name('profile.update');
-});
+// (Moved to web.php to ensure access for all authenticated users including Teachers)
 
 
 Route::group(['middleware' => 'role:teacher'], function () {

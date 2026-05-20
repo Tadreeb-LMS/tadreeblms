@@ -109,6 +109,11 @@ class AnnouncementController extends Controller
     public function store(Request $request)
     {
 
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+
         $reason = new  Announcement();
         $reason->title = $request->title;
         $reason->event_date = date('Y-m-d H:i:s', strtotime($request->event_date));

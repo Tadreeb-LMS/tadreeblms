@@ -86,7 +86,7 @@ class NewsController extends Controller
                 //     ->checked(($q->status == 1) ? true : false)->class('switch-input')->attribute('data-id', $q->id)->value(($q->status == 1) ? 1 : 0) . '<span class="switch-label"></span><span class="switch-handle"></span>')->class('switch switch-lg switch-3d switch-primary');
                 $checked = $q->status == 1 ? 'checked' : '';
                 $html = '<label class="switch switch-lg switch-3d switch-primary">
-                            <input type="checkbox" id="' . $q->id .'" class="switch-input" data-id="' . $q->id .'" value="1" checked="'.$checked.'">
+                            <input type="checkbox" id="' . $q->id .'" class="switch-input" data-id="' . $q->id .'" value="1" ' . $checked . '>
                             <span class="switch-label"></span>
                             <span class="switch-handle"></span>
                         </label>
@@ -115,6 +115,10 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required',
+        ]);
 
         $reason = new  News();
         $reason->title = $request->title;
@@ -254,5 +258,9 @@ class NewsController extends Controller
         $reason = News::findOrFail(request('id'));
         $reason->status = $reason->status == 1 ? 0 : 1;
         $reason->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully'
+        ]);
     }
 }

@@ -8,6 +8,7 @@
 
  
     </style>
+@endpush
 
 @section('content')
 
@@ -23,6 +24,7 @@
         <div class="card-body">
 
             <div class="table-responsive">
+                <div id="subscription-status-message" class="mb-3" aria-live="polite"></div>
                 <div class="d-block">
                     <ul class="list-inline">
                         <li class="list-inline-item">
@@ -74,6 +76,10 @@
 
 @push('after-scripts')
     <script>
+        var subscriptionStatusUpdatedMessage = @json(__('Status updated successfully.'));
+        var subscriptionStatusUpdateFailedMessage = @json(__('Unable to update status. Please try again.'));
+        var subscriptionStatusCloseLabel = @json(__('Close'));
+
         $(document).ready(function() {
             var route = '{{ route('admin.subscription.get_data') }}';
 
@@ -226,8 +232,26 @@
 
         });
 
+        function showSubscriptionStatusMessage(message, type) {
+            var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            var escapedMessage = $('<div>').text(message).html();
+
+            $('#subscription-status-message').html(
+                '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
+                    escapedMessage +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="' + subscriptionStatusCloseLabel + '">' +
+                        '<span aria-hidden="true">&times;</span>' +
+                    '</button>' +
+                '</div>'
+            );
+        }
+
         $(document).on('click', '.switch-input', function(e) {
-            var id = $(this).data('id');
+            var $switch = $(this);
+            var id = $switch.data('id');
+
+            $switch.prop('disabled', true);
+
             $.ajax({
                 type: "POST",
                 url: "{{ route('admin.subscription.status') }}",
@@ -235,9 +259,23 @@
                     _token: '{{ csrf_token() }}',
                     id: id,
                 },
-            }).done(function() {
+            }).done(function(response) {
+                showSubscriptionStatusMessage(
+                    response.message || subscriptionStatusUpdatedMessage,
+                    'success'
+                );
+
                 var table = $('#myTable').DataTable();
-                table.ajax.reload();
+                table.ajax.reload(null, false);
+            }).fail(function(xhr) {
+                var message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : subscriptionStatusUpdateFailedMessage;
+
+                showSubscriptionStatusMessage(message, 'error');
+
+                var table = $('#myTable').DataTable();
+                table.ajax.reload(null, false);
             });
         })
     </script>

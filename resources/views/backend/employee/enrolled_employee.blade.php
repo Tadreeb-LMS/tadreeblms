@@ -63,6 +63,12 @@
         </div>
     @endcan
 </div>
+    <div id="enroll-page-alert" class="alert alert-dismissible fade show d-none" role="alert">
+        <span id="enroll-page-alert-message"></span>
+        <button type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
     <div class="card">
         <div class="card-body">
             <div class="row">
@@ -225,6 +231,22 @@
                 $('.modal-backdrop').remove();
             }
 
+            function showEnrollPageAlert(message, alertClass) {
+                $('#enroll-page-alert')
+                    .removeClass('d-none alert-success alert-warning alert-danger')
+                    .addClass(alertClass)
+                    .css('white-space', 'pre-line');
+
+                $('#enroll-page-alert-message').text(message);
+            }
+
+            $(document).on('click', '#enroll-page-alert .close', function () {
+                $('#enroll-page-alert')
+                    .addClass('d-none')
+                    .removeClass('alert-success alert-warning alert-danger');
+                $('#enroll-page-alert-message').text('');
+            });
+
             // Initialize Select2 inside modal
             $('#enrollUsersModal').on('shown.bs.modal', function () {
                 $('#enroll_teachers').select2({
@@ -317,6 +339,7 @@
                             $('#myTable').DataTable().ajax.reload(null, false);
                             setTimeout(function () {
                                 closeEnrollModal();
+                                showEnrollPageAlert(msg, alertClass);
                             }, 250);
                         }
 
