@@ -14,10 +14,10 @@
     .notification-setting-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         padding: 12px 0;
         border-bottom: 1px solid #f1f1f1;
-        gap: 20px;
+        gap: 16px;
     }
 
     .notification-setting-row:last-child {
@@ -25,6 +25,7 @@
     }
 
     .notification-label {
+        flex: 0 1 320px;
         font-size: 15px;
         font-weight: 500;
         color: #2d3748;
@@ -35,7 +36,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        min-width: 60px;
+        flex: 0 0 60px;
     }
 
     .switch.switch-3d {
@@ -43,6 +44,18 @@
     }
     .card {
         margin-bottom: 20px;
+    }
+    @media (max-width: 575.98px) {
+        .notification-setting-row {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notification-label,
+        .toggle-group {
+            flex: 0 1 auto;
+        }
     }
 </style>
 @endpush
