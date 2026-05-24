@@ -197,28 +197,32 @@ trait UserAttribute
      * @return string
      */
     public function getStatusButtonAttribute()
-    {
-        if ($this->id != auth()->id()) {
-            switch ($this->active) {
-                case 0:
-                    return '<a title="Activate" href="'.route('admin.auth.user.mark', [
-                            $this,
-                            1,
-                        ]).'" class=""><i class="fas fa-check-circle"></i></a> ';
+{
+    if ($this->id != auth()->id()) {
 
-                case 1:
-                    return '<a title="Deactivate" href="'.route('admin.auth.user.mark', [
-                            $this,
-                            0,
-                        ]).'" class=""><i class="fas fa-ban"></i></a> ';
+        switch ($this->active) {
 
-                default:
-                    return '';
-            }
+            case 0:
+                return '<a class="js-status-toggle"
+                    data-url="'.route('admin.auth.user.mark', [$this, 1]).'"
+                    data-action="activate">
+                    <i class="fas fa-check-circle"></i>
+                </a>';
+
+            case 1:
+                return '<a class="js-status-toggle"
+                    data-url="'.route('admin.auth.user.mark', [$this, 0]).'"
+                    data-action="deactivate">
+                    <i class="fas fa-ban"></i>
+                </a>';
+
+            default:
+                return '';
         }
-
-        return '';
     }
+
+    return '';
+}
 
     /**
      * @return string

@@ -241,42 +241,72 @@ $(function () {
     });
 
     
-    // Status switch with confirmation (matches employee behavior)
-    $(document).on('click', '.switch-input', function (e) {
-        e.preventDefault();
+    // Stable trainer status toggle
+    $(document).on('change', '.switch-input', function (e) {
 
         let checkbox = $(this);
+
+        // Prevent double clicking
+        if (checkbox.data('processing')) {
+            return false;
+        }
+
+        checkbox.data('processing', true);
+
         let id = checkbox.data('id');
-        let isChecked = checkbox.is(':checked');
+        let isChecked = checkbox.prop('checked');
 
         let message = isChecked
             ? '{{ __('admin_pages.teachers.activate_user_confirm') }}'
             : '{{ __('admin_pages.teachers.deactivate_user_confirm') }}';
 
         if (!confirm(message)) {
-            // revert toggle state if cancelled
+
+            // revert immediately if cancelled
             checkbox.prop('checked', !isChecked);
+            checkbox.data('processing', false);
+
             return false;
         }
 
         $.ajax({
             type: "POST",
             url: "{{ route('admin.teachers.status') }}",
+
             data: {
                 _token: "{{ csrf_token() }}",
                 id: id,
+                status: isChecked ? 1 : 0
             },
-            success: function () {
+
+            success: function (response) {
+
+                checkbox.data('processing', false);
+
+                // Keep UI synced
+                checkbox.prop('checked', response.status == 1);
+
+                // Reload table without page refresh
                 table.ajax.reload(null, false);
+
+                // Optional success toast
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Status updated successfully');
+                }
             },
+
             error: function () {
-                alert('{{ __('admin_pages.teachers.something_went_wrong') }}');
+
+                checkbox.data('processing', false);
+
+                // revert if failed
                 checkbox.prop('checked', !isChecked);
+
+                alert('{{ __('admin_pages.teachers.something_went_wrong') }}');
             }
         });
     });
-
-    });
+});
 </script>
 
 @endpush

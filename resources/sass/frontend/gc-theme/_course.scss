@@ -159,6 +159,9 @@
 	.panel-group .panel-body {
 		color:  #333;
 	}
+	.panel-group .panel-title .btn-link {
+		padding-right: 150px;
+	}
 	.panel-group .panel-title h3:before {
 		display: none;
 	}
@@ -210,6 +213,16 @@
 	}
 	.panel-group .btn-link.collapsed:after {
 		color: #d9d9d9;
+	}
+	.course-timeline-completed-badge {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 8px;
+		position: relative;
+		z-index: 2;
+	}
+	.course-timeline-panel-completed .panel-title .btn-link {
+		padding-right: 70px;
 	}
 }
 .course-by {

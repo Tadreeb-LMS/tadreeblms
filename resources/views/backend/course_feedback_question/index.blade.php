@@ -164,8 +164,6 @@ width: 58% !important;
         url: '{{ route("admin.course-feedback.assigned-questions", ["course_id" => "__COURSE_ID__"]) }}'.replace('__COURSE_ID__', courseId),
         type: 'GET',
         success: function (assignedIds) {
-
-            // Disable already assigned questions
             $('#question_select option').each(function () {
                 if (assignedIds.includes(parseInt($(this).val()))) {
                     $(this).prop('disabled', true);
@@ -177,7 +175,6 @@ width: 58% !important;
             $('#question_select').trigger('change');
         }
     });
-});
         $(document).ready(function() {
             let course_id;
             const dtTable = $('#myTable').DataTable({
