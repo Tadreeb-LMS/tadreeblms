@@ -1059,11 +1059,17 @@
         let lastRecordedTime = current_progress ?? 0;
         let watchDuration = 0;
         let lastCalledTime = 0;
+        var lessonAlreadyCompleted = false;
 
         player.on('timeupdate', () => {
             const currentTime = player.currentTime;
+            const videoDuration = player.duration;
+            if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                return;
+            }
+
             const playbackRate = player.media.playbackRate;
-            var watchPoint = Math.floor((currentTime / player.duration) * 100);
+            var watchPoint = Math.floor((currentTime / videoDuration) * 100);
 
             // Check if the user is watching continuously (no skipping)
             if (Math.abs(currentTime - lastRecordedTime) <= 1) {
@@ -1076,16 +1082,24 @@
 
             // Check if 2 seconds have passed since the last progress update
             if (currentTime - lastCalledTime >= 2) {
-                time(watchPoint, watchDuration, player.duration)
+                time(watchPoint, watchDuration, videoDuration, false)
 
                 // Update lastCalledTime to the current time
                 lastCalledTime = currentTime;
             }
         });
 
-        var lessonAlreadyCompleted = false;
+        player.on('ended', () => {
+            const videoDuration = player.duration;
+            if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                return;
+            }
 
-        function time(watchPoint, progress, videoDuration) {
+            watchDuration = Math.max(watchDuration, videoDuration);
+            time(100, watchDuration, videoDuration, true);
+        });
+
+        function time(watchPoint, progress, videoDuration, completed) {
             //alert("hi")
             var id = "{{ $lesson->id }}";
             var video = $('#player').parents('.video-container').data('id');
@@ -1098,7 +1112,8 @@
                     'vedio_id': parseInt(video),
                     'watchPoint': watchPoint,
                     'duration': parseInt(videoDuration),
-                    'progress': parseInt(progress)
+                    'progress': parseInt(progress),
+                    'completed': completed ? 1 : 0
                 },
                 success: function(response) {
                     if (response.lesson_completed && !lessonAlreadyCompleted) {
