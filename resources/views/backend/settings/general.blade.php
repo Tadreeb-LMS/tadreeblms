@@ -246,7 +246,7 @@
 
                             <div class="text-end mt-3">
     <button type="submit" class="btn btn-primary">
-        {{ __('labels.backend.general_settings.save_settings') }}
+        {{ __('labels.backend.general_settings.email.save_settings') }}
     </button>
 </div>
 
@@ -463,6 +463,12 @@
 
                             <hr>
                             <p class="help-text mb-0">{!! __('labels.backend.general_settings.email.note') !!}</p>
+
+                            <div class="text-end mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('labels.backend.general_settings.email.save_settings') }}
+                                </button>
+                            </div>
 
                         </div>
                     </div>
