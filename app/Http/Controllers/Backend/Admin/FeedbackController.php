@@ -310,25 +310,16 @@ class FeedbackController extends Controller
         }
     }
 
-    public function feedback_questions_delete(Request $request)
+    public function feedback_questions_delete(Request $request, $id = null)
     {
-        // dd('ji');
-        $teacher = FeedbackQuestion::findOrFail($request->id);
+        $questionId = $id ?? $request->input('id');
 
-        if ($teacher->count() > 0) {
-            $teacher->delete();
-            return redirect()->route('admin.feedback_question.index')->withFlashDanger(trans('alerts.backend.general.deleted'));
-        } else {
-            $teacher->delete();
-        }
+        $question = FeedbackQuestion::findOrFail($questionId);
+        $question->delete();
 
-        return json_encode(array(
-            'code' => 200,
-            'message' => 'Question Deleted '
-        ));
-
-        return redirect()->route('admin.feedback_question.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
-        return view('backend.feedback.feedback-question-create');
+        return redirect()
+            ->route('admin.feedback_question.index')
+            ->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
 
     // public function storeUserResponses(Request $request)
