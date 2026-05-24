@@ -112,6 +112,18 @@ class CourseFeedbackController extends Controller
     return redirect()->back()->with('success', 'Questions added successfully!');
 }
 
+    public function assignedQuestions($course_id)
+    {
+        $questionIds = CourseFeedback::where('course_id', $course_id)
+            ->pluck('feedback_question_id')
+            ->map(function ($questionId) {
+                return (int) $questionId;
+            })
+            ->values();
+
+        return response()->json($questionIds);
+    }
+
     public function destroy($id)
     {
         $courseFeedback = CourseFeedback::find($id);

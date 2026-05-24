@@ -424,6 +424,8 @@ Route::get('lessons/add', function () {
 
 
 Route::resource('lessons', 'Admin\LessonsController');
+Route::post('course-feedback-questions/add-questions', 'Admin\CourseFeedbackController@addQuestionsToCourse')->name('course-feedback.add-questions');
+Route::get('course-feedback-questions/assigned/{course_id}', 'Admin\CourseFeedbackController@assignedQuestions')->name('course-feedback.assigned-questions');
 Route::resource('course-feedback-questions', 'Admin\CourseFeedbackController');
 Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeedbackController@destroy');
 Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeedbackController@edit')->name('course.coursefeedbackquestion.edit');
