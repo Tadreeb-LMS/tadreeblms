@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.0/css/select.dataTables.min.css" />
     <link rel="stylesheet" href="//cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     {{-- <link rel="stylesheet" --}}
     {{-- href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.standalone.min.css"/> --}}
     {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
@@ -293,6 +293,8 @@ $(document).on('click', '.js-status-toggle', function(e){
 });
 </script>
 
+<script>
+$(document).on('click', '.delete-record', function(e) {
     e.preventDefault();
 
     let url = $(this).data('url');
@@ -315,7 +317,7 @@ $(document).on('click', '.js-status-toggle', function(e){
                 type: 'POST',
                 data: {
                     _method: 'DELETE',
-                    _token: '{{ csrf_token() }}'
+                    _token: $('meta[name="csrf-token"]').attr('content')
                 },
 
                 success: function(response) {
@@ -347,7 +349,6 @@ $(document).on('click', '.js-status-toggle', function(e){
         }
 
     });
-
 });
 </script>
     @stack('after-scripts')
