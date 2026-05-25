@@ -50,12 +50,107 @@ As an **open-source platform**, TadreebLMS gives organizations full control over
 For complete step-by-step instructions, please refer to our official documentation:
 👉 **[TadreebLMS Installation Guide](https://tadreeblms.com/docs/installation)**
 
-### Quick Start (Development)
-1. Clone the repository: `git clone https://github.com/Tadreeb-LMS/tadreeblms.git`
-2. Install dependencies: `composer install && npm install`
-3. Configure your `.env` file and database.
-4. Run migrations: `php artisan migrate --seed`
+### CLI Installation (Recommended)
+
+> **Note:** Browser-based installer files (`install.php`, `install_ajax.php`, `install-b.php`) have been removed for security. All installation is now CLI-only.
+
+**Prerequisites:**
+- PHP 8.0+
+- Composer
+- MySQL database
+- Required PHP extensions: `pdo`, `pdo_mysql`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `curl`, `gd`, `zip`, `fileinfo`
+
+---
+
+#### Option A — Interactive (recommended for manual setup)
+
+The installer will prompt you for each value and confirm destructive steps. DB passwords are hidden on input.
+
+```bash
+# 1. Install Composer dependencies
+composer install --no-dev
+
+# 2. Run the installer (no flags needed)
+php artisan app:install
+```
+
+You will be prompted for:
+| Prompt | What to enter |
+|---|---|
+| `DB host` | MySQL host (default `127.0.0.1`) |
+| `DB port` | MySQL port (default `3306`) |
+| `Database name` | Name of your database |
+| `DB username` | MySQL user |
+| `DB password` | *(hidden input)* |
+| `Application URL` | Public URL of your app (default `http://localhost`) |
+
+Before running migrations and seeding, the installer asks for confirmation. Migrations default to `yes`, seeding to `yes`.
+
+#### Option B — Non-interactive (recommended for CI/CD / automation)
+
+Pass all values as CLI flags. Add `-n` to skip all prompts (defaults will be used for any missing flag).
+
+```bash
+php artisan app:install -n \
+    --db-host=127.0.0.1 \
+    --db-port=3306 \
+    --db-database=your_database \
+    --db-username=your_user \
+    --db-password=your_password \
+    --app-url=http://your-domain.com
+```
+
+> **Security note:** Using `--db-password` on the command line exposes it in process listings (`ps aux`). For interactive sessions, prefer Option A (no flags) so the password stays hidden.
+
+---
+
+#### Common options
+
+| Flag | Purpose |
+|---|---|
+| `--skip-composer` | Skip `composer install` (if already run) |
+| `--force` | Reinstall (resets the `/installed` flag). Prompts for confirmation unless `-n` is set. |
+| `-n` / `--no-interaction` | Non-interactive mode — use all defaults for missing flags |
+
+**Examples:**
+```bash
+# Reinstall non-interactively
+php artisan app:install -n --force --db-host=... --db-database=... --db-username=... --db-password=...
+
+# Install without running composer again
+php artisan app:install --skip-composer
+```
+
+---
+
+#### Post-install
+
+```bash
+# Fix storage permissions (if needed)
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+# Start the dev server
+php artisan serve
+```
+   php artisan app:install \
+       --db-host=127.0.0.1 \
+       --db-database=your_database \
+       --db-username=your_user \
+       --db-password=your_password \
+       --app-url=http://your-domain.com
+   ```
+4. Set storage permissions (if needed):
+   ```
+   sudo chown -R www-data:www-data storage bootstrap/cache
+   sudo chmod -R 775 storage bootstrap/cache
+   ```
 5. Start the server: `php artisan serve`
+
+You can also skip Composer dependency installation during install (if already done):
+```
+php artisan app:install --skip-composer [other options...]
+```
 
 ## FAQ
 

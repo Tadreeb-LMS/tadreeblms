@@ -9,14 +9,8 @@ class RedirectIfNotInstalled
 {
     public function handle(Request $request, Closure $next)
     {
-        if (env('APP_INSTALLED', false) === false) {
-            // allow installer routes
-            if ($request->is('install') || $request->is('install/*')) {
-                return $next($request); // show installer
-            }
-
-            // redirect everything else to installer
-            return redirect('/install');
+        if (env('APP_INSTALLED', false) === false || env('APP_INSTALLED', false) === 'false') {
+            abort(503, 'Application not installed. Run: php artisan app:install');
         }
 
         return $next($request);
