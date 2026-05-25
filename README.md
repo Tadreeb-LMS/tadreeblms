@@ -133,24 +133,38 @@ sudo chmod -R 775 storage bootstrap/cache
 # Start the dev server
 php artisan serve
 ```
-   php artisan app:install \
-       --db-host=127.0.0.1 \
-       --db-database=your_database \
-       --db-username=your_user \
-       --db-password=your_password \
-       --app-url=http://your-domain.com
-   ```
-4. Set storage permissions (if needed):
-   ```
-   sudo chown -R www-data:www-data storage bootstrap/cache
-   sudo chmod -R 775 storage bootstrap/cache
-   ```
-5. Start the server: `php artisan serve`
 
-You can also skip Composer dependency installation during install (if already done):
+---
+
+### Production deployment
+
+```bash
+# Install dependencies (never --ignore-platform-reqs in production)
+composer install --no-dev --prefer-dist --optimize-autoloader
+
+# Run the installer non-interactively
+php artisan app:install -n \
+    --db-host=127.0.0.1 \
+    --db-database=your_database \
+    --db-username=your_user \
+    --db-password=your_password \
+    --app-url=https://your-domain.com
+
+# Laravel production optimizations
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Ensure debug mode is OFF
+# Verify APP_DEBUG=false in .env
+# Verify APP_ENV=production in .env
 ```
-php artisan app:install --skip-composer [other options...]
-```
+
+> **Production checklist:**
+> - `APP_DEBUG` must be `false` — never expose debug output on a public server
+> - `APP_ENV` must be `production`
+> - Log files must only exist under `storage/logs/` — never under `public/`
+> - Only `public/index.php` should be web-executable; configure your server to block other `.php` files in `public/`
 
 ## FAQ
 
