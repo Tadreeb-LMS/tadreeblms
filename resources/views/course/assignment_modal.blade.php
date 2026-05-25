@@ -32,9 +32,7 @@
 <script>
 $('#assignCourseForm').on('submit', function(e) {
     e.preventDefault();
-    axios.post($(this).attr('action'), $(this).serialize(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
+    axios.post($(this).attr('action'), $(this).serialize())
         .then(res => {
             swal('Success', '{{ __('modals_pages.assignment_modal.success_message') }}', 'success');
             $('#assignCourseModal').modal('hide');

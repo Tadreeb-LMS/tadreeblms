@@ -307,7 +307,7 @@
 
     <!-- For Js Library -->
     <!-- For Js Library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="{{asset('assets-rtl/js/jquery-2.1.4.min.js')}}"></script>
     <script src="{{asset('assets-rtl/js/popper.min.js')}}"></script>
     <script src="{{asset('assets-rtl/js/bootstrap.min.js')}}"></script>
     <script src="{{asset('assets-rtl/js/owl.carousel.min.js')}}"></script>
