@@ -270,22 +270,62 @@
 </script>
 
 <script>
-    function delete_client(id) {
-        $.ajax({
-            type: 'post',
-            url: "{{ route('admin.feedback.feedback-question-multiple-delete') }}",
-            data: ({
-                id: id,
-                _token: "{{ csrf_token() }}"
-            }),
-            success: function(response) {
-                window.location.replace("{{ route('admin.feedback_question.index') }}");
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        })
 
-    }
+$(document).on('click', '.js-delete-question', function (e) {
+
+    e.preventDefault();
+
+    let url = $(this).data('url');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This record will be deleted permanently.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _method: 'DELETE',
+                    _token: '{{ csrf_token() }}'
+                },
+
+                success: function (response) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Question deleted successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2000);
+                },
+
+                error: function () {
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong.'
+                    });
+                }
+            });
+        }
+    });
+
+});
+
 </script>
 @endpush

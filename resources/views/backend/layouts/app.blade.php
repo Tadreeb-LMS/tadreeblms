@@ -327,7 +327,6 @@ $(document).on('click', '.js-delete-question', function (e) {
             });
 
         }
-
     });
 
 });
