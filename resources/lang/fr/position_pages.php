@@ -15,6 +15,9 @@ return array(
     'delete_selected' => 'Supprimer la sélection',
     'no_data_available' => 'Aucune donnée disponible.',
   ),
+  'table' => array(
+    'position_name' => 'Nom du poste',
+  ),
   'create' => array(
     'title' => 'Créer un poste',
     'view_positions' => 'Voir les postes',

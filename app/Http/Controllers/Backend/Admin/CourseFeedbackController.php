@@ -87,30 +87,36 @@ class CourseFeedbackController extends Controller
     }
 
     public function addQuestionsToCourse(Request $request)
-{
-    $request->validate([
-        'course_id' => 'required|exists:courses,id',
-        'question_ids' => 'required|array',
-    ]);
+    {
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'question_ids' => 'required|array',
+            'question_ids.*' => 'exists:feedback_questions,id',
+        ]);
 
-    foreach ($request->question_ids as $questionId) {
-
-        $exists = DB::table('courses_feedbacks')
-            ->where('course_id', $request->course_id)
-            ->where('feedback_question_id', $questionId)
-            ->exists();
-
-        if (!$exists) {
-            DB::table('courses_feedbacks')->insert([
+        foreach ($request->question_ids as $questionId) {
+            CourseFeedback::firstOrCreate([
                 'course_id' => $request->course_id,
                 'feedback_question_id' => $questionId,
+            ], [
                 'created_by' => auth()->id(),
             ]);
         }
+
+        return redirect()
+            ->route('admin.course-feedback-questions.index')
+            ->with('success', 'Questions added successfully!');
     }
 
-    return redirect()->back()->with('success', 'Questions added successfully!');
-}
+    public function assignedQuestions($courseId)
+    {
+        return CourseFeedback::where('course_id', $courseId)
+            ->pluck('feedback_question_id')
+            ->map(function ($questionId) {
+                return (int) $questionId;
+            })
+            ->values();
+    }
 
     public function destroy($id)
     {

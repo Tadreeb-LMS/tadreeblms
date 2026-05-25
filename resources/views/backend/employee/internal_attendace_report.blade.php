@@ -238,27 +238,6 @@
                 </div>
 
                 <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
-                    Progress Status
-                    <div class="custom-select-wrapper mt-2">
-                        <select name="progress_status" id="progress_status" class="form-control custom-select-box select2">
-                            <option value="">All</option>
-                            <option value="not_started" {{ request()->progress_status == 'not_started' ? 'selected' : '' }}>
-                                Not Started
-                            </option>
-                            <option value="in_progress" {{ request()->progress_status == 'in_progress' ? 'selected' : '' }}>
-                                In Progress
-                            </option>
-                            <option value="completed" {{ request()->progress_status == 'completed' ? 'selected' : '' }}>
-                                Completed
-                            </option>
-                        </select>
-                        <span class="custom-select-icon">
-                            <i class="fa fa-chevron-down"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-sm-6 col-xs-12 mt-3">
                     <div>
                         <div class="mb-2">
                             {{ __('admin_pages.internal_attendance.assign_from_date') }}
@@ -325,8 +304,7 @@
                                 <th style="width:130px">@lang('Lesson Quiz')</th>
                                 <th style="width:140px">@lang('Lesson Quiz Status')</th>
                                 <th style="width:120px">@lang('Trainer Name')</th>
-                                <th style="display:none;width:140px">@lang('Assignment Date')</th>
-                                <th style="width:120px;width:140px">@lang('Assignment Date')</th>
+                                <th style="width:140px">@lang('Assignment Date')</th>
                                 <th style="width:120px">@lang('Due Date')</th>
                             </tr>
                         </thead>
@@ -340,40 +318,19 @@
 
 @push('after-scripts')
 <script>
-    var emp_by = @json(request()->user_by);
-    setSelectUser(emp_by);
-
-    $('#user_by').change(function () {
-        emp_by = $(this).val();
-        setSelectUser(emp_by);
-    });
-
-    function setSelectUser(emp_by)
-    {
-        if (emp_by == 'email') {
-            $('#code-block').hide();
-            $('#name-block').hide();
-            $('#email-block').show();
-        }
-
-        if (emp_by == 'code') {
-            $('#code-block').show();
-            $('#name-block').hide();
-            $('#email-block').hide();
-        }
-
-        if (emp_by == 'name') {
-            $('#code-block').hide();
-            $('#name-block').show();
-            $('#email-block').hide();
-        }
-    }
+    let dataTableInstance;
 
     const fromDateInput = document.getElementById('assign_from_date');
     const toDateInput = document.getElementById('assign_to_date');
     const MS_PER_DAY = 24 * 60 * 60 * 1000;
     const MAX_RANGE_DAYS = 90;
     const today = new Date();
+
+    function setSelectUser(emp_by) {
+        $('#email-block').toggle(emp_by === 'email' || !emp_by);
+        $('#code-block').toggle(emp_by === 'code');
+        $('#name-block').toggle(emp_by === 'name');
+    }
 
     function formatDate(date) {
         const yyyy = date.getFullYear();
@@ -405,19 +362,25 @@
 
     function enforceMaxRangeOnFromChange() {
         const fromDate = new Date(fromDateInput.value);
-        if (!isValidDate(fromDateInput.value)) return;
+        if (!isValidDate(fromDateInput.value)) {
+            return;
+        }
 
         const toDate = new Date(toDateInput.value);
         if (!isValidDate(toDateInput.value) || (toDate - fromDate) > MAX_RANGE_DAYS * MS_PER_DAY) {
             let newToDate = new Date(fromDate.getTime() + MAX_RANGE_DAYS * MS_PER_DAY);
-            if (newToDate > today) newToDate = today;
+            if (newToDate > today) {
+                newToDate = today;
+            }
             toDateInput.value = formatDate(newToDate);
         }
     }
 
     function enforceMaxRangeOnToChange() {
         const toDate = new Date(toDateInput.value);
-        if (!isValidDate(toDateInput.value)) return;
+        if (!isValidDate(toDateInput.value)) {
+            return;
+        }
 
         const fromDate = new Date(fromDateInput.value);
         if (!isValidDate(fromDateInput.value) || (toDate - fromDate) > MAX_RANGE_DAYS * MS_PER_DAY) {
@@ -429,112 +392,29 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeDates();
+    function selectedUserId() {
+        const userBy = $('#user_by').val();
 
-        fromDateInput.addEventListener('change', () => {
-            enforceMaxRangeOnFromChange();
-        });
-
-        $('#reset').click(function (){
-                //initializeDates();
-            $('#user').val(null).trigger('change');
-            $('#emp_name').val(null).trigger('change');
-            $('#emp_code').val(null).trigger('change');
-            $('#course_id').val(null).trigger('change');
-            $('#dept_id').val(null).trigger('change');
-            $('#assign_from_date').val(null);
-            $('#assign_to_date').val(null);
-            $('#progress_status').val(null).trigger('change');
-            $('#due_date').val(null);
-
-            $('#advace_filter').submit();
-            //location.reload(`{{ route('admin.employee.internal-attendence-report') }}`) local
-        })
-
-        $('#advace_filter').submit(function (e) {
-            e.preventDefault();
-            $('#advance-search-btn').prop('disabled', true);
-            loadDataTable(); // 👉 filter submission
-        toDateInput.addEventListener('change', () => {
-            enforceMaxRangeOnToChange();
-        });
-    });
-</script>
-
-<script>
-    let dataTableInstance;
-
-    $(document).ready(function () {
-        loadDataTable();
-    });
-
-    $('#reset').click(function () {
-        $('#user').val(null).trigger('change');
-        $('#emp_name').val(null).trigger('change');
-        $('#emp_code').val(null).trigger('change');
-        $('#course_id').val(null).trigger('change');
-        $('#dept_id').val(null).trigger('change');
-        $('#assign_from_date').val(null);
-        $('#assign_to_date').val(null);
-        $('#progress_status').val(null).trigger('change');
-        $('#due_date').val(null);
-
-        $('#advace_filter').submit();
-    });
-
-    $('#advace_filter').submit(function (e) {
-        e.preventDefault();
-        $('#advance-search-btn').prop('disabled', true);
-        loadDataTable();
-    });
-
-    function loadDataTable() {
-        const user_by = $('#user_by').val();
-        let user_id = null;
-
-            dataTableInstance = $('#myTable').DataTable({
-                processing: true,
-                serverSide: true,
-                iDisplayLength: 10,
-                retrieve: true,
-                dom: "<'table-controls'lB>" +
-                    "<'table-responsive't>" +
-                    "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
-
-                ajax: {
-                    url: "{{ route('admin.employee.internal-attendence-report') }}",
-                    type: "GET",
-                    data: function (d) {
-                        d.user_id = user_id;
-                        d.course_id = course_id;
-                        d.dept_id = dept_id;
-                        d.from = $('#assign_from_date').val();
-                        d.to = $('#assign_to_date').val();
-                        d.due_date = $('#due_date').val();
-                        d.progress_status = $('#progress_status').val();
-                    }
-                },
-        if (user_by === 'email') {
-            user_id = $('#user').val();
-        } else if (user_by === 'name') {
-            user_id = $('#emp_name').val();
-        } else if (user_by === 'code') {
-            user_id = $('#emp_code').val();
+        if (userBy === 'name') {
+            return $('#emp_name').val();
         }
 
-        let course_id = $('#course_id').val() || null;
-        let dept_id = $('#dept_id').val() || null;
+        if (userBy === 'code') {
+            return $('#emp_code').val();
+        }
+
+        return $('#user').val();
+    }
+
+    function loadDataTable() {
+        const user_id = selectedUserId();
+        const course_id = $('#course_id').val() || null;
+        const dept_id = $('#dept_id').val() || null;
 
         if ($.fn.DataTable.isDataTable('#myTable')) {
             dataTableInstance.clear().destroy();
             $('#myTable tbody').empty();
         }
-        $(document).ready(function () {
-    loadDataTable(); 
-});
-    </script>
-@endpush
 
         dataTableInstance = $('#myTable').DataTable({
             processing: true,
@@ -566,7 +446,7 @@
                     className: 'btn btn-sm btn-outline-primary',
                     action: function () {
                         $.ajax({
-                            url: `{{ route('admin.employee.internal-progress-report') }}`,
+                            url: "{{ route('admin.employee.internal-progress-report') }}",
                             method: "GET",
                             data: {
                                 course_id: course_id,
@@ -583,11 +463,6 @@
                             complete: function () {
                                 alert(@json(__('admin_pages.internal_attendance.report_ready_email_notice')));
                                 $("#loader").addClass("d-none");
-                            },
-                            success: function () {
-                                return;
-                            },
-                            error: function () {
                             }
                         });
                     }
@@ -631,13 +506,13 @@
             },
 
             language: {
-                url: `//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name }}.json`,
-                lengthMenu: '{{ trans('datatable.length_menu') }}',
+                url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name ?? 'English' }}.json",
+                lengthMenu: @json(trans('datatable.length_menu')),
                 buttons: {
-                    colvis: '{{ trans("datatable.colvis") }}',
-                    csv: '{{ trans("datatable.csv") }}'
+                    colvis: @json(trans('datatable.colvis')),
+                    csv: @json(trans('datatable.csv'))
                 },
-                emptyTable: '{{ __('admin_pages.internal_attendance.no_records_found') }}'
+                emptyTable: @json(__('admin_pages.internal_attendance.no_records_found'))
             }
         });
 
@@ -645,5 +520,57 @@
             $('#advance-search-btn').prop('disabled', false);
         });
     }
+
+    $(document).ready(function () {
+        setSelectUser($('#user_by').val());
+        initializeDates();
+        loadDataTable();
+
+        $('#user_by').change(function () {
+            setSelectUser($(this).val());
+        });
+
+        $('#assign_from_date').change(enforceMaxRangeOnFromChange);
+        $('#assign_to_date').change(enforceMaxRangeOnToChange);
+
+        $('#reset').click(function () {
+            $('#user').val(null).trigger('change');
+            $('#emp_name').val(null).trigger('change');
+            $('#emp_code').val(null).trigger('change');
+            $('#course_id').val(null).trigger('change');
+            $('#dept_id').val(null).trigger('change');
+            $('#assign_from_date').val(null);
+            $('#assign_to_date').val(null);
+            $('#progress_status').val(null).trigger('change');
+            $('#due_date').val(null);
+
+            $('#advace_filter').submit();
+        });
+
+        $('#advace_filter').submit(function (e) {
+            e.preventDefault();
+            $('#advance-search-btn').prop('disabled', true);
+            loadDataTable();
+        });
+
+        $('#sync-reports').click(function () {
+            $.ajax({
+                url: "{{ route('admin.sync.report') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                    $("#loader").removeClass("d-none");
+                },
+                complete: function () {
+                    $("#loader").addClass("d-none");
+                },
+                success: function () {
+                    loadDataTable();
+                }
+            });
+        });
+    });
 </script>
 @endpush
