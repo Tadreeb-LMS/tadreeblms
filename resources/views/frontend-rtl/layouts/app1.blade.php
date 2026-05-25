@@ -308,7 +308,7 @@
     @stack('before-scripts')
 
     <!-- For Js Library -->
-    <script src="{{ asset('assets/js/jquery-2.1.4.min.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="{{ asset('assets/js/popper.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
