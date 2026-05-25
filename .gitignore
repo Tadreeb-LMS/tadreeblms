@@ -90,6 +90,11 @@ url_links.txt
 README.md
 
 # --------------------------
+# Installer / runtime artifacts
+# --------------------------
+/storage/app/installer/
+
+# --------------------------
 # External Modules (runtime-installed, never committed)
 # --------------------------
 /modules/*
