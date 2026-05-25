@@ -293,7 +293,6 @@ $(document).on('click', '.js-status-toggle', function(e){
 });
 </script>
 
-$(document).on('click', '.delete-record', function(e) {
     e.preventDefault();
 
     let url = $(this).data('url');
@@ -316,7 +315,7 @@ $(document).on('click', '.delete-record', function(e) {
                 type: 'POST',
                 data: {
                     _method: 'DELETE',
-                    _token: $('meta[name="csrf-token"]').attr('content')
+                    _token: '{{ csrf_token() }}'
                 },
 
                 success: function(response) {
@@ -348,6 +347,7 @@ $(document).on('click', '.delete-record', function(e) {
         }
 
     });
+
 });
 </script>
     @stack('after-scripts')
