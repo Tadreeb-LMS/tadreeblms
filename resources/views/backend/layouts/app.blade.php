@@ -273,83 +273,73 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-$(document).on('click', '.js-status-toggle', function(e){
-    e.preventDefault();
+    <script>
+        $(document).on('click', '.js-status-toggle', function(e) {
+            e.preventDefault();
 
-    let url = $(this).data('url');
-    let action = $(this).data('action');
+            let url = $(this).data('url');
+            let action = $(this).data('action');
 
-    Swal.fire({
-        title: action === 'activate' ? 'Are you sure you want to ACTIVATE this user?' : 'Are you sure you want to DEACTIVATE this user?',
-        icon: action === 'activate' ? 'question' : 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes'
-    }).then((result) => {
-        if(result.isConfirmed){
-            window.location.href = url;
-        }
-    });
-});
-</script>
-
-    e.preventDefault();
-
-    let url = $(this).data('url');
-
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "This record will be deleted permanently.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-
-        if (result.isConfirmed) {
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _method: 'DELETE',
-                    _token: '{{ csrf_token() }}'
-                },
-
-                success: function(response) {
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: 'Record deleted successfully.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-
-                    setTimeout(function () {
-                        location.reload();
-                    }, 2000);
-                },
-
-                error: function() {
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Something went wrong.'
-                    });
-
+            Swal.fire({
+                title: action === 'activate' ? 'Are you sure you want to ACTIVATE this user?' : 'Are you sure you want to DEACTIVATE this user?',
+                icon: action === 'activate' ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
                 }
             });
+        });
 
-        }
+        $(document).on('click', '.js-delete-question', function(e) {
+            e.preventDefault();
 
-    });
+            let url = $(this).data('url');
 
-});
-</script>
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This record will be deleted permanently.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE',
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Record deleted successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        },
+                        error: function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Something went wrong.'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
     @stack('after-scripts')
 
 </body>
