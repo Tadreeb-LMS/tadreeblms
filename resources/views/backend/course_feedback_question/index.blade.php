@@ -75,11 +75,6 @@ width: 58% !important;
                             <th>Question</th>
                             <th class="text-center">Actions</th>
                             <th>Add Question</th>
-                            <th>{{ __('user_feedback.feedback_questions.serial_no') }}</th>
-                            <th>{{ __('user_feedback.feedback_questions.course_name') }}</th>
-                            <th>{{ __('user_feedback.feedback_questions.question') }}</th>
-                            <th class="text-center">{{ __('user_feedback.feedback_questions.actions') }}</th>
-                        </tr>
                     </thead>
                                 <tbody>
                                 </tbody>
