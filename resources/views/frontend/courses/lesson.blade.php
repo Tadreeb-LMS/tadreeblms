@@ -788,12 +788,24 @@
 
 
     <script>
-        document.querySelectorAll('.lesson-video-player').forEach(function(playerElement) {
-            new Plyr(playerElement, {
-                youtube: {
-                    noCookie: true
+        var lessonVideoPlayers = [];
+            var player = null;
+            var player2 = null;
+
+            window.lessonVideoPlayers = lessonVideoPlayers;
+
+            document.querySelectorAll('.js-player').forEach(function(playerElement) {
+                var plyrInstance = new Plyr(playerElement, {
+                    youtube: {
+                        noCookie: true
+                    }
+                });
+
+                lessonVideoPlayers.push(plyrInstance);
+
+                if (playerElement.id === 'player') {
+                    player = plyrInstance;
                 }
-            });
         });
 
         @if ($lesson->mediaPDF)
@@ -831,28 +843,35 @@
 
 
 
-            const player2 = new Plyr('#audioPlayer');
+            if (!player && document.getElementById('player')) {
+                player = new Plyr('#player', {
+                    youtube: {
+                        noCookie: true
+                    }
+                });
 
-            const player = new Plyr('#player', {
-                youtube: {
-                    noCookie: true
-                }
-            });
+                lessonVideoPlayers.push(player);
+            }
+
+            if (!player2 && document.getElementById('audioPlayer')) {
+                player2 = new Plyr('#audioPlayer');
+            }
 
             duration = 10;
             var progress = 0;
             var video_id = $('#player').parents('.video-container').data('id');
-            player.on('ready', event => {
-                player.currentTime = parseInt(current_progress);
-                duration = event.detail.plyr.duration;
 
+            if (player) {
+                player.on('ready', event => {
+                    player.currentTime = parseInt(current_progress);
+                    duration = event.detail.plyr.duration;
 
-                if (!storedDuration || (parseInt(storedDuration) === 0)) {
-                    Cookies.set("duration_" + "{{ auth()->user()->id }}" + "_" + "{{ $lesson->id }}" + "_" +
-                        "{{ $lesson->course->id }}", duration);
-                }
-
-            });
+                    if (!storedDuration || (parseInt(storedDuration) === 0)) {
+                        Cookies.set("duration_" + "{{ auth()->user()->id }}" + "_" + "{{ $lesson->id }}" + "_" +
+                            "{{ $lesson->course->id }}", duration);
+                    }
+                });
+            }
 
             {{-- if (!storedDuration || (parseInt(storedDuration) === 0)) { --}}
             {{-- Cookies.set("duration_" + "{{auth()->user()->id}}" + "_" + "{{$lesson->id}}" + "_" + "{{$lesson->course->id}}", player.duration); --}}
@@ -1056,32 +1075,6 @@
         //     time(watchPoint, progress)
         // });
         let playedDuration = 0;
-        let lastRecordedTime = current_progress ?? 0;
-        let watchDuration = 0;
-        let lastCalledTime = 0;
-
-        player.on('timeupdate', () => {
-            const currentTime = player.currentTime;
-            const playbackRate = player.media.playbackRate;
-            var watchPoint = Math.floor((currentTime / player.duration) * 100);
-
-            // Check if the user is watching continuously (no skipping)
-            if (Math.abs(currentTime - lastRecordedTime) <= 1) {
-                // Adjust the watched duration by the playback rate
-                watchDuration += (currentTime - lastRecordedTime) * playbackRate;
-            }
-
-            // Update lastRecordedTime for the next timeupdate event
-            lastRecordedTime = currentTime;
-
-            // Check if 2 seconds have passed since the last progress update
-            if (currentTime - lastCalledTime >= 2) {
-                time(watchPoint, watchDuration, player.duration)
-
-                // Update lastCalledTime to the current time
-                lastCalledTime = currentTime;
-            }
-        });
 
         var lessonAlreadyCompleted = false;
 
@@ -1108,5 +1101,89 @@
                 },
             });
         }
+
+       function pauseAllVideos() {
+
+            if (Array.isArray(window.lessonVideoPlayers)) {
+                window.lessonVideoPlayers.forEach(function(p) {
+                    try {
+                        if (p && typeof p.pause === 'function') {
+                            p.pause();
+                        }
+                    } catch (e) {}
+                });
+            }
+
+            try {
+                if (typeof player !== 'undefined' && player && typeof player.pause === 'function') {
+                    player.pause();
+                }
+            } catch (e) {}
+
+            try {
+                if (typeof player2 !== 'undefined' && player2 && typeof player2.pause === 'function') {
+                    player2.pause();
+                }
+            } catch (e) {}
+
+            document.querySelectorAll('video, audio').forEach(function(el) {
+                try {
+                    el.pause();
+                } catch (e) {}
+            });
+
+            document.querySelectorAll('.lesson-video-frame iframe').forEach(function(el) {
+                try {
+                    var src = el.src || '';
+
+                    if (
+                        src.includes('youtube.com') ||
+                        src.includes('youtube-nocookie.com') ||
+                        src.includes('vimeo.com')
+                    ) {
+                        el.src = src;
+                    }
+                } catch (e) {}
+            });
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden || document.visibilityState !== 'visible') {
+                pauseAllVideos();
+            }
+        }
+
+        function handleWindowBlur() {
+                setTimeout(function() {
+                    if (!document.hasFocus()) {
+                        pauseAllVideos();
+                    }
+                }, 150);
+            }
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleWindowBlur);
+            window.addEventListener('pagehide', pauseAllVideos);
+            window.addEventListener('beforeunload', pauseAllVideos);
+
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('a');
+
+                if (!link) {
+                    return;
+                }
+
+                var href = link.getAttribute('href');
+
+                if (
+                    href &&
+                    href !== '#' &&
+                    !href.startsWith('javascript:') &&
+                    !link.hasAttribute('download') &&
+                    link.target !== '_blank'
+                ) {
+                    pauseAllVideos();
+                }
+            }, true);
     </script>
 @endpush
