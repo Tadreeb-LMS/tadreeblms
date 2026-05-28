@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend\Admin;
 
+use App\Services\Courses\CourseScheduleService;
 
 use App\Exports\CoursesExport;
 use App\Models\Auth\User;
@@ -35,6 +36,14 @@ use Illuminate\Support\Str;
 class CoursesController extends Controller
 {
     use FileUploadTrait;
+
+
+    private CourseScheduleService $courseScheduleService;
+
+    public function __construct(CourseScheduleService $courseScheduleService)
+    {
+        $this->courseScheduleService = $courseScheduleService;
+    }
 
     /**
      * Display a listing of Course.
