@@ -2,10 +2,16 @@
 
 namespace App\Services\Courses;
 
+use App\Mail\CourseMeetingInvite;
+use App\Models\Auth\User;
 use App\Models\Course;
+use App\Models\LiveSession;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class CourseScheduleService
@@ -292,4 +298,219 @@ class CourseScheduleService
     ): bool {
         return $startA->lt($endB) && $endA->gt($startB);
     }
+
+    public function generateLiveSessions(Course $course, Request $request): int
+{
+    $course->liveSessions()->delete();
+
+    $provider = $request->meeting_provider;
+    $timezone = $request->meeting_timezone ?? 'Asia/Riyadh';
+    $scheduleType = $request->schedule_type;
+
+    $sessions = $this->buildRequestedLiveSessions($course, $request);
+
+    $lastSessionDate = null;
+    $failedCount = 0;
+
+    foreach ($sessions as $session) {
+        $sessionDateTime = $session['date'] . ' ' . $session['time'] . ':00';
+
+        $meetingLink = null;
+        $meetingId = null;
+        $hostUrl = null;
+
+        $meetingRequest = new Request();
+        $meetingRequest->merge([
+            'meeting_start_at' => $sessionDateTime,
+            'meeting_duration' => $session['duration'],
+            'meeting_timezone' => $timezone,
+        ]);
+
+        try {
+            $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
+
+            if ($meetingData) {
+                $meetingLink = $meetingData['meeting_join_url'] ?? null;
+                $meetingId = $meetingData['meeting_id'] ?? null;
+                $hostUrl = $meetingData['meeting_host_url'] ?? null;
+            }
+
+            if (!$meetingLink) {
+                $failedCount++;
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Failed to create meeting for session {$session['date']}: " . $e->getMessage());
+            $failedCount++;
+        }
+
+        LiveSession::create([
+            'course_id' => $course->id,
+            'provider' => $provider,
+            'session_date' => $session['date'],
+            'session_time' => $session['time'],
+            'meeting_link' => $meetingLink,
+            'meeting_id' => $meetingId,
+            'host_url' => $hostUrl,
+            'duration' => $session['duration'],
+            'recurrence_type' => $scheduleType,
+            'created_by' => Auth::id(),
+        ]);
+
+        $lastSessionDate = $session['date'];
+    }
+
+    if ($lastSessionDate) {
+        $course->last_session_date = $lastSessionDate;
+        $course->save();
+    }
+
+    return $failedCount;
+}
+
+public function regenerateMissingMeetingLinks(Course $course): array
+{
+    $sessions = $course->liveSessions()->whereNull('meeting_link')->get();
+
+    if ($sessions->isEmpty()) {
+        return [
+            'success_count' => 0,
+            'failed_count' => 0,
+            'has_missing_sessions' => false,
+            'provider' => $course->meeting_provider,
+        ];
+    }
+
+    $provider = $course->meeting_provider;
+    $timezone = $course->meeting_timezone ?? 'Asia/Riyadh';
+    $successCount = 0;
+    $failedCount = 0;
+
+    foreach ($sessions as $session) {
+        $timeFormatted = Carbon::parse($session->session_time)->format('H:i:s');
+        $sessionDateTime = $session->session_date->format('Y-m-d') . ' ' . $timeFormatted;
+
+        $meetingRequest = new Request();
+        $meetingRequest->merge([
+            'meeting_start_at' => $sessionDateTime,
+            'meeting_duration' => $session->duration,
+            'meeting_timezone' => $timezone,
+        ]);
+
+        try {
+            $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
+
+            if ($meetingData) {
+                $session->update([
+                    'meeting_link' => $meetingData['meeting_join_url'] ?? null,
+                    'meeting_id' => $meetingData['meeting_id'] ?? null,
+                    'host_url' => $meetingData['meeting_host_url'] ?? null,
+                ]);
+
+                $successCount++;
+            } else {
+                $failedCount++;
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Failed to regenerate meeting for session {$session->id}: " . $e->getMessage());
+            $failedCount++;
+        }
+    }
+
+    return [
+        'success_count' => $successCount,
+        'failed_count' => $failedCount,
+        'has_missing_sessions' => true,
+        'provider' => $provider,
+    ];
+}
+
+public function createMeetingViaModule(string $provider, Request $request, Course $course): ?array
+{
+    if ($provider === 'zoom') {
+        $service = new \Modules\Zoom\Services\ZoomMeetingService();
+
+        $meeting = $service->createMeeting(
+            $course->title,
+            $request->meeting_start_at,
+            $request->meeting_duration,
+            $request->meeting_timezone
+        );
+
+        if ($meeting) {
+            return [
+                'meeting_id' => $meeting['id'],
+                'meeting_join_url' => $meeting['join_url'],
+                'meeting_host_url' => $meeting['host_url'] ?? null,
+            ];
+        }
+    } elseif ($provider === 'teams') {
+        $service = new \Modules\Teams\Services\TeamsMeetingService();
+
+        $meeting = $service->createMeeting(
+            $course->title,
+            $request->meeting_start_at,
+            $request->meeting_duration,
+            $request->meeting_timezone
+        );
+
+        if ($meeting) {
+            return [
+                'meeting_id' => $meeting['id'],
+                'meeting_join_url' => $meeting['join_url'],
+                'meeting_host_url' => $meeting['host_url'] ?? null,
+            ];
+        }
+    } elseif (in_array($provider, ['google-meet-integration', 'google_meet'], true)) {
+        $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
+
+        $course->load(['teachers', 'students']);
+
+        $teacherEmails = $course->teachers->pluck('email')->filter()->values()->toArray();
+        $studentEmails = $course->students->pluck('email')->filter()->values()->toArray();
+
+        $hostEmail = $teacherEmails[0] ?? null;
+        $attendees = array_values(array_unique(array_merge($teacherEmails, $studentEmails)));
+
+        $meeting = $service->createMeeting(
+            $course->title,
+            $request->meeting_start_at,
+            $request->meeting_duration,
+            $request->meeting_timezone,
+            $hostEmail,
+            $attendees
+        );
+
+        if ($meeting) {
+            return [
+                'meeting_id' => $meeting['id'],
+                'meeting_join_url' => $meeting['join_url'],
+                'meeting_host_url' => $meeting['host_url'] ?? null,
+            ];
+        }
+    }
+
+    return null;
+}
+
+public function sendMeetingInviteToStudents(Course $course, array $studentIds): void
+{
+    $students = User::whereIn('id', $studentIds)->get();
+
+    if ($course->meeting_provider === 'google-meet-integration' && $course->meeting_id) {
+        $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
+
+        $course->loadMissing('teachers');
+
+        $hostEmail = $course->teachers->first()->email ?? null;
+
+        foreach ($students as $student) {
+            $service->addAttendeeToMeeting($course->meeting_id, $student->email, $hostEmail);
+        }
+    }
+
+    foreach ($students as $student) {
+        Mail::to($student->email)->send(new CourseMeetingInvite($course));
+    }
+}
+
 }
