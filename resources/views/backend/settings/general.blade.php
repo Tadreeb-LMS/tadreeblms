@@ -676,8 +676,8 @@
                                         </a>
                                         <button type="submit"
                                                 class="btn btn-sm btn-{{ $isEnabled ? 'outline-warning' : 'success' }}"
-                                                name="language_action"
-                                                value="toggle:{{ $lang->short_name }}:{{ $toggleTo }}"
+                                                form="language-toggle-form-{{ $lang->id }}"
+                                                formnovalidate
                                                 @if ($isDefault && $isEnabled) disabled @endif>
                                             {{ $toggleLabel }}
                                         </button>
@@ -925,6 +925,20 @@
         </div>
     </div>
     </form>
+    @foreach ($app_locales as $lang)
+        @php
+            $isEnabled = isset($lang->is_enabled) ? (int) $lang->is_enabled : 1;
+            $toggleTo = $isEnabled ? 0 : 1;
+        @endphp
+        <form id="language-toggle-form-{{ $lang->id }}"
+              method="POST"
+              action="{{ route('admin.general-settings') }}"
+              class="d-none">
+            @csrf
+            <input type="hidden" name="active_tab" value="language_settings">
+            <input type="hidden" name="language_action" value="toggle:{{ $lang->short_name }}:{{ $toggleTo }}">
+        </form>
+    @endforeach
 @endsection
 
 
