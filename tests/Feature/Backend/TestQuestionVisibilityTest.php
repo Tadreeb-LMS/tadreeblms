@@ -46,6 +46,27 @@ class TestQuestionVisibilityTest extends TestCase
         $this->assertSame($assignedQuestionId, (int) $questions->first()->id);
     }
 
+    public function test_non_admin_question_visibility_is_scoped_even_without_teacher_role(): void
+    {
+        $assignedCourseId = $this->createCourse('Assigned course without teacher role');
+        $unassignedCourseId = $this->createCourse('Unassigned course without teacher role');
+        $assignedQuestionId = $this->seedQuestionForCourse('Assigned question without teacher role', $assignedCourseId);
+        $this->seedQuestionForCourse('Unassigned question without teacher role', $unassignedCourseId);
+
+        $user = factory(User::class)->create();
+        DB::table('course_user')->insert([
+            'course_id' => $assignedCourseId,
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($user->fresh());
+
+        $questions = $this->questionIndexData();
+
+        $this->assertCount(1, $questions);
+        $this->assertSame($assignedQuestionId, (int) $questions->first()->id);
+    }
+
     public function test_admin_question_visibility_is_not_restricted_by_trainer_scope(): void
     {
         $this->seedQuestionForCourse('First admin-visible question');

@@ -38,7 +38,7 @@ class TestQuestionController extends Controller
             $test_questions = $test_questions->where('test_questions.test_id', '=', $request->test_id);
         }
 
-        $this->scopeQuestionsToAssignedTrainerCourses($test_questions);
+        $this->scopeQuestionsToAssignedCoursesForNonAdmins($test_questions);
 
         if ($request->course_id != "") {
             $test_questions = $test_questions->where('tests.course_id', (int)$request->course_id);
@@ -501,9 +501,9 @@ class TestQuestionController extends Controller
         
     }
 
-    private function scopeQuestionsToAssignedTrainerCourses($query): void
+    private function scopeQuestionsToAssignedCoursesForNonAdmins($query): void
     {
-        if (!$this->currentUserIsTrainer()) {
+        if (!$this->shouldScopeQuestionsToAssignedCourses()) {
             return;
         }
 
@@ -515,20 +515,13 @@ class TestQuestionController extends Controller
         });
     }
 
-    private function currentUserIsTrainer(): bool
+    private function shouldScopeQuestionsToAssignedCourses(): bool
     {
         if (!auth()->check()) {
             return false;
         }
 
-        $user = auth()->user();
-
-        if ($user->isAdmin()) {
-            return false;
-        }
-
-        return $user->hasRole('teacher')
-            || $user->roles()->where('name', 'teacher')->exists();
+        return !auth()->user()->isAdmin();
     }
 
 
