@@ -11,7 +11,7 @@
        <div >
        <a href="{{ route('admin.test_questions.index') }}" class="btn add-btn">@lang('labels.backend.questions.view')</a>
    </div>
-     
+
    </div>
 <div class="card">
     <!-- <div class="card-header">
@@ -24,8 +24,8 @@
     <input type="hidden" name="edit_id" id="edit_id" value="@if(isset($question->id)){{$question->id}}@endif">
 
     @if(isset($question->id))
-   
-    @php 
+
+    @php
       $has_option = 0;
        $optiions = $question->option_json ? json_decode($question->option_json) : [];
        $optiions = is_array($optiions) ? $optiions : [];
@@ -43,13 +43,13 @@
        }
        if(count($optiions) > 0) {
          $has_option = 1;
-       } 
+       }
     @endphp
     @endif
     <input type="hidden" name="has_option" id="has_option" value="{{ $has_option }}" />
         <div class="row">
             <div class="col-12 col-md-6">
-               
+
                    <label for="course_id" class="control-label">
                     Test
                 </label>
@@ -65,7 +65,7 @@
                     </span>
                 </div>
             </div>
-        
+
             <div class="col-12 col-md-6">
                 <label>Question Type</label>
                 <div class="custom-select-wrapper">
@@ -96,67 +96,79 @@
                 <div class="mt-2">{!! $question->solution !!}</div>
             </div>
         @endif
-        @php($isShortAnswerRoadmap = isset($question) && (int) $question->question_type === 3)
-        <div class="question-roadmap" data-question-roadmap>
-            <div class="question-roadmap-steps" aria-label="Question builder roadmap">
-                <button type="button" class="question-roadmap-step is-active" data-roadmap-target="question">
-                    <span class="question-roadmap-step-number">1</span>
-                    Question
-                </button>
-                <button type="button" class="question-roadmap-step {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-target="options">
-                    <span class="question-roadmap-step-number">2</span>
-                    Options
-                </button>
-                <button type="button" class="question-roadmap-step" data-roadmap-target="marks">
-                    <span class="question-roadmap-step-number">3</span>
-                    Marks
-                </button>
-                <button type="button" class="question-roadmap-step" data-roadmap-target="solution">
-                    <span class="question-roadmap-step-number">4</span>
-                    Solution
-                </button>
-                <button type="button" class="question-roadmap-step" data-roadmap-target="comment">
-                    <span class="question-roadmap-step-number">5</span>
-                    Comment
-                </button>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="mt-3 notextarea">
+                <label>Question </label>
+                <textarea class="form-control editor" rows="3" name="question" id="question" value="" required="required">@if(isset($question->id)){{$question->question_text}}@endif</textarea>
             </div>
+ </div>
 
-            <div class="question-roadmap-content">
-                <fieldset class="question-roadmap-panel notextarea is-active" data-roadmap-panel="question">
-                    <legend>
-                        <span class="question-roadmap-panel-icon"><i class="fa fa-question-circle"></i></span>
-                        Question
-                    </legend>
-                    <div class="question-roadmap-panel-body">
-                        <textarea class="form-control editor" rows="3" name="question" id="question" value="" required="required">@if(isset($question->id)){{$question->question_text}}@endif</textarea>
+            <div class="col-12 col-md-6" id="question-options-column">
+ <div class="mt-3 notextarea">
+
+                    <label>Option</label>
+                    <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
+                    <div class="addoptbtn">
+                    <button type="button" id="add_option" class="btn btn-primary">Add Option</button>
                     </div>
-                </fieldset>
-
-                <fieldset class="question-roadmap-panel notextarea {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-panel="options">
-                    <legend>
-                        <span class="question-roadmap-panel-icon"><i class="fa fa-check-square-o"></i></span>
-                        Options
-                    </legend>
-                    <div class="question-roadmap-panel-body">
-                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
-                        <div class="addoptbtn">
-                            <button type="button" id="add_option" class="btn btn-primary">Add Option</button>
+                    <div class="addoptiontable ">
+                         <div id="option-area"></div>
                         </div>
-                        <div class="addoptiontable">
-                            <div id="option-area"></div>
-                        </div>
-                    </div>
-                </fieldset>
+              </div>
 
-                @include('backend.test_questions.partials.footer-fields', ['question' => $question ?? null])
-            </div>
 
-            <div class="question-roadmap-actions">
-                <button type="button" class="btn cancel-btn question-roadmap-prev">Back</button>
-                <button type="button" class="btn add-btn question-roadmap-next">Continue</button>
-            </div>
+
+        </div>
+
+
+
+
+        <!-- <div class="cb_question_setup">
+
+
+
+                <div class="col-6">
+
+
+
+
+                </div>
+            </div> -->
+
         </div>
     </div>
+
+
+
+
+<div class="row">
+                <div class="col-12 col-md-5 notextarea">
+                    <label>Solution</label>
+                    <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" value="$question->solution">@if(isset($question->id)){{$question->solution}}@endif</textarea>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <label>Marks <span style="color:red">*</span></label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        name="score"
+                        id="score"
+                        placeholder="Enter Marks"
+                        required
+                        value="{{ $question->score ?? $question->marks ?? '' }}"
+                        min="1"
+                        max="999"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
+                    />
+                </div>
+
+                <div class="col-12 col-md-5 notextarea">
+                    <label>Comment</label>
+                    <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment">@if(isset($question->id)){{$question->comment}}@endif</textarea>
+                </div>
+            </div>
 
 
 
@@ -191,7 +203,7 @@
     CKEDITOR.instances.comment.on('instanceReady', function () {
         this.setData(savedCommentContent || '');
     });
-    
+
 </script>
 @stop
 @push('after-scripts')
@@ -220,20 +232,42 @@
         return option[0] !== '';
     }) : [];
 
+    function isShortAnswerQuestion() {
+        return $('#question_type').val() == 3;
+    }
+
+    function syncQuestionTypeFields() {
+        var optionsColumn = document.getElementById('question-options-column');
+        var optionField = document.getElementById('option');
+
+        if (optionsColumn) {
+            optionsColumn.style.display = isShortAnswerQuestion() ? 'none' : '';
+        }
+
+        if (optionField) {
+            optionField.required = !isShortAnswerQuestion();
+        }
+
+        if (isShortAnswerQuestion()) {
+            $('#option-area').empty();
+            return;
+        }
+
+        showOptions();
+    }
+
     function removeOptions(pos) {
         options.splice(pos, 1);
         showOptions();
     }
 
     var has_option = $('#has_option').val();
-    if(has_option) {
-        showOptions();
-    }
+    syncQuestionTypeFields();
 
     function optionIsCorrect(option) {
         return option && (option[1] === 1 || option[1] === '1' || option[1] === true);
     }
-    
+
 
 
     function addOptions() {
@@ -245,9 +279,9 @@
 
     $(document).on('click', "#add_option", function() {
         if (CKEDITOR.instances["option"].getData() != "") {
-            
+
             addOptions();
-           
+
         }
         showOptions();
     });
@@ -269,7 +303,7 @@
             test_id,
             question_type,
             question,
-            options: JSON.stringify(options),
+            options: JSON.stringify(question_type == 3 ? [] : options),
             solution,
             comment,
             score
@@ -331,10 +365,14 @@
 
     function showOptions(show_remove_options = true) {
 
-        console.log(options)
+        if (isShortAnswerQuestion()) {
+            $('#option-area').empty();
+            return;
+        }
+
         var has_option = $('#has_option').val();
 
-        
+
         if (show_remove_options == true) {
             var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th>';
             var drag_drop_question_type = $('#question_type').val();
@@ -373,8 +411,8 @@
             option_text += '</tbody></table>';
             document.getElementById('option-area').innerHTML = option_text;
         }
-       
-        
+
+
         addImgClass();
     }
 
@@ -403,6 +441,7 @@
 
     $(document).on('change', '#question_type', function() {
         var question_type = $(this).val();
+        syncQuestionTypeFields();
         $.ajax({
             url: "{{route('admin.test_questions.question_setup')}}",
             type: 'post',
@@ -412,7 +451,7 @@
             }),
             success: function(response) {
                 $('.cb_question_setup').html(response);
-                
+
             },
         });
     });

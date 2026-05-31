@@ -21,7 +21,7 @@
     .question-builder-container {
         padding: 20px 0;
     }
- 
+
 
     .card-header {
         background-color: #fff !important;
@@ -342,7 +342,7 @@
          <div class="">
        <a href="{{ route('admin.test_questions.index') }}" class="btn btn-primary">@lang('labels.backend.questions.view')</a>
    </div>
-     
+
    </div>
 <div class="card">
     <!-- <div class="card-header">
@@ -450,76 +450,65 @@
         {{-- /question-type-row --}}
 
 
-        @php($isShortAnswerRoadmap = false)
-        <div class="question-roadmap" data-question-roadmap>
-            <div class="question-roadmap-steps" aria-label="Question builder roadmap">
-                <button type="button" class="question-roadmap-step is-active" data-roadmap-target="question">
-                    <span class="question-roadmap-step-number">1</span>
-                    Question
-                </button>
-                <button type="button" class="question-roadmap-step {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-target="options">
-                    <span class="question-roadmap-step-number">2</span>
-                    {{ __('labels.backend.questions.options') }}
-                </button>
-                <button type="button" class="question-roadmap-step" data-roadmap-target="marks">
-                    <span class="question-roadmap-step-number">3</span>
-                    Marks
-                </button>
-                <button type="button" class="question-roadmap-step" data-roadmap-target="solution">
-                    <span class="question-roadmap-step-number">4</span>
-                    Solution
-                </button>
-                <button type="button" class="question-roadmap-step" data-roadmap-target="comment">
-                    <span class="question-roadmap-step-number">5</span>
-                    Comment
-                </button>
+        <div class="row">
+          <div class="col-12 col-md-6 mt-3 notextarea">
+                <label>Question <span style="color:red">*</span></label>
+                <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1" oninvalid="this.setCustomValidity('Question is required')" oninput="this.setCustomValidity('')"></textarea>
             </div>
 
-            <div class="question-roadmap-content">
-                <fieldset class="question-roadmap-panel notextarea is-active" data-roadmap-panel="question">
-                    <legend>
-                        <span class="question-roadmap-panel-icon"><i class="fa fa-question-circle"></i></span>
-                        Question <span style="color:red">*</span>
-                    </legend>
-                    <div class="question-roadmap-panel-body">
-                        <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1" oninvalid="this.setCustomValidity('Question is required')" oninput="this.setCustomValidity('')"></textarea>
+                <div class="col-12 col-md-6" id="question-options-column">
+                     <div class="mt-3 notextarea">
+                    <label><i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>{{ __('labels.backend.questions.options') }}</label>
+                    <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
+                    <div class="addoptbtn mt-3">
+                        <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
+                            <i class="fa fa-plus-circle mr-2"></i>{{ __('labels.backend.questions.add_option') }}
+                        </button>
                     </div>
-                </fieldset>
-
-                <fieldset class="question-roadmap-panel notextarea {{ $isShortAnswerRoadmap ? 'is-hidden' : '' }}" data-roadmap-panel="options">
-                    <legend>
-                        <span class="question-roadmap-panel-icon"><i class="fa fa-check-square-o"></i></span>
-                        {{ __('labels.backend.questions.options') }}
-                    </legend>
-                    <div class="question-roadmap-panel-body">
-                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
-                        <div class="addoptbtn mt-3">
-                            <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
-                                <i class="fa fa-plus-circle mr-2"></i>{{ __('labels.backend.questions.add_option') }}
-                            </button>
-                        </div>
-                        <div class="addoptiontable mt-4">
-                            <div id="option-area" class=""></div>
-                        </div>
-                    </div>
-                </fieldset>
-
-                @include('backend.test_questions.partials.footer-fields')
+              <div class="addoptiontable mt-4">
+                    <div id="option-area" class=""></div>
+                </div>
+               </div>
             </div>
+</div>
 
-            <div class="question-roadmap-actions">
-                <button type="button" class="btn cancel-btn question-roadmap-prev">Back</button>
-                <button type="button" class="btn add-btn question-roadmap-next">Continue</button>
-            </div>
+
+            <div class="row">
+                 <div class="col-12 col-md-5 notextarea">
+                    <label>Solution</label>
+                    <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" data-collapsible-toolbar="1"></textarea>
+                </div>
+
+             <div class="col-12 col-md-2">
+                    <label>Marks <span style="color:red">*</span></label>
+                    <input type="number"
+                        class="form-control"
+                        name="score"
+                        id="score"
+                        placeholder="Enter Marks"
+                        min="1"
+                        max="999"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
+                        required />
+                </div>
+
+                <div class="col-12 col-md-5 notextarea">
+                    <label>Comment</label>
+                    <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment" data-collapsible-toolbar="1"></textarea>
+
+
+
+
+        </div>
         </div>
 
 
      <div class="btmbtns">
         <div class="row">
     <div class="col-12 mt-5 buttons">
-        
+
      <button type="button" class="frm_submit add-btn" id="save_and_add_more" value="save_and_add_more">Save & Add More</button>
-    
+
      <span class="text-right pull-right">
         <button
             type="button"
@@ -538,7 +527,7 @@
         </button>
 </span>
     </div>
-    
+
 </div>
 </div>
 
@@ -568,6 +557,30 @@
         optionEmptyHelp: @json(__('labels.backend.questions.option_empty_help')),
         optionRequired: @json(__('labels.backend.questions.option_required')),
     };
+
+    function isShortAnswerQuestion() {
+        return $('#question_type').val() == 3;
+    }
+
+    function syncQuestionTypeFields() {
+        var optionsColumn = document.getElementById('question-options-column');
+        var optionField = document.getElementById('option');
+
+        if (optionsColumn) {
+            optionsColumn.style.display = isShortAnswerQuestion() ? 'none' : '';
+        }
+
+        if (optionField) {
+            optionField.required = !isShortAnswerQuestion();
+        }
+
+        if (isShortAnswerQuestion()) {
+            $('#option-area').empty();
+            return;
+        }
+
+        showOptions();
+    }
 
     function removeOptions(pos) {
         options.splice(pos, 1);
@@ -599,7 +612,16 @@
 
     function showOptions(show_remove_options = true) {
         const container = document.getElementById('option-area');
-        
+
+        if (!container) {
+            return;
+        }
+
+        if (isShortAnswerQuestion()) {
+            container.innerHTML = '';
+            return;
+        }
+
         if (options.length === 0) {
             container.innerHTML = `
                 <div class="option-item empty-state">
@@ -626,7 +648,7 @@
             const inputType = parseInt($('#question_type').val()) === 1 ? 'radio' : 'checkbox';
             const correctClass = isCorrect ? 'correct' : '';
             const correctIcon = isCorrect ? '<i class="fa fa-check-circle" style="color: #1cc88a;"></i>' : '<i class="fa fa-circle-o" style="color: #cbd5e0;"></i>';
-            
+
             html += `
                 <div class="option-item ${correctClass}">
                     <div class="option-number">${i + 1}</div>
@@ -720,7 +742,7 @@
             lesson_id,
             question_type,
             question,
-            options: JSON.stringify(options),
+            options: JSON.stringify(question_type == 3 ? [] : options),
             solution,
             comment,
             score
@@ -731,7 +753,7 @@
         $('#action_btn').val($(this).val());
         flag = 0;
         sendData();
-       
+
     });
 
     var question_submit_url = "{{route('admin.test_questions.store')}}";
@@ -823,6 +845,7 @@
 
     $(document).on('change', '#question_type', function() {
         var question_type = $(this).val();
+        syncQuestionTypeFields();
         $.ajax({
             url: "{{route('admin.test_questions.question_setup')}}",
             type: 'post',
@@ -841,6 +864,8 @@
             },
         });
     });
+
+    $(syncQuestionTypeFields);
 
     @if($course_id && isset($lessons) && $lessons->count() > 0)
     <!-- Course Creation Flow: Lesson selection handling -->

@@ -1219,26 +1219,7 @@ class LessonsController extends Controller
         $percentageCompleted = $video->getProgressPercentage($user->id);
         $percentageToMarkLessonAsCompleted = 90;
         if ($percentageCompleted >= $percentageToMarkLessonAsCompleted) {
-            // mark lesson as completed
-            $lesson = Lesson::find($video->model_id);
-            if ($lesson->chapterStudents()->where('user_id', \Auth::id())->count() == 0) {
-                $lesson->chapterStudents()->create([
-                    'model_type' => get_class($lesson),
-                    'model_id' => $lesson->id,
-                    'user_id' => auth()->user()->id,
-                    'course_id' => $lesson->course->id
-                ]);
-
-                // Save the attendance
-                $data = [
-                    'student_id' => \Auth::id(),
-                    'course_id' => $lesson->course->id,
-                    'lesson_id' => $lesson->id,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-                AttendanceStudent::create($data);
-            }
+            $this->markVideoLessonCompleted($video, $user);
         }
         return $video_progress->progress;
     }
@@ -1251,7 +1232,8 @@ class LessonsController extends Controller
 
 
         $user = auth()->user();
-        $video = Media::findOrFail($request->vedio_id);
+        $videoId = $request->input('vedio_id', $request->input('video_id', $request->input('video')));
+        $video = Media::findOrFail($videoId);
 
         $lesson = Lesson::find($video->model_id);
         $course_id = $lesson->course->id ?? null;
@@ -1268,19 +1250,35 @@ class LessonsController extends Controller
         if ($already_completed == 0) {
             $video_progress = VideoProgress::where('user_id', '=', $user->id)->where('media_id', '=', $video->id)->first() ?: new VideoProgress();
 
+            $duration = max((float) $request->duration, 0);
+            $progress = max((float) $request->progress, 0);
+            $watchPoint = max((float) $request->watchPoint, 0);
+            $clientCompleted = $request->boolean('completed');
+
+            if ($clientCompleted && $duration > 0 && $watchPoint >= 99) {
+                $progress = $duration;
+                $watchPoint = 100;
+            }
+
             $video_progress->media_id = $video->id;
             $video_progress->user_id = $user->id;
-            $video_progress->progress_per = $request->watchPoint;
-            if ($video_progress->progress_per == '100') {
+            $video_progress->progress_per = min(100, round($watchPoint, 2));
+            $video_progress->duration = $video_progress->duration ?: round($duration, 2);
+            $video_progress->progress = round($progress, 2);
+
+            if ($video_progress->duration > 0 && $video_progress->duration - $video_progress->progress < 5) {
+                $video_progress->progress = $video_progress->duration;
+                $video_progress->progress_per = 100;
                 $video_progress->complete = 1;
             }
 
-            $video_progress->duration = $video_progress->duration ?: round($request->duration, 2);
-            $video_progress->progress = round($request->progress, 2);
+            if ((float) $video_progress->progress_per >= 100) {
+                $video_progress->complete = 1;
+            }
             $video_progress->save();
 
             // progress update for user
-            $video = Media::findOrFail($request->vedio_id);
+            $video = Media::findOrFail($video->id);
 
             $course_id = null;
             /**
@@ -1292,44 +1290,8 @@ class LessonsController extends Controller
 
 
 
-            //if ($percentageCompleted >= $percentageToMarkLessonAsCompleted) {
             if ($percentageCompleted >= $percentageToMarkLessonAsCompleted) {
-
-
-                // mark lesson as completed
-                $lesson = Lesson::find($video->model_id);
-
-                $course_id = $lesson->course->id ?? null;
-
-                //dd($course_id);
-
-                //dd($lesson->chapterStudents()->get());
-                if ($lesson->chapterStudents()->where('user_id', \Auth::id())->count() == 0) {
-                    $lesson->chapterStudents()->create([
-                        'model_type' => get_class($lesson),
-                        'model_id' => $lesson->id,
-                        'user_id' => auth()->user()->id,
-                        'course_id' => $lesson->course->id
-                    ]);
-
-                    // Save the attendance
-                    $data = [
-                        'student_id' => \Auth::id(),
-                        'course_id' => $lesson->course->id,
-                        'lesson_id' => $lesson->id,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ];
-                    AttendanceStudent::create($data);
-
-                    //dd($lesson->course->id);
-
-                    if ($lesson->course->id) {
-
-                        //dd($lesson->course->id, \Auth::id());
-                        $progressdata = CustomHelper::updateUserProgress(\Auth::id(), $lesson->course->id);
-                    }
-                }
+                $this->markVideoLessonCompleted($video, $user);
             }
 
 
@@ -1403,6 +1365,54 @@ class LessonsController extends Controller
         CustomHelper::updateUserProgress(\Auth::id(), $lesson->course->id);
 
         return true;
+    }
+
+    private function markVideoLessonCompleted(Media $video, User $user): void
+    {
+        $lesson = Lesson::find($video->model_id);
+        if (! $lesson || ! $lesson->course) {
+            return;
+        }
+
+        $alreadyCompleted = $lesson->chapterStudents()
+            ->where('user_id', $user->id)
+            ->exists();
+
+        if (! $alreadyCompleted) {
+            $lesson->chapterStudents()->create([
+                'model_type' => get_class($lesson),
+                'model_id' => $lesson->id,
+                'user_id' => $user->id,
+                'course_id' => $lesson->course->id,
+            ]);
+
+            AttendanceStudent::firstOrCreate([
+                'student_id' => $user->id,
+                'course_id' => $lesson->course->id,
+                'lesson_id' => $lesson->id,
+            ]);
+        }
+
+        CustomHelper::updateUserProgress($user->id, $lesson->course->id);
+
+        $subscription = SubscribeCourse::where('course_id', $lesson->course->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($subscription) {
+            $progress = (int) $subscription->assignment_progress;
+            $status = (int) $subscription->course_progress_status;
+
+            if ((int) $subscription->is_completed === 1 || $progress >= 100) {
+                $status = 2;
+            } elseif ($progress > 0) {
+                $status = 1;
+            }
+
+            if ((int) $subscription->course_progress_status !== $status) {
+                $subscription->update(['course_progress_status' => $status]);
+            }
+        }
     }
 
     public function bookSlot(Request $request)

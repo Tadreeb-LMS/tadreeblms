@@ -69,17 +69,16 @@
                                 @endif
                             </td>
                             <td>
-                                
+
                                 <div class="action-pill">
-                                    
-                              
-                                        <a title="{{ __('user_feedback.feedback_questions.edit') }}" class="" href="{{ route('admin.feedback_question.edit', ['id' => $value->id]) }}">
-                                            <i class="fa fa-edit" aria-hidden="true"></i>
-                                        </a>
-                                        <a title="{{ __('user_feedback.feedback_questions.delete') }}" class="" href="#" onclick="delete_client('{{ $value->id }}')">
-                                            <i class="fa fa-trash"></i>
-                                        </a>
-                               
+                                    <a title="{{ __('user_feedback.feedback_questions.edit') }}" class="" href="{{ route('admin.feedback_question.edit', ['id' => $value->id]) }}">
+                                        <i class="fa fa-edit" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="javascript:void(0)"
+                                        class="js-delete-question"
+                                        data-url="{{ route('admin.questions.destroy', $value->id) }}">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>

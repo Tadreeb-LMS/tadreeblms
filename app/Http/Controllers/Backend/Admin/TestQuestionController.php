@@ -288,13 +288,15 @@ class TestQuestionController extends Controller
         'updated_at'    => date('Y-m-d H:i:s'),
     ]);
 
-    foreach ($options as $key => $value) {
-        DB::table('test_question_options')->insert([
-            'temp_id'     => $request->temp_id ?? null,
-            'question_id' => $question_id,
-            'option_text' => $value[0],
-            'is_right'    => $value[1],
-        ]);
+    if ($questionType != 3) {
+        foreach ($options as $key => $value) {
+            DB::table('test_question_options')->insert([
+                'temp_id'     => $request->temp_id ?? null,
+                'question_id' => $question_id,
+                'option_text' => $value[0],
+                'is_right'    => $value[1],
+            ]);
+        }
     }
 
     if ($request->action_btn == 'save_and_add_more') {

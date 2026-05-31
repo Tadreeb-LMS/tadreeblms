@@ -241,6 +241,7 @@
         }
 
         @media screen and (max-width: 768px) {}
+        }
     </style>
 @endpush
 
@@ -633,14 +634,14 @@
                             <p id="nextButton" aria-live="polite">
                                 @if(!empty($effective_next_lesson) && empty($nextTasks['open_assesment']) && empty($nextTasks['reattempt_assesment']))
                                     @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
-                                        <a class="btn btn-block bg-danger font-weight-bold text-white"
+                                        <a class="btn btn-sm bg-danger font-weight-bold text-white"
                                            href="javascript:void(0)">
                                             {{ __('course_pages.course_detail.complete_pass_quiz_unlock_next') }}
                                         </a>
                                         @if($lesson->isCompleted() && !empty($lesson_quiz_url))
-                                            <a class="btn btn-block btn-info font-weight-bold text-white mt-2"
+                                            <a class="btn btn-sm btn-info font-weight-bold text-white mt-2"
                                                href="{{ $lesson_quiz_url }}">
-                                                {{ __('course_pages.course_detail.open_quiz') }}
+                                                {{ __('course_pages.course_detail.complete_and_pass_quiz') }}
                                             </a>
                                         @elseif(!$lesson->isCompleted())
                                             <a class="btn btn-block btn-warning font-weight-bold text-white mt-2" href="javascript:void(0)">
@@ -660,17 +661,17 @@
                                         @endif
                                     @endif
                                 @elseif($lesson->isCompleted() && !empty($lesson_quiz_url))
-                                    <a class="btn btn-block btn-info font-weight-bold text-white"
+                                    <a class="btn btn-sm btn-info font-weight-bold text-white"
                                        href="{{ $lesson_quiz_url }}">
-                                        {{ __('course_pages.course_detail.open_quiz') }}
+                                        {{ __('course_pages.course_detail.complete_and_pass_quiz') }}
                                     </a>
                                 @endif
 
                             </p>
                                     
                             @if ($nextTasks['open_assesment'])
-                                <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                    href="{{ htmlspecialchars_decode($assessment_link) }}">@lang('labels.frontend.course.start_assesment')</a>
+                                <a class="btn btn-success btn-sm text-white mb-3 font-weight-bold"
+                                    href="{{ htmlspecialchars_decode($assessment_link) }}">Complete this lesson first to unlock</a>
                             @endif
 
                             @if(!empty($nextTasks['pending_assessment_evaluation']))
@@ -790,6 +791,7 @@
     {{-- <script src="//www.youtube.com/iframe_api"></script> --}}
     <script src="{{ asset('plugins/sticky-kit/sticky-kit.js') }}"></script>
     <script src="https://cdn.plyr.io/3.5.3/plyr.polyfilled.js"></script>
+    @include('frontend.courses.partials.pause-inactive-media')
     <script src="{{ asset('plugins/touchpdf-master/pdf.compatibility.js') }}"></script>
     <script src="{{ asset('plugins/touchpdf-master/pdf.js') }}"></script>
     <script src="{{ asset('plugins/touchpdf-master/jquery.touchSwipe.js') }}"></script>
@@ -800,12 +802,49 @@
 
 
     <script>
+        var lessonVideoPlayers = [];
+
+        function registerLessonVideoPlayer(playerInstance) {
+            if (playerInstance) {
+                lessonVideoPlayers.push(playerInstance);
+            }
+
+            return playerInstance;
+        }
+
+        function pauseLessonVideos() {
+            lessonVideoPlayers.forEach(function(playerInstance) {
+                try {
+                    if (playerInstance && typeof playerInstance.pause === 'function') {
+                        playerInstance.pause();
+                    }
+                } catch (error) {
+                    // Ignore third-party player state errors during page transitions.
+                }
+            });
+
+            document.querySelectorAll('video').forEach(function(videoElement) {
+                if (!videoElement.paused) {
+                    videoElement.pause();
+                }
+            });
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                pauseLessonVideos();
+            }
+        });
+
+        window.addEventListener('pagehide', pauseLessonVideos);
+        window.addEventListener('beforeunload', pauseLessonVideos);
+
         document.querySelectorAll('.lesson-video-player').forEach(function(playerElement) {
-            new Plyr(playerElement, {
+            registerLessonVideoPlayer(new Plyr(playerElement, {
                 youtube: {
                     noCookie: true
                 }
-            });
+            }));
         });
 
         @if ($lesson->mediaPDF)
@@ -845,11 +884,11 @@
 
             const player2 = new Plyr('#audioPlayer');
 
-            const player = new Plyr('#player', {
+            const player = registerLessonVideoPlayer(new Plyr('#player', {
                 youtube: {
                     noCookie: true
                 }
-            });
+            }));
 
             duration = 10;
             var progress = 0;
@@ -1071,11 +1110,17 @@
         let lastRecordedTime = current_progress ?? 0;
         let watchDuration = 0;
         let lastCalledTime = 0;
+        var lessonAlreadyCompleted = false;
 
         player.on('timeupdate', () => {
             const currentTime = player.currentTime;
+            const videoDuration = player.duration;
+            if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                return;
+            }
+
             const playbackRate = player.media.playbackRate;
-            var watchPoint = Math.floor((currentTime / player.duration) * 100);
+            var watchPoint = Math.floor((currentTime / videoDuration) * 100);
 
             // Check if the user is watching continuously (no skipping)
             if (Math.abs(currentTime - lastRecordedTime) <= 1) {
@@ -1088,16 +1133,24 @@
 
             // Check if 2 seconds have passed since the last progress update
             if (currentTime - lastCalledTime >= 2) {
-                time(watchPoint, watchDuration, player.duration)
+                time(watchPoint, watchDuration, videoDuration, false)
 
                 // Update lastCalledTime to the current time
                 lastCalledTime = currentTime;
             }
         });
 
-        var lessonAlreadyCompleted = false;
+        player.on('ended', () => {
+            const videoDuration = player.duration;
+            if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                return;
+            }
 
-        function time(watchPoint, progress, videoDuration) {
+            watchDuration = Math.max(watchDuration, videoDuration);
+            time(100, watchDuration, videoDuration, true);
+        });
+
+        function time(watchPoint, progress, videoDuration, completed) {
             //alert("hi")
             var id = "{{ $lesson->id }}";
             var video = $('#player').parents('.video-container').data('id');
@@ -1110,7 +1163,8 @@
                     'vedio_id': parseInt(video),
                     'watchPoint': watchPoint,
                     'duration': parseInt(videoDuration),
-                    'progress': parseInt(progress)
+                    'progress': parseInt(progress),
+                    'completed': completed ? 1 : 0
                 },
                 success: function(response) {
                     if (response.lesson_completed && !lessonAlreadyCompleted) {

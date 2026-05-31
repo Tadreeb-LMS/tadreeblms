@@ -234,7 +234,7 @@ class ConfigController extends Controller
         }
 
         if (Str::startsWith($action, 'toggle:')) {
-            return $this->handleLanguageToggle($action);
+            return $this->handleLanguageToggle($action, $request);
         }
 
         return back()->withErrors(['Unsupported language action requested.']);
@@ -326,7 +326,7 @@ class ConfigController extends Controller
             ->withFlashSuccess('Language library uploaded successfully.');
     }
 
-    protected function handleLanguageToggle($toggleAction)
+    protected function handleLanguageToggle($toggleAction, Request $request)
     {
         $parts = explode(':', (string) $toggleAction);
         if (count($parts) !== 3) {
@@ -335,6 +335,10 @@ class ConfigController extends Controller
 
         $localeCode = strtolower(trim($parts[1]));
         $targetEnabled = (int) $parts[2] === 1 ? 1 : 0;
+
+        if (!Schema::hasColumn('locales', 'is_enabled')) {
+            return back()->withErrors(['Language status cannot be updated because the locales.is_enabled column is missing.']);
+        }
 
         $localeModel = Locale::where('short_name', $localeCode)->first();
         if (!$localeModel) {
@@ -345,15 +349,22 @@ class ConfigController extends Controller
             return back()->withErrors(['Default language cannot be disabled.']);
         }
 
-        if (Schema::hasColumn('locales', 'is_enabled')) {
-            if ($targetEnabled === 0) {
-                $enabledCount = Locale::where('is_enabled', 1)->count();
-                if ($enabledCount <= 1) {
-                    return back()->withErrors(['At least one language must remain enabled.']);
-                }
+        if ($targetEnabled === 0) {
+            $enabledCount = Locale::where('is_enabled', 1)->count();
+            if ($enabledCount <= 1) {
+                return back()->withErrors(['At least one language must remain enabled.']);
             }
-            $localeModel->is_enabled = $targetEnabled;
-            $localeModel->save();
+        }
+
+        Locale::whereKey($localeModel->getKey())->update(['is_enabled' => $targetEnabled]);
+        $localeModel->refresh();
+
+        if ((int) $localeModel->is_enabled !== $targetEnabled) {
+            return back()->withErrors(['Language status could not be updated. Please try again.']);
+        }
+
+        if ($targetEnabled === 0 && strtolower((string) $request->session()->get('locale')) === $localeCode) {
+            $request->session()->forget(['locale', 'display_type', 'lang-rtl']);
         }
 
         $message = $targetEnabled ? 'Language enabled successfully.' : 'Language disabled successfully.';
