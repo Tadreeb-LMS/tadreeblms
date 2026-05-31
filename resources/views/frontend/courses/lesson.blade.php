@@ -779,6 +779,7 @@
     {{-- <script src="//www.youtube.com/iframe_api"></script> --}}
     <script src="{{ asset('plugins/sticky-kit/sticky-kit.js') }}"></script>
     <script src="https://cdn.plyr.io/3.5.3/plyr.polyfilled.js"></script>
+    @include('frontend.courses.partials.pause-inactive-media')
     <script src="{{ asset('plugins/touchpdf-master/pdf.compatibility.js') }}"></script>
     <script src="{{ asset('plugins/touchpdf-master/pdf.js') }}"></script>
     <script src="{{ asset('plugins/touchpdf-master/jquery.touchSwipe.js') }}"></script>
@@ -789,12 +790,49 @@
 
 
     <script>
+        var lessonVideoPlayers = [];
+
+        function registerLessonVideoPlayer(playerInstance) {
+            if (playerInstance) {
+                lessonVideoPlayers.push(playerInstance);
+            }
+
+            return playerInstance;
+        }
+
+        function pauseLessonVideos() {
+            lessonVideoPlayers.forEach(function(playerInstance) {
+                try {
+                    if (playerInstance && typeof playerInstance.pause === 'function') {
+                        playerInstance.pause();
+                    }
+                } catch (error) {
+                    // Ignore third-party player state errors during page transitions.
+                }
+            });
+
+            document.querySelectorAll('video').forEach(function(videoElement) {
+                if (!videoElement.paused) {
+                    videoElement.pause();
+                }
+            });
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                pauseLessonVideos();
+            }
+        });
+
+        window.addEventListener('pagehide', pauseLessonVideos);
+        window.addEventListener('beforeunload', pauseLessonVideos);
+
         document.querySelectorAll('.lesson-video-player').forEach(function(playerElement) {
-            new Plyr(playerElement, {
+            registerLessonVideoPlayer(new Plyr(playerElement, {
                 youtube: {
                     noCookie: true
                 }
-            });
+            }));
         });
 
         @if ($lesson->mediaPDF)
@@ -834,11 +872,11 @@
 
             const player2 = new Plyr('#audioPlayer');
 
-            const player = new Plyr('#player', {
+            const player = registerLessonVideoPlayer(new Plyr('#player', {
                 youtube: {
                     noCookie: true
                 }
-            });
+            }));
 
             duration = 10;
             var progress = 0;
