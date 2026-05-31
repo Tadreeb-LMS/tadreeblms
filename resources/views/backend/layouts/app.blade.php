@@ -212,7 +212,7 @@
     </script>
 <script src="{{ asset('js/app.js') }}"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>  
-    <script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
     if (typeof CKEDITOR !== 'undefined') {
         CKEDITOR.config.versionCheck = false;
