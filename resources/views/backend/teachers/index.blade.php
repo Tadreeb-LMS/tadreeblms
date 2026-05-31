@@ -49,7 +49,7 @@
         <h4>{{ __('admin_pages.teachers.title') }}</h4>
 
         @can('trainer_create')
-        <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}" class="btn btn-primary">
+        <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}" class="btn add-btn">
             {{ __('admin_pages.teachers.add_more_trainers') }}
         </a>
         @endcan
@@ -136,20 +136,19 @@ $(function () {
         pageLength: 10,
 
         dom:
-            "<'d-flex justify-content-between align-items-center mb-2'lfB>" +
-            "t" +
-            "<'d-flex justify-content-between align-items-center mt-3'ip>",
+            "<'table-controls'lfB>" +
+            "<'table-responsive't>" +
+            "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
 
         buttons: [
             {
                 extend: 'collection',
-                text: '<i class="fa fa-download"></i>',
+                text: '<i class="fa fa-download icon-styles"></i>',
                 buttons: ['csv', 'pdf']
             },
             {
                 extend: 'colvis',
-                text: '<i class="fa fa-eye"></i>',
-                columns: ':not(:first-child)'
+                text: '<i class="fa fa-eye icon-styles"></i>',
             }
         ],
 
