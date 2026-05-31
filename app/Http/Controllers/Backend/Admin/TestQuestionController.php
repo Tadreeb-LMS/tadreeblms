@@ -18,9 +18,6 @@ class TestQuestionController extends Controller
 
     public function test_questions_delete($id)
     {
-        if (!$this->currentUserCanAccessQuestion((int) $id)) {
-            abort(403);
-        }
 
         DB::table('test_questions')->where('id', $id)->delete();
         return back()->withFlashSuccess(trans('alerts.backend.general.deleted'));
@@ -32,17 +29,21 @@ class TestQuestionController extends Controller
 
     public function index(Request $request)
     {
-        $test_questions = DB::table('test_questions')
-            ->select('test_questions.*', 'tests.title', 'courses.title as course_title')
-            ->leftjoin('tests', 'tests.id', '=', 'test_questions.test_id')
-            ->leftjoin('courses', 'courses.id', '=', 'tests.course_id')
-            ->where('test_questions.is_deleted', '=', 0);
-
         if ($request->test_id) {
-            $test_questions = $test_questions->where('test_questions.test_id', '=', $request->test_id);
+            $test_questions = DB::table('test_questions')
+                ->select('test_questions.*', 'tests.title', 'courses.title as course_title')
+                ->leftjoin('tests', 'tests.id', '=', 'test_questions.test_id')
+                ->leftjoin('courses', 'courses.id', '=', 'tests.course_id')
+                ->where('test_questions.is_deleted', '=', 0)
+                ->where('test_questions.test_id', '=', $request->test_id);
+        } else {
+            $test_questions = DB::table('test_questions')
+                ->select('test_questions.*', 'tests.title', 'courses.title as course_title')
+                ->leftjoin('tests', 'tests.id', '=', 'test_questions.test_id')
+                ->leftjoin('courses', 'courses.id', '=', 'tests.course_id')
+                ->where('test_questions.is_deleted', '=', 0);
         }
 
-        $this->scopeQueryToCurrentUserCourses($test_questions);
 
         if ($request->course_id != "") {
             $test_questions = $test_questions->where('tests.course_id', (int)$request->course_id);
@@ -68,10 +69,6 @@ class TestQuestionController extends Controller
             return redirect()
                 ->route('admin.test_questions.index')
                 ->withFlashDanger('Please select a course before adding a new question.');
-        }
-
-        if ($course_id && !$this->currentUserCanAccessCourse((int) $course_id)) {
-            abort(403);
         }
 
         $lessons = $course_id
@@ -264,14 +261,6 @@ class TestQuestionController extends Controller
             ], 422);
         }
 
-        if (!$this->currentUserCanAccessCourse((int) $course_id)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You are not assigned to the selected course.',
-                'errors' => 'You are not assigned to the selected course.',
-            ], 403);
-        }
-
         $finalAssessmentTest = Test::firstOrCreate(
             ['course_id' => $course_id, 'lesson_id' => null],
             [
@@ -382,18 +371,11 @@ class TestQuestionController extends Controller
     public function edit(Request $request, $id)
     {
         $test_id = $request->test_id;
-        if (!$this->currentUserCanAccessQuestion((int) $id)) {
-            abort(403);
-        }
-
         if ($test_id != NULL) {
-            $tests = DB::table('tests')->where('id', $test_id);
+            $tests = DB::table('tests')->where('id', $test_id)->get();
         } else {
-            $tests = DB::table('tests')->where('deleted_at', '=', NULL);
+            $tests = DB::table('tests')->where('deleted_at', '=', NULL)->get();
         }
-        $this->scopeQueryToCurrentUserCourses($tests);
-        $tests = $tests->get();
-
         $question = DB::table('test_questions')->where('id', $id)->where('is_deleted', 0)->first();
         if ($question && (int) $question->question_type !== 3) {
             $optionRows = TestQuestionOption::where('question_id', $question->id)
@@ -468,24 +450,13 @@ class TestQuestionController extends Controller
         }
         
 
-        $question = $this->accessibleQuestionQuery()
-            ->where('test_questions.id', $request->id)
-            ->where('test_questions.is_deleted', 0)
-            ->select('test_questions.*')
-            ->first();
+        $question =  DB::table('test_questions')->where('id', $request->id)->where('is_deleted', 0)->first();
 
         if (!$question) {
             return response()->json([
                 'success' => false,
                 'message' => 'Question not found.',
             ], 404);
-        }
-
-        if ($request->test_id && !$this->currentUserCanAccessTest((int) $request->test_id)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You are not assigned to the selected course.',
-            ], 403);
         }
 
         if ($request->options) {
@@ -734,62 +705,6 @@ class TestQuestionController extends Controller
     private function currentUserCanReviewAllCourses(): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
-    }
-
-    private function scopeQueryToCurrentUserCourses($query, string $courseColumn = 'tests.course_id'): void
-    {
-        if (!auth()->check() || auth()->user()->isAdmin()) {
-            return;
-        }
-
-        $query->whereExists(function ($subQuery) use ($courseColumn) {
-            $subQuery->select(DB::raw(1))
-                ->from('course_user')
-                ->whereColumn('course_user.course_id', $courseColumn)
-                ->where('course_user.user_id', auth()->id());
-        });
-    }
-
-    private function currentUserCanAccessCourse(int $courseId): bool
-    {
-        if (!auth()->check()) {
-            return false;
-        }
-
-        if (auth()->user()->isAdmin()) {
-            return true;
-        }
-
-        return DB::table('course_user')
-            ->where('course_id', $courseId)
-            ->where('user_id', auth()->id())
-            ->exists();
-    }
-
-    private function currentUserCanAccessTest(int $testId): bool
-    {
-        $query = DB::table('tests')->where('id', $testId);
-        $this->scopeQueryToCurrentUserCourses($query);
-
-        return $query->exists();
-    }
-
-    private function currentUserCanAccessQuestion(int $questionId): bool
-    {
-        return $this->accessibleQuestionQuery()
-            ->where('test_questions.id', $questionId)
-            ->where('test_questions.is_deleted', 0)
-            ->exists();
-    }
-
-    private function accessibleQuestionQuery()
-    {
-        $query = DB::table('test_questions')
-            ->leftJoin('tests', 'tests.id', '=', 'test_questions.test_id');
-
-        $this->scopeQueryToCurrentUserCourses($query);
-
-        return $query;
     }
 
     private function canCurrentUserReviewLessonQuizAnswer(int $answerId): bool
