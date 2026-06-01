@@ -135,16 +135,29 @@ class ConfigController extends Controller
         }
 
         $request = $this->saveFilesOptimize($request);
+        $requests = $request->all();
 
         //dd($request->site_logo);
 
 
-        $config = Config::firstOrCreate(['key' => 'site_logo']);
-        $config->value = $request->site_logo;
-        $config->save();
+        if ($request->filled('site_logo')) {
+            $config = Config::firstOrCreate(['key' => 'site_logo']);
+            $config->value = $request->site_logo;
+            $config->save();
+        }
 
 
         $switchInputs = ['access_registration', 'mailchimp_double_opt_in', 'access_users_change_email', 'access_users_confirm_email', 'access_captcha_registration', 'access_users_requires_approval', 'services__stripe__active', 'paypal__active', 'payment_offline_active', 'backup__status', 'access__captcha__registration', 'retest', 'lesson_timer', 'show_offers', 'onesignal_status', 'access__users__registration_mail', 'access__users__order_mail', 'services__instamojo__active', 'services__razorpay__active', 'services__cashfree__active', 'services__payu__active', 'flutter__active'];
+        $mailConfigKeyMap = [
+            'mail.driver' => 'mail.default',
+            'mail.host' => 'mail.mailers.smtp.host',
+            'mail.port' => 'mail.mailers.smtp.port',
+            'mail.username' => 'mail.mailers.smtp.username',
+            'mail.password' => 'mail.mailers.smtp.password',
+            'mail.encryption' => 'mail.mailers.smtp.encryption',
+            'mail.from.address' => 'mail.from.address',
+            'mail.from.name' => 'mail.from.name',
+        ];
 
         foreach ($switchInputs as $switchInput) {
             if ($request->get($switchInput) == null) {
@@ -164,6 +177,14 @@ class ConfigController extends Controller
             $config = Config::firstOrCreate(['key' => $key, 'lang' => $lang]);
             $config->value = $value;
             $config->save();
+
+            if (array_key_exists($key, $mailConfigKeyMap)) {
+                $mappedConfig = Config::firstOrCreate(['key' => $mailConfigKeyMap[$key], 'lang' => $lang]);
+                $mappedConfig->value = $value;
+                $mappedConfig->save();
+
+                \Illuminate\Support\Facades\Config::set($mailConfigKeyMap[$key], $value);
+            }
 
 
 
