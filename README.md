@@ -57,6 +57,29 @@ For complete step-by-step instructions, please refer to our official documentati
 4. Run migrations: `php artisan migrate --seed`
 5. Start the server: `php artisan serve`
 
+### CLI Installation
+
+Browser-based installer files have been removed from the public web root. Use the CLI installer for first-time setup:
+
+```bash
+composer install --no-dev --prefer-dist --optimize-autoloader
+php artisan app:install
+```
+
+For non-interactive deployments, pass the database and URL options explicitly:
+
+```bash
+php artisan app:install -n \
+    --db-host=127.0.0.1 \
+    --db-port=3306 \
+    --db-database=your_database \
+    --db-username=your_user \
+    --db-password=your_password \
+    --app-url=https://your-domain.com
+```
+
+Production deployments must keep `APP_DEBUG=false` and should point the web server document root at `public/`.
+
 ## FAQ
 
 For FAQ kindly refer to  : https://tadreeblms.com/faqs/faq
