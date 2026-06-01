@@ -2,8 +2,44 @@
 
 @section('title', __('labels.backend.wishlist.title').' | '.app_name())
 
+@push('after-styles')
+    <style>
+        #myTable_wrapper .dt-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
 
+        #myTable_wrapper .dt-buttons .dt-button.wishlist-table-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 34px;
+            padding: 6px 12px !important;
+            border: 1px solid #d8dde6 !important;
+            border-radius: 4px !important;
+            background: #fff !important;
+            color: #233e74 !important;
+            font-weight: 600;
+            line-height: 1.2;
+            box-shadow: none !important;
+        }
 
+        #myTable_wrapper .dt-buttons .dt-button.wishlist-table-button:hover,
+        #myTable_wrapper .dt-buttons .dt-button.wishlist-table-button:focus {
+            border-color: #233e74 !important;
+            color: #fff !important;
+            background: #233e74 !important;
+        }
+
+        #myTable_wrapper .wishlist-button-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+@endpush
 
 @section('content')
 
@@ -50,6 +86,15 @@
 
         $(document).ready(function () {
             var route = '{{route('admin.wishlist.get_data')}}';
+            var buttonLabels = {
+                csv: @json(__('Export') . ' ' . trans('datatable.csv')),
+                pdf: @json(__('Export') . ' ' . trans('datatable.pdf')),
+                print: @json(__('Print')),
+                colvis: @json(trans('datatable.colvis'))
+            };
+            var buttonText = function (iconClass, label) {
+                return '<span class="wishlist-button-content"><i class="fa ' + iconClass + '" aria-hidden="true"></i><span>' + label + '</span></span>';
+            };
 
             $('#myTable').DataTable({
                 processing: true,
@@ -60,17 +105,37 @@
                 buttons: [
                     {
                         extend: 'csv',
+                        text: buttonText('fa-file-text-o', buttonLabels.csv),
+                        titleAttr: buttonLabels.csv,
+                        className: 'wishlist-table-button',
                         exportOptions: {
                             columns: ':visible',
                         }
                     },
                     {
                         extend: 'pdf',
+                        text: buttonText('fa-file-pdf-o', buttonLabels.pdf),
+                        titleAttr: buttonLabels.pdf,
+                        className: 'wishlist-table-button',
                         exportOptions: {
                             columns: ':visible',
                         }
                     },
-                    'colvis'
+                    {
+                        extend: 'print',
+                        text: buttonText('fa-print', buttonLabels.print),
+                        titleAttr: buttonLabels.print,
+                        className: 'wishlist-table-button',
+                        exportOptions: {
+                            columns: ':visible',
+                        }
+                    },
+                    {
+                        extend: 'colvis',
+                        text: buttonText('fa-columns', buttonLabels.colvis),
+                        titleAttr: buttonLabels.colvis,
+                        className: 'wishlist-table-button'
+                    }
                 ],
                 ajax: route,
                 columns: [
