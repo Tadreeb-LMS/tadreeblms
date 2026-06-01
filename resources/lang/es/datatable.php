@@ -3,6 +3,7 @@
 return array(
   'colvis' => 'Visibilidad de la columna',
   'csv' => 'CSV',
+  'export' => 'Exportar',
   'export_csv' => 'Exportar CSV',
   'export_pdf' => 'Exportar PDF',
   'pdf' => 'PDF',
