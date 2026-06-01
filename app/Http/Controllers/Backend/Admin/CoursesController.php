@@ -562,7 +562,9 @@ class CoursesController extends Controller
             $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
         }
 
-        return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
+        $selected_category = request('cat_id');
+
+        return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders', 'selected_category'));
     }
 
     /**
