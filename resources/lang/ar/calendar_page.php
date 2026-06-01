@@ -5,6 +5,7 @@ return array(
   'legend_lessons' => 'الدروس',
   'legend_live_sessions' => 'الجلسات المباشرة (Zoom/Teams/Meet)',
   'legend_live_lesson_slots' => 'خانات الدروس المباشرة',
+  'legend_scheduled_sessions' => 'جلسات مجدولة',
   'add_schedule' => 'أضف جدولك',
   'edit_schedule' => 'عدّل جدولك',
   'schedule_name' => 'اسم الجدول:',

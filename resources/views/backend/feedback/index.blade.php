@@ -197,7 +197,90 @@
 
 <script>
     $(document).ready(function() {
-        $('#myTable').dataTable({
+        const exportColumns = [
+            @json(__('user_feedback.feedback_questions.id')),
+            @json(__('user_feedback.feedback_questions.question_text')),
+            @json(__('user_feedback.feedback_questions.question_type'))
+        ];
+        const exportFilename = 'feedback-questions';
+
+        function stripHtml(value) {
+            return $('<div>').html(value || '').text().trim();
+        }
+
+        function getExportRows(table) {
+            return table.rows({ search: 'applied' }).data().toArray().map(function(row) {
+                return [
+                    stripHtml(row[0]),
+                    stripHtml(row[1]),
+                    stripHtml(row[2])
+                ];
+            });
+        }
+
+        function downloadCsv(rows) {
+            const csvRows = [exportColumns].concat(rows).map(function(row) {
+                return row.map(function(value) {
+                    return '"' + String(value).replace(/"/g, '""') + '"';
+                }).join(',');
+            });
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = exportFilename + '.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPdf(rows) {
+            if (typeof pdfMake === 'undefined') {
+                alert('PDF export is unavailable. Please refresh and try again.');
+                return;
+            }
+
+            pdfMake.createPdf({
+                pageOrientation: 'landscape',
+                content: [
+                    { text: @json(__('user_feedback.feedback_questions.title')), style: 'header' },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: ['auto', '*', 'auto'],
+                            body: [exportColumns].concat(rows)
+                        }
+                    }
+                ],
+                styles: {
+                    header: {
+                        fontSize: 14,
+                        bold: true,
+                        margin: [0, 0, 0, 10]
+                    }
+                }
+            }).download(exportFilename + '.pdf');
+        }
+
+        function exportFeedbackQuestions(table, type) {
+            const rows = getExportRows(table);
+
+            if (!rows.length) {
+                alert('No feedback questions available to export.');
+                return;
+            }
+
+            if (type === 'csv') {
+                downloadCsv(rows);
+                return;
+            }
+
+            downloadPdf(rows);
+        }
+
+        const table = $('#myTable').DataTable({
             "paginate": true,
             "sort": true,
             "language": {
@@ -220,17 +303,15 @@
                     text: '<i class="fa fa-download icon-styles"></i>',
                     className: '',
                     buttons: [{
-                            extend: 'csv',
                             text: '{{ trans('datatable.csv') }}',
-                            exportOptions: {
-                                columns: [1, 2, 3, 4, 5]
+                            action: function() {
+                                exportFeedbackQuestions(table, 'csv');
                             }
                         },
                         {
-                            extend: 'pdf',
                             text: '{{ trans('datatable.pdf') }}',
-                            exportOptions: {
-                                columns: [1, 2, 3, 4, 5]
+                            action: function() {
+                                exportFeedbackQuestions(table, 'pdf');
                             }
                         }
                     ]
@@ -270,22 +351,62 @@
 </script>
 
 <script>
-    function delete_client(id) {
-        $.ajax({
-            type: 'post',
-            url: "{{ route('admin.feedback.feedback-question-multiple-delete') }}",
-            data: ({
-                id: id,
-                _token: "{{ csrf_token() }}"
-            }),
-            success: function(response) {
-                window.location.replace("{{ route('admin.feedback_question.index') }}");
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        })
 
-    }
+$(document).on('click', '.js-delete-question', function (e) {
+
+    e.preventDefault();
+
+    let url = $(this).data('url');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This record will be deleted permanently.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _method: 'DELETE',
+                    _token: '{{ csrf_token() }}'
+                },
+
+                success: function (response) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Question deleted successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2000);
+                },
+
+                error: function () {
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong.'
+                    });
+                }
+            });
+        }
+    });
+
+});
+
 </script>
 @endpush

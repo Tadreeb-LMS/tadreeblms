@@ -212,7 +212,7 @@
     </script>
 <script src="{{ asset('js/app.js') }}"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>  
-    <script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
     if (typeof CKEDITOR !== 'undefined') {
         CKEDITOR.config.versionCheck = false;
@@ -272,26 +272,8 @@
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-$(document).on('click', '.js-status-toggle', function(e){
-    e.preventDefault();
-
-    let url = $(this).data('url');
-    let action = $(this).data('action');
-
-    Swal.fire({
-        title: action === 'activate' ? 'Are you sure you want to ACTIVATE this user?' : 'Are you sure you want to DEACTIVATE this user?',
-        icon: action === 'activate' ? 'question' : 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes'
-    }).then((result) => {
-        if(result.isConfirmed){
-            window.location.href = url;
-        }
-    });
-});
-</script>
+$(document).on('click', '.js-delete-question', function (e) {
 
     e.preventDefault();
 
@@ -345,7 +327,6 @@ $(document).on('click', '.js-status-toggle', function(e){
             });
 
         }
-
     });
 
 });

@@ -21,6 +21,7 @@
             <div class="form-group row">
                 <label for="first_name" class="col-md-2 form-control-label">
                     @lang('validation.attributes.backend.access.users.first_name')
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     <input type="text" name="first_name" id="first_name" class="form-control @error('first_name') is-invalid @enderror"
@@ -37,6 +38,7 @@
             <div class="form-group row">
                 <label for="last_name" class="col-md-2 form-control-label">
                     @lang('validation.attributes.backend.access.users.last_name')
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     <input type="text" name="last_name" id="last_name" class="form-control @error('last_name') is-invalid @enderror"
@@ -53,6 +55,7 @@
             <div class="form-group row">
                 <label for="email" class="col-md-2 form-control-label">
                     @lang('validation.attributes.backend.access.users.email')
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror"
@@ -83,6 +86,7 @@
             <div class="form-group row">
                 <label for="password" class="col-md-2 form-control-label">
                     @lang('validation.attributes.backend.access.users.password')
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10 position-relative">
                     <input type="password" name="password" id="password-field" class="form-control @error('password') is-invalid @enderror"
@@ -100,6 +104,7 @@
             <div class="form-group row">
                 <label for="password_confirmation" class="col-md-2 form-control-label">
                     @lang('validation.attributes.backend.access.users.password_confirmation')
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     <input type="password" name="password_confirmation" id="password_confirmation"
@@ -147,6 +152,7 @@
             <div class="form-group row">
                 <label class="col-md-2 form-control-label">
                     @lang('labels.backend.access.users.table.abilities')
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     @php

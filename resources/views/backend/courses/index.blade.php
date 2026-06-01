@@ -68,7 +68,7 @@
                     <select id="filter_teacher" class="form-control">
                         <option value="">{{ __('course_pages.admin_index.all_trainers') }}</option>
                         @foreach($teachers as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
+                            <option value="{{ $id }}" {{ request('teacher_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>

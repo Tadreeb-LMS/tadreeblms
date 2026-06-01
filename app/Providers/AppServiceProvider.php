@@ -22,6 +22,7 @@ use App\Resolvers\SocialUserResolver;
 use Coderello\SocialGrant\Resolvers\SocialUserResolverInterface;
 use App\Helpers\CustomHelper;
 use App\Services\NotificationSettingsService;
+use App\Services\LocaleService;
 
 /**
  * Class AppServiceProvider.
@@ -201,13 +202,7 @@ if (
             $locales = [];
             $appCurrency = getCurrency(config('app.currency'));
 
-            if ($this->hasTableSafely('locales')) {
-                $localeQuery = Locale::query();
-                if ($this->hasColumnSafely('locales', 'is_enabled')) {
-                    $localeQuery->where('is_enabled', 1);
-                }
-                $locales = $localeQuery->pluck('short_name as locale')->toArray();
-            }
+            $locales = app(LocaleService::class)->supportedLocales();
             //            $view->with(compact('locales', 'appCurrency'));
 
             //        });

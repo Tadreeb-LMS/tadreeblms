@@ -40,6 +40,7 @@ return array(
     'unlock_lesson' => 'Complete this lesson first to unlock its quiz section',
     'open_quiz' => 'Open Lesson Quiz',
     'course_title' => 'Course:',
+    'complete_and_pass_quiz' => 'Complete and Pass the Lesson Quiz',
     'complete_pass_quiz_unlock_next' => 'Complete and pass the lesson quiz to unlock the next lesson',
     'assessment_failed_no_certificate' => 'Sorry! You did not qualify the assignment, so the certificate could not be issued.',
   ),

@@ -33,6 +33,7 @@ use App\Models\Question;
 use App\Models\QuestionsOption;
 use App\Models\Reason;
 use App\Models\Review;
+use App\Services\CertificatePdfRenderer;
 use App\Models\Sponsor;
 use App\Models\Stripe\StripePlan;
 use App\Models\System\Session;
@@ -998,9 +999,7 @@ class ApiController extends Controller
             $certificate->url = $certificate_name;
             $certificate->save();
 
-            $pdf = \PDF::loadView('certificate.index', compact('data'))->setPaper('', 'landscape');
-
-            $pdf->save(public_path('storage/certificates/' . $certificate_name));
+            app(CertificatePdfRenderer::class)->renderTo($data, public_path('storage/certificates/' . $certificate_name));
 
             return response()->json(['status' => 'success']);
         }

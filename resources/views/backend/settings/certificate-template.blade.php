@@ -384,6 +384,8 @@
         cursor: pointer;
         background: none;
     }
+
+    @include('certificate.partials.template-styles', ['settings' => $settings])
 </style>
 @endpush
 
@@ -416,52 +418,11 @@
                         </div>
                     </div>
 
-                    <div id="certificate-preview" class="certificate-preview {{ $settings['template'] ?? 'classic-dark' }}">
-                        <div id="texture-overlay" class="texture-overlay {{ $settings['bg_texture'] ?? '' }}"></div>
-                        <div class="border-ornament"></div>
-                        
-                        <div class="logo-container" id="preview-logo-container">
-                            @if($settings['logo_image'] ?? null)
-                                <img src="{{ asset($settings['logo_image'] ?? '') }}" alt="{{ __('certificate_template.logo') }}" style="max-height: 60px;">
-                            @endif
-                        </div>
-
-                        <div class="cert-badge" id="preview-cert-badge" style="{{ ($settings['show_badge'] ?? 1) ? '' : 'display:none;' }}">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-
-                        <div class="cert-label" id="preview-cert-label">{{ $settings['cert_label'] ?? __('certificate_template.default_cert_label') }}</div>
-                        <div class="cert-title" id="preview-cert-title">{{ $settings['cert_title'] ?? __('certificate_template.default_cert_title') }}</div>
-                        <div class="cert-divider"></div>
-
-                        <div class="cert-presented-to">{{ __('certificate_template.presented_to') }}</div>
-                        <div class="cert-recipient-name">{{ __('certificate_template.sample_recipient_name') }}</div>
-
-                        <div class="cert-course-label">{{ __('certificate_template.completed_label') }}</div>
-                        <div class="cert-course-name">{{ __('certificate_template.sample_course_name') }}</div>
-
-                        <div class="cert-footer">
-                            <div class="cert-signature-block">
-                                <div class="cert-signature-wrapper" id="preview-signature-wrapper" style="{{ ($settings['show_signature'] ?? 1) ? '' : 'display:none;' }}">
-                                    <div class="cert-signature-label">{{ __('certificate_template.instructor') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="cert-signature-block">
-                                <div class="cert-signature-wrapper">
-                                    <div class="cert-signature-label">{{ __('certificate_template.date_issued') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="cert-seal" id="preview-cert-seal" style="{{ ($settings['show_seal'] ?? 1) ? '' : 'display:none;' }}">
-                                @if($settings['seal_image'] ?? null)
-                                    <img src="{{ asset($settings['seal_image'] ?? '') }}" alt="{{ __('certificate_template.seal') }}" style="max-width: 100%; border-radius: 50%;">
-                                @else
-                                    <i class="fas fa-certificate"></i>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                    @include('certificate.partials.template', [
+                        'settings' => $settings,
+                        'data' => [],
+                        'elementId' => 'certificate-preview',
+                    ])
 
                     <div class="card-footer bg-white">
                         <div class="text-muted" style="font-size:13px;">
