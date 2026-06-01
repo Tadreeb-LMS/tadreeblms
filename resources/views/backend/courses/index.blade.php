@@ -23,7 +23,7 @@
    <div class="d-flex">
        @can('course_create')
           <div class="">
-              <a href="{{ route('admin.courses.create') }}" class="btn add-btn">@lang('strings.backend.general.app_add_new')</a>
+               <a href="{{ route('admin.courses.create', request('cat_id') ? ['cat_id' => request('cat_id')] : []) }}" class="btn add-btn">@lang('strings.backend.general.app_add_new')</a>
 
           </div>
       @endcan
@@ -59,7 +59,7 @@
                     <select id="filter_category" class="form-control">
                         <option value="">{{ __('course_pages.admin_index.all_categories') }}</option>
                         @foreach($categories as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
+                            <option value="{{ $id }}" @if(request('cat_id') == $id) selected @endif>{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -68,7 +68,7 @@
                     <select id="filter_teacher" class="form-control">
                         <option value="">{{ __('course_pages.admin_index.all_trainers') }}</option>
                         @foreach($teachers as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
+                            <option value="{{ $id }}" {{ request('teacher_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>

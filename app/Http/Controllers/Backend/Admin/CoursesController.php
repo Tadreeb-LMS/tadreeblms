@@ -549,11 +549,11 @@ class CoursesController extends Controller
 
         $internalStudents = \App\Models\Auth\User::whereHas('roles', function ($q) {
             $q->where('role_id', 3)->where('employee_type', 'internal');
-        })->get()->pluck('name', 'id');
+        })->get()->pluck('name', 'id')->toArray();
 
         $externalStudents = \App\Models\Auth\User::whereHas('roles', function ($q) {
             $q->where('role_id', 3)->where('employee_type', 'external');
-        })->get()->pluck('name', 'id');
+        })->get()->pluck('name', 'id')->toArray();
 
         $categories = Category::where('status', '=', 1)->pluck('name', 'id');
         $departments = Department::all();
@@ -613,42 +613,42 @@ class CoursesController extends Controller
 
         $teachers = array_filter([$teacherId]);
 
-    if (
-        $request->course_type === 'Offline'
-                                    && $request->schedule_type
-                                    && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])
-    ) {
-        $this->courseScheduleService->validateScheduleRequest($request);
-        $this->courseScheduleService->validateTrainerScheduleAvailability($request, $teachers);
-    } elseif (
-        $request->course_type === 'Offline'
-        && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])
-    ) {
-        $request->validate([
-            'meeting_start_at' => 'required|date|after:now',
-            'meeting_duration' => 'required|integer|min:1',
-        ], [
-            'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
-        ]);
-
-        $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
-        $meetingDuration = (int) $request->meeting_duration;
-        $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
-
-        $overlap = $this->courseScheduleService->findTrainerOverlappingSession(
-            $teachers,
-            $meetingStart,
-            $meetingEnd
-        );
-
-        if ($overlap) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'meeting_start_at' => [
-                    $this->courseScheduleService->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd),
-                ],
+        if (
+            $request->course_type === 'Offline'
+            && $request->schedule_type
+            && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])
+        ) {
+            $this->courseScheduleService->validateScheduleRequest($request);
+            $this->courseScheduleService->validateTrainerScheduleAvailability($request, $teachers);
+        } elseif (
+            $request->course_type === 'Offline'
+            && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])
+        ) {
+            $request->validate([
+                'meeting_start_at' => 'required|date|after:now',
+                'meeting_duration' => 'required|integer|min:1',
+            ], [
+                'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
             ]);
+
+            $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
+            $meetingDuration = (int) $request->meeting_duration;
+            $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
+
+            $overlap = $this->courseScheduleService->findTrainerOverlappingSession(
+                $teachers,
+                $meetingStart,
+                $meetingEnd
+            );
+
+            if ($overlap) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'meeting_start_at' => [
+                        $this->courseScheduleService->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd),
+                    ],
+                ]);
+            }
         }
-    }
         DB::beginTransaction();
 
         try {
@@ -1002,11 +1002,11 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
 
         $internalStudents = \App\Models\Auth\User::whereHas('roles', function ($q) {
             $q->where('role_id', 3)->where('employee_type', 'internal');
-        })->get()->pluck('name', 'id');
+        })->get()->pluck('name', 'id')->toArray();
 
         $externalStudents = \App\Models\Auth\User::whereHas('roles', function ($q) {
             $q->where('role_id', 3)->where('employee_type', 'external');
-        })->get()->pluck('name', 'id');
+        })->get()->pluck('name', 'id')->toArray();
 
         $already_assigned_internal_users = SubscribeCourse::where('course_id', $id)->get()->pluck('user_id');
 
@@ -1046,7 +1046,6 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
         $teacherId = \Auth::user()->isAdmin()
             ? $request->input('teacher_id', optional($course->teachers->first())->id)
             : \Auth::user()->id;
-
         $teachers = array_filter([$teacherId]);
 
         if ($request->course_type === 'Offline' && ! $request->filled('meeting_provider') && $course->meeting_provider) {
@@ -1079,6 +1078,10 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
         $slug_lesson = Course::where('slug', '=', $slug)->where('id', '!=', $course->id)->first();
         if ($slug_lesson != null) {
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
+        }
+
+        if (empty($teachers)) {
+            $teachers = $course->teachers->pluck('id')->toArray();
         }
 
         if (
@@ -1253,10 +1256,8 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
             if ($failedCount > 0) {
                 \Session::flash('flash_danger', "Course updated, but {$failedCount} session(s) failed to create meeting links. Please check your {$request->meeting_provider} credentials in External Apps settings. You can regenerate missing links using the button below.");
             }
-        }
-        elseif ($request->course_type !== 'Offline') {
+        } elseif ($request->course_type !== 'Offline') {
             $course->liveSessions()->delete();
-
             $course->forceFill([
                 'schedule_type' => null,
                 'schedule_days' => null,
@@ -1787,7 +1788,219 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
         return Excel::download(new CourseAssignmentReportExport, 'course-assignment-report.csv');
     }
 
-   private function generateLiveSessions(Course $course, Request $request): int
+    private function buildRequestedLiveSessions(Course $course, Request $request): array
+    {
+        $scheduleType = $request->schedule_type;
+        $startDateValue = $course->getRawOriginal('start_date') ?: ($course->getAttributes()['start_date'] ?? $request->start_date);
+        $endDateValue = $course->getRawOriginal('expire_at') ?: ($course->getAttributes()['expire_at'] ?? $request->expire_at);
+
+        $startDate = \Carbon\Carbon::parse($startDateValue);
+        $endDate = \Carbon\Carbon::parse($endDateValue);
+
+        $sessions = [];
+
+        if ($scheduleType === 'daily') {
+            $time = $request->daily_time;
+            $duration = (int)($request->daily_duration ?? 60);
+            $repeat = $request->daily_repeat ?? 'every_day';
+
+            $current = $startDate->copy();
+            while ($current->lte($endDate)) {
+                $isWeekday = $current->isWeekday();
+                if ($repeat === 'every_day' || ($repeat === 'weekdays' && $isWeekday)) {
+                    $sessions[] = [
+                        'date' => $current->format('Y-m-d'),
+                        'time' => $time,
+                        'duration' => $duration,
+                    ];
+                }
+                $current->addDay();
+            }
+        } elseif ($scheduleType === 'weekly') {
+            $time = $request->weekly_time;
+            $duration = (int)($request->weekly_duration ?? 60);
+            $selectedDays = array_map('intval', $request->weekly_days ?? []);
+
+            $current = $startDate->copy();
+            while ($current->lte($endDate)) {
+                if (in_array($current->dayOfWeek, $selectedDays)) {
+                    $sessions[] = [
+                        'date' => $current->format('Y-m-d'),
+                        'time' => $time,
+                        'duration' => $duration,
+                    ];
+                }
+                $current->addDay();
+            }
+        } elseif ($scheduleType === 'custom') {
+            $dates = $request->custom_dates ?? [];
+            $times = $request->custom_times ?? [];
+            $durations = $request->custom_durations ?? [];
+
+            foreach ($dates as $i => $date) {
+                if (!$date || !isset($times[$i])) {
+                    continue;
+                }
+
+                $sessionDate = \Carbon\Carbon::parse($date);
+                if ($sessionDate->lt($startDate) || $sessionDate->gt($endDate)) {
+                    continue;
+                }
+
+                $sessions[] = [
+                    'date' => $date,
+                    'time' => $times[$i],
+                    'duration' => (int)($durations[$i] ?? 60),
+                ];
+            }
+        }
+
+        return $sessions;
+    }
+
+    private function validateScheduleRequest(Request $request): void
+    {
+        if ($request->schedule_type === 'daily') {
+            $request->validate([
+                'daily_time' => 'required',
+                'daily_duration' => 'required|integer|min:1',
+                'daily_repeat' => 'required|in:every_day,weekdays',
+            ]);
+        } elseif ($request->schedule_type === 'weekly') {
+            $request->validate([
+                'weekly_days' => 'required|array|min:1',
+                'weekly_days.*' => 'integer|between:0,6',
+                'weekly_time' => 'required',
+                'weekly_duration' => 'required|integer|min:1',
+            ], [
+                'weekly_days.required' => 'Please select at least one day for weekly sessions.',
+            ]);
+        } elseif ($request->schedule_type === 'custom') {
+            $request->validate([
+                'custom_dates' => 'required|array|min:1',
+                'custom_dates.*' => 'required|date',
+                'custom_times' => 'required|array|min:1',
+                'custom_times.*' => 'required',
+                'custom_durations' => 'required|array|min:1',
+                'custom_durations.*' => 'required|integer|min:1',
+            ], [
+                'custom_dates.required' => 'Please add at least one session.',
+            ]);
+        }
+    }
+
+    private function validateTrainerScheduleAvailability(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
+    {
+        $course = new Course();
+        $course->start_date = $request->start_date;
+        $course->expire_at = $request->expire_at;
+
+        foreach ($this->buildRequestedLiveSessions($course, $request) as $session) {
+            $sessionStart = \Carbon\Carbon::parse($session['date'] . ' ' . $session['time']);
+            $sessionEnd = $sessionStart->copy()->addMinutes((int)$session['duration']);
+
+            $overlap = $this->findTrainerOverlappingSession($teacherIds, $sessionStart, $sessionEnd, $ignoreCourseId);
+
+            if ($overlap) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'schedule_type' => [$this->formatTrainerOverlapMessage($overlap, $sessionStart, $sessionEnd)],
+                ]);
+            }
+        }
+    }
+
+    private function trainerHasOverlappingSession(array $teacherIds, \Carbon\Carbon $start, \Carbon\Carbon $end, ?int $ignoreCourseId = null): bool
+    {
+        return $this->findTrainerOverlappingSession($teacherIds, $start, $end, $ignoreCourseId) !== null;
+    }
+
+    private function findTrainerOverlappingSession(array $teacherIds, \Carbon\Carbon $start, \Carbon\Carbon $end, ?int $ignoreCourseId = null): ?array
+    {
+        $teacherIds = array_filter($teacherIds);
+
+        if (empty($teacherIds)) {
+            return null;
+        }
+
+        $singleMeetings = \DB::table('courses')
+            ->join('course_user', 'courses.id', '=', 'course_user.course_id')
+            ->whereIn('course_user.user_id', $teacherIds)
+            ->whereNotNull('courses.meeting_start_at')
+            ->whereNotNull('courses.meeting_duration');
+
+        if ($ignoreCourseId) {
+            $singleMeetings->where('courses.id', '!=', $ignoreCourseId);
+        }
+
+        foreach ($singleMeetings->select('courses.id as course_id', 'courses.title as course_title', 'courses.meeting_start_at', 'courses.meeting_duration')->get() as $meeting) {
+            $meetingStart = \Carbon\Carbon::parse($meeting->meeting_start_at);
+            $meetingEnd = $meetingStart->copy()->addMinutes((int)$meeting->meeting_duration);
+
+            if ($this->timeRangesOverlap($start, $end, $meetingStart, $meetingEnd)) {
+                return [
+                    'course_id' => $meeting->course_id,
+                    'course_title' => $meeting->course_title,
+                    'session_start' => $meetingStart,
+                    'session_end' => $meetingEnd,
+                    'duration' => (int)$meeting->meeting_duration,
+                    'source' => 'course_meeting',
+                ];
+            }
+        }
+
+        $liveSessions = \DB::table('live_sessions')
+            ->join('course_user', 'live_sessions.course_id', '=', 'course_user.course_id')
+            ->join('courses', 'courses.id', '=', 'live_sessions.course_id')
+            ->whereIn('course_user.user_id', $teacherIds);
+
+        if ($ignoreCourseId) {
+            $liveSessions->where('live_sessions.course_id', '!=', $ignoreCourseId);
+        }
+
+        foreach ($liveSessions->select('live_sessions.course_id', 'courses.title as course_title', 'live_sessions.id as live_session_id', 'live_sessions.session_date', 'live_sessions.session_time', 'live_sessions.duration')->get() as $session) {
+            $sessionDate = \Carbon\Carbon::parse($session->session_date)->format('Y-m-d');
+            $sessionStart = \Carbon\Carbon::parse($sessionDate . ' ' . $session->session_time);
+            $sessionEnd = $sessionStart->copy()->addMinutes((int)$session->duration);
+
+            if ($this->timeRangesOverlap($start, $end, $sessionStart, $sessionEnd)) {
+                return [
+                    'course_id' => $session->course_id,
+                    'course_title' => $session->course_title,
+                    'live_session_id' => $session->live_session_id,
+                    'session_start' => $sessionStart,
+                    'session_end' => $sessionEnd,
+                    'duration' => (int)$session->duration,
+                    'source' => 'live_session',
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    private function timeRangesOverlap(\Carbon\Carbon $startA, \Carbon\Carbon $endA, \Carbon\Carbon $startB, \Carbon\Carbon $endB): bool
+    {
+        return $startA->lt($endB) && $endA->gt($startB);
+    }
+
+    private function formatTrainerOverlapMessage(array $overlap, \Carbon\Carbon $requestedStart, \Carbon\Carbon $requestedEnd): string
+    {
+        $courseTitle = $overlap['course_title'] ?? 'another course';
+        $existingStart = $overlap['session_start'];
+        $existingEnd = $overlap['session_end'];
+
+        return sprintf(
+            'Trainer is already assigned for another course at this time. Conflict with "%s" on %s from %s to %s. Requested session: %s to %s.',
+            $courseTitle,
+            $existingStart->format('Y-m-d'),
+            $existingStart->format('H:i'),
+            $existingEnd->format('H:i'),
+            $requestedStart->format('Y-m-d H:i'),
+            $requestedEnd->format('H:i')
+        );
+    }
+
+    private function generateLiveSessions(Course $course, Request $request): int
     {
         // Delete any existing sessions for this course
         $course->liveSessions()->delete();
@@ -1795,8 +2008,7 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
         $provider = $request->meeting_provider;
         $timezone = $request->meeting_timezone ?? 'Asia/Riyadh';
         $scheduleType = $request->schedule_type;
-
-        $sessions = $this->courseScheduleService->buildRequestedLiveSessions($course, $request);
+        $sessions = $this->buildRequestedLiveSessions($course, $request);
 
         $lastSessionDate = null;
         $failedCount = 0;
