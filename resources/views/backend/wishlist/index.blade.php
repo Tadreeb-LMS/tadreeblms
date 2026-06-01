@@ -8,7 +8,41 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin: 10px 0;
+            align-items: center;
+            justify-content: flex-end;
+            float: right;
+            clear: none;
+            margin: 0 0 12px 12px;
+        }
+
+        #myTable_wrapper .dataTables_length {
+            float: left;
+            margin-bottom: 12px;
+        }
+
+        #myTable_wrapper .dataTables_filter {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            float: right;
+            margin-bottom: 12px;
+        }
+
+        #myTable_wrapper .dataTables_filter label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0;
+        }
+
+        #myTable_wrapper .dataTables_filter input {
+            height: 34px;
+            margin-left: 0;
+        }
+
+        html[dir="rtl"] #myTable_wrapper .dt-buttons {
+            margin-right: 12px;
+            margin-left: 0;
         }
 
         #myTable_wrapper .dt-buttons .dt-button.wishlist-table-button {
@@ -37,6 +71,16 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+
+        @media (max-width: 767.98px) {
+            #myTable_wrapper .dataTables_length,
+            #myTable_wrapper .dataTables_filter,
+            #myTable_wrapper .dt-buttons {
+                float: none;
+                justify-content: flex-start;
+                margin-left: 0;
+            }
         }
     </style>
 @endpush
@@ -87,9 +131,9 @@
         $(document).ready(function () {
             var route = '{{route('admin.wishlist.get_data')}}';
             var buttonLabels = {
-                csv: @json(__('Export') . ' ' . trans('datatable.csv')),
-                pdf: @json(__('Export') . ' ' . trans('datatable.pdf')),
-                print: @json(__('Print')),
+                csv: @json(trans('datatable.export_csv')),
+                pdf: @json(trans('datatable.export_pdf')),
+                print: @json(trans('datatable.print')),
                 colvis: @json(trans('datatable.colvis'))
             };
             var buttonText = function (iconClass, label) {
@@ -153,6 +197,7 @@
                     url : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
                     buttons :{
                         colvis : '{{trans("datatable.colvis")}}',
+                        print : '{{trans("datatable.print")}}',
                         pdf : '{{trans("datatable.pdf")}}',
                         csv : '{{trans("datatable.csv")}}',
                     }
