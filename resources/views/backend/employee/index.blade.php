@@ -97,17 +97,13 @@
 @section('content')
 
 <div>
-    <div class="d-flex justify-content-between pb-3">
-        <div class="grow">
-            <h4 class="text-20">{{ __('admin_pages.employee.title') }}</h4>
-        </div>
+    <div class="pb-3 d-flex justify-content-between align-items-center">
+        <h4>{{ __('admin_pages.employee.title') }}</h4>
 
         @can('trainee_create')
         <div>
-            <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.employee.index')]) }}">
-                <button type="button" class="add-btn">
-                    {{ __('admin_pages.employee.add_more_trainees') }}
-                </button>
+            <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.employee.index')]) }}" class="btn add-btn">
+                {{ __('admin_pages.employee.add_more_trainees') }}
             </a>
         </div>
         @endcan

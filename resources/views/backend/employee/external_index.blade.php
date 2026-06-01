@@ -26,27 +26,15 @@ width: 44% !important;
 @section('content')
 <div>
     <div>
- <div
-        class="d-flex justify-content-between pb-3 align-items-center">
-        <div class="grow">
-            <h4 class="text-20">Trainee</h4>
-        </div>
+ <div class="pb-3 d-flex justify-content-between align-items-center">
+        <h4>Trainee</h4>
         @can('trainee_create')
         <div>
-            <a href="{{ route('admin.employee.external.create') }}">
-
-                <button
-                    type="button"
-                    class="add-btn">
-                    @lang('strings.backend.general.app_add_new')
-                </button>
-
+            <a href="{{ route('admin.employee.external.create') }}" class="btn add-btn">
+                @lang('strings.backend.general.app_add_new')
             </a>
-
         </div>
         @endcan
-
-
     </div>
     </div>
     <div class="card" style="border: none;">

@@ -858,6 +858,7 @@ $subscribe_status = CustomHelper::courseStatus($course->id);
 
 @push('after-scripts')
     <script src="https://cdn.plyr.io/3.5.3/plyr.polyfilled.js"></script>
+    @include('frontend.courses.partials.pause-inactive-media')
 
 
     <script>
