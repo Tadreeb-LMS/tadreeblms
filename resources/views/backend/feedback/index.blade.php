@@ -74,11 +74,9 @@
                                     <a title="{{ __('user_feedback.feedback_questions.edit') }}" class="" href="{{ route('admin.feedback_question.edit', ['id' => $value->id]) }}">
                                         <i class="fa fa-edit" aria-hidden="true"></i>
                                     </a>
-                                    <a href="javascript:void(0)"
-                                        class="js-delete-question"
-                                        data-url="{{ route('admin.questions.destroy', $value->id) }}">
-                                        <i class="fa fa-trash"></i>
-                                    </a>                 
+                                    @include('backend.datatable.action-delete', [
+                                        'route' => route('admin.feedback_question.destroy', $value->id)
+                                    ])
                                 </div>
                             </td>
                         </tr>
@@ -267,25 +265,5 @@
 
         });
     });
-</script>
-
-<script>
-    function delete_client(id) {
-        $.ajax({
-            type: 'post',
-            url: "{{ route('admin.feedback.feedback-question-multiple-delete') }}",
-            data: ({
-                id: id,
-                _token: "{{ csrf_token() }}"
-            }),
-            success: function(response) {
-                window.location.replace("{{ route('admin.feedback_question.index') }}");
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        })
-
-    }
 </script>
 @endpush

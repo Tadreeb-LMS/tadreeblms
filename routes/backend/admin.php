@@ -775,7 +775,7 @@ Route::get('get-feedback-detail/{id}', 'Admin\UserFeebackAnswersController@feedb
 Route::get('feedback-question-multiple/{id?}', 'Admin\FeedbackController@feedback_questions')->name('feedback.feedback-question-multiple');
 Route::post('feedback-question-multiple-store', 'Admin\FeedbackController@feedback_questions_store')->name('feedback.feedback-question-multiple-store');
 Route::post('feedback-question-multiple-delete', 'Admin\FeedbackController@feedback_questions_delete')->name('feedback.feedback-question-multiple-delete');
-
+Route::delete('feedback-question/{id}', 'Admin\FeedbackController@feedback_questions_delete')->name('feedback_question.destroy');
 
 Route::get('send-email-notification', 'Admin\EmailNotificationController@sendEmailNotification');
 Route::post('send-email-notification', 'Admin\EmailNotificationController@sendEmailNotificationPost');
