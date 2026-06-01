@@ -105,7 +105,7 @@ class CoursesController extends Controller
         if (auth()->user()->can('course_edit')) {
             $has_edit = true;
         }
-        if (auth()->user()->can('lesson_delete')) {
+        if (auth()->user()->can('course_delete')) {
             $has_delete = true;
         }
 
@@ -278,7 +278,7 @@ class CoursesController extends Controller
         if (auth()->user()->can('course_edit')) {
             $has_edit = true;
         }
-        if (auth()->user()->can('lesson_delete')) {
+        if (auth()->user()->can('course_delete')) {
             $has_delete = true;
         }
 

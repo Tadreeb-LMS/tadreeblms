@@ -400,6 +400,9 @@ window.addEventListener('load', function () {
                 $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
                 },
   
+                drawCallback: function () {
+                    addDeleteForms();
+                },
                 createdRow: function(row, data, dataIndex) {
                     $(row).attr('data-entry-id', data.id);
                 },
