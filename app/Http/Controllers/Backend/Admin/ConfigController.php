@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use LdapRecord\Container;
+use App\Support\CertificateTemplate;
 
 class ConfigController extends Controller
 {
@@ -732,26 +733,8 @@ class ConfigController extends Controller
 
     public function getCertificateTemplateSettings()
     {
-        $settings = Config::where('key', 'certificate_template_settings')->first();
-        if ($settings) {
-            $settings = json_decode($settings->value, true);
-        } else {
-            $settings = [
-                'template' => 'classic-dark',
-                'primary_color' => '#d4af37',
-                'secondary_color' => '#f5d670',
-                'bg_color' => '#1a1a2e',
-                'text_color' => '#ffffff',
-                'cert_label' => 'Certificate of Completion',
-                'cert_title' => 'Achievement Award',
-                'show_badge' => 1,
-                'show_seal' => 1,
-                'show_signature' => 1,
-                'logo_image' => null,
-                'seal_image' => null,
-                'signature_image' => null,
-            ];
-        }
+        $settings = CertificateTemplate::settings();
+
         return view('backend.settings.certificate-template', compact('settings'));
     }
 
