@@ -105,7 +105,7 @@ class CoursesController extends Controller
         if (auth()->user()->can('course_edit')) {
             $has_edit = true;
         }
-        if (auth()->user()->can('lesson_delete')) {
+        if (auth()->user()->can('course_delete')) {
             $has_delete = true;
         }
 
@@ -130,7 +130,7 @@ class CoursesController extends Controller
                 }
 
                 if ($has_delete) {
-                    $delete = view('backend.datatable.action-delete')
+                    $delete = view('backend.datatable.action-delete-form')
                         ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
                         ->render();
                     $view .= $delete;
@@ -278,7 +278,7 @@ class CoursesController extends Controller
         if (auth()->user()->can('course_edit')) {
             $has_edit = true;
         }
-        if (auth()->user()->can('lesson_delete')) {
+        if (auth()->user()->can('course_delete')) {
             $has_delete = true;
         }
 
@@ -316,7 +316,7 @@ class CoursesController extends Controller
     }
 
     if ($has_delete) {
-        $actions .= view('backend.datatable.action-delete')
+        $actions .= view('backend.datatable.action-delete-form')
             ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
             ->render();
     }
