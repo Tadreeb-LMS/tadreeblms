@@ -79,6 +79,7 @@ class CourseFeedbackController extends Controller
                         ';
                     })
                     ->rawColumns(['actions', 'add_question'])
+                    ->rawColumns(['actions'])
                     ->make(true);
         }
 

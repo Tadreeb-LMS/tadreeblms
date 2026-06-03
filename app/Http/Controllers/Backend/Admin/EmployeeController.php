@@ -576,10 +576,14 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        $teacher = User::where('id', $id)->first();
-        //dd($teacher);
+        $teacher = User::findOrFail($id);
+        $assignments = CourseAssignment::with('course')
+            ->where('assign_to', 'user')
+            ->where('assign_by', 1) // optional remove if not needed
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('backend.employee.show', compact('teacher'));
+        return view('backend.employee.show', compact('teacher', 'assignments'));
     }
 
     /**
