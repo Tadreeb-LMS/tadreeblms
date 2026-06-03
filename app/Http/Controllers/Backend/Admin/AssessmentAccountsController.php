@@ -766,6 +766,8 @@ public function courseAssignment(Request $request)
                     dispatch(new SendEmailJob($details));
 
                     $enrolled_count++;
+                    CourseNotification::createCourseEnrollmentBell($emp, $course);
+
                     // Bell notification for course enrollment
                     try {
                         $notificationSettings = app(NotificationSettingsService::class);
@@ -904,6 +906,7 @@ public function courseAssignment(Request $request)
             ]);
 
             $enrolled_count++;
+            CourseNotification::createCourseEnrollmentBell($emp, $course);
 
             // Send email notification (same as course_assignment)
             $user_fav_lang = $emp->fav_lang;
@@ -1143,6 +1146,8 @@ public function courseAssignment(Request $request)
                         'by_invitation' => 1
                     ]);
 
+                    CourseNotification::createCourseEnrollmentBell($emp, $course);
+
                     //dd($sb, $course_Ass->due_date);
 
                     $user_fav_lang = $emp->fav_lang;
@@ -1215,6 +1220,13 @@ public function courseAssignment(Request $request)
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
+
+                $emp = User::where('id', $teacher)->active()->first();
+                $course = Course::find($request->course_id);
+
+                if ($emp && $course) {
+                    CourseNotification::createCourseEnrollmentBell($emp, $course);
+                }
             }
         }
         return redirect()->route('admin.assessment_accounts.course-assign-list')->withFlashSuccess(trans('Course Assignment Updated sucessfully...'));
