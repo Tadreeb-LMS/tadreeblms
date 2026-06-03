@@ -31,6 +31,7 @@ use App\Exports\CourseAssignmentReportExport;
 use App\Notifications\Backend\CourseNotification;
 use App\Services\NotificationSettingsService;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CoursesController extends Controller
 {
@@ -1036,8 +1037,26 @@ $teachers = [$teacherId];
                 $teachers = $course->teachers->pluck('id')->toArray();
             }
 
-            $this->validateLiveCourseTrainerSchedule($request, $teachers, $course->id);
-        }
+            try {
+                $this->validateLiveCourseTrainerSchedule($request, $teachers, $course->id);
+            } catch (ValidationException $e) {
+                $message = collect($e->errors())->flatten()->first()
+                    ?: 'Trainer schedule overlaps with another session.';
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'clientmsg' => $message,
+                        'errors' => $e->errors(),
+                    ], 422);
+                }
+
+                return back()
+                    ->withErrors($e->errors())
+                    ->withInput()
+                    ->withFlashDanger($message);
+            }
+}
 
 
 
@@ -1154,7 +1173,11 @@ $teachers = [$teacherId];
         $course->is_online = $request->course_type ?? 'Online';
 
         // Handle live session scheduling on update
-        if ($request->course_type === 'Offline' && $request->meeting_provider && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+        if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+            if (!$request->filled('meeting_provider') && $course->meeting_provider) {
+                $request->merge(['meeting_provider' => $course->meeting_provider]);
+            }
+
             $course->schedule_type = $request->schedule_type;
             if ($request->schedule_type === 'weekly') {
                 $course->schedule_days = $request->weekly_days;
@@ -1704,8 +1727,8 @@ $teachers = [$teacherId];
     {
         $scheduleType = $request->schedule_type;
 
-        $startDateValue = $course->getRawOriginal('start_date') ?: ($course->getAttributes()['start_date'] ?? $request->start_date);
-        $endDateValue = $course->getRawOriginal('expire_at') ?: ($course->getAttributes()['expire_at'] ?? $request->expire_at);
+        $startDateValue = $request->start_date ?? $course->getRawOriginal('start_date');
+        $endDateValue = $request->expire_at ?? $course->getRawOriginal('expire_at');
 
         $startDate = \Carbon\Carbon::parse($startDateValue);
         $endDate = \Carbon\Carbon::parse($endDateValue);
@@ -1863,6 +1886,18 @@ $teachers = [$teacherId];
 
         $requestedSessions = $this->buildRequestedLiveSessions($course, $request);
 
+        if (empty($requestedSessions)) {
+            $scheduleType = $request->schedule_type;
+            $messages = [
+                'weekly' => 'No live sessions were generated. The selected weekdays do not fall within the course date range (' . $request->start_date . ' to ' . $request->expire_at . '). Please check the course dates or change the selected days.',
+                'daily' => 'No live sessions were generated. The course date range (' . $request->start_date . ' to ' . $request->expire_at . ') may not cover any valid session days. Please check the course dates.',
+                'custom' => 'No live sessions were generated. No custom session dates were provided, or they fall outside the course range.',
+            ];
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'schedule_type' => [$messages[$scheduleType] ?? 'No live sessions were generated. Please check the course start/end dates and selected schedule days.'],
+            ]);
+        }
+
         $this->validateRequestedLiveSessionsDoNotOverlap($requestedSessions);
 
         foreach ($requestedSessions as $session) {
@@ -2001,13 +2036,24 @@ $teachers = [$teacherId];
 
     private function generateLiveSessions(Course $course, Request $request): int
     {
-        // Delete any existing sessions for this course
-        $course->liveSessions()->delete();
-
         $provider = $request->meeting_provider;
         $timezone = $request->meeting_timezone ?? 'Asia/Riyadh';
         $scheduleType = $request->schedule_type;
         $sessions = $this->buildRequestedLiveSessions($course, $request);
+
+        if (empty($sessions)) {
+            $messages = [
+                'weekly' => 'No live sessions were generated. The selected weekdays do not fall within the course date range (' . $course->start_date . ' to ' . $course->expire_at . '). Please check the course dates or change the selected days.',
+                'daily' => 'No live sessions were generated. The course date range (' . $course->start_date . ' to ' . $course->expire_at . ') may not cover any valid session days. Please check the course dates.',
+                'custom' => 'No live sessions were generated. No custom session dates were provided, or they fall outside the course range.',
+            ];
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'schedule_type' => [$messages[$scheduleType] ?? 'No live sessions were generated. Please check the course start/end dates and selected schedule days.'],
+            ]);
+        }
+
+        // Delete existing sessions only after confirming new sessions exist
+        $course->liveSessions()->delete();
 
         $lastSessionDate = null;
         $failedCount = 0;
@@ -2083,7 +2129,12 @@ $teachers = [$teacherId];
             return back()->withFlashSuccess('All sessions already have meeting links.');
         }
 
-        $provider = $course->meeting_provider;
+        $provider = $course->meeting_provider ?: $sessions->first()->provider;
+
+        if (!$provider) {
+            return back()->withFlashDanger('No meeting provider is configured for this course. Please set a meeting provider in the course settings first.');
+        }
+
         $timezone = $course->meeting_timezone ?? 'Asia/Riyadh';
         $successCount = 0;
         $failedCount = 0;
@@ -2101,9 +2152,9 @@ $teachers = [$teacherId];
 
             try {
                 $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
-                if ($meetingData) {
+                if ($meetingData && $meetingData['meeting_join_url']) {
                     $session->update([
-                        'meeting_link' => $meetingData['meeting_join_url'] ?? null,
+                        'meeting_link' => $meetingData['meeting_join_url'],
                         'meeting_id' => $meetingData['meeting_id'] ?? null,
                         'host_url' => $meetingData['meeting_host_url'] ?? null,
                     ]);
@@ -2115,6 +2166,10 @@ $teachers = [$teacherId];
                 \Log::warning("Failed to regenerate meeting for session {$session->id}: " . $e->getMessage());
                 $failedCount++;
             }
+        }
+
+        if ($successCount === 0 && $failedCount > 0) {
+            return back()->withFlashDanger("Failed to regenerate any meeting links ({$failedCount} failed). Please check your {$provider} credentials in External Apps settings.");
         }
 
         if ($failedCount > 0) {
