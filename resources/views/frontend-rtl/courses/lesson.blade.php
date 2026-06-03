@@ -825,6 +825,10 @@
                 lessonVideoPlayers.push(playerInstance);
             }
 
+            if (window.registerExclusiveLessonMediaPlayer) {
+                window.registerExclusiveLessonMediaPlayer(playerInstance);
+            }
+
             return playerInstance;
         }
 
