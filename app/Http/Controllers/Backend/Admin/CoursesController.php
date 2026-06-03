@@ -592,36 +592,12 @@ class CoursesController extends Controller
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
-        if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
-
+        if ($request->course_type === 'Offline') {
             $teacherId = \Auth::user()->isAdmin()
                 ? $request->input('teacher_id')
                 : \Auth::user()->id;
-            $teachers = [$teacherId]; // force single teacher
 
-            $this->validateScheduleRequest($request);
-            $this->validateTrainerScheduleAvailability($request, $teachers);
-        } elseif ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
-                // Original single-meeting validation
-                $request->validate([
-                    'meeting_start_at' => 'required|date|after:now',
-                    'meeting_duration' => 'required|integer|min:1',
-                ], [
-                    'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
-                ]);
-
-                $teachers = array_filter(\Auth::user()->isAdmin() ? [$request->input('teacher_id')] : [\Auth::user()->id]);
-                $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
-                $meetingDuration = (int)$request->meeting_duration;
-                $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
-
-                $overlap = $this->findTrainerOverlappingSession($teachers, $meetingStart, $meetingEnd);
-
-                if ($overlap) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'meeting_start_at' => [$this->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd)]
-                    ]);
-                }
+            $this->validateLiveCourseTrainerSchedule($request, array_filter([$teacherId]));
         }
         DB::beginTransaction();
 
@@ -1055,33 +1031,12 @@ $teachers = [$teacherId];
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+        if ($request->course_type === 'Offline') {
+            if (empty($teachers)) {
+                $teachers = $course->teachers->pluck('id')->toArray();
+            }
 
-            $this->validateScheduleRequest($request);
-            $this->validateTrainerScheduleAvailability($request, $teachers, $course->id);
-        } elseif ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
-                // Original single-meeting validation
-                $request->validate([
-                    'meeting_start_at' => 'required|date|after:now',
-                    'meeting_duration' => 'required|integer|min:1',
-                ], [
-                    'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
-                ]);
-
-                $teachers = array_filter(\Auth::user()->isAdmin() ? [$teacherId] : [\Auth::user()->id]);
-                if(empty($teachers)){
-                   $teachers = $course->teachers->pluck('id')->toArray();
-                }
-
-                $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
-                $meetingDuration = (int)$request->meeting_duration;
-                $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
-
-                $overlap = $this->findTrainerOverlappingSession($teachers, $meetingStart, $meetingEnd, $course->id);
-
-                if ($overlap) {
-                    return back()->withFlashDanger($this->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd))->withInput();
-                }
+            $this->validateLiveCourseTrainerSchedule($request, $teachers, $course->id);
         }
 
 
@@ -1842,13 +1797,75 @@ $teachers = [$teacherId];
         }
     }
 
+    private function validateLiveCourseTrainerSchedule(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
+    {
+        if ($this->hasRecurringLiveSchedule($request)) {
+            $this->validateScheduleRequest($request);
+            $this->validateTrainerScheduleAvailability($request, $teacherIds, $ignoreCourseId);
+
+            return;
+        }
+
+        if ($this->hasSingleMeetingSchedule($request)) {
+            $this->validateSingleMeetingScheduleRequest($request);
+            $this->validateSingleMeetingTrainerAvailability($request, $teacherIds, $ignoreCourseId);
+        }
+    }
+
+    private function hasRecurringLiveSchedule(Request $request): bool
+    {
+        return in_array($request->schedule_type, ['daily', 'weekly', 'custom'], true);
+    }
+
+    private function hasSingleMeetingSchedule(Request $request): bool
+    {
+        return $request->filled('meeting_start_at')
+            || $request->filled('meeting_start_date')
+            || $request->filled('meeting_start_time')
+            || $request->filled('meeting_duration');
+    }
+
+    private function validateSingleMeetingScheduleRequest(Request $request): void
+    {
+        if (!$request->filled('meeting_start_at') && $request->filled('meeting_start_date') && $request->filled('meeting_start_time')) {
+            $request->merge([
+                'meeting_start_at' => $request->meeting_start_date . ' ' . $request->meeting_start_time . ':00',
+            ]);
+        }
+
+        $request->validate([
+            'meeting_start_at' => 'required|date|after:now',
+            'meeting_duration' => 'required|integer|min:1',
+        ], [
+            'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
+        ]);
+    }
+
+    private function validateSingleMeetingTrainerAvailability(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
+    {
+        $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
+        $meetingEnd = $meetingStart->copy()->addMinutes((int)$request->meeting_duration);
+
+        $overlap = $this->findTrainerOverlappingSession($teacherIds, $meetingStart, $meetingEnd, $ignoreCourseId);
+
+        if ($overlap) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'meeting_start_at' => [$this->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd)],
+            ]);
+        }
+    }
+
     private function validateTrainerScheduleAvailability(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
     {
         $course = new Course();
         $course->start_date = $request->start_date;
         $course->expire_at = $request->expire_at;
 
-        foreach ($this->buildRequestedLiveSessions($course, $request) as $session) {
+        $requestedSessions = $this->buildRequestedLiveSessions($course, $request);
+
+        $this->validateRequestedLiveSessionsDoNotOverlap($requestedSessions);
+
+        foreach ($requestedSessions as $session) {
             $sessionStart = \Carbon\Carbon::parse($session['date'] . ' ' . $session['time']);
             $sessionEnd = $sessionStart->copy()->addMinutes((int)$session['duration']);
 
@@ -1858,6 +1875,35 @@ $teachers = [$teacherId];
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'schedule_type' => [$this->formatTrainerOverlapMessage($overlap, $sessionStart, $sessionEnd)],
                 ]);
+            }
+        }
+    }
+
+    private function validateRequestedLiveSessionsDoNotOverlap(array $sessions): void
+    {
+        $normalizedSessions = [];
+
+        foreach ($sessions as $session) {
+            $start = \Carbon\Carbon::parse($session['date'] . ' ' . $session['time']);
+            $normalizedSessions[] = [
+                'start' => $start,
+                'end' => $start->copy()->addMinutes((int)$session['duration']),
+            ];
+        }
+
+        foreach ($normalizedSessions as $index => $session) {
+            foreach (array_slice($normalizedSessions, $index + 1) as $otherSession) {
+                if ($this->timeRangesOverlap($session['start'], $session['end'], $otherSession['start'], $otherSession['end'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'schedule_type' => [sprintf(
+                            'Trainer is already assigned for another course at this time. Requested sessions overlap: %s to %s conflicts with %s to %s.',
+                            $session['start']->format('Y-m-d H:i'),
+                            $session['end']->format('H:i'),
+                            $otherSession['start']->format('Y-m-d H:i'),
+                            $otherSession['end']->format('H:i')
+                        )],
+                    ]);
+                }
             }
         }
     }
