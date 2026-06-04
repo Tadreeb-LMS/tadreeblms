@@ -241,6 +241,7 @@
         }
 
         @media screen and (max-width: 768px) {}
+        }
     </style>
 @endpush
 
@@ -627,14 +628,14 @@
                             <p id="nextButton" aria-live="polite">
                                 @if(!empty($effective_next_lesson) && empty($nextTasks['open_assesment']) && empty($nextTasks['reattempt_assesment']))
                                     @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
-                                        <a class="btn btn-block bg-danger font-weight-bold text-white"
+                                        <a class="btn btn-sm bg-danger font-weight-bold text-white"
                                            href="javascript:void(0)">
                                             {{ __('course_pages.course_detail.complete_pass_quiz_unlock_next') }}
                                         </a>
                                         @if($lesson->isCompleted() && !empty($lesson_quiz_url))
-                                            <a class="btn btn-block btn-info font-weight-bold text-white mt-2"
+                                            <a class="btn btn-sm btn-info font-weight-bold text-white mt-2"
                                                href="{{ $lesson_quiz_url }}">
-                                                {{ __('course_pages.course_detail.open_quiz') }}
+                                                {{ __('course_pages.course_detail.complete_and_pass_quiz') }}
                                             </a>
                                         @elseif(!$lesson->isCompleted())
                                             <a class="btn btn-block btn-warning font-weight-bold text-white mt-2" href="javascript:void(0)">
@@ -654,17 +655,17 @@
                                         @endif
                                     @endif
                                 @elseif($lesson->isCompleted() && !empty($lesson_quiz_url))
-                                    <a class="btn btn-block btn-info font-weight-bold text-white"
+                                    <a class="btn btn-sm btn-info font-weight-bold text-white"
                                        href="{{ $lesson_quiz_url }}">
-                                        {{ __('course_pages.course_detail.open_quiz') }}
+                                        {{ __('course_pages.course_detail.complete_and_pass_quiz') }}
                                     </a>
                                 @endif
 
                             </p>
                                     
                             @if ($nextTasks['open_assesment'])
-                                <a class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                    href="{{ htmlspecialchars_decode($assessment_link) }}">@lang('labels.frontend.course.start_assesment')</a>
+                                <a class="btn btn-success btn-sm text-white mb-3 font-weight-bold"
+                                    href="{{ htmlspecialchars_decode($assessment_link) }}">Complete this lesson first to unlock</a>
                             @endif
 
                             @if ($nextTasks['reattempt_assesment'])
@@ -778,6 +779,7 @@
     {{-- <script src="//www.youtube.com/iframe_api"></script> --}}
     <script src="{{ asset('plugins/sticky-kit/sticky-kit.js') }}"></script>
     <script src="https://cdn.plyr.io/3.5.3/plyr.polyfilled.js"></script>
+    @include('frontend.courses.partials.pause-inactive-media')
     <script src="{{ asset('plugins/touchpdf-master/pdf.compatibility.js') }}"></script>
     <script src="{{ asset('plugins/touchpdf-master/pdf.js') }}"></script>
     <script src="{{ asset('plugins/touchpdf-master/jquery.touchSwipe.js') }}"></script>
@@ -788,12 +790,61 @@
 
 
     <script>
-        document.querySelectorAll('.lesson-video-player').forEach(function(playerElement) {
-            new Plyr(playerElement, {
-                youtube: {
-                    noCookie: true
+        var lessonVideoPlayers = [];
+            var player = null;
+            var player2 = null;
+
+            window.lessonVideoPlayers = lessonVideoPlayers;
+
+            function registerLessonVideoPlayer(playerInstance) {
+                if (playerInstance && lessonVideoPlayers.indexOf(playerInstance) === -1) {
+                    lessonVideoPlayers.push(playerInstance);
+                }
+
+                return playerInstance;
+            }
+
+            function pauseLessonVideos() {
+                lessonVideoPlayers.forEach(function(playerInstance) {
+                    try {
+                        if (playerInstance && typeof playerInstance.pause === 'function') {
+                            playerInstance.pause();
+                        }
+                    } catch (error) {
+                        // Ignore third-party player state errors during page transitions.
+                    }
+                });
+
+                document.querySelectorAll('video, audio').forEach(function(mediaElement) {
+                    try {
+                        if (!mediaElement.paused) {
+                            mediaElement.pause();
+                        }
+                    } catch (error) {
+                        // Ignore native media pause errors.
+                    }
+                });
+            }
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    pauseLessonVideos();
                 }
             });
+
+            window.addEventListener('pagehide', pauseLessonVideos);
+            window.addEventListener('beforeunload', pauseLessonVideos);
+
+            document.querySelectorAll('.js-player, .lesson-video-player').forEach(function(playerElement) {
+                var plyrInstance = registerLessonVideoPlayer(new Plyr(playerElement, {
+                    youtube: {
+                        noCookie: true
+                    }
+                }));
+
+                if (playerElement.id === 'player') {
+                    player = plyrInstance;
+                }
         });
 
         @if ($lesson->mediaPDF)
@@ -831,28 +882,35 @@
 
 
 
-            const player2 = new Plyr('#audioPlayer');
+            if (!player && document.getElementById('player')) {
+                player = new Plyr('#player', {
+                    youtube: {
+                        noCookie: true
+                    }
+                });
 
-            const player = new Plyr('#player', {
-                youtube: {
-                    noCookie: true
-                }
-            });
+                player = registerLessonVideoPlayer(player);
+            }
+
+            if (!player2 && document.getElementById('audioPlayer')) {
+                player2 = registerLessonVideoPlayer(new Plyr('#audioPlayer'));
+            }
 
             duration = 10;
             var progress = 0;
             var video_id = $('#player').parents('.video-container').data('id');
-            player.on('ready', event => {
-                player.currentTime = parseInt(current_progress);
-                duration = event.detail.plyr.duration;
 
+            if (player) {
+                player.on('ready', event => {
+                    player.currentTime = parseInt(current_progress);
+                    duration = event.detail.plyr.duration;
 
-                if (!storedDuration || (parseInt(storedDuration) === 0)) {
-                    Cookies.set("duration_" + "{{ auth()->user()->id }}" + "_" + "{{ $lesson->id }}" + "_" +
-                        "{{ $lesson->course->id }}", duration);
-                }
-
-            });
+                    if (!storedDuration || (parseInt(storedDuration) === 0)) {
+                        Cookies.set("duration_" + "{{ auth()->user()->id }}" + "_" + "{{ $lesson->id }}" + "_" +
+                            "{{ $lesson->course->id }}", duration);
+                    }
+                });
+            }
 
             {{-- if (!storedDuration || (parseInt(storedDuration) === 0)) { --}}
             {{-- Cookies.set("duration_" + "{{auth()->user()->id}}" + "_" + "{{$lesson->id}}" + "_" + "{{$lesson->course->id}}", player.duration); --}}
@@ -1056,36 +1114,49 @@
         //     time(watchPoint, progress)
         // });
         let playedDuration = 0;
-        let lastRecordedTime = current_progress ?? 0;
+        let lastRecordedTime = (typeof current_progress !== 'undefined') ? (parseInt(current_progress) || 0) : 0;
         let watchDuration = 0;
         let lastCalledTime = 0;
-
-        player.on('timeupdate', () => {
-            const currentTime = player.currentTime;
-            const playbackRate = player.media.playbackRate;
-            var watchPoint = Math.floor((currentTime / player.duration) * 100);
-
-            // Check if the user is watching continuously (no skipping)
-            if (Math.abs(currentTime - lastRecordedTime) <= 1) {
-                // Adjust the watched duration by the playback rate
-                watchDuration += (currentTime - lastRecordedTime) * playbackRate;
-            }
-
-            // Update lastRecordedTime for the next timeupdate event
-            lastRecordedTime = currentTime;
-
-            // Check if 2 seconds have passed since the last progress update
-            if (currentTime - lastCalledTime >= 2) {
-                time(watchPoint, watchDuration, player.duration)
-
-                // Update lastCalledTime to the current time
-                lastCalledTime = currentTime;
-            }
-        });
-
         var lessonAlreadyCompleted = false;
 
-        function time(watchPoint, progress, videoDuration) {
+        if (typeof player !== 'undefined' && player) {
+            player.on('timeupdate', () => {
+                const currentTime = player.currentTime;
+                const videoDuration = player.duration;
+
+                if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                    return;
+                }
+
+                const playbackRate = player.media && player.media.playbackRate ? player.media.playbackRate : 1;
+                var watchPoint = Math.floor((currentTime / videoDuration) * 100);
+
+                // Count only continuous playback time and ignore large skips.
+                if (currentTime >= lastRecordedTime && Math.abs(currentTime - lastRecordedTime) <= 1) {
+                    watchDuration += (currentTime - lastRecordedTime) * playbackRate;
+                }
+
+                lastRecordedTime = currentTime;
+
+                if (currentTime - lastCalledTime >= 2) {
+                    time(watchPoint, watchDuration, videoDuration, false);
+                    lastCalledTime = currentTime;
+                }
+            });
+
+            player.on('ended', () => {
+                const videoDuration = player.duration;
+
+                if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                    return;
+                }
+
+                watchDuration = Math.max(watchDuration, videoDuration);
+                time(100, watchDuration, videoDuration, true);
+            });
+        }
+
+        function time(watchPoint, progress, videoDuration, completed) {
             //alert("hi")
             var id = "{{ $lesson->id }}";
             var video = $('#player').parents('.video-container').data('id');
@@ -1098,7 +1169,8 @@
                     'vedio_id': parseInt(video),
                     'watchPoint': watchPoint,
                     'duration': parseInt(videoDuration),
-                    'progress': parseInt(progress)
+                    'progress': parseInt(progress),
+                    'completed': completed ? 1 : 0
                 },
                 success: function(response) {
                     if (response.lesson_completed && !lessonAlreadyCompleted) {
@@ -1108,5 +1180,89 @@
                 },
             });
         }
+
+       function pauseAllVideos() {
+
+            if (Array.isArray(window.lessonVideoPlayers)) {
+                window.lessonVideoPlayers.forEach(function(p) {
+                    try {
+                        if (p && typeof p.pause === 'function') {
+                            p.pause();
+                        }
+                    } catch (e) {}
+                });
+            }
+
+            try {
+                if (typeof player !== 'undefined' && player && typeof player.pause === 'function') {
+                    player.pause();
+                }
+            } catch (e) {}
+
+            try {
+                if (typeof player2 !== 'undefined' && player2 && typeof player2.pause === 'function') {
+                    player2.pause();
+                }
+            } catch (e) {}
+
+            document.querySelectorAll('video, audio').forEach(function(el) {
+                try {
+                    el.pause();
+                } catch (e) {}
+            });
+
+            document.querySelectorAll('.lesson-video-frame iframe').forEach(function(el) {
+                try {
+                    var src = el.src || '';
+
+                    if (
+                        src.includes('youtube.com') ||
+                        src.includes('youtube-nocookie.com') ||
+                        src.includes('vimeo.com')
+                    ) {
+                        el.src = src;
+                    }
+                } catch (e) {}
+            });
+        }
+
+        function handleVisibilityChange() {
+            if (document.hidden || document.visibilityState !== 'visible') {
+                pauseAllVideos();
+            }
+        }
+
+        function handleWindowBlur() {
+                setTimeout(function() {
+                    if (!document.hasFocus()) {
+                        pauseAllVideos();
+                    }
+                }, 150);
+            }
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleWindowBlur);
+            window.addEventListener('pagehide', pauseAllVideos);
+            window.addEventListener('beforeunload', pauseAllVideos);
+
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('a');
+
+                if (!link) {
+                    return;
+                }
+
+                var href = link.getAttribute('href');
+
+                if (
+                    href &&
+                    href !== '#' &&
+                    !href.startsWith('javascript:') &&
+                    !link.hasAttribute('download') &&
+                    link.target !== '_blank'
+                ) {
+                    pauseAllVideos();
+                }
+            }, true);
     </script>
 @endpush

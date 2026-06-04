@@ -209,7 +209,7 @@
                                             class="form-control custom-select-box select2 js-example-placeholder-single"
                                             required>
                                             @foreach($teachers as $id => $name)
-                                                <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
+                                                <option value="{{ $id }}" @if(old('teacher_id', optional($course->teachers->first())->id) == $id) selected @endif>
                                                     {{ $name }}
                                                 </option>
                                             @endforeach
@@ -320,30 +320,30 @@
 
 
                 @if (Auth::user()->isAdmin())
-                    {{-- <div class="row">
+                    <div class="row">
                         <div class="col-10 form-group">
                             {!! Form::label('internal_students', trans('labels.backend.courses.fields.internal_students'), [
                             'class' => 'control-label',
                             ]) !!}
-                            {!! Form::select('internalStudents[]', $internalStudents, old('internalStudents'), [
+                            {!! Form::select('internalStudents[]', $internalStudents, old('internalStudents', $already_assigned_internal_users->toArray()), [
                             'class' => 'form-control select2 js-example-internal-student-placeholder-multiple',
                             'multiple' => 'multiple',
                             'required' => false,
                             ]) !!}
                         </div>
-                    </div> --}}
+                    </div>
                 @endif
 
                 @if (Auth::user()->isAdmin())
-                    {{-- <div class="row">
+                    <div class="row">
                         <div class="col-10 form-group">
                             {!! Form::label('external_students',trans('labels.backend.courses.fields.external_students'),
                             ['class' => 'control-label']) !!}
-                            {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents'), ['class' =>
+                            {!! Form::select('externalStudents[]', $externalStudents, old('externalStudents', $already_assigned_internal_users->toArray()), ['class' =>
                             'form-control select2 js-example-external-student-placeholder-multiple', 'multiple' =>
                             'multiple', 'required' => false]) !!}
                         </div>
-                    </div> --}}
+                    </div>
                 @endif
 
                 <div class="row">
@@ -454,6 +454,9 @@
                                             <div class="col-md-6 form-group">
                                                 <label for="meeting_provider">Meeting Provider *</label>
                                                 <select name="meeting_provider" id="meeting_provider" class="form-control">
+                                                    @if($course->meeting_provider && !array_key_exists($course->meeting_provider, $enabledMeetingProviders ?? []))
+                                                        <option value="{{ $course->meeting_provider }}" selected>{{ ucfirst(str_replace(['-', '_'], ' ', $course->meeting_provider)) }}</option>
+                                                    @endif
                                                     @foreach($enabledMeetingProviders as $key => $label)
                                                         <option value="{{ $key }}" {{ $course->meeting_provider == $key ? 'selected' : '' }}>{{ $label }}</option>
                                                     @endforeach
@@ -495,8 +498,16 @@
                                     </div>
                                 </div>
                             @endif
+                            @if(!count($enabledMeetingProviders ?? []) && $course->meeting_provider)
+                                <input type="hidden" name="meeting_provider" value="{{ $course->meeting_provider }}">
+                            @endif
 
                             {{-- Live Session Scheduling Section --}}
+                            @php
+                                $firstLiveSession = $course->liveSessions->first();
+                                $savedSessionTime = old('weekly_time', old('daily_time', optional($firstLiveSession)->session_time ? \Carbon\Carbon::parse($firstLiveSession->session_time)->format('H:i') : null));
+                                $savedSessionDuration = old('weekly_duration', old('daily_duration', optional($firstLiveSession)->duration ?? 60));
+                            @endphp
                             <div class="card mt-3" id="schedule-section">
                                 <div class="card-header bg-success text-white">
                                     <h5 class="mb-0"><i class="fa fa-calendar mr-2"></i> Live Session Scheduling</h5>
@@ -520,12 +531,12 @@
                                             <div class="col-md-4 form-group">
                                                 <label>Session Time *</label>
                                                 <input type="time" name="daily_time" id="daily_time"
-                                                    class="form-control">
+                                                    class="form-control" value="{{ old('daily_time', ($course->schedule_type ?? '') == 'daily' ? $savedSessionTime : null) }}">
                                             </div>
                                             <div class="col-md-4 form-group">
                                                 <label>Duration (mins) *</label>
                                                 <input type="number" name="daily_duration" id="daily_duration"
-                                                    class="form-control" value="60" min="1">
+                                                    class="form-control" value="{{ old('daily_duration', ($course->schedule_type ?? '') == 'daily' ? $savedSessionDuration : 60) }}" min="1">
                                             </div>
                                             <div class="col-md-4 form-group">
                                                 <label>Repeat *</label>
@@ -567,12 +578,12 @@
                                             <div class="col-md-4 form-group">
                                                 <label>Session Time *</label>
                                                 <input type="time" name="weekly_time" id="weekly_time"
-                                                    class="form-control">
+                                                    class="form-control" value="{{ old('weekly_time', ($course->schedule_type ?? '') == 'weekly' ? $savedSessionTime : null) }}">
                                             </div>
                                             <div class="col-md-4 form-group">
                                                 <label>Duration (mins) *</label>
                                                 <input type="number" name="weekly_duration" id="weekly_duration"
-                                                    class="form-control" value="60" min="1">
+                                                    class="form-control" value="{{ old('weekly_duration', ($course->schedule_type ?? '') == 'weekly' ? $savedSessionDuration : 60) }}" min="1">
                                             </div>
                                         </div>
                                         <small class="text-muted">Sessions will repeat on selected days between course
@@ -582,6 +593,33 @@
                                     {{-- Custom Options --}}
                                     <div id="schedule-custom" class="schedule-panel" style="display:none;">
                                         <div id="custom-sessions-container">
+                                            @if(($course->schedule_type ?? '') == 'custom' && $course->liveSessions->count())
+                                                @foreach($course->liveSessions as $index => $session)
+                                                    <div class="row custom-session-row mb-2">
+                                                        <div class="col-md-4 form-group">
+                                                            <label>Date *</label>
+                                                            <input type="date" name="custom_dates[]"
+                                                                class="form-control custom-session-date"
+                                                                value="{{ old('custom_dates.' . $index, $session->session_date->format('Y-m-d')) }}">
+                                                        </div>
+                                                        <div class="col-md-3 form-group">
+                                                            <label>Time *</label>
+                                                            <input type="time" name="custom_times[]" class="form-control"
+                                                                value="{{ old('custom_times.' . $index, \Carbon\Carbon::parse($session->session_time)->format('H:i')) }}">
+                                                        </div>
+                                                        <div class="col-md-3 form-group">
+                                                            <label>Duration (mins) *</label>
+                                                            <input type="number" name="custom_durations[]" class="form-control"
+                                                                value="{{ old('custom_durations.' . $index, $session->duration) }}" min="1">
+                                                        </div>
+                                                        <div class="col-md-2 form-group d-flex align-items-end">
+                                                            <button type="button"
+                                                                class="btn btn-danger btn-sm remove-session-btn"
+                                                                style="{{ $course->liveSessions->count() > 1 ? '' : 'display:none;' }}">&times; Remove</button>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @else
                                             <div class="row custom-session-row mb-2">
                                                 <div class="col-md-4 form-group">
                                                     <label>Date *</label>
@@ -603,6 +641,7 @@
                                                         style="display:none;">&times; Remove</button>
                                                 </div>
                                             </div>
+                                            @endif
                                         </div>
                                         <button type="button" class="btn btn-outline-primary btn-sm mt-2"
                                             id="add-session-btn">
@@ -1124,7 +1163,7 @@
             nxt_url_val = $(this).val();
             $('#submit-btn').val(nxt_url_val)
         });
-        $('#editCourse').on('submit', function (e) {
+        $('#updateCourse').on('submit', function (e) {
             var $form = $(this);
 
             function enableButtons() {
