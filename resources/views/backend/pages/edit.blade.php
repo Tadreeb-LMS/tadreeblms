@@ -106,7 +106,7 @@
             <div class="row">
                 <div class="col-12 form-group">
                     {!! Form::label('content', trans('labels.backend.pages.fields.content'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('content', old('content'), [
+                    {!! Form::textarea('content', old('content', $page->content), [
                         'class' => 'form-control editor',
                         'placeholder' => '',
                         'id' => 'editor',
@@ -183,22 +183,7 @@
 
 @push('after-scripts')
     <script src="{{ asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/vendor/unisharp/laravel-ckeditor/ckeditor.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/vendor/unisharp/laravel-ckeditor/adapters/jquery.js') }}"></script>
     <script src="{{ asset('/vendor/laravel-filemanager/js/lfm.js') }}"></script>
-    <script>
-        $('.editor').each(function() {
-
-            CKEDITOR.replace($(this).attr('id'), {
-                filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
-                filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{ csrf_token() }}',
-                filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
-                filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{ csrf_token() }}',
-
-                extraPlugins: 'smiley,lineutils,widget,codesnippet,prism,flash,colorbutton,colordialog',
-            });
-
-        });
         $(document).ready(function() {
             $(document).on('click', '.delete', function(e) {
                 e.preventDefault();

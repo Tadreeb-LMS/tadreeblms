@@ -7,13 +7,11 @@ use App\Models\{Certificate, CertificateHistory, courseAssignment, UserCourseDet
 use App\Models\Course;
 use App\Models\Auth\User;
 use App\Models\Stripe\SubscribeCourse;
+use App\Services\CertificatePdfRenderer;
 use Carbon\Carbon;
 use CustomHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use PDF;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Yajra\DataTables\Facades\DataTables;
 use App\Notifications\Backend\CertificateNotification;
 
@@ -352,24 +350,19 @@ class CertificateController extends Controller
             'course_name' => $metadata['course_title'] ?? optional($certificate->course)->title ?? $course->title ?? 'Course Title',
             'date' => Carbon::parse($metadata['completion_date'] ?? $certificate->created_at)->format('d M, Y'),
             'certificate_id' => $certificate->certificate_id,
-            'qr' => base64_encode(
-                QrCode::size(150)
-                    ->format('svg')
-                    ->margin(1)
-                    ->generate(url('/certificate-verification?validation_hash=' . trim($certificate->validation_hash)))
-            ),
         ];
 
-        $pdf = PDF::loadView('certificate.index', compact('data'));
-        $pdf->setPaper('A4', 'landscape');
-
         $fileName = "Certificate-{$certificate->certificate_id}.pdf";
+        $pdfPath = app(CertificatePdfRenderer::class)->render($data);
 
         if ($request->boolean('download')) {
-            return $pdf->download($fileName);
+            return response()->download($pdfPath, $fileName)->deleteFileAfterSend(true);
         }
 
-        return $pdf->stream($fileName);
+        return response()->file($pdfPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+        ])->deleteFileAfterSend(true);
     }
 
     /**
@@ -395,13 +388,12 @@ class CertificateController extends Controller
             'course_name' => $metadata['course_title'] ?? optional($certificate->course)->title ?? 'Course Title',
             'date' => Carbon::parse($metadata['completion_date'] ?? $certificate->created_at)->format('d M, Y'),
             'certificate_id' => $certificate->certificate_id,
-            'qr' => base64_encode(QrCode::size(150)->format('svg')->margin(1)->generate(url("/certificate-verification?validation_hash=" . trim($certificate->validation_hash)))),
         ];
 
-        $pdf = PDF::loadView('certificate.index', compact('data'));
-        $pdf->setPaper('A4', 'landscape');
+        $fileName = "Certificate-{$certificate->certificate_id}.pdf";
+        $pdfPath = app(CertificatePdfRenderer::class)->render($data);
 
-        return $pdf->download("Certificate-{$certificate->certificate_id}.pdf");
+        return response()->download($pdfPath, $fileName)->deleteFileAfterSend(true);
     }
 
 

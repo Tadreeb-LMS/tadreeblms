@@ -24,8 +24,8 @@ class LessonVideo extends Model
     public function getPlaybackUrlAttribute()
     {
         if ($this->type === 'upload') {
-            if ($this->file_path) {
-                return asset('storage/' . ltrim($this->file_path, '/'));
+            if (config('filesystems.default') === 'local' && $this->id && ($this->file_path || $this->url)) {
+                return route('lesson-videos.stream', ['lessonVideo' => $this->id]);
             }
 
             return $this->url;

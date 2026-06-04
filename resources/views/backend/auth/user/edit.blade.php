@@ -14,14 +14,10 @@
     @csrf
     @method('PATCH')
 
-    <div class="pb-3 d-flex justify-content-between">
-        <h4>
-            @lang('labels.backend.access.users.management')
-            <small class="text-muted ml-3">
-                @lang('labels.backend.access.users.edit')
-            </small>
-        </h4>
-    </div>
+    <h4 class="pb-3 d-flex">
+        @lang('labels.backend.access.users.management')
+        <small class="text-muted ml-3 mt-1">@lang('labels.backend.access.users.edit')</small>
+    </h4>
 
     <div class="card">
         <div class="card-body">
@@ -30,6 +26,7 @@
             <div class="form-group row">
                 <label class="col-md-2 form-control-label" for="first_name">
                     {{ __('validation.attributes.backend.access.users.first_name') }}
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     <input type="text"
@@ -49,6 +46,7 @@
             <div class="form-group row">
                 <label class="col-md-2 form-control-label" for="last_name">
                     {{ __('validation.attributes.backend.access.users.last_name') }}
+                    <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-10">
                     <input type="text"
@@ -152,69 +150,41 @@
 
             {{-- Roles --}}
             <div class="form-group row">
-                <label class="col-md-2 form-control-label">Abilities</label>
-
-                <div class="col-md-10 table-responsive">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>@lang('labels.backend.access.users.table.roles')</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>
-                                @php
-                                    $selectedRoles = old('roles', $userRoles);
-                                    $roleLabels = [
-                                        'trainer' => 'Trainer',
-                                        'trainee' => 'Trainee',
-                                        'student' => 'Student',
-                                        'teacher' => 'Teacher',
-                                        'administrator' => 'Administrator',
-                                        'admin' => 'Admin',
-                                    ];
-                                @endphp
-                                @foreach($roles as $role)
-                                    @if(1)
-                                        <div class="card mb-2">
-                                            <div class="card-header">
-                                                <div class="form-check">
-                                                    <input type="radio"
-                                                           name="roles[]"
-                                                           id="role-{{ $role->id }}"
-                                                           value="{{ $role->name }}"
-                                                           class="form-check-input @error('roles') is-invalid @enderror"
-                                                           {{ in_array($role->name, $selectedRoles) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="role-{{ $role->id }}">
-                                                        {{ $roleLabels[strtolower($role->name)] ?? ucwords(str_replace('_', ' ', $role->name)) }}
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            {{-- <div class="card-body">
-                                                @if($role->permissions->count())
-                                                    @foreach($role->permissions as $permission)
-                                                        <i class="fas fa-dot-circle"></i>
-                                                        {{ ucwords($permission->name) }} <br>
-                                                    @endforeach
-                                                @else
-                                                    @lang('labels.general.none')
-                                                @endif
-                                            </div> --}}
-                                        </div>
-                                    @endif
-                                @endforeach
-                                @error('roles')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                                @error('roles.*')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <label class="col-md-2 form-control-label">
+                    @lang('labels.backend.access.users.table.abilities')
+                    <span class="text-danger">*</span>
+                </label>
+                <div class="col-md-10">
+                    @php
+                        $selectedRoles = old('roles', $userRoles);
+                        $roleLabels = [
+                            'trainer' => 'Trainer',
+                            'trainee' => 'Trainee',
+                            'student' => 'Student',
+                            'teacher' => 'Teacher',
+                            'administrator' => 'Administrator',
+                            'admin' => 'Admin',
+                        ];
+                    @endphp
+                    @foreach($roles as $role)
+                        <div class="form-check">
+                            <input type="radio"
+                                   name="roles[]"
+                                   id="role-{{ $role->id }}"
+                                   value="{{ $role->name }}"
+                                   class="form-check-input @error('roles') is-invalid @enderror"
+                                   {{ in_array($role->name, $selectedRoles) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="role-{{ $role->id }}">
+                                {{ $roleLabels[strtolower($role->name)] ?? ucwords(str_replace('_', ' ', $role->name)) }}
+                            </label>
+                        </div>
+                    @endforeach
+                    @error('roles')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
+                    @error('roles.*')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
@@ -241,7 +211,7 @@
             </div>
 
             {{-- Buttons --}}
-            <div class="row">
+            <div class="row mt-3">
                 <div class="col-12 d-flex justify-content-between">
                     <a href="{{ route('admin.auth.user.index') }}" class="btn btn-secondary">
                         {{ __('buttons.general.cancel') }}
