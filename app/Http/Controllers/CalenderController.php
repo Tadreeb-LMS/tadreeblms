@@ -104,8 +104,7 @@ if (Schema::hasTable('courses')) {
         $meetingQuery = DB::table('courses')
             ->select(
                 'courses.title', 'courses.slug', 'courses.meeting_provider',
-                'courses.meeting_start_at', 'courses.meeting_duration',
-                'courses.meeting_join_url', 'courses.meeting_host_url'
+                'courses.meeting_start_at', 'courses.meeting_duration'
             )
             ->whereNotNull('courses.meeting_start_at')
             ->whereNotNull('courses.meeting_provider')
@@ -152,7 +151,7 @@ if (Schema::hasTable('courses')) {
         $scheduledQuery = DB::table('live_sessions')
             ->select(
                 'live_sessions.id', 'live_sessions.session_date', 'live_sessions.session_time',
-                'live_sessions.duration', 'live_sessions.provider',
+                'live_sessions.duration', 'live_sessions.meeting_provider',
                 'courses.title as course_title', 'courses.slug as course_slug'
             )
             ->join('courses', 'courses.id', '=', 'live_sessions.course_id')
@@ -171,7 +170,8 @@ if (Schema::hasTable('courses')) {
         $scheduled_data = $scheduledQuery->get();
 
         foreach ($scheduled_data as $data) {
-            $providerLabel = ucfirst($data->provider ?? 'Live');
+            $provider = $data->meeting_provider ?? null;
+            $providerLabel = ucfirst(str_replace('_', ' ', $provider ?? 'Live'));
             $start = Carbon::parse($data->session_date . ' ' . $data->session_time);
             // Route through LMS course page with session_id parameter
             $event = [
@@ -181,7 +181,7 @@ if (Schema::hasTable('courses')) {
                 'extendedProps' => [
                     'eventType' => 'scheduled_session',
                     'sessionId' => $data->id,
-                    'provider' => $data->provider,
+                    'provider' => $provider,
                 ],
             ];
             if ($data->duration) {

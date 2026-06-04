@@ -444,63 +444,72 @@
                         </span>
                         <span id="live-online" class="course-live-online-section" style="display: none;">
                             Live-Online type course is a course can be done on goole meet/Zoom link.
-                            @if(count($enabledMeetingProviders ?? []))
-                                <div class="card mt-3" id="meeting-provider-section">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 form-group">
-                                                <label for="meeting_provider">Meeting Provider *</label>
-                                                <select name="meeting_provider" id="meeting_provider" class="form-control">
-                                                    @if($course->meeting_provider && !array_key_exists($course->meeting_provider, $enabledMeetingProviders ?? []))
-                                                        <option value="{{ $course->meeting_provider }}" selected>{{ ucfirst(str_replace(['-', '_'], ' ', $course->meeting_provider)) }}</option>
-                                                    @endif
-                                                    @foreach($enabledMeetingProviders as $key => $label)
-                                                        <option value="{{ $key }}" {{ $course->meeting_provider == $key ? 'selected' : '' }}>{{ $label }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 form-group">
-                                                <label for="meeting_timezone">Timezone</label>
-                                                <input type="text" name="meeting_timezone" id="meeting_timezone"
-                                                    class="form-control"
-                                                    value="{{ $course->meeting_timezone ?? 'Asia/Riyadh' }}">
-                                            </div>
-                                        </div>
-                                        {{-- Single meeting fields (only shown when NO schedule type selected) --}}
-                                        <div class="row" id="single-meeting-fields" @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom'])) style="display:none;" @endif>
-                                            <div class="col-md-4 form-group">
-                                                <label for="meeting_start_date">Start Date *</label>
-                                                <input type="date" name="meeting_start_date" id="meeting_start_date"
-                                                    class="form-control"
-                                                    value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}"
-                                                    min="{{ date('Y-m-d') }}">
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label for="meeting_start_time">Start Time *</label>
-                                                <input type="time" name="meeting_start_time" id="meeting_start_time"
-                                                    class="form-control"
-                                                    value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('H:i') : '' }}">
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label for="meeting_duration">Duration (mins) *</label>
-                                                <input type="number" name="meeting_duration" id="meeting_duration"
-                                                    class="form-control" value="{{ $course->meeting_duration ?? 60 }}">
-                                                <input type="hidden" name="meeting_start_at" id="meeting_start_at">
-                                            </div>
-                                        </div>
-                                        <small class="text-muted" id="single-meeting-hint"
-                                            @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom']))
-                                            style="display:none;" @endif>For a single meeting. Or choose a schedule type
-                                            below for recurring sessions.</small>
-                                    </div>
+                            @php
+                                $meetingProviderOptions = $enabledMeetingProviders ?? [];
+                                $selectedMeetingProvider = old('meeting_provider', $course->meeting_provider);
+                                $savedMeetingLink = optional($course->liveSessions->firstWhere('meeting_link', '!=', null))->meeting_link;
+                            @endphp
+                            <div class="card mt-3" id="meeting-provider-section">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
                                 </div>
-                            @endif
-                            @if(!count($enabledMeetingProviders ?? []) && $course->meeting_provider)
-                                <input type="hidden" name="meeting_provider" value="{{ $course->meeting_provider }}">
-                            @endif
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_provider">Meeting Provider</label>
+                                            <select name="meeting_provider" id="meeting_provider" class="form-control">
+                                                <option value="">Select</option>
+                                                @foreach($meetingProviderOptions as $key => $label)
+                                                    <option value="{{ $key }}" {{ $selectedMeetingProvider == $key ? 'selected' : '' }}>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">Select the provider for this session. Enter a meeting link below when automatic link creation is not configured.</small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_timezone">Timezone</label>
+                                            <input type="text" name="meeting_timezone" id="meeting_timezone"
+                                                class="form-control"
+                                                value="{{ old('meeting_timezone', $course->meeting_timezone ?? 'Asia/Riyadh') }}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <label for="session_meeting_link">Meeting Link</label>
+                                            <input type="url" name="session_meeting_link" id="session_meeting_link"
+                                                class="form-control"
+                                                value="{{ old('session_meeting_link', $savedMeetingLink) }}"
+                                                placeholder="https://...">
+                                            <small class="text-muted">Use this when the provider integration is not configured. The link will be stored on each generated session.</small>
+                                        </div>
+                                    </div>
+                                    {{-- Single meeting fields (only shown when NO schedule type selected) --}}
+                                    <div class="row" id="single-meeting-fields" @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom'])) style="display:none;" @endif>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_date">Start Date *</label>
+                                            <input type="date" name="meeting_start_date" id="meeting_start_date"
+                                                class="form-control"
+                                                value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}"
+                                                min="{{ date('Y-m-d') }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_time">Start Time *</label>
+                                            <input type="time" name="meeting_start_time" id="meeting_start_time"
+                                                class="form-control"
+                                                value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('H:i') : '' }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_duration">Duration (mins) *</label>
+                                            <input type="number" name="meeting_duration" id="meeting_duration"
+                                                class="form-control" value="{{ $course->meeting_duration ?? 60 }}">
+                                            <input type="hidden" name="meeting_start_at" id="meeting_start_at">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="single-meeting-hint"
+                                        @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom']))
+                                        style="display:none;" @endif>For a single meeting. Or choose a schedule type
+                                        below for recurring sessions.</small>
+                                </div>
+                            </div>
 
                             {{-- Live Session Scheduling Section --}}
                             @php
@@ -717,15 +726,17 @@
                                                     <i class="fa fa-check-circle mr-1"></i> All sessions have meeting links.
                                                 </span>
                                             @endif
-                                            <form method="POST"
-                                                action="{{ route('admin.courses.regenerate_meeting_links', $course->id) }}"
-                                                class="d-inline">
-                                                @csrf
+                                            <div class="d-inline">
+                                                <input type="url" id="regenerate_session_meeting_link"
+                                                    class="form-control form-control-sm d-inline-block mr-2"
+                                                    style="width: 260px;"
+                                                    placeholder="Manual meeting link">
                                                 <button type="submit"
+                                                    form="regenerate-meeting-links-form"
                                                     class="btn btn-{{ $course->liveSessions->whereNull('meeting_link')->count() > 0 ? 'warning' : 'outline-secondary' }} btn-sm">
                                                     <i class="fa fa-refresh mr-1"></i> Regenerate Meeting Links
                                                 </button>
-                                            </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -944,6 +955,12 @@
     </div>
 
 </form>
+
+<form id="regenerate-meeting-links-form" method="POST"
+    action="{{ route('admin.courses.regenerate_meeting_links', $course->id) }}">
+    @csrf
+    <input type="hidden" name="session_meeting_link" id="regenerate_session_meeting_link_hidden">
+</form>
 @stop
 
 @push('after-scripts')
@@ -1148,6 +1165,11 @@
     </script>
 
     <script>
+        $('#regenerate-meeting-links-form').on('submit', function () {
+            var manualLink = $('#regenerate_session_meeting_link').val() || $('#session_meeting_link').val();
+            $('#regenerate_session_meeting_link_hidden').val(manualLink);
+        });
+
         $('#updateCourse').on('submit', function (e) {
             let courseType = $('.course-type:checked').val();
             // Populate meeting_start_at if offline course
