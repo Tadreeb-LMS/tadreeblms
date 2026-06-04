@@ -28,21 +28,17 @@ class TestQuestionController extends Controller
 
     public function index(Request $request)
     {
+        $test_questions = DB::table('test_questions')
+            ->select('test_questions.*', 'tests.title', 'courses.title as course_title')
+            ->leftjoin('tests', 'tests.id', '=', 'test_questions.test_id')
+            ->leftjoin('courses', 'courses.id', '=', 'tests.course_id')
+            ->where('test_questions.is_deleted', '=', 0);
+
         if ($request->test_id) {
-            $test_questions = DB::table('test_questions')
-                ->select('test_questions.*', 'tests.title', 'courses.title as course_title')
-                ->leftjoin('tests', 'tests.id', '=', 'test_questions.test_id')
-                ->leftjoin('courses', 'courses.id', '=', 'tests.course_id')
-                ->where('test_questions.is_deleted', '=', 0)
-                ->where('test_questions.test_id', '=', $request->test_id);
-        } else {
-            $test_questions = DB::table('test_questions')
-                ->select('test_questions.*', 'tests.title', 'courses.title as course_title')
-                ->leftjoin('tests', 'tests.id', '=', 'test_questions.test_id')
-                ->leftjoin('courses', 'courses.id', '=', 'tests.course_id')
-                ->where('test_questions.is_deleted', '=', 0);
+            $test_questions = $test_questions->where('test_questions.test_id', '=', $request->test_id);
         }
 
+        $this->scopeQuestionsToAssignedCoursesForNonAdmins($test_questions);
 
         if ($request->course_id != "") {
             $test_questions = $test_questions->where('tests.course_id', (int)$request->course_id);
@@ -503,6 +499,29 @@ class TestQuestionController extends Controller
         
         return $hasAtLeastOneSelected;
         
+    }
+
+    private function scopeQuestionsToAssignedCoursesForNonAdmins($query): void
+    {
+        if (!$this->shouldScopeQuestionsToAssignedCourses()) {
+            return;
+        }
+
+        $query->whereExists(function ($subQuery) {
+            $subQuery->select(DB::raw(1))
+                ->from('course_user')
+                ->whereColumn('course_user.course_id', 'tests.course_id')
+                ->where('course_user.user_id', auth()->id());
+        });
+    }
+
+    private function shouldScopeQuestionsToAssignedCourses(): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+
+        return !auth()->user()->isAdmin();
     }
 
 

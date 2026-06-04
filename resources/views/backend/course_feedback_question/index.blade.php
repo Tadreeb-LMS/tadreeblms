@@ -75,11 +75,6 @@ width: 58% !important;
                             <th>Question</th>
                             <th class="text-center">Actions</th>
                             <th>Add Question</th>
-                            <th>{{ __('user_feedback.feedback_questions.serial_no') }}</th>
-                            <th>{{ __('user_feedback.feedback_questions.course_name') }}</th>
-                            <th>{{ __('user_feedback.feedback_questions.question') }}</th>
-                            <th class="text-center">{{ __('user_feedback.feedback_questions.actions') }}</th>
-                        </tr>
                     </thead>
                                 <tbody>
                                 </tbody>
@@ -161,11 +156,9 @@ width: 58% !important;
 
     // OPTIONAL: fetch already assigned questions (for duplicate prevention)
     $.ajax({
-        url: '{{ route('admin.course-feedback-questions.assigned', ['course' => ':course']) }}'.replace(':course', courseId),
+        url: '{{ route('admin.course-feedback-questions.assigned', ['course_id' => '__COURSE_ID__']) }}'.replace('__COURSE_ID__', courseId),
         type: 'GET',
         success: function (assignedIds) {
-
-            // Disable already assigned questions
             $('#question_select option').each(function () {
                 if (assignedIds.includes(parseInt($(this).val()))) {
                     $(this).prop('disabled', true);
@@ -177,7 +170,6 @@ width: 58% !important;
             $('#question_select').trigger('change');
         }
     });
-});
         $(document).ready(function() {
             let course_id;
             const dtTable = $('#myTable').DataTable({

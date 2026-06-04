@@ -42,6 +42,10 @@ class Media extends Model
         $storage = config('filesystems.default');
 
         if ($storage == 'local') {
+            if ($type === 'upload' && $this->id) {
+                return route('media.stream', ['media' => $this->id]);
+            }
+
             // Backward compatibility: older rows may store only `url` without `aws_url`.
             return $this->aws_url ?: ($this->attributes['url'] ?? $value);
         } else {

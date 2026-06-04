@@ -511,6 +511,7 @@
     {{--<script src="//www.youtube.com/iframe_api"></script>--}}
     <script src="{{asset('plugins/sticky-kit/sticky-kit.js')}}"></script>
     <script src="https://cdn.plyr.io/3.5.3/plyr.polyfilled.js"></script>
+    @include('frontend.courses.partials.pause-inactive-media')
     <script src="{{asset('plugins/touchpdf-master/pdf.compatibility.js')}}"></script>
     <script src="{{asset('plugins/touchpdf-master/pdf.js')}}"></script>
     <script src="{{asset('plugins/touchpdf-master/jquery.touchSwipe.js')}}"></script>

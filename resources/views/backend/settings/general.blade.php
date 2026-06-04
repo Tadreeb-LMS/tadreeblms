@@ -246,7 +246,7 @@
 
                             <div class="text-end mt-3">
     <button type="submit" class="btn btn-primary">
-        {{ __('labels.backend.general_settings.save_settings') }}
+        {{ __('labels.backend.general_settings.email.save_settings') }}
     </button>
 </div>
 
@@ -464,12 +464,19 @@
                             <hr>
                             <p class="help-text mb-0">{!! __('labels.backend.general_settings.email.note') !!}</p>
 
+                            <div class="text-end mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('labels.backend.general_settings.email.save_settings') }}
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
 
                 <!---Payment Configuration Tab--->
                 <div id="payment_settings" class="tab-pane container fade">
+
     <div class="row mt-4 mb-4">
         <div class="col">
 
@@ -477,65 +484,154 @@
             <div class="form-group row">
                 <label class="col-md-3 form-control-label">
                     {{ __('labels.backend.general_settings.payment_settings.select_currency') }}
+                    <span class="text-danger">*</span>
                 </label>
+
                 <div class="col-md-9">
-                    <select class="form-control" id="app__currency" name="app__currency">
+
+                    <select class="form-control @error('app__currency') is-invalid @enderror"
+                        id="app__currency"
+                        name="app__currency"
+                        required>
+
+                        <option value="">
+                            Select Currency
+                        </option>
+
                         @foreach (config('currencies') as $currency)
+
                             <option value="{{ $currency['short_code'] }}"
-                                {{ config('app.currency') == $currency['short_code'] ? 'selected' : '' }}>
+                                {{ old('app__currency', config('app.currency')) == $currency['short_code'] ? 'selected' : '' }}>
+
                                 {{ $currency['symbol'] }} - {{ $currency['name'] }}
+
                             </option>
+
                         @endforeach
+
                     </select>
+
+                    @error('app__currency')
+                        <span class="invalid-feedback d-block">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
                 </div>
             </div>
 
             <!-- Stripe Activation -->
             <div class="form-group row">
+
                 <label class="col-md-3 form-control-label">
                     {{ __('labels.backend.general_settings.payment_settings.stripe') }}
                 </label>
+
                 <div class="col-md-9">
+
                     <label class="switch switch-sm switch-3d switch-primary">
-                        <input type="checkbox" name="services__stripe__active" class="switch-input" value="1"
-                            {{ config('services.stripe.active') ? 'checked' : '' }}>
+
+                        <input type="checkbox"
+                            name="services__stripe__active"
+                            class="switch-input"
+                            value="1"
+                            {{ old('services__stripe__active', config('services.stripe.active')) ? 'checked' : '' }}>
+
                         <span class="switch-label"></span>
                         <span class="switch-handle"></span>
+
                     </label>
 
-                    <a class="float-right font-weight-bold font-italic" 
-                       href="https://stripe.com/docs/keys" target="_blank">
+                    <a class="float-right font-weight-bold font-italic"
+                        href="https://stripe.com/docs/keys"
+                        target="_blank">
+
                         {{ __('labels.backend.general_settings.payment_settings.how_to_stripe') }}
+
                     </a>
 
-                    <small><i>{{ __('labels.backend.general_settings.payment_settings.stripe_note') }}</i></small>
+                    <small>
+                        <i>
+                            {{ __('labels.backend.general_settings.payment_settings.stripe_note') }}
+                        </i>
+                    </small>
+
                 </div>
             </div>
 
             <!-- Stripe Keys -->
             <div class="switch-content {{ config('services.stripe.active') ? '' : 'd-none' }}">
+
+                <!-- Stripe Key -->
                 <div class="form-group row">
+
                     <label class="col-md-2 form-control-label">
                         {{ __('labels.backend.general_settings.payment_settings.key') }}
+                        <span class="text-danger">*</span>
                     </label>
+
                     <div class="col-md-8">
-                        <input type="text" name="services__stripe__key" class="form-control"
-                               value="{{ config('services.stripe.key') }}">
+
+                        <input type="text"
+                            name="services__stripe__key"
+                            class="form-control @error('services__stripe__key') is-invalid @enderror"
+                            value="{{ old('services__stripe__key', config('services.stripe.key')) }}"
+                            placeholder="Enter Stripe Publishable Key">
+
+                        @error('services__stripe__key')
+                            <span class="invalid-feedback d-block">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
                     </div>
                 </div>
 
+                <!-- Stripe Secret -->
                 <div class="form-group row">
+
                     <label class="col-md-2 form-control-label">
                         {{ __('labels.backend.general_settings.payment_settings.secret') }}
+                        <span class="text-danger">*</span>
                     </label>
+
                     <div class="col-md-8">
-                        <input type="text" name="services__stripe__secret" class="form-control"
-                               value="{{ config('services.stripe.secret') }}">
+
+                        <input type="text"
+                            name="services__stripe__secret"
+                            class="form-control @error('services__stripe__secret') is-invalid @enderror"
+                            value="{{ old('services__stripe__secret', config('services.stripe.secret')) }}"
+                            placeholder="Enter Stripe Secret Key">
+
+                        @error('services__stripe__secret')
+                            <span class="invalid-feedback d-block">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
                     </div>
                 </div>
+
             </div>
+
+            <!-- SAVE BUTTON -->
+            <div class="form-group row mt-4">
+
+                <div class="col-md-12 text-right">
+
+                    <button type="submit" class="btn btn-primary">
+
+                        <i class="fa fa-save"></i> Save Settings
+
+                    </button>
+
+                </div>
+
+            </div>
+
         </div>
     </div>
+
 </div>
 
 <div id="language_settings" class="tab-pane container fade language-workflow">
@@ -676,8 +772,8 @@
                                         </a>
                                         <button type="submit"
                                                 class="btn btn-sm btn-{{ $isEnabled ? 'outline-warning' : 'success' }}"
-                                                name="language_action"
-                                                value="toggle:{{ $lang->short_name }}:{{ $toggleTo }}"
+                                                form="language-toggle-form-{{ $lang->id }}"
+                                                formnovalidate
                                                 @if ($isDefault && $isEnabled) disabled @endif>
                                             {{ $toggleLabel }}
                                         </button>
@@ -925,6 +1021,20 @@
         </div>
     </div>
     </form>
+    @foreach ($app_locales as $lang)
+        @php
+            $isEnabled = isset($lang->is_enabled) ? (int) $lang->is_enabled : 1;
+            $toggleTo = $isEnabled ? 0 : 1;
+        @endphp
+        <form id="language-toggle-form-{{ $lang->id }}"
+              method="POST"
+              action="{{ route('admin.general-settings') }}"
+              class="d-none">
+            @csrf
+            <input type="hidden" name="active_tab" value="language_settings">
+            <input type="hidden" name="language_action" value="toggle:{{ $lang->short_name }}:{{ $toggleTo }}">
+        </form>
+    @endforeach
 @endsection
 
 

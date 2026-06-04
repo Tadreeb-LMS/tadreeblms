@@ -266,7 +266,7 @@
                                         required>
                                         <option value="">{{ __('course_pages.admin_create.select_category') }}</option>
                                         @foreach($categories as $id => $category)
-                                            <option value="{{ $id }}" @if(old('category_id') == $id) selected @endif>
+                                            <option value="{{ $id }}" @if(old('category_id') == $id || $selected_category == $id) selected @endif>
                                                 {{ $category }}
                                             </option>
                                         @endforeach
