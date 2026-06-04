@@ -18,4 +18,5 @@ return array(
   'save_event' => 'حفظ الحدث',
   'cannot_create_past_events' => 'لا يمكنك إنشاء أحداث في الماضي.',
   'live_badge' => 'مباشر',
+  'legend_user_events' => 'أحداثي',
 );

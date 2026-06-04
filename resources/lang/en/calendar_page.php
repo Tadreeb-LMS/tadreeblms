@@ -19,4 +19,5 @@ return array(
   'save_event' => 'Save Event',
   'cannot_create_past_events' => 'You cannot create events in the past.',
   'live_badge' => 'Live',
+  'legend_user_events' => 'My Events',
 );
