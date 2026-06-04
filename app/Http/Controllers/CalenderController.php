@@ -474,6 +474,6 @@ if (
         //
         $event->save();
         // dd($event->save());
-        return redirect()->route('user.calender');
+        return redirect()->route('user.calender')->with('flash_success', __('calendar_page.event_added_successfully'));
     }
 }
