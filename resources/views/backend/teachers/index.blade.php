@@ -214,32 +214,6 @@ $(function () {
             $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('admin_pages.teachers.delete_selected') }}</a>');
             @endif
 
-    // Add checkboxes to column visibility dropdown
-    table.on('buttons-action', function (e, buttonApi, dataTable, node, config) {
-        if (config.extend === 'colvis') {
-            setTimeout(function() {
-                $('.dt-button-collection .dt-button').each(function() {
-                    var $button = $(this);
-                    var text = $button.text().trim();
-                    var columnIdx = $button.attr('data-cv-idx');
-                    
-                    if (columnIdx !== undefined) {
-                        var column = table.column(columnIdx);
-                        var isVisible = column.visible();
-                        
-                        $button.html(
-                            '<label style="cursor: pointer; display: block; padding: 5px 10px; margin: 0;">' +
-                            '<input type="checkbox" style="margin-right: 8px;" ' + (isVisible ? 'checked' : '') + '> ' +
-                            text +
-                            '</label>'
-                        );
-                    }
-                });
-            }, 0);
-        }
-    });
-
-    
     // Stable trainer status toggle
     $(document).on('change', '.switch-input', function (e) {
 
