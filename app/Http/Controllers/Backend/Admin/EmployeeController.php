@@ -32,6 +32,7 @@ use App\Imports\UsersImport;
 use App\Jobs\GenerateInternalAttendanceReport;
 use App\Jobs\SendEmailJob;
 use App\Notifications\Backend\UserAuthNotification;
+use App\Services\CertificatePdfRenderer;
 use App\Services\NotificationSettingsService;
 use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -874,10 +875,7 @@ class EmployeeController extends Controller
             $certificate->url = $certificate_name;
             $certificate->save();
             if ($certificate->id) {
-                // $html = view('certificate.index', ['data'=> $data]);
-
-                $pdf = \PDF::loadView('certificate.index', compact('data'))->setPaper('A3', 'portrait');
-                $pdf->save(public_path('storage/certificates/' . $certificate_name));
+                app(CertificatePdfRenderer::class)->renderTo($data, public_path('storage/certificates/' . $certificate_name));
                 // return true;
 
                 UserCourseDetail::where('course_id', $course->id)->where('user_id', $user->id)->update(

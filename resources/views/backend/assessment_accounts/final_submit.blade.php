@@ -1,136 +1,179 @@
 @extends('backend.layouts.app')
 
 @section('title', __('Final Submit').' | '.app_name())
+@push('after-styles')
+<style>
+    .final-submit-wrapper {
+        max-width: 1100px;
+        margin: 30px auto;
+        border-radius: 12px;
+    }
 
+    .final-submit-wrapper .card-header {
+        padding: 24px 32px;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+    }
+
+    .final-submit-wrapper .card-body {
+        padding: 32px;
+    }
+
+    .final-submit-wrapper .card-footer {
+        padding: 20px 32px;
+        background: #f8f9fa;
+    }
+
+    .weightage-container {
+        width: 100%;
+        max-width: 950px;
+        margin: 0 auto;
+    }
+
+    .form-group.row {
+        margin-bottom: 20px;
+    }
+
+    .col-form-label {
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .input-group-text {
+        min-width: 45px;
+        justify-content: center;
+    }
+
+    #totalWeight {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+
+    #weightError {
+        font-size: 14px;
+    }
+</style>
+@endpush
 @section('content')
 <form method="POST"
-      action="{{ route('admin.assessment_accounts.final-submit-store') }}"
-      enctype="multipart/form-data"
-      class="form-horizontal">
-    @csrf
-    <input type="hidden" name="course_id" value="{{ $course_id }}" />
-    <div class="card">
+    action="{{ route('admin.assessment_accounts.final-submit-store') }}"
+    enctype="multipart/form-data"
+    class="form-horizontal">
+        @csrf
+        <input type="hidden" name="course_id" value="{{ $course_id }}" />
+        <div class="card shadow-sm border-0 final-submit-wrapper">
 
-    <div class="card shadow-sm">
+                {{-- Header --}}
+                <div class="card-header">
+                    <h4 class="mb-0 font-weight-bold col-lg-10 col-xl-9">Final Submission</h4>
+                </div>
 
-        {{-- Header --}}
-        <div class="card-header">
-            <h4 class="mb-0">Final Submission</h4>
-        </div>
+                <div class="card-body">
 
+                    <!-- Course Weightage -->
+                    <div class="row justify-content-center mb-4">
+                        <div class="col-lg-10 col-xl-9">
+                            <h5 class="mb-3">Course Module Weightage</h5>
+                            <p class="text-muted mb-4">Total weightage must be exactly <strong>100%</strong></p>
+                        </div>
 
+                        <div class="col-lg-10 col-xl-9 mx-auto weightage-container">
+                            @if($course->is_online == 'Online')
+                                <div class="form-group row align-items-center mb-3">
+                                    <label class="col-md-4 col-form-label">
+                                        Lesson Module
+                                    </label>
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <input type="number"
+                                                class="form-control @if($course->is_online == 'Online') module-weight @endif"
+                                                name="course_module_weight[LessonModule]"
+                                                min="0"
+                                                max="100"
+                                                placeholder="e.g. 50">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
-        <div class="card-body">
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-md-4 col-form-label">
+                                    Question Module
+                                </label>
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <input type="number"
+                                            class="form-control module-weight"
+                                            name="course_module_weight[QuestionModule]"
+                                            min="0"
+                                            max="100"
+                                            placeholder="e.g. 30">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-    <!-- Course Weightage -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h5 class="mb-3">Course Module Weightage</h5>
-            <p class="text-muted mb-4">Total weightage must be exactly <strong>100%</strong></p>
-        </div>
+                            <div class="form-group row align-items-center">
+                                <label class="col-md-4 col-form-label">
+                                    Feedback Module
+                                </label>
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <input type="number"
+                                            class="form-control module-weight"
+                                            name="course_module_weight[FeedbackModule]"
+                                            min="0"
+                                            max="100"
+                                            placeholder="e.g. 20">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-        <div class="col-md-8">
+                            <!-- Total Display -->
+                            <div class="mt-3">
+                                <strong>Total:</strong>
+                                <span id="totalWeight" class="ml-2 badge badge-secondary">0%</span>
+                            </div>
 
-            @if($course->is_online == 'Online')
-            <div class="form-group row align-items-center mb-3">
-                <label class="col-md-4 col-form-label">
-                    Lesson Module
-                </label>
-                <div class="col-md-8">
-                    <div class="input-group">
-                        <input type="number"
-                               class="form-control @if($course->is_online == 'Online') module-weight @endif"
-                               name="course_module_weight[LessonModule]"
-                               min="0"
-                               max="100"
-                               placeholder="e.g. 50">
-                        <div class="input-group-append">
-                            <span class="input-group-text">%</span>
+                            <div class="text-danger mt-2 d-none" id="weightError">
+                                Total weightage must be exactly 100%
+                            </div>
+
+                            <hr>
+
+                            {{-- Confirmation --}}
+                            <p class="mb-0">
+                                Are you sure you want to submit this final page?
+                            </p>
+
                         </div>
                     </div>
-                </div>
-            </div>
-            @endif
-
-            <div class="form-group row align-items-center mb-3">
-                <label class="col-md-4 col-form-label">
-                    Question Module
-                </label>
-                <div class="col-md-8">
-                    <div class="input-group">
-                        <input type="number"
-                               class="form-control module-weight"
-                               name="course_module_weight[QuestionModule]"
-                               min="0"
-                               max="100"
-                               placeholder="e.g. 30">
-                        <div class="input-group-append">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group row align-items-center">
-                <label class="col-md-4 col-form-label">
-                    Feedback Module
-                </label>
-                <div class="col-md-8">
-                    <div class="input-group">
-                        <input type="number"
-                               class="form-control module-weight"
-                               name="course_module_weight[FeedbackModule]"
-                               min="0"
-                               max="100"
-                               placeholder="e.g. 20">
-                        <div class="input-group-append">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Display -->
-            <div class="mt-3">
-                <strong>Total:</strong>
-                <span id="totalWeight" class="ml-2 badge badge-secondary">0%</span>
-            </div>
-
-            <div class="text-danger mt-2 d-none" id="weightError">
-                Total weightage must be exactly 100%
-            </div>
-
-            <hr>
-
-            {{-- Confirmation --}}
-            <p class="mb-0">
-                Are you sure you want to submit this final page?
-            </p>
-
-        </div>
-    </div>
-
-    <hr>
-
-    <!-- Confirmation -->
+                    <hr>
     
+                </div>
 
-</div>
 
+                {{-- Footer --}}
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{{ route('admin.courses.index') }}"
+                    class="btn btn-outline-danger">
+                        Cancel
+                    </a>
 
-        {{-- Footer --}}
-        <div class="card-footer d-flex justify-content-between">
-            <a href="{{ route('admin.courses.index') }}"
-               class="btn btn-outline-danger">
-                Cancel
-            </a>
+                    <button type="submit" class="btn btn-success">
+                        Final Submit
+                    </button>
+                </div>
 
-            <button type="submit" class="btn btn-success">
-                Final Submit
-            </button>
         </div>
-
-    </div>
 </form>
 
 <script>

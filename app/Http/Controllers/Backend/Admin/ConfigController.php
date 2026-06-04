@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use LdapRecord\Container;
+use App\Support\CertificateTemplate;
 
 class ConfigController extends Controller
 {
@@ -135,16 +136,29 @@ class ConfigController extends Controller
         }
 
         $request = $this->saveFilesOptimize($request);
+        $requests = $request->all();
 
         //dd($request->site_logo);
 
 
-        $config = Config::firstOrCreate(['key' => 'site_logo']);
-        $config->value = $request->site_logo;
-        $config->save();
+        if ($request->filled('site_logo')) {
+            $config = Config::firstOrCreate(['key' => 'site_logo']);
+            $config->value = $request->site_logo;
+            $config->save();
+        }
 
 
         $switchInputs = ['access_registration', 'mailchimp_double_opt_in', 'access_users_change_email', 'access_users_confirm_email', 'access_captcha_registration', 'access_users_requires_approval', 'services__stripe__active', 'paypal__active', 'payment_offline_active', 'backup__status', 'access__captcha__registration', 'retest', 'lesson_timer', 'show_offers', 'onesignal_status', 'access__users__registration_mail', 'access__users__order_mail', 'services__instamojo__active', 'services__razorpay__active', 'services__cashfree__active', 'services__payu__active', 'flutter__active'];
+        $mailConfigKeyMap = [
+            'mail.driver' => 'mail.default',
+            'mail.host' => 'mail.mailers.smtp.host',
+            'mail.port' => 'mail.mailers.smtp.port',
+            'mail.username' => 'mail.mailers.smtp.username',
+            'mail.password' => 'mail.mailers.smtp.password',
+            'mail.encryption' => 'mail.mailers.smtp.encryption',
+            'mail.from.address' => 'mail.from.address',
+            'mail.from.name' => 'mail.from.name',
+        ];
 
         foreach ($switchInputs as $switchInput) {
             if ($request->get($switchInput) == null) {
@@ -164,6 +178,14 @@ class ConfigController extends Controller
             $config = Config::firstOrCreate(['key' => $key, 'lang' => $lang]);
             $config->value = $value;
             $config->save();
+
+            if (array_key_exists($key, $mailConfigKeyMap)) {
+                $mappedConfig = Config::firstOrCreate(['key' => $mailConfigKeyMap[$key], 'lang' => $lang]);
+                $mappedConfig->value = $value;
+                $mappedConfig->save();
+
+                \Illuminate\Support\Facades\Config::set($mailConfigKeyMap[$key], $value);
+            }
 
 
 
@@ -234,7 +256,7 @@ class ConfigController extends Controller
         }
 
         if (Str::startsWith($action, 'toggle:')) {
-            return $this->handleLanguageToggle($action);
+            return $this->handleLanguageToggle($action, $request);
         }
 
         return back()->withErrors(['Unsupported language action requested.']);
@@ -326,7 +348,7 @@ class ConfigController extends Controller
             ->withFlashSuccess('Language library uploaded successfully.');
     }
 
-    protected function handleLanguageToggle($toggleAction)
+    protected function handleLanguageToggle($toggleAction, Request $request)
     {
         $parts = explode(':', (string) $toggleAction);
         if (count($parts) !== 3) {
@@ -335,6 +357,10 @@ class ConfigController extends Controller
 
         $localeCode = strtolower(trim($parts[1]));
         $targetEnabled = (int) $parts[2] === 1 ? 1 : 0;
+
+        if (!Schema::hasColumn('locales', 'is_enabled')) {
+            return back()->withErrors(['Language status cannot be updated because the locales.is_enabled column is missing.']);
+        }
 
         $localeModel = Locale::where('short_name', $localeCode)->first();
         if (!$localeModel) {
@@ -345,15 +371,22 @@ class ConfigController extends Controller
             return back()->withErrors(['Default language cannot be disabled.']);
         }
 
-        if (Schema::hasColumn('locales', 'is_enabled')) {
-            if ($targetEnabled === 0) {
-                $enabledCount = Locale::where('is_enabled', 1)->count();
-                if ($enabledCount <= 1) {
-                    return back()->withErrors(['At least one language must remain enabled.']);
-                }
+        if ($targetEnabled === 0) {
+            $enabledCount = Locale::where('is_enabled', 1)->count();
+            if ($enabledCount <= 1) {
+                return back()->withErrors(['At least one language must remain enabled.']);
             }
-            $localeModel->is_enabled = $targetEnabled;
-            $localeModel->save();
+        }
+
+        Locale::whereKey($localeModel->getKey())->update(['is_enabled' => $targetEnabled]);
+        $localeModel->refresh();
+
+        if ((int) $localeModel->is_enabled !== $targetEnabled) {
+            return back()->withErrors(['Language status could not be updated. Please try again.']);
+        }
+
+        if ($targetEnabled === 0 && strtolower((string) $request->session()->get('locale')) === $localeCode) {
+            $request->session()->forget(['locale', 'display_type', 'lang-rtl']);
         }
 
         $message = $targetEnabled ? 'Language enabled successfully.' : 'Language disabled successfully.';
@@ -700,26 +733,8 @@ class ConfigController extends Controller
 
     public function getCertificateTemplateSettings()
     {
-        $settings = Config::where('key', 'certificate_template_settings')->first();
-        if ($settings) {
-            $settings = json_decode($settings->value, true);
-        } else {
-            $settings = [
-                'template' => 'classic-dark',
-                'primary_color' => '#d4af37',
-                'secondary_color' => '#f5d670',
-                'bg_color' => '#1a1a2e',
-                'text_color' => '#ffffff',
-                'cert_label' => 'Certificate of Completion',
-                'cert_title' => 'Achievement Award',
-                'show_badge' => 1,
-                'show_seal' => 1,
-                'show_signature' => 1,
-                'logo_image' => null,
-                'seal_image' => null,
-                'signature_image' => null,
-            ];
-        }
+        $settings = CertificateTemplate::settings();
+
         return view('backend.settings.certificate-template', compact('settings'));
     }
 

@@ -72,17 +72,9 @@ class DashboardController extends Controller
         $categories         = Category::select('id', 'name')->where('status', 1)->get();
 
         // --- Aggregate counts ---
-        $students_count = User::role('student')
-            ->distinct('users.email')
-            ->where('users.employee_type', 'internal')
-            ->where('users.active', 1)
-            ->when($teacherId, function ($query) use ($teacherId) {
-                $query->join('subscribe_courses', 'users.id', '=', 'subscribe_courses.user_id')
-                    ->join('courses', 'subscribe_courses.course_id', '=', 'courses.id')
-                    ->join('course_user', 'courses.id', '=', 'course_user.course_id')
-                    ->where('course_user.user_id', $teacherId);
-            })
-            ->count();
+        $students_count = User::where('account_status', 1)
+    ->whereNull('deleted_at')
+    ->count();
 
         $teachers_count = User::role('teacher')->count();
         $courses_count  = Course::when($teacherId, function ($query) use ($teacherId) {
@@ -271,17 +263,9 @@ class DashboardController extends Controller
                 ->get();
 
             // --- Aggregate counts ---
-            $students_count = User::role('student')
-                ->distinct('users.email')
-                ->where('users.employee_type', 'internal')
-                ->where('users.active', 1)
-            ->when($teacherId, function ($query) use ($teacherId) {
-                $query->join('subscribe_courses', 'users.id', '=', 'subscribe_courses.user_id')
-                    ->join('courses', 'subscribe_courses.course_id', '=', 'courses.id')
-                    ->join('course_user', 'courses.id', '=', 'course_user.course_id')
-                    ->where('course_user.user_id', $teacherId);
-            })
-                ->count();
+            $students_count = User::where('account_status', 1)
+    ->whereNull('deleted_at')
+    ->count();
 
             $teachers_count = User::role('teacher')->count();
             $courses_count  = Course::when($teacherId, function ($query) use ($teacherId) {

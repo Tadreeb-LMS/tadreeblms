@@ -108,24 +108,36 @@ class CourseFeedbackController extends Controller
             ->with('success', 'Questions added successfully!');
     }
 
-    public function assignedQuestions($courseId)
+    public function assignedQuestions($course_id)
     {
-        return CourseFeedback::where('course_id', $courseId)
+        $questionIds = CourseFeedback::where('course_id', $course_id)
             ->pluck('feedback_question_id')
             ->map(function ($questionId) {
                 return (int) $questionId;
             })
             ->values();
+
+        return response()->json($questionIds);
     }
 
     public function destroy($id)
     {
-        $courseFeedback = CourseFeedback::find($id);
-        if ($courseFeedback) {
-            $courseFeedback->delete();
-            return response()->json(['status' => 'success', 'message' => 'Question removed from course successfully']);
-        }
-        return response()->json(['status' => 'error', 'message' => 'Record not found'], 404);
+       try {
+
+        $question = FeedbackQuestion::findOrFail($id);
+
+        $question->delete();
+
+        return response()->json([
+            'success' => true
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false
+        ], 500);
+    }
     }
 
     // public function edit(Request $request)

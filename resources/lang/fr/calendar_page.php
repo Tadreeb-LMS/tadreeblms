@@ -5,6 +5,7 @@ return array(
   'legend_lessons' => 'Leçons',
   'legend_live_sessions' => 'Sessions en direct (Zoom/Teams/Meet)',
   'legend_live_lesson_slots' => 'Créneaux de leçons en direct',
+  'legend_scheduled_sessions' => 'Sessions programmées',
   'add_schedule' => 'Ajouter votre planning',
   'edit_schedule' => 'Modifier votre planning',
   'schedule_name' => 'Nom du planning :',
