@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use Auth;
 use CustomHelper;
 use App\Models\UserLearningPathway;
+use App\Services\CertificatePdfRenderer;
 use Yajra\DataTables\Facades\DataTables;
 
 class CoursesController extends Controller
@@ -75,9 +76,8 @@ class CoursesController extends Controller
             ];
             $certificate_name = 'Certificate-' . $course->id . '-' . $user_id . '.pdf';
 
-            //return view('certificate.index', compact('data'));
-            $pdf = \PDF::loadView('certificate.index', compact('data'))->setPaper('', 'landscape');;
-            $pdf->save(public_path('storage/certificates/' . $certificate_name));
+            app(CertificatePdfRenderer::class)->renderTo($data, public_path('storage/certificates/' . $certificate_name));
+
             return response()->file(public_path('storage/certificates/' . $certificate_name));
             //return back()->withFlashSuccess(trans('alerts.frontend.course.completed'));
         }
@@ -1348,5 +1348,4 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
 }
 
 }
-
 

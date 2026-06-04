@@ -10,6 +10,7 @@ use App\Http\Controllers\CalenderController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\UserCourseRequestController;
+use App\Http\Controllers\MediaStreamController;
 use App\Jobs\SendEmailJob;
 use App\Models\AssignmentQuestion;
 use Illuminate\Http\Request;
@@ -35,7 +36,6 @@ Route::get('/ldap-test', function () {
         return "❌ LDAP connection failed: " . $e->getMessage();
     }
 });
-
 Route::get('/ldap-users', function () {
     $users = LdapUser::query()->get();
 
@@ -141,7 +141,10 @@ Route::middleware(['auth'])->group(function () {
 Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => ['admin']], function () {
 Route::get('course-feedback-questions/{id}/edit', [CourseFeedbackController::class, 'edit'])
     ->name('course-feedback-questions.edit');
-
+Route::delete(
+    'questions/{id}',
+    [CourseFeedbackController::class, 'destroy']
+)->name('questions.destroy');
 Route::post('course-feedback-questions/{id}/update', [CourseFeedbackController::class, 'update'])
     ->name('course-feedback-questions.update');
         
@@ -230,6 +233,8 @@ Route::get('bundles/review/{id}/delete', ['uses' => 'BundlesController@deleteRev
 
 
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('media/{media}/stream', [MediaStreamController::class, 'media'])->name('media.stream');
+    Route::get('lesson-videos/{lessonVideo}/stream', [MediaStreamController::class, 'lessonVideo'])->name('lesson-videos.stream');
     Route::get('lesson/{course_id}/{slug}/quiz', ['uses' => 'LessonsController@showLessonQuiz', 'as' => 'lessons.lesson_quiz.show']);
     Route::get('lesson/{course_id}/{slug?}/', ['uses' => 'LessonsController@show', 'as' => 'lessons.show']);
     Route::post('lesson/{slug}/test', ['uses' => 'LessonsController@test', 'as' => 'lessons.test']);

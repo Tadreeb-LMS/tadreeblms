@@ -124,24 +124,23 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
     Route::get('external-employee', 'Admin\EmployeeController@externalIndex')->name('employee.external_index');
     Route::get('employee/create', 'Admin\EmployeeController@create')->name('employee.create');
     Route::post('employee/store', 'Admin\EmployeeController@store')->name('employee.store');
-    Route::get('employee/{id}', 'Admin\EmployeeController@show')->name('employee.show');
     Route::get('employee/edit/{id}', 'Admin\EmployeeController@edit')->name('employee.edit');
-    Route::delete('employee/destroy/{id}', 'Admin\EmployeeController@destroy')->name('employee.destroy');
     Route::post('employee/update/{id}', 'Admin\EmployeeController@update')->name('employee.update');
+    Route::delete('employee/destroy/{id}', 'Admin\EmployeeController@destroy')->name('employee.destroy');
     Route::post('employee/import', 'Admin\EmployeeController@import')->name('employee.import');
     Route::get('employee/external/create', 'Admin\EmployeeController@external_employee_create')->name('employee.external.create');
     Route::post('employee/external/store', 'Admin\EmployeeController@external_employee_store')->name('employee.external.store');
+    Route::get('employee/reset_pass/{id}', 'Admin\EmployeeController@reset_pass')->name('employee.reset-pass');
+    Route::post('employee/change-password', 'Admin\EmployeeController@changepassword')->name('employee.change-password');
+    Route::post('employee_restore/{id}', ['uses' => 'Admin\EmployeeController@restore', 'as' => 'employee.restore']);
+    Route::delete('employee_perma_del/{id}', ['uses' => 'Admin\EmployeeController@perma_del', 'as' => 'employee.perma_del']);
+    Route::get('employee/{id}', 'Admin\EmployeeController@show')->name('employee.show');
 
     Route::get('get-employee-data', ['uses' => 'Admin\EmployeeController@getData', 'as' => 'employee.get_data']);
     Route::get('get-external-data', ['uses' => 'Admin\EmployeeController@getExternalData', 'as' => 'employee.get_external_data']);
 
     Route::post('employee_mass_destroy', ['uses' => 'Admin\EmployeeController@massDestroy', 'as' => 'employee.mass_destroy']);
-    Route::post('employee_restore/{id}', ['uses' => 'Admin\EmployeeController@restore', 'as' => 'employee.restore']);
-    Route::delete('employee_perma_del/{id}', ['uses' => 'Admin\EmployeeController@perma_del', 'as' => 'employee.perma_del']);
     Route::post('employee/status', ['uses' => 'Admin\EmployeeController@updateStatus', 'as' => 'employee.status']);
-
-    Route::get('employee/reset_pass/{id}', 'Admin\EmployeeController@reset_pass')->name('employee.reset-pass');
-    Route::post('employee/change-password', 'Admin\EmployeeController@changepassword')->name('employee.change-password');
 
     //===== FORUMS Routes =====//
     Route::resource('forums-category', 'Admin\ForumController');
@@ -424,9 +423,9 @@ Route::get('lessons/add', function () {
 
 
 Route::resource('lessons', 'Admin\LessonsController');
+Route::post('course-feedback-questions/add-questions', 'Admin\CourseFeedbackController@addQuestionsToCourse')->name('course-feedback.add-questions');
+Route::get('course-feedback-questions/assigned/{course_id}', 'Admin\CourseFeedbackController@assignedQuestions')->name('course-feedback-questions.assigned');
 Route::resource('course-feedback-questions', 'Admin\CourseFeedbackController');
-Route::post('course-feedback/add-questions', 'Admin\CourseFeedbackController@addQuestionsToCourse')->name('course-feedback.add-questions');
-Route::get('course-feedback-questions/assigned/{course}', 'Admin\CourseFeedbackController@assignedQuestions')->name('course-feedback-questions.assigned');
 Route::get('course-feedback-questions/delete/{id}', 'Admin\CourseFeedbackController@destroy');
 Route::get('course-feedback-questions/edit/{id}', 'Admin\CourseFeedbackController@edit')->name('course.coursefeedbackquestion.edit');
 Route::post('course-feedback-questions/update', 'Admin\CourseFeedbackController@update');

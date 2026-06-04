@@ -246,7 +246,12 @@ if (
             $live_slot_data[] = $event;
         }
 
-        return view($this->path . '.calender.index', [
+        $viewPath = $this->path . '.calender.index';
+
+        if (!view()->exists($viewPath)) {
+            $viewPath = 'frontend.calender.index';
+        }
+        return view($viewPath , [
             'lessons'            => json_encode($lesson_data),
             'liveSessions'       => json_encode($live_session_data),
             'liveLessonSlots'    => json_encode($live_slot_data),

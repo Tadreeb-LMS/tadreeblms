@@ -5,6 +5,7 @@ return array(
   'legend_lessons' => 'Lezioni',
   'legend_live_sessions' => 'Sessioni live (Zoom/Teams/Meet)',
   'legend_live_lesson_slots' => 'Slot lezioni live',
+  'legend_scheduled_sessions' => 'Sessioni programmate',
   'add_schedule' => 'Aggiungi il tuo programma',
   'edit_schedule' => 'Modifica il tuo programma',
   'schedule_name' => 'Nome programma:',
