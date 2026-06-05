@@ -552,16 +552,7 @@ class CoursesController extends Controller
         $categories = Category::where('status', '=', 1)->pluck('name', 'id');
         $departments = Department::all();
 
-        $enabledMeetingProviders = [];
-        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['zoom'] = 'Zoom';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['teams'] = 'Microsoft Teams';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
-        }
+        $enabledMeetingProviders = $this->meetingProviderOptions();
 
         $selected_category = request('cat_id');
 
@@ -594,12 +585,15 @@ class CoursesController extends Controller
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
+        $this->validateMeetingProvider($request);
+
         if ($request->course_type === 'Offline') {
             $teacherId = \Auth::user()->isAdmin()
                 ? $request->input('teacher_id')
                 : \Auth::user()->id;
+            $teachers = array_filter([$teacherId]);
 
-            $this->validateLiveCourseTrainerSchedule($request, array_filter([$teacherId]));
+            $this->validateLiveCourseTrainerSchedule($request, $teachers);
         }
         DB::beginTransaction();
 
@@ -977,16 +971,7 @@ $teachers = [$teacherId];
         $course = Course::with('latestModuleWeightage')->findOrFail($id);
         //dd($course);
 
-        $enabledMeetingProviders = [];
-        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['zoom'] = 'Zoom';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['teams'] = 'Microsoft Teams';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
-        }
+        $enabledMeetingProviders = $this->meetingProviderOptions();
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
     }
@@ -1005,6 +990,8 @@ $teachers = [$teacherId];
             return abort(401);
         }
         $course = Course::findOrFail($id);
+
+        $this->validateMeetingProvider($request);
 
         $teacherId = \Auth::user()->isAdmin()
             ? $request->input('teacher_id', optional($course->teachers->first())->id)
@@ -1069,7 +1056,7 @@ $teachers = [$teacherId];
                     ->withInput()
                     ->withFlashDanger($message);
             }
-}
+        }
 
 
 
@@ -1843,6 +1830,31 @@ $teachers = [$teacherId];
         }
     }
 
+    private function validateMeetingProvider(Request $request): void
+    {
+        if ($request->course_type !== 'Offline') {
+            return;
+        }
+
+        $request->validate([
+            'session_meeting_link' => 'nullable|url',
+            'meeting_provider' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if ($value && !LiveSession::normalizeMeetingProvider($value)) {
+                        $fail('The selected meeting provider is invalid.');
+                    }
+                },
+            ],
+        ]);
+
+        if ($request->schedule_type && !$request->filled('meeting_provider') && !$request->filled('session_meeting_link')) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'meeting_provider' => ['Please select a meeting provider or enter a meeting link.'],
+            ]);
+        }
+    }
+
     private function validateLiveCourseTrainerSchedule(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
     {
         if ($this->hasRecurringLiveSchedule($request)) {
@@ -2059,7 +2071,9 @@ $teachers = [$teacherId];
 
     private function generateLiveSessions(Course $course, Request $request): int
     {
-        $provider = $request->meeting_provider;
+        $provider = LiveSession::normalizeMeetingProvider($request->meeting_provider);
+        $providerSlug = $request->meeting_provider;
+        $manualMeetingLink = $request->filled('session_meeting_link') ? $request->session_meeting_link : null;
         $timezone = $request->meeting_timezone ?? 'Asia/Riyadh';
         $scheduleType = $request->schedule_type;
         $sessions = $this->buildRequestedLiveSessions($course, $request);
@@ -2096,24 +2110,29 @@ $teachers = [$teacherId];
                 'meeting_timezone' => $timezone,
             ]);
 
-            try {
-                $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
-                if ($meetingData) {
-                    $meetingLink = $meetingData['meeting_join_url'] ?? null;
-                    $meetingId = $meetingData['meeting_id'] ?? null;
-                    $hostUrl = $meetingData['meeting_host_url'] ?? null;
-                }
-                if (!$meetingLink) {
+            if ($manualMeetingLink) {
+                $meetingLink = $manualMeetingLink;
+            } else {
+                try {
+                    $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
+                    if ($meetingData) {
+                        $meetingLink = $meetingData['meeting_join_url'] ?? null;
+                        $meetingId = $meetingData['meeting_id'] ?? null;
+                        $hostUrl = $meetingData['meeting_host_url'] ?? null;
+                    }
+                    if (!$meetingLink) {
+                        $failedCount++;
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning("Failed to create meeting for session {$session['date']}: " . $e->getMessage());
                     $failedCount++;
                 }
-            } catch (\Throwable $e) {
-                \Log::warning("Failed to create meeting for session {$session['date']}: " . $e->getMessage());
-                $failedCount++;
             }
 
             LiveSession::create([
                 'course_id' => $course->id,
-                'provider' => $provider,
+                'provider' => $providerSlug,
+                'meeting_provider' => $provider,
                 'session_date' => $session['date'],
                 'session_time' => $session['time'],
                 'meeting_link' => $meetingLink,
@@ -2139,11 +2158,15 @@ $teachers = [$teacherId];
     /**
      * Regenerate meeting links for sessions that have null meeting_link.
      */
-    public function regenerateMeetingLinks($courseId)
+    public function regenerateMeetingLinks(Request $request, $courseId)
     {
         if (!Gate::allows('course_edit')) {
             return abort(401);
         }
+
+        $request->validate([
+            'session_meeting_link' => 'nullable|url',
+        ]);
 
         $course = Course::findOrFail($courseId);
         $sessions = $course->liveSessions()->whereNull('meeting_link')->get();
@@ -2152,17 +2175,27 @@ $teachers = [$teacherId];
             return back()->withFlashSuccess('All sessions already have meeting links.');
         }
 
-        $provider = $course->meeting_provider ?: $sessions->first()->provider;
-
-        if (!$provider) {
-            return back()->withFlashDanger('No meeting provider is configured for this course. Please set a meeting provider in the course settings first.');
-        }
-
         $timezone = $course->meeting_timezone ?? 'Asia/Riyadh';
+        $manualMeetingLink = $request->filled('session_meeting_link') ? $request->session_meeting_link : null;
         $successCount = 0;
         $failedCount = 0;
 
         foreach ($sessions as $session) {
+            $provider = $session->meeting_provider ?: LiveSession::normalizeMeetingProvider($course->meeting_provider);
+
+            if ($manualMeetingLink) {
+                $session->update([
+                    'meeting_link' => $manualMeetingLink,
+                    'meeting_provider' => $provider,
+                ]);
+                $successCount++;
+                continue;
+            }
+
+            if (!$provider || !$this->canCreateMeetingsForProvider($provider)) {
+                return back()->withFlashDanger('Enter a manual meeting link before regenerating, or configure an active meeting provider integration.');
+            }
+
             $timeFormatted = \Carbon\Carbon::parse($session->session_time)->format('H:i:s');
             $sessionDateTime = $session->session_date->format('Y-m-d') . ' ' . $timeFormatted;
 
@@ -2174,12 +2207,18 @@ $teachers = [$teacherId];
             ]);
 
             try {
+                if (!$provider) {
+                    $failedCount++;
+                    continue;
+                }
+
                 $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
                 if ($meetingData && $meetingData['meeting_join_url']) {
                     $session->update([
                         'meeting_link' => $meetingData['meeting_join_url'],
                         'meeting_id' => $meetingData['meeting_id'] ?? null,
                         'host_url' => $meetingData['meeting_host_url'] ?? null,
+                        'meeting_provider' => $provider,
                     ]);
                     $successCount++;
                 } else {
@@ -2196,31 +2235,80 @@ $teachers = [$teacherId];
         }
 
         if ($failedCount > 0) {
-            return back()->withFlashDanger("Regenerated {$successCount} meeting link(s), but {$failedCount} failed. Please check your {$provider} credentials in External Apps settings.");
+            return back()->withFlashDanger("Regenerated {$successCount} meeting link(s), but {$failedCount} failed. Please check your meeting provider credentials in External Apps settings.");
         }
 
         return back()->withFlashSuccess("Successfully regenerated {$successCount} meeting link(s).");
     }
 
-    private function createMeetingViaModule(string $provider, Request $request, Course $course): ?array
+    private function createMeetingViaModule(?string $provider, Request $request, Course $course): ?array
     {
-        if ($provider === 'zoom') {
-            $service = new \Modules\Zoom\Services\ZoomMeetingService();
-            $meeting = $service->createMeeting(
-                $course->title,
-                $request->meeting_start_at,
-                $request->meeting_duration,
-                $request->meeting_timezone
-            );
+        $provider = LiveSession::normalizeMeetingProvider($provider);
 
-            if ($meeting) {
-                return [
-                    'meeting_id'       => $meeting['id'],
-                    'meeting_join_url' => $meeting['join_url'],
-                    'meeting_host_url' => $meeting['host_url'] ?? null,
-                ];
+        if (!$provider) {
+            return null;
+        }
+
+        if ($provider === 'zoom') {
+            if (class_exists(\Modules\Zoom\Services\ZoomMeetingService::class)) {
+                $service = new \Modules\Zoom\Services\ZoomMeetingService();
+                $meeting = $service->createMeeting(
+                    $course->title,
+                    $request->meeting_start_at,
+                    $request->meeting_duration,
+                    $request->meeting_timezone
+                );
+
+                if ($meeting) {
+                    return [
+                        'meeting_id'       => $meeting['id'],
+                        'meeting_join_url' => $meeting['join_url'],
+                        'meeting_host_url' => $meeting['host_url'] ?? null,
+                    ];
+                }
+            }
+
+            if (class_exists(\App\Services\ZoomService::class)) {
+                $service = app(\App\Services\ZoomService::class);
+                $user = $service->getFirstUser();
+
+                if (!$user) {
+                    return null;
+                }
+
+                $response = $service->createMeeting($user['id'], [
+                    'topic' => $course->title,
+                    'type' => 2,
+                    'start_time' => $request->meeting_start_at,
+                    'duration' => $request->meeting_duration,
+                    'timezone' => $request->meeting_timezone,
+                    'settings' => [
+                        'join_before_host' => (bool) config('zoom.join_before_host'),
+                        'host_video' => (bool) config('zoom.host_video'),
+                        'participant_video' => (bool) config('zoom.participant_video'),
+                        'mute_upon_entry' => (bool) config('zoom.mute_upon_entry'),
+                        'waiting_room' => (bool) config('zoom.waiting_room'),
+                        'approval_type' => config('zoom.approval_type'),
+                        'audio' => config('zoom.audio'),
+                        'auto_recording' => config('zoom.auto_recording'),
+                    ],
+                ]);
+
+                if ($response->successful()) {
+                    $meeting = $response->json();
+
+                    return [
+                        'meeting_id'       => $meeting['id'],
+                        'meeting_join_url' => $meeting['join_url'],
+                        'meeting_host_url' => $meeting['start_url'] ?? null,
+                    ];
+                }
             }
         } elseif ($provider === 'teams') {
+            if (!class_exists(\Modules\Teams\Services\TeamsMeetingService::class)) {
+                return null;
+            }
+
             $service = new \Modules\Teams\Services\TeamsMeetingService();
             $meeting = $service->createMeeting(
                 $course->title,
@@ -2236,7 +2324,11 @@ $teachers = [$teacherId];
                     'meeting_host_url' => $meeting['host_url'] ?? null,
                 ];
             }
-        } elseif (in_array($provider, ['google-meet-integration', 'google_meet'])) {
+        } elseif ($provider === 'google_meet') {
+            if (!class_exists(\Modules\GoogleMeetIntegration\Services\GoogleMeetService::class)) {
+                return null;
+            }
+
             $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
             
             $hostEmail = null;
@@ -2266,6 +2358,25 @@ $teachers = [$teacherId];
             }
         }
         return null;
+    }
+
+    private function meetingProviderOptions(): array
+    {
+        return [
+            'zoom' => 'Zoom',
+            'teams' => 'Microsoft Teams',
+            'google-meet-integration' => 'Google Meet',
+        ];
+    }
+
+    private function canCreateMeetingsForProvider(?string $provider): bool
+    {
+        return match (LiveSession::normalizeMeetingProvider($provider)) {
+            'zoom' => class_exists(\Modules\Zoom\Services\ZoomMeetingService::class) || class_exists(\App\Services\ZoomService::class),
+            'teams' => class_exists(\Modules\Teams\Services\TeamsMeetingService::class),
+            'google_meet' => class_exists(\Modules\GoogleMeetIntegration\Services\GoogleMeetService::class),
+            default => false,
+        };
     }
 
     private function sendMeetingInviteToStudents(Course $course, array $studentIds): void
