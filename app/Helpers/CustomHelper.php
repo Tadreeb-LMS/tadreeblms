@@ -9,7 +9,7 @@ use App\Models\Course;
 use App\Models\Category;
 use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
-use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
+use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseAssignmentToUser, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
 use App\Services\LmsEventRecorder;
 use Auth;
@@ -72,6 +72,7 @@ class CustomHelper
             'total' => 0,
             'passed' => 0,
             'pending' => 0,
+            'pending_evaluation' => 0,
             'status' => 'Not Applied',
         ];
 
@@ -110,16 +111,28 @@ class CustomHelper
                 continue;
             }
 
+            $has_pending_review = DB::table('lesson_quiz_answers')
+                ->where('tests_result_id', $latest_result->id)
+                ->whereNull('is_correct')
+                ->exists();
+
+            if ($has_pending_review) {
+                $summary['pending_evaluation']++;
+                continue;
+            }
+
             $percentage = ($latest_result->test_result / $question_count) * 100;
             if ($percentage >= 100) {
                 $summary['passed']++;
             }
         }
 
-        $summary['pending'] = max($summary['total'] - $summary['passed'], 0);
+        $summary['pending'] = max($summary['total'] - $summary['passed'] - $summary['pending_evaluation'], 0);
 
         if ($summary['total'] === 0) {
             $summary['status'] = 'Not Applied';
+        } elseif ($summary['pending_evaluation'] > 0) {
+            $summary['status'] = 'Pending Evaluation';
         } elseif ($summary['pending'] === 0) {
             $summary['status'] = 'Passed';
         } elseif ($summary['passed'] > 0) {
@@ -138,7 +151,47 @@ class CustomHelper
         $summary = self::getLessonQuizSummary($course_id, $user_id, $completed_at);
 
         // Lesson quizzes are optional; when present every quiz must be passed.
-        return $summary['total'] === 0 || $summary['pending'] === 0;
+        return $summary['total'] === 0 || ($summary['pending'] === 0 && $summary['pending_evaluation'] === 0);
+    }
+
+    public static function hasPendingAssessmentEvaluation($course_id, $user_id): bool
+    {
+        $course_test_ids = Test::where('course_id', $course_id)
+            ->where(function ($q) {
+                $q->whereNull('lesson_id')->orWhere('lesson_id', 0);
+            })
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($course_test_ids)) {
+            return false;
+        }
+
+        $test_question_ids = TestQuestion::whereIn('test_id', $course_test_ids)->pluck('id')->toArray();
+        $assignment_ids = Assignment::whereIn('test_id', $course_test_ids)->pluck('id')->toArray();
+
+        if (empty($test_question_ids) || empty($assignment_ids)) {
+            return false;
+        }
+
+        $latest_attempts = AssignmentQuestion::selectRaw('question_id, MAX(attempt) as max_attempt')
+            ->join('test_questions', 'test_questions.id', '=', 'assignment_questions.question_id')
+            ->whereIn('test_questions.id', $test_question_ids)
+            ->whereIn('assessment_test_id', $assignment_ids)
+            ->where('assessment_account_id', $user_id)
+            ->groupBy('question_id');
+
+        return AssignmentQuestion::join('test_questions', 'test_questions.id', '=', 'assignment_questions.question_id')
+            ->joinSub($latest_attempts, 'latest', function ($join) {
+                $join->on('assignment_questions.question_id', '=', 'latest.question_id')
+                    ->on('assignment_questions.attempt', '=', 'latest.max_attempt');
+            })
+            ->whereIn('test_questions.id', $test_question_ids)
+            ->whereIn('assessment_test_id', $assignment_ids)
+            ->where('assessment_account_id', $user_id)
+            ->where('test_questions.question_type', 3)
+            ->where('assignment_questions.is_correct', 0)
+            ->exists();
     }
 
     public static function updateGrantCertificate($course_id, $user_id)
@@ -1086,37 +1139,87 @@ class CustomHelper
 
     public static function syncCourseAssignmentAndSubscribeCourseData()
     {
+        $synced = 0;
         $cas = courseAssignment::get();
 
         foreach ($cas as $ca) {
+            if (empty($ca->course_id) || empty($ca->assign_to)) {
+                continue;
+            }
+
             if (strpos($ca->assign_to, ',') !== false) {
                 $usersAssigned = explode(',', $ca->assign_to);
 
                 foreach ($usersAssigned as $value) {
-                    $sc = SubscribeCourse::where('user_id', $value)->where('course_id', $ca->course_id)->exists();
-                    if (!$sc) {
-                        SubscribeCourse::create([
-                            'user_id' => $value,
-                            'course_id' => $ca->course_id,
-                            'status' => 1,
-                            'created_at' => $ca->assign_date,
-                            'updated_at' => $ca->assign_date,
-                        ]);
-                    }
+                    $synced += self::syncAssignedCourseSubscription($value, $ca->course_id, $ca);
                 }
             } else {
-                $sc = SubscribeCourse::where('user_id', $ca->assign_to)->where('course_id', $ca->course_id)->exists();
-                if (!$sc) {
-                    SubscribeCourse::create([
-                        'user_id' => $ca->assign_to,
-                        'course_id' => $ca->course_id,
-                        'status' => 1,
-                        'created_at' => $ca->assign_date,
-                        'updated_at' => $ca->assign_date,
-                    ]);
-                }
+                $synced += self::syncAssignedCourseSubscription($ca->assign_to, $ca->course_id, $ca);
             }
         }
+
+        CourseAssignmentToUser::with('assignment')
+            ->where('by_pathway', 0)
+            ->whereNull('deleted_at')
+            ->whereNotNull('user_id')
+            ->whereNotNull('course_id')
+            ->chunkById(200, function ($assignments) use (&$synced) {
+                foreach ($assignments as $assignmentUser) {
+                    $synced += self::syncAssignedCourseSubscription(
+                        $assignmentUser->user_id,
+                        $assignmentUser->course_id,
+                        $assignmentUser->assignment
+                    );
+                }
+            });
+
+        return $synced;
+    }
+
+    private static function syncAssignedCourseSubscription($userId, $courseId, $assignment = null)
+    {
+        $userId = (int) $userId;
+        $courseId = (int) $courseId;
+
+        if (!$userId || !$courseId || !Course::where('id', $courseId)->exists()) {
+            return 0;
+        }
+
+        $subscription = SubscribeCourse::withTrashed()
+            ->where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->first();
+
+        if ($subscription && is_null($subscription->deleted_at)) {
+            return 0;
+        }
+
+        $hasFeedback = StudentCourseFeedback::where('course_id', $courseId)->exists()
+            || \App\Models\CourseFeedback::where('course_id', $courseId)->exists();
+        $hasAssessment = Assignment::where('course_id', $courseId)->exists();
+        $assignDate = optional($assignment)->assign_date ?: now();
+
+        if (!$subscription) {
+            $subscription = new SubscribeCourse([
+                'user_id' => $userId,
+                'course_id' => $courseId,
+            ]);
+        } else {
+            $subscription->restore();
+        }
+
+        $subscription->fill([
+            'status' => 1,
+            'assign_date' => $assignDate,
+            'due_date' => optional($assignment)->due_date,
+            'has_feedback' => $hasFeedback ? 1 : 0,
+            'has_assesment' => $hasAssessment ? 1 : 0,
+            'course_trainer_name' => self::getCourseTrainerName($courseId) ?? null,
+            'is_pathway' => 0,
+        ]);
+        $subscription->save();
+
+        return 1;
     }
 
     public static function completeCourseForUser($course_id, $user_id)
@@ -1588,20 +1691,40 @@ class CustomHelper
         $completed_assesment = $has_assessment_requirement
             && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
 
+        $pending_assessment_evaluation = $has_assessment_requirement
+            && $assessment_taken > 0
+            && self::hasPendingAssessmentEvaluation($course_id, $sc->user_id);
+
         // Only open assessment CTA when a real final assessment exists.
         $open_assesment = $has_assessment_requirement && !$completed_assesment;
 
         $reattempt_assesment_count = $has_assessment_requirement
             ? $helper->getAttemptToAssesment($sc, $course_id)
             : 0;
+        $assessment_attempt_limit_reached = $has_assessment_requirement
+            && !$completed_assesment
+            && !$pending_assessment_evaluation
+            && $helper->isFinalAssessmentAttemptLimitReached($course_id, $reattempt_assesment_count);
 
         if ($reattempt_assesment_count > 0) {
             $open_assesment = false;
         }
 
-        if ($reattempt_assesment_count > 0 && !$completed_assesment) {
+        if ($reattempt_assesment_count > 0 && !$completed_assesment && !$pending_assessment_evaluation) {
             $open_assesment = false;
             $reattempt_assesment = true;
+        }
+
+        if ($assessment_attempt_limit_reached) {
+            $open_assesment = false;
+            $reattempt_assesment = false;
+            $failed_in_assesment_all_attempts = true;
+        }
+
+        if ($pending_assessment_evaluation) {
+            $open_assesment = false;
+            $reattempt_assesment = false;
+            $open_feedback = false;
         }
 
         if ($reattempt_assesment_count > 1) {
@@ -1610,17 +1733,13 @@ class CustomHelper
             if ($completed_assesment) {
                 $reattempt_assesment = false;
             }
-
-            if ($sc->assignment_status == 'Failed') {
-                $reattempt_assesment = false;
-                $failed_in_assesment_all_attempts = true;
-            }
         }
 
         return [
             'failed_in_assesment_all_attempts' => $failed_in_assesment_all_attempts,
             'reattempt_assesment' => $reattempt_assesment,
             'completed_assesment' => $completed_assesment,
+            'pending_assessment_evaluation' => $pending_assessment_evaluation,
             'download_certificate' => $download_certificate,
             'open_assesment' => $open_assesment,
             'open_feedback' => $open_feedback && !$feedback_given,
@@ -1644,6 +1763,10 @@ class CustomHelper
         $completed_assesment = $has_assessment_requirement
             && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
 
+        $pending_assessment_evaluation = $has_assessment_requirement
+            && $assessment_taken > 0
+            && self::hasPendingAssessmentEvaluation($course_id, $sc->user_id);
+
         $open_assesment = $has_assessment_requirement && !$completed_assesment;
 
         if ($has_assessment_requirement) {
@@ -1660,15 +1783,25 @@ class CustomHelper
         $reattempt_assesment_count = $has_assessment_requirement
             ? $helper->getAttemptToAssesment($sc, $course_id)
             : 0;
+        $assessment_attempt_limit_reached = $has_assessment_requirement
+            && !$completed_assesment
+            && !$pending_assessment_evaluation
+            && $helper->isFinalAssessmentAttemptLimitReached($course_id, $reattempt_assesment_count);
         //dd($reattempt_assesment_count);
 
         if ($reattempt_assesment_count > 0) {
             $open_assesment = false;
         }
 
-        if ($reattempt_assesment_count > 0 && !$completed_assesment) {
+        if ($reattempt_assesment_count > 0 && !$completed_assesment && !$pending_assessment_evaluation) {
             $open_assesment = false;
             $reattempt_assesment = true;
+        }
+
+        if ($assessment_attempt_limit_reached) {
+            $open_assesment = false;
+            $reattempt_assesment = false;
+            $failed_in_assesment_all_attempts = true;
         }
 
         if ($reattempt_assesment_count > 1) {
@@ -1676,11 +1809,6 @@ class CustomHelper
                 && ($sc->assignment_status == 'Passed' && $assessment_taken > 0);
             if ($completed_assesment) {
                 $reattempt_assesment = false;
-            }
-
-            if ($sc->assignment_status == 'Failed') {
-                $reattempt_assesment = false;
-                $failed_in_assesment_all_attempts = true;
             }
         }
 
@@ -1698,15 +1826,36 @@ class CustomHelper
             $open_assesment = false;
         }
 
+        if ($pending_assessment_evaluation) {
+            $open_assesment = false;
+            $reattempt_assesment = false;
+            $open_feedback = false;
+        }
+
 
         return [
             'failed_in_assesment_all_attempts' => $failed_in_assesment_all_attempts,
             'reattempt_assesment' => $reattempt_assesment,
             'completed_assesment' => $completed_assesment,
+            'pending_assessment_evaluation' => $pending_assessment_evaluation,
             'download_certificate' => $download_certificate,
             'open_assesment' => $open_assesment,
             'open_feedback' => $open_feedback,
         ];
+    }
+
+    public function finalAssessmentMaxAttempts($course_id): ?int
+    {
+        $maxAttempts = Course::where('id', $course_id)->value('final_assessment_max_attempts');
+
+        return $maxAttempts ? (int) $maxAttempts : null;
+    }
+
+    public function isFinalAssessmentAttemptLimitReached($course_id, int $attempts): bool
+    {
+        $maxAttempts = $this->finalAssessmentMaxAttempts($course_id);
+
+        return $maxAttempts !== null && $attempts >= $maxAttempts;
     }
 
     public function getAttemptToAssesment($sc, $course_id)

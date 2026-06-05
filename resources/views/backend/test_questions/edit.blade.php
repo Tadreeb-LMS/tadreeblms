@@ -11,7 +11,7 @@
        <div >
        <a href="{{ route('admin.test_questions.index') }}" class="btn add-btn">@lang('labels.backend.questions.view')</a>
    </div>
-     
+
    </div>
 <div class="card">
     <!-- <div class="card-header">
@@ -24,19 +24,32 @@
     <input type="hidden" name="edit_id" id="edit_id" value="@if(isset($question->id)){{$question->id}}@endif">
 
     @if(isset($question->id))
-   
-    @php 
+
+    @php
       $has_option = 0;
        $optiions = $question->option_json ? json_decode($question->option_json) : [];
+       $optiions = is_array($optiions) ? $optiions : [];
+       $correctOptionLabels = [];
+       foreach ($optiions as $existingOption) {
+           $optionText = is_array($existingOption)
+               ? ($existingOption[0] ?? $existingOption['option'] ?? $existingOption['option_text'] ?? '')
+               : ($existingOption->option ?? $existingOption->option_text ?? ($existingOption->{0} ?? ''));
+           $isCorrect = is_array($existingOption)
+               ? ($existingOption[1] ?? $existingOption['is_correct'] ?? $existingOption['is_right'] ?? 0)
+               : ($existingOption->is_correct ?? $existingOption->is_right ?? ($existingOption->{1} ?? 0));
+           if ((int) $isCorrect === 1 && trim(strip_tags((string) $optionText)) !== '') {
+               $correctOptionLabels[] = $optionText;
+           }
+       }
        if(count($optiions) > 0) {
          $has_option = 1;
-       } 
+       }
     @endphp
     @endif
     <input type="hidden" name="has_option" id="has_option" value="{{ $has_option }}" />
         <div class="row">
             <div class="col-12 col-md-6">
-               
+
                    <label for="course_id" class="control-label">
                     Test
                 </label>
@@ -52,7 +65,7 @@
                     </span>
                 </div>
             </div>
-        
+
             <div class="col-12 col-md-6">
                 <label>Question Type</label>
                 <div class="custom-select-wrapper">
@@ -68,6 +81,21 @@
                 </div>
             </div>
         </div>
+        @if(count($correctOptionLabels) > 0)
+            <div class="alert alert-info mt-3">
+                <strong>Saved correct answer{{ count($correctOptionLabels) > 1 ? 's' : '' }}:</strong>
+                <ul class="mb-0 mt-2 pl-3">
+                    @foreach($correctOptionLabels as $correctOptionLabel)
+                        <li>{!! $correctOptionLabel !!}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @elseif(!empty($question->solution))
+            <div class="alert alert-info mt-3">
+                <strong>Saved solution:</strong>
+                <div class="mt-2">{!! $question->solution !!}</div>
+            </div>
+        @endif
         <div class="row">
             <div class="col-12 col-md-6">
                 <div class="mt-3 notextarea">
@@ -76,9 +104,9 @@
             </div>
  </div>
 
-            <div class="col-12 col-md-6 ">
+            <div class="col-12 col-md-6" id="question-options-column">
  <div class="mt-3 notextarea">
-               
+
                     <label>Option</label>
                     <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
                     <div class="addoptbtn">
@@ -88,7 +116,7 @@
                          <div id="option-area"></div>
                         </div>
               </div>
-             
+
 
 
         </div>
@@ -97,17 +125,17 @@
 
 
         <!-- <div class="cb_question_setup">
-            
-            
+
+
 
                 <div class="col-6">
-                    
-                    
-                   
-                    
+
+
+
+
                 </div>
             </div> -->
-            
+
         </div>
     </div>
 
@@ -119,7 +147,7 @@
                     <label>Solution</label>
                     <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" value="$question->solution">@if(isset($question->id)){{$question->solution}}@endif</textarea>
                 </div>
-            
+
                 <div class="col-12 col-md-2">
                     <label>Marks <span style="color:red">*</span></label>
                     <input
@@ -129,13 +157,13 @@
                         id="score"
                         placeholder="Enter Marks"
                         required
-                        value="{{$question->score}}"
+                        value="{{ $question->score ?? $question->marks ?? '' }}"
                         min="1"
                         max="999"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
                     />
                 </div>
-            
+
                 <div class="col-12 col-md-5 notextarea">
                     <label>Comment</label>
                     <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment">@if(isset($question->id)){{$question->comment}}@endif</textarea>
@@ -157,15 +185,25 @@
 
 <script src="{{asset('ckeditor/ckeditor.js')}}" type="text/javascript"></script>
 <script type="text/javascript">
+    var savedQuestionContent = @json($question->question_text ?? '');
+    var savedSolutionContent = @json($question->solution ?? '');
+    var savedCommentContent = @json($question->comment ?? '');
+
     CKEDITOR.replace('question');
-
-
     CKEDITOR.replace('option');
-    
     CKEDITOR.replace('solution');
-    
-    CKEDITOR.replace('comment')
-    
+    CKEDITOR.replace('comment');
+
+    CKEDITOR.instances.question.on('instanceReady', function () {
+        this.setData(savedQuestionContent || '');
+    });
+    CKEDITOR.instances.solution.on('instanceReady', function () {
+        this.setData(savedSolutionContent || '');
+    });
+    CKEDITOR.instances.comment.on('instanceReady', function () {
+        this.setData(savedCommentContent || '');
+    });
+
 </script>
 @stop
 @push('after-scripts')
@@ -177,16 +215,59 @@
     @endif;
     var flag = 0;
 
+    options = Array.isArray(options) ? options.map(function (option) {
+        if (Array.isArray(option)) {
+            return [option[0] || '', option[1] || 0];
+        }
+
+        if (option && typeof option === 'object') {
+            return [
+                option.option || option.option_text || '',
+                option.is_correct || option.is_right || 0
+            ];
+        }
+
+        return ['', 0];
+    }).filter(function (option) {
+        return option[0] !== '';
+    }) : [];
+
+    function isShortAnswerQuestion() {
+        return $('#question_type').val() == 3;
+    }
+
+    function syncQuestionTypeFields() {
+        var optionsColumn = document.getElementById('question-options-column');
+        var optionField = document.getElementById('option');
+
+        if (optionsColumn) {
+            optionsColumn.style.display = isShortAnswerQuestion() ? 'none' : '';
+        }
+
+        if (optionField) {
+            optionField.required = !isShortAnswerQuestion();
+        }
+
+        if (isShortAnswerQuestion()) {
+            $('#option-area').empty();
+            return;
+        }
+
+        showOptions();
+    }
+
     function removeOptions(pos) {
         options.splice(pos, 1);
         showOptions();
     }
 
     var has_option = $('#has_option').val();
-    if(has_option) {
-        showOptions();
+    syncQuestionTypeFields();
+
+    function optionIsCorrect(option) {
+        return option && (option[1] === 1 || option[1] === '1' || option[1] === true);
     }
-    
+
 
 
     function addOptions() {
@@ -198,9 +279,9 @@
 
     $(document).on('click', "#add_option", function() {
         if (CKEDITOR.instances["option"].getData() != "") {
-            
+
             addOptions();
-           
+
         }
         showOptions();
     });
@@ -212,7 +293,7 @@
     }
 
     function dataCollection() {
-        var test_id = $("#test_id").val();
+        var test_id = $("#test_id").val() || $("#course_id").val();
         var question_type = $("#question_type").val();
         var question = CKEDITOR.instances["question"].getData();
         var solution = CKEDITOR.instances["solution"].getData();
@@ -222,7 +303,7 @@
             test_id,
             question_type,
             question,
-            options: JSON.stringify(options),
+            options: JSON.stringify(question_type == 3 ? [] : options),
             solution,
             comment,
             score
@@ -231,7 +312,7 @@
 
     $(document).on('click', "#save", function() {
         flag = 0;
-        if (CKEDITOR.instances["question"].getData() != "" && $('#marks').val() != "" && $('#test_id').val() != "") {
+        if (CKEDITOR.instances["question"].getData() != "" && $('#score').val() != "" && ($('#test_id').val() || $('#course_id').val())) {
             if ($('#question_type').val() == 1) {
                 if ($('input:radio:checked').length > 0) {
                     sendData();
@@ -263,7 +344,9 @@
             type: 'post',
             data: data,
             success: function(response) {
-                response = JSON.parse(response);
+                if (typeof response === 'string') {
+                    response = JSON.parse(response);
+                }
                 if (response.code == 200) {
                     window.location.replace("{{route('admin.test_questions.index')}}");
                 } else {
@@ -282,10 +365,14 @@
 
     function showOptions(show_remove_options = true) {
 
-        console.log(options)
+        if (isShortAnswerQuestion()) {
+            $('#option-area').empty();
+            return;
+        }
+
         var has_option = $('#has_option').val();
 
-        
+
         if (show_remove_options == true) {
             var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th>';
             var drag_drop_question_type = $('#question_type').val();
@@ -299,7 +386,7 @@
                 } else {
                     option_text += '<td><input type="checkbox" class="cb_checkbox_mark" ';
                 }
-                if (option[1] === 1) {
+                if (optionIsCorrect(option)) {
                     option_text += 'checked="checked"';
                 }
                 option_text += ' onclick="markAsCorrectOption(' + i + ')"></td>';
@@ -315,7 +402,7 @@
                 option_text += '<tr>';
                 option_text += '<td>' + option[0] + '</td>';
                 option_text += '<td><input type="radio" ';
-                if (option[1] === 1) {
+                if (optionIsCorrect(option)) {
                     option_text += 'checked="checked"';
                 }
                 option_text += ' onclick="markAsCorrectOption(' + i + ',false)"></td>';
@@ -324,8 +411,8 @@
             option_text += '</tbody></table>';
             document.getElementById('option-area').innerHTML = option_text;
         }
-       
-        
+
+
         addImgClass();
     }
 
@@ -354,6 +441,7 @@
 
     $(document).on('change', '#question_type', function() {
         var question_type = $(this).val();
+        syncQuestionTypeFields();
         $.ajax({
             url: "{{route('admin.test_questions.question_setup')}}",
             type: 'post',
@@ -363,7 +451,7 @@
             }),
             success: function(response) {
                 $('.cb_question_setup').html(response);
-                
+
             },
         });
     });

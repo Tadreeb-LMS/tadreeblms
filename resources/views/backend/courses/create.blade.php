@@ -302,6 +302,27 @@
                         </div>
 
                         <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="final_assessment_max_attempts" class="control-label">
+                                    Final assessment max attempts
+                                </label>
+                                <input
+                                    class="form-control"
+                                    id="final_assessment_max_attempts"
+                                    name="final_assessment_max_attempts"
+                                    type="number"
+                                    min="1"
+                                    max="999"
+                                    value="{{ old('final_assessment_max_attempts') }}"
+                                    placeholder="Leave blank for unlimited attempts"
+                                >
+                                <small class="form-text text-muted">
+                                    Optional. When set, learners cannot start or retry the final assessment after reaching this number of attempts.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row">
 
                             <div class="col-sm-12 col-lg-12 col-md-12 form-group">
                                 <label for="course_code"

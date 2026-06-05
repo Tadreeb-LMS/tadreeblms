@@ -115,8 +115,12 @@
                                                 ? ($todaySession->host_url ?: $todaySession->meeting_link)
                                                 : $todaySession->meeting_link;
                                         @endphp
-                                        <a href="{{ $topUrl }}" target="_blank" class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                            onclick="setTimeout(function(){ window.location.href='{{ route('courses.show', [$course->slug]) }}?joined=1&session_id={{ $todaySession->id }}'; }, 500);">
+                                        <a href="{{ (isset($isHostRole) && $isHostRole) ? $topUrl : '#' }}" @if(isset($isHostRole) && $isHostRole) target="_blank" @endif
+                                            class="btn btn-success btn-block text-white mb-3 text-uppercase font-weight-bold @if(!(isset($isHostRole) && $isHostRole)) js-live-session-join @endif"
+                                            @if(!(isset($isHostRole) && $isHostRole))
+                                                data-attendance-url="{{ route('courses.attendance', [$course->slug]) }}"
+                                                data-session-id="{{ $todaySession->id }}"
+                                            @endif>
                                             <i class="fa fa-video"></i> {{ (isset($isHostRole) && $isHostRole) ? __('Host Meeting') : __('Join Today\'s Session') }}
                                         </a>
                                     @elseif(isset($todaySession) && $todaySession && !$isWithinTimeWindow)
@@ -166,8 +170,12 @@
                                 </div>
                             </div>
                             @if($isWithinTimeWindow)
-                                <a href="{{ $sessionUrl }}" target="_blank" class="btn btn-success text-white font-weight-bold mt-2"
-                                    onclick="setTimeout(function(){ window.location.href='{{ route('courses.show', [$course->slug]) }}?joined=1&session_id={{ $todaySession->id }}'; }, 500);">
+                                <a href="{{ (isset($isHostRole) && $isHostRole) ? $sessionUrl : '#' }}" @if(isset($isHostRole) && $isHostRole) target="_blank" @endif
+                                    class="btn btn-success text-white font-weight-bold mt-2 @if(!(isset($isHostRole) && $isHostRole)) js-live-session-join @endif"
+                                    @if(!(isset($isHostRole) && $isHostRole))
+                                        data-attendance-url="{{ route('courses.attendance', [$course->slug]) }}"
+                                        data-session-id="{{ $todaySession->id }}"
+                                    @endif>
                                     <i class="fas fa-sign-in-alt"></i> {{ (isset($isHostRole) && $isHostRole) ? 'Host Meeting' : 'Join Now' }}
                                 </a>
                             @else
@@ -225,8 +233,12 @@
                                             </td>
                                             <td>
                                                 @if($sUrl && $rowInWindow && !$is_attended && !$wasAttended)
-                                                    <a href="{{ $sUrl }}" target="_blank" class="btn btn-sm btn-success text-white"
-                                                        onclick="setTimeout(function(){ window.location.href='{{ route('courses.show', [$course->slug]) }}?joined=1&session_id={{ $session->id }}'; }, 500);">
+                                                    <a href="{{ (isset($isHostRole) && $isHostRole) ? $sUrl : '#' }}" @if(isset($isHostRole) && $isHostRole) target="_blank" @endif
+                                                        class="btn btn-sm btn-success text-white @if(!(isset($isHostRole) && $isHostRole)) js-live-session-join @endif"
+                                                        @if(!(isset($isHostRole) && $isHostRole))
+                                                            data-attendance-url="{{ route('courses.attendance', [$course->slug]) }}"
+                                                            data-session-id="{{ $session->id }}"
+                                                        @endif>
                                                         <i class="fas fa-sign-in-alt"></i> {{ (isset($isHostRole) && $isHostRole) ? 'Host' : 'Join' }}
                                                     </a>
                                                 @elseif($isToday && !$rowInWindow && !$wasAttended)
@@ -359,8 +371,8 @@
                                             <i class="fa fa-video"></i> @lang('Host Meeting')
                                         </a>
                                     @elseif($sidebarJoinUrl)
-                                        <a href="{{ $sidebarJoinUrl }}" target="_blank" class="btn btn-primary btn-block text-white mb-3 text-uppercase font-weight-bold"
-                                            onclick="setTimeout(function(){ window.location.href='{{ route('courses.show', [$course->slug]) }}?joined=1'; }, 500);">
+                                        <a href="#" class="btn btn-primary btn-block text-white mb-3 text-uppercase font-weight-bold js-live-session-join"
+                                            data-attendance-url="{{ route('courses.attendance', [$course->slug]) }}">
                                             <i class="fa fa-video"></i> @lang('Join')
                                         </a>
                                     @elseif($course->is_online == 'Offline' || $course->is_online == 'Live-Classroom')
@@ -402,4 +414,80 @@
 @endsection
 
 @push('after-scripts')
+    <script>
+        (function () {
+            var joinButtons = document.querySelectorAll('.js-live-session-join');
+            var csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+            joinButtons.forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    if (button.dataset.joining === '1') {
+                        return;
+                    }
+
+                    var attendanceUrl = button.dataset.attendanceUrl;
+                    if (!attendanceUrl) {
+                        alert(@json(__('Meeting link is missing for this session.')));
+                        return;
+                    }
+
+                    button.dataset.joining = '1';
+                    button.dataset.originalText = button.innerHTML;
+                    button.classList.add('disabled');
+                    button.setAttribute('aria-disabled', 'true');
+                    button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + @json(__('Joining...'));
+
+                    var payload = {};
+                    if (button.dataset.sessionId) {
+                        payload.session_id = button.dataset.sessionId;
+                    }
+
+                    fetch(attendanceUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(function (response) {
+                            return response.text().then(function (text) {
+                                var data = {};
+                                if (text) {
+                                    try {
+                                        data = JSON.parse(text);
+                                    } catch (error) {
+                                        data = {};
+                                    }
+                                }
+
+                                if (!response.ok) {
+                                    throw new Error(data.message || @json(__('Unable to record attendance. Please try again.')));
+                                }
+
+                                return data;
+                            });
+                        })
+                        .then(function (data) {
+                            if (!data.meeting_link) {
+                                throw new Error(@json(__('Meeting link is missing for this session.')));
+                            }
+
+                            window.location.href = data.meeting_link;
+                        })
+                        .catch(function (error) {
+                            button.dataset.joining = '0';
+                            button.classList.remove('disabled');
+                            button.removeAttribute('aria-disabled');
+                            button.innerHTML = button.dataset.originalText;
+                            alert(error.message || @json(__('Unable to record attendance. Please try again.')));
+                        });
+                });
+            });
+        })();
+    </script>
 @endpush
