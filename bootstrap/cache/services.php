@@ -67,11 +67,10 @@
     63 => 'App\\Providers\\BladeServiceProvider',
     64 => 'App\\Providers\\ComposerServiceProvider',
     65 => 'App\\Providers\\EventServiceProvider',
-    66 => 'App\\Providers\\KpiEventServiceProvider',
-    67 => 'App\\Providers\\LegacyFormServiceProvider',
-    68 => 'App\\Providers\\ObserverServiceProvider',
-    69 => 'App\\Providers\\RouteServiceProvider',
-    70 => 'LdapRecord\\Laravel\\LdapServiceProvider',
+    66 => 'App\\Providers\\LegacyFormServiceProvider',
+    67 => 'App\\Providers\\ObserverServiceProvider',
+    68 => 'App\\Providers\\RouteServiceProvider',
+    69 => 'LdapRecord\\Laravel\\LdapServiceProvider',
   ),
   'eager' => 
   array (
@@ -127,11 +126,10 @@
     49 => 'App\\Providers\\BladeServiceProvider',
     50 => 'App\\Providers\\ComposerServiceProvider',
     51 => 'App\\Providers\\EventServiceProvider',
-    52 => 'App\\Providers\\KpiEventServiceProvider',
-    53 => 'App\\Providers\\LegacyFormServiceProvider',
-    54 => 'App\\Providers\\ObserverServiceProvider',
-    55 => 'App\\Providers\\RouteServiceProvider',
-    56 => 'LdapRecord\\Laravel\\LdapServiceProvider',
+    52 => 'App\\Providers\\LegacyFormServiceProvider',
+    53 => 'App\\Providers\\ObserverServiceProvider',
+    54 => 'App\\Providers\\RouteServiceProvider',
+    55 => 'LdapRecord\\Laravel\\LdapServiceProvider',
   ),
   'deferred' => 
   array (

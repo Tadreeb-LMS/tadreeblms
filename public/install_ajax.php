@@ -291,13 +291,12 @@ try {
                 fail("Failed to read .env");
             }
 
-            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $baseUri = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-            $baseUri = rtrim($baseUri, '/');
-            $appUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . ($baseUri === '' ? '' : $baseUri);
-
+            $scheme = ( !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ) ? 'https' : 'http'; 
+            $baseUri = rtrim(dirname($_SERVER['SCRIPT_NAME']),'/');
+            $appUrl = $scheme .'://'.$_SERVER['HTTP_HOST'].($baseUri==='/' ? '' : $baseUri);
+            // Prepare DB values
             $replacements = [
-                'APP_URL'     => $appUrl,
+                'APP_URL' => $appUrl,
                 'DB_HOST'     => $config['host'] ?? '',
                 'DB_DATABASE' => $config['database'] ?? '',
                 'DB_USERNAME' => $config['username'] ?? '',
