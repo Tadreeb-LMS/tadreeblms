@@ -172,6 +172,8 @@
     @method('PUT')
 
     <div>
+
+    <div>
         <div class="pb-3 d-flex justify-content-between addcourseheader">
 
 
@@ -940,11 +942,16 @@
 
                                 <div class=" ">
                                     <button class="btn add-btn frm_submit" id="doneBtn"
-                                        type="submit">{{ trans('Save As Draft') }}</button>
+                                        type="submit" value="Save As Draft">
+                                        {{ trans('Save As Draft') }}
+                                    </button>
                                 </div>
                                 <div class=" ">
-                                    <button class="btn cancel-btn frm_submit" id="nextBtn"
-                                        type="submit">{{ trans('Next') }}</button>
+                                    
+                                <button class="btn cancel-btn frm_submit" id="nextBtn"
+                                    type="submit" value="Next">
+                                    {{ trans('Next') }}
+                                </button>
                                 </div>
                             @else
                                 <div class="form-group">
