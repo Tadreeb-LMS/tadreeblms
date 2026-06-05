@@ -8,6 +8,7 @@ return array(
   'legend_scheduled_sessions' => 'جلسات مجدولة',
   'add_schedule' => 'أضف جدولك',
   'edit_schedule' => 'عدّل جدولك',
+  'event_added_successfully' => 'تمت إضافة الحدث بنجاح',
   'schedule_name' => 'اسم الجدول:',
   'close' => 'إغلاق',
   'save_schedule' => 'احفظ جدولك',

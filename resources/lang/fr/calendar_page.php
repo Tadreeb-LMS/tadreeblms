@@ -8,6 +8,7 @@ return array(
   'legend_scheduled_sessions' => 'Sessions programmées',
   'add_schedule' => 'Ajouter votre planning',
   'edit_schedule' => 'Modifier votre planning',
+  'event_added_successfully' => 'Événement ajouté avec succès',
   'schedule_name' => 'Nom du planning :',
   'close' => 'Fermer',
   'save_schedule' => 'Enregistrer votre planning',

@@ -8,6 +8,7 @@ return array(
   'legend_scheduled_sessions' => 'Sesiones programadas',
   'add_schedule' => 'Agregar su horario',
   'edit_schedule' => 'Editar su horario',
+  'event_added_successfully' => 'Evento agregado correctamente',
   'schedule_name' => 'Nombre del horario:',
   'close' => 'Cerrar',
   'save_schedule' => 'Guardar su horario',
