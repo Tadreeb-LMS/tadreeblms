@@ -873,12 +873,19 @@ $teachers = [$teacherId];
             $course->students()->sync($students);
             // Auto subscribe into courses
             foreach ($students as $id) {
-                $data = [
-                    'user_id' => $id,
-                    'course_id' =>  $course->id,
-                    'status' => 1
-                ];
-                SubscribeCourse::updateOrCreate($data);
+                $subscription = SubscribeCourse::updateOrCreate(
+                    [
+                        'user_id' => $id,
+                        'course_id' => $course->id,
+                    ],
+                    [
+                        'status' => 1,
+                    ]
+                );
+
+                if ($subscription->wasRecentlyCreated && ($student = User::find($id))) {
+                    CourseNotification::createCourseEnrollmentBell($student, $course);
+                }
             }
             $internalStudents = \App\Models\Auth\User::whereHas('roles', function ($q) {
                 $q->where('role_id', 3)->where('employee_type', 'internal');
@@ -1196,7 +1203,7 @@ $teachers = [$teacherId];
             $course->students()->sync($students);
 
             foreach ($students as $studentId) {
-                SubscribeCourse::updateOrCreate(
+                $subscription = SubscribeCourse::updateOrCreate(
                     [
                         'user_id' => $studentId,
                         'course_id' => $course->id,
@@ -1205,6 +1212,10 @@ $teachers = [$teacherId];
                         'status' => 1,
                     ]
                 );
+
+                if ($subscription->wasRecentlyCreated && ($student = User::find($studentId))) {
+                    CourseNotification::createCourseEnrollmentBell($student, $course);
+                }
             }
         }
         

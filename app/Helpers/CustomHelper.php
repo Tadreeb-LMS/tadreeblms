@@ -9,7 +9,7 @@ use App\Models\Course;
 use App\Models\Category;
 use App\Models\courseAssignment;
 use App\Models\AssignmentQuestion;
-use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
+use App\Models\{Assignment, Lesson, AttendanceStudent, ChapterStudent, StudentCourseFeedback, Certificate, Config, CourseAssignmentToUser, CourseModuleWeightage, EmployeeProfile, Test, TestQuestion, TestsResult, UserCourseDetail};
 use App\Models\Stripe\SubscribeCourse;
 use App\Services\LmsEventRecorder;
 use Auth;
@@ -1139,37 +1139,87 @@ class CustomHelper
 
     public static function syncCourseAssignmentAndSubscribeCourseData()
     {
+        $synced = 0;
         $cas = courseAssignment::get();
 
         foreach ($cas as $ca) {
+            if (empty($ca->course_id) || empty($ca->assign_to)) {
+                continue;
+            }
+
             if (strpos($ca->assign_to, ',') !== false) {
                 $usersAssigned = explode(',', $ca->assign_to);
 
                 foreach ($usersAssigned as $value) {
-                    $sc = SubscribeCourse::where('user_id', $value)->where('course_id', $ca->course_id)->exists();
-                    if (!$sc) {
-                        SubscribeCourse::create([
-                            'user_id' => $value,
-                            'course_id' => $ca->course_id,
-                            'status' => 1,
-                            'created_at' => $ca->assign_date,
-                            'updated_at' => $ca->assign_date,
-                        ]);
-                    }
+                    $synced += self::syncAssignedCourseSubscription($value, $ca->course_id, $ca);
                 }
             } else {
-                $sc = SubscribeCourse::where('user_id', $ca->assign_to)->where('course_id', $ca->course_id)->exists();
-                if (!$sc) {
-                    SubscribeCourse::create([
-                        'user_id' => $ca->assign_to,
-                        'course_id' => $ca->course_id,
-                        'status' => 1,
-                        'created_at' => $ca->assign_date,
-                        'updated_at' => $ca->assign_date,
-                    ]);
-                }
+                $synced += self::syncAssignedCourseSubscription($ca->assign_to, $ca->course_id, $ca);
             }
         }
+
+        CourseAssignmentToUser::with('assignment')
+            ->where('by_pathway', 0)
+            ->whereNull('deleted_at')
+            ->whereNotNull('user_id')
+            ->whereNotNull('course_id')
+            ->chunkById(200, function ($assignments) use (&$synced) {
+                foreach ($assignments as $assignmentUser) {
+                    $synced += self::syncAssignedCourseSubscription(
+                        $assignmentUser->user_id,
+                        $assignmentUser->course_id,
+                        $assignmentUser->assignment
+                    );
+                }
+            });
+
+        return $synced;
+    }
+
+    private static function syncAssignedCourseSubscription($userId, $courseId, $assignment = null)
+    {
+        $userId = (int) $userId;
+        $courseId = (int) $courseId;
+
+        if (!$userId || !$courseId || !Course::where('id', $courseId)->exists()) {
+            return 0;
+        }
+
+        $subscription = SubscribeCourse::withTrashed()
+            ->where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->first();
+
+        if ($subscription && is_null($subscription->deleted_at)) {
+            return 0;
+        }
+
+        $hasFeedback = StudentCourseFeedback::where('course_id', $courseId)->exists()
+            || \App\Models\CourseFeedback::where('course_id', $courseId)->exists();
+        $hasAssessment = Assignment::where('course_id', $courseId)->exists();
+        $assignDate = optional($assignment)->assign_date ?: now();
+
+        if (!$subscription) {
+            $subscription = new SubscribeCourse([
+                'user_id' => $userId,
+                'course_id' => $courseId,
+            ]);
+        } else {
+            $subscription->restore();
+        }
+
+        $subscription->fill([
+            'status' => 1,
+            'assign_date' => $assignDate,
+            'due_date' => optional($assignment)->due_date,
+            'has_feedback' => $hasFeedback ? 1 : 0,
+            'has_assesment' => $hasAssessment ? 1 : 0,
+            'course_trainer_name' => self::getCourseTrainerName($courseId) ?? null,
+            'is_pathway' => 0,
+        ]);
+        $subscription->save();
+
+        return 1;
     }
 
     public static function completeCourseForUser($course_id, $user_id)
