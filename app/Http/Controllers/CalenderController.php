@@ -246,6 +246,19 @@ if (
             $live_slot_data[] = $event;
         }
 
+        // ─── 5. User-added Events ───
+        $event_data = [];
+        $user_events = DB::table('events')->get();
+
+        foreach ($user_events as $event) {
+            if (!$event->event_date) continue;
+            $event_data[] = [
+                'title' => $event->title,
+                'start' => date('Y-m-d', strtotime($event->event_date)),
+                'description' => $event->content ?? '',
+            ];
+        }
+
         $viewPath = $this->path . '.calender.index';
 
         if (!view()->exists($viewPath)) {
@@ -256,6 +269,7 @@ if (
             'liveSessions'       => json_encode($live_session_data),
             'liveLessonSlots'    => json_encode($live_slot_data),
             'scheduledSessions'  => json_encode($scheduled_session_data),
+            'userEvents'        => json_encode($event_data),
         ]);
     }
 
@@ -474,6 +488,6 @@ if (
         //
         $event->save();
         // dd($event->save());
-        return redirect()->route('user.calender');
+        return redirect()->route('user.calender')->with('flash_success', __('calendar_page.event_added_successfully'));
     }
 }
