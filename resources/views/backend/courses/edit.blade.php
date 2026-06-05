@@ -172,6 +172,8 @@
     @method('PUT')
 
     <div>
+
+    <div>
         <div class="pb-3 d-flex justify-content-between addcourseheader">
 
 
@@ -268,6 +270,25 @@
                                 <small class="form-text text-muted">Disable to exclude this course from KPI
                                     calculations, even if its category is mapped to a KPI.</small>
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="final_assessment_max_attempts" class="control-label">
+                                Final assessment max attempts
+                            </label>
+                            <input
+                                class="form-control"
+                                id="final_assessment_max_attempts"
+                                name="final_assessment_max_attempts"
+                                type="number"
+                                min="1"
+                                max="999"
+                                value="{{ old('final_assessment_max_attempts', $course->final_assessment_max_attempts) }}"
+                                placeholder="Leave blank for unlimited attempts"
+                            >
+                            <small class="form-text text-muted">
+                                Optional. When set, learners cannot start or retry the final assessment after reaching this number of attempts.
+                            </small>
                         </div>
 
                         <div class="form-group">
@@ -921,11 +942,16 @@
 
                                 <div class=" ">
                                     <button class="btn add-btn frm_submit" id="doneBtn"
-                                        type="submit">{{ trans('Save As Draft') }}</button>
+                                        type="submit" value="Save As Draft">
+                                        {{ trans('Save As Draft') }}
+                                    </button>
                                 </div>
                                 <div class=" ">
-                                    <button class="btn cancel-btn frm_submit" id="nextBtn"
-                                        type="submit">{{ trans('Next') }}</button>
+                                    
+                                <button class="btn cancel-btn frm_submit" id="nextBtn"
+                                    type="submit" value="Next">
+                                    {{ trans('Next') }}
+                                </button>
                                 </div>
                             @else
                                 <div class="form-group">

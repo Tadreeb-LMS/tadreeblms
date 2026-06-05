@@ -31,6 +31,10 @@ class CourseEnrollmentNotificationTest extends TestCase
         $this->assertStringContainsString('You have been enrolled in a course:', $notification);
         $this->assertStringContainsString("route('courses.show', \$course->slug)", $notification);
 
+        $this->assertStringContainsString('return $this->course_assignment($request);', $assessmentController);
+        $this->assertStringContainsString("'course_ids' => 'required_without:course_id|array'", $assessmentController);
+        $this->assertStringContainsString("\$request->filled('course_ids')", $assessmentController);
+
         $this->assertSame(
             4,
             substr_count($assessmentController, 'CourseNotification::createCourseEnrollmentBell($emp, $course);')

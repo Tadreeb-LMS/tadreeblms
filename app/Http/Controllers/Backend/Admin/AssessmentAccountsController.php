@@ -64,49 +64,7 @@ public function createWithCourse(Request $request)
 
 public function courseAssignment(Request $request)
 {
-
-    $request->validate([
-        'course_ids' => 'required|array',
-        'teachers' => 'required|array'
-    ]);
-
-    $courses = $request->course_ids;
-    $users = $request->teachers;
-
-    foreach ($courses as $courseId) {
-
-        $course = DB::table('courses')->where('id', $courseId)->first();
-
-        // create assignment
-        $assignmentId = DB::table('course_assignment')->insertGetId([
-            'title' => $course->title,
-            'course_id' => $courseId, 
-            'category_id' => $course->category_id ?? null,
-    'department_id' => $request->department_id ?? null,   
-             'assign_by' => auth()->id(),        // Assign By
-            'created_at' => now(),
-            'updated_at' => now(),
-            'assign_date' => now(),
-'assign_to' => $request->department_id ? 'department' : 'user',        ]);
-
-        // assign users
-        foreach ($users as $userId) {
-
-            DB::table('course_assignment_users')->insert([
-    'course_assignment_id' => $assignmentId,
-    'course_id' => $courseId,
-    'user_id' => $userId,
-    'log_comment' => 'By Admin',
-    'created_at' => now(),
-    'updated_at' => now()
-]);;
-
-        }
-
-    }
-
-    return redirect()->back()->with('success','Courses assigned successfully');
-
+    return $this->course_assignment($request);
 }
 
     /**
@@ -355,11 +313,23 @@ public function courseAssignment(Request $request)
     public function submit_result(HttpRequest $request)
     {
         $assignment_submit = json_decode($request->all_data);
+        $course_id = null;
+        $user_id = null;
+
         foreach ($assignment_submit as $key => $value) {
             $question = DB::table('assignment_questions')->where('id', "=", $value->question_id)->first();
             $test_question = DB::table('test_questions')->where('id', "=", $question->question_id)->first();
             DB::table('assignment_questions')->where('id', $value->question_id)->update(['is_correct' => $value->is_correct, 'marks' => $value->is_correct == 1 ? $test_question->marks : 0]);
+
+            $assignment = DB::table('assignments')->where('id', $question->assignment_id)->first();
+            $course_id = $assignment->course_id ?? $course_id;
+            $user_id = $question->assessment_account_id ?? $user_id;
         }
+
+        if ($course_id && $user_id) {
+            CustomHelper::updateUserProgress($user_id, $course_id);
+        }
+
         return json_encode([
             'status' => 200,
             'message' => "Answers are corrected."
@@ -611,31 +581,24 @@ public function courseAssignment(Request $request)
         $this->validate($request, 
             [
                 // 'title' => 'required',
-                'course_id' => 'required',
+                'course_id' => 'required_without:course_ids',
+                'course_ids' => 'required_without:course_id|array',
                 // 'due_date' => 'required',    
                 'teachers' => 'required_without:department_id',
                 'department_id' => 'required_without:teachers',
             ],
             [
-                'course_id.required' => 'Please select the course',
+                'course_id.required_without' => 'Please select the course',
+                'course_ids.required_without' => 'Please select the course',
                 'teachers.required_without' => 'Please select either a users or department',
                 'department_id.required_without' => 'Please select either a users or department',
             ]
         );
 
         // course assignment
-        $course_ids_arr = [];
-        $single_course_id = $request->course_id;
-
-
-
-
-        if ($single_course_id) {
-            $course_ids_arr = [$single_course_id];
-        }
-
-        $course = Course::find($single_course_id);
-        $course_link = url("/course/$course->slug");
+        $course_ids_arr = $request->filled('course_ids')
+            ? array_filter((array) $request->course_ids)
+            : array_filter([(int) $request->course_id]);
 
         $users = [];
         $assign_to = null;
@@ -665,6 +628,13 @@ public function courseAssignment(Request $request)
         $already_enrolled = [];
 
         foreach ($course_ids_arr as $course_id) {
+            $course = Course::find($course_id);
+
+            if (!$course) {
+                continue;
+            }
+
+            $course_link = url("/course/$course->slug");
             $course_Ass = new courseAssignment;
             // $course_Ass->title = $request->title;
             $course_Ass->course_id = $course_id;

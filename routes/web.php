@@ -208,6 +208,7 @@ Route::get('department/{id}', [DepartmentController::class, 'show'])->name('depa
 //============Course Routes=================//
 Route::get('courses', ['uses' => 'CoursesController@all', 'as' => 'courses.all']);
 Route::get('cme-courses', ['uses' => 'CoursesController@allCme', 'as' => 'courses.allCme']);
+Route::post('course/{slug}/attendance', ['uses' => 'CoursesController@recordLiveSessionAttendance', 'as' => 'courses.attendance'])->middleware(['subscribed', 'auth']);
 Route::get('course/{slug}', ['uses' => 'CoursesController@show', 'as' => 'courses.show'])->middleware(['subscribed', 'auth']);
 Route::get('course-preview/{slug}', 'CoursesController@coursePreview')->name('coursePreview')->middleware('subscribed');
 
