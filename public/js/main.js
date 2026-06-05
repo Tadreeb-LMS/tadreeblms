@@ -1,3 +1,68 @@
+(function (window, $) {
+    if (!$ || !$.fn || !$.fn.dataTable) {
+        return;
+    }
+
+    var decoratedTables = [];
+
+    function syncColumnVisibilityButtons(table) {
+        setTimeout(function () {
+            var $columnVisibilityButtons = $('div.dt-button-collection .buttons-columnVisibility, div.dt-button-collection .dt-button[data-cv-idx]');
+            var $collection = $columnVisibilityButtons.closest('div.dt-button-collection');
+
+            $collection.addClass('dt-column-visibility-collection');
+
+            $columnVisibilityButtons.each(function () {
+                var $button = $(this);
+                var columnIndex = $button.attr('data-cv-idx');
+                var isVisible = $button.hasClass('active') || $button.hasClass('dt-button-active');
+
+                if (columnIndex !== undefined) {
+                    isVisible = table.column(columnIndex).visible();
+                }
+
+                $button
+                    .toggleClass('active dt-button-active', isVisible)
+                    .toggleClass('dt-column-hidden', !isVisible)
+                    .attr('aria-pressed', isVisible ? 'true' : 'false');
+            });
+
+            $collection.each(function () {
+                var $menu = $(this);
+                var menuOffset = $menu.offset();
+                var menuWidth = $menu.outerWidth();
+                var windowWidth = $(window).width();
+                var overflow = menuOffset.left + menuWidth - windowWidth + 12;
+
+                if (overflow > 0) {
+                    $menu.css('left', Math.max(12, menuOffset.left - overflow));
+                }
+            });
+        }, 0);
+    }
+
+    window.decorateColumnVisibilityButtons = function (dataTable) {
+        var table = dataTable && dataTable.settings ? dataTable : new $.fn.dataTable.Api(dataTable);
+        var tableNode = table.table().node();
+
+        if ($.inArray(tableNode, decoratedTables) !== -1) {
+            return table;
+        }
+
+        decoratedTables.push(tableNode);
+
+        table.on('buttons-action.dtColumnVisibility column-visibility.dtColumnVisibility draw.dtColumnVisibility', function () {
+            syncColumnVisibilityButtons(table);
+        });
+
+        return table;
+    };
+
+    $(document).on('init.dt', function (event, settings) {
+        window.decorateColumnVisibilityButtons(new $.fn.dataTable.Api(settings));
+    });
+})(window, window.jQuery);
+
 $(document).ready(function () {
 
     var handleCheckboxes = function (html, rowIndex, colIndex, cellNode) {
