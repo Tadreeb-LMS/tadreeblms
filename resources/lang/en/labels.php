@@ -411,6 +411,7 @@ return array(
     array(
       'title' => 'General',
       'disable_landing_page' => 'Disable Landing Page',
+      'site_logo' => 'Site Logo',
       'contact' =>
       array(
         'short_text' => 'Short Text',
@@ -485,7 +486,6 @@ return array(
         'mail_password_note' => 'Add your email password you want to configure for sending emails',
         'mail_encryption' => 'Mail Encryption',
         'mail_encryption_note' => 'Use <b>tls</b> if your site uses <b>HTTP</b> protocol and <b>ssl</b> if you site uses <b>HTTPS</b> protocol',
-        'site_logo' => 'Site Logo',
         'save_settings' => 'Save Settings',
         'note' => '<b>Important Note</b> : IF you are using <b>GMAIL</b> for Mail configuration, make sure you have completed following process before updating:
       <ul>
