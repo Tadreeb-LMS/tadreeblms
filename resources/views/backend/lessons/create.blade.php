@@ -420,6 +420,20 @@
         });
     }
 
+    function resetLessonFileInputs($lesson) {
+        const chooseFileLabelHtml = '<i class="fa fa-upload mr-1"></i> ' + @json(__('course_pages.admin_lessons_create.choose_file'));
+
+        $lesson.find('input[type="file"]').each(function () {
+            const $freshInput = $(this).clone(false);
+            $freshInput.val('');
+            $(this).replaceWith($freshInput);
+        });
+
+        $lesson.find('.custom-file-label').each(function () {
+            $(this).html(chooseFileLabelHtml);
+        });
+    }
+
     window.videoIndex = window.videoIndex || 0;
 
     $(document).ready(function () {
@@ -646,6 +660,7 @@
 
         clone.find('input:not([type="checkbox"], [type="hidden"]), textarea').val('');
         clone.find('input[type="checkbox"]').prop('checked', false);
+        resetLessonFileInputs(clone);
 
         clone.find('.cke').remove();
 

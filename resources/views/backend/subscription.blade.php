@@ -3,6 +3,42 @@
 
 @section('title', __('labels.backend.subscription.title').' | '.app_name())
 
+@push('after-styles')
+<style>
+.table-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+.btn-theme {
+    background: linear-gradient(90deg, #2f3e74 0%, #c79a2d 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    width: 50px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    text-decoration: none;
+}
+.btn-theme:hover {
+    background-color: #26345f !important;
+    border-color: #c79a2d !important;
+    color: #ffffff !important;
+}
+.btn-theme:focus,
+.btn-theme:active {
+    box-shadow: none !important;
+    outline: none !important;
+}
+</style>
+@endpush
+
 @section('content')
 
 <div class="userheading">
@@ -75,7 +111,7 @@
     <script>
 
         $(document).ready(function () {
-            var route = '{{route('user.subscriptions.getdata')}}';
+            var route = '{{ request('show_deleted') == 1 ? route('user.subscriptions.getdata', ['show_deleted' => 1]) : route('user.subscriptions.getdata') }}';
 
             $('#myTable').DataTable({
                 processing: true,

@@ -22,68 +22,47 @@ class SubscriptionController extends Controller
 
     }
 
+    public function restore($id)
+    {
+        $subscription = SubscribeCourse::where('user_id', Auth::user()->id)
+            ->onlyTrashed()
+            ->findOrFail($id);
+
+        $subscription->restore();
+
+        return redirect()->route('user.subscriptions', ['show_deleted' => 1])
+            ->withFlashSuccess('Subscription restored successfully.');
+    }
+
     public function getData(Request $request)
     {
-        $has_view = false;
-        $has_delete = false;
-        $has_edit = false;
-        $pages = "";
         $user_id = Auth::user()->id;
 
         if (request('show_deleted') == 1) {
-
-            $pages = SubscribeCourse::whereHas('course')->where('user_id',$user_id)->orderBy('created_at', 'desc');
-
-            // if (!Gate::allows('page_delete')) {
-            //     return abort(401);
-            // }
-            // $pages = SubscribeCourse::where('user_id',$user_id)->onlyTrashed()->orderBy('created_at', 'desc')->get();
-
+            $pages = SubscribeCourse::where('user_id', $user_id)->onlyTrashed()->orderBy('created_at', 'desc');
         } else {
-            $pages = SubscribeCourse::whereHas('course')->where('user_id',$user_id)->orderBy('created_at', 'desc');
-
-        }
-
-
-        if (auth()->user()->can('page_view')) {
-            $has_view = true;
-        }
-        if (auth()->user()->can('page_edit')) {
-            $has_edit = true;
-        }
-        if (auth()->user()->can('page_delete')) {
-            $has_delete = true;
+            $pages = SubscribeCourse::where('user_id', $user_id)->orderBy('created_at', 'desc');
         }
 
         return DataTables::of($pages)
             ->addIndexColumn()
-            ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-                $view = "";
-                $edit = "";
-                $delete = "";
+            ->addColumn('actions', function ($q) use ($request) {
                 if ($request->show_deleted == 1) {
-                    return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.subscription', 'label' => 'id', 'value' => $q->id]);
-                }
-                if ($has_view) {
-                    $view = view('backend.datatable.action-view')
-                        ->with(['route' => route('admin.subscription.show', ['page' => $q->id])])->render();
-                }
-                if ($has_edit) {
-                    $edit = view('backend.datatable.action-edit')
-                        ->with(['route' => route('admin.subscription.edit', ['page' => $q->id])])
-                        ->render();
-                    $view .= $edit;
+                    return '<div class="table-actions">'
+                        . '<form action="' . route('user.subscriptions.restore', ['subscription' => $q->id]) . '" method="POST" style="display:inline;">'
+                        . csrf_field()
+                        . '<button type="submit" class="btn-theme" title="Restore"><i class="fa fa-recycle"></i></button>'
+                        . '</form>'
+                        . '</div>';
                 }
 
-                if ($has_delete) {
-                    $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.subscription.destroy', ['page' => $q->id])])
-                        ->render();
-                    $view .= $delete;
+                $view = '<div class="table-actions">';
+                if ($q->course_id) {
+                    $view .= '<a href="' . route('courses.show', ['slug' => optional($q->course)->slug ?? '#']) . '" class="btn-theme" title="View Course"><i class="fa fa-eye"></i></a>';
                 }
+                $view .= '</div>';
 
                 return $view;
-
             })
 
             ->editColumn('image', function ($q) {

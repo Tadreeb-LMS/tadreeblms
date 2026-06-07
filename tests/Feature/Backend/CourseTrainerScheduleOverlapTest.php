@@ -104,6 +104,73 @@ class CourseTrainerScheduleOverlapTest extends TestCase
     }
 
     /** @test */
+    public function it_blocks_single_meeting_overlap_without_requiring_a_meeting_provider(): void
+    {
+        [$trainer] = $this->trainerWithLiveSession('2026-07-29', '12:00:00', 90);
+
+        $request = new Request([
+            'course_type' => 'Offline',
+            'meeting_start_at' => '2026-07-29 12:30:00',
+            'meeting_duration' => 60,
+        ]);
+
+        try {
+            $this->invokePrivate('validateLiveCourseTrainerSchedule', [$request, [$trainer->id]]);
+            $this->fail('Expected overlap validation to fail.');
+        } catch (ValidationException $exception) {
+            $this->assertStringContainsString(
+                'Trainer is already assigned for another course at this time.',
+                $exception->errors()['meeting_start_at'][0]
+            );
+        }
+    }
+
+    /** @test */
+    public function it_builds_single_meeting_start_from_date_and_time_before_overlap_validation(): void
+    {
+        [$trainer] = $this->trainerWithLiveSession('2026-07-29', '12:00:00', 90);
+
+        $request = new Request([
+            'course_type' => 'Offline',
+            'meeting_start_date' => '2026-07-29',
+            'meeting_start_time' => '12:30',
+            'meeting_duration' => 60,
+        ]);
+
+        try {
+            $this->invokePrivate('validateLiveCourseTrainerSchedule', [$request, [$trainer->id]]);
+            $this->fail('Expected overlap validation to fail.');
+        } catch (ValidationException $exception) {
+            $this->assertSame('2026-07-29 12:30:00', $request->meeting_start_at);
+            $this->assertStringContainsString(
+                'Trainer is already assigned for another course at this time.',
+                $exception->errors()['meeting_start_at'][0]
+            );
+        }
+    }
+
+    /** @test */
+    public function it_ignores_providerless_single_meeting_from_the_course_being_updated(): void
+    {
+        $trainer = factory(User::class)->create();
+        $course = $this->course([
+            'meeting_start_at' => '2026-07-29 12:00:00',
+            'meeting_duration' => 90,
+        ]);
+        DB::table('course_user')->insert(['course_id' => $course->id, 'user_id' => $trainer->id]);
+
+        $request = new Request([
+            'course_type' => 'Offline',
+            'meeting_start_at' => '2026-07-29 12:00:00',
+            'meeting_duration' => 90,
+        ]);
+
+        $this->invokePrivate('validateLiveCourseTrainerSchedule', [$request, [$trainer->id], $course->id]);
+
+        $this->assertTrue(true);
+    }
+
+    /** @test */
     public function it_blocks_weekly_schedule_generation_when_any_generated_session_overlaps(): void
     {
         [$trainer, $existingCourse] = $this->trainerWithLiveSession('2026-05-29', '12:00:00', 90);
@@ -263,6 +330,52 @@ class CourseTrainerScheduleOverlapTest extends TestCase
         ]);
 
         $this->invokePrivate('validateTrainerScheduleAvailability', [$request, [$trainer->id], $existingCourse->id + 1]);
+
+        $this->assertTrue(true);
+    }
+
+    /** @test */
+    public function it_blocks_overlapping_custom_sessions_in_the_same_request(): void
+    {
+        $trainer = factory(User::class)->create();
+
+        $request = new Request([
+            'schedule_type' => 'custom',
+            'start_date' => '2026-07-29',
+            'expire_at' => '2026-07-31',
+            'custom_dates' => ['2026-07-29', '2026-07-29'],
+            'custom_times' => ['12:00', '12:30'],
+            'custom_durations' => [60, 60],
+        ]);
+
+        try {
+            $this->invokePrivate('validateTrainerScheduleAvailability', [$request, [$trainer->id]]);
+            $this->fail('Expected overlap validation to fail.');
+        } catch (ValidationException $exception) {
+            $message = $exception->errors()['schedule_type'][0];
+
+            $this->assertStringContainsString('Trainer is already assigned for another course at this time.', $message);
+            $this->assertStringContainsString('Requested sessions overlap', $message);
+            $this->assertStringContainsString('2026-07-29 12:00', $message);
+            $this->assertStringContainsString('2026-07-29 12:30', $message);
+        }
+    }
+
+    /** @test */
+    public function it_allows_adjacent_custom_sessions_in_the_same_request(): void
+    {
+        $trainer = factory(User::class)->create();
+
+        $request = new Request([
+            'schedule_type' => 'custom',
+            'start_date' => '2026-07-29',
+            'expire_at' => '2026-07-31',
+            'custom_dates' => ['2026-07-29', '2026-07-29'],
+            'custom_times' => ['12:00', '13:00'],
+            'custom_durations' => [60, 60],
+        ]);
+
+        $this->invokePrivate('validateTrainerScheduleAvailability', [$request, [$trainer->id]]);
 
         $this->assertTrue(true);
     }

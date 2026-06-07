@@ -302,6 +302,27 @@
                         </div>
 
                         <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="final_assessment_max_attempts" class="control-label">
+                                    Final assessment max attempts
+                                </label>
+                                <input
+                                    class="form-control"
+                                    id="final_assessment_max_attempts"
+                                    name="final_assessment_max_attempts"
+                                    type="number"
+                                    min="1"
+                                    max="999"
+                                    value="{{ old('final_assessment_max_attempts') }}"
+                                    placeholder="Leave blank for unlimited attempts"
+                                >
+                                <small class="form-text text-muted">
+                                    Optional. When set, learners cannot start or retry the final assessment after reaching this number of attempts.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row">
 
                             <div class="col-sm-12 col-lg-12 col-md-12 form-group">
                                 <label for="course_code"
@@ -458,62 +479,73 @@
                         </span>
                         <span id="live-online" class="course-live-online-section" style="display: none;">
                             {{ __('course_pages.admin_create.live_online_desc') }}
-                            @if(count($enabledMeetingProviders ?? []))
-                                {{-- Meeting Provider & Timezone (always visible for Live-Online) --}}
-                                <div class="card mt-3" id="meeting-provider-section">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i>
-                                            {{ __('course_pages.admin_create.meeting_configuration') }}</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 form-group">
-                                                <label
-                                                    for="meeting_provider">{{ __('course_pages.admin_create.meeting_provider') }}
-                                                    *</label>
-                                                <select name="meeting_provider" id="meeting_provider" class="form-control">
-                                                    @foreach($enabledMeetingProviders as $key => $label)
-                                                        <option value="{{ $key }}">{{ $label }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 form-group">
-                                                <label
-                                                    for="meeting_timezone">{{ __('course_pages.admin_create.timezone') }}</label>
-                                                <input type="text" name="meeting_timezone" id="meeting_timezone"
-                                                    class="form-control" value="Asia/Riyadh">
-                                            </div>
-                                        </div>
-                                        {{-- Single meeting fields hidden — only for backward compat if needed --}}
-                                        <div class="row" id="single-meeting-fields" style="display:none;">
-                                            <div class="col-md-4 form-group">
-                                                <label
-                                                    for="meeting_start_date">{{ __('course_pages.admin_create.start_date') }}
-                                                    *</label>
-                                                <input type="date" name="meeting_start_date" id="meeting_start_date"
-                                                    class="form-control" min="{{ date('Y-m-d') }}">
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label
-                                                    for="meeting_start_time">{{ __('course_pages.admin_create.start_time') }}
-                                                    *</label>
-                                                <input type="time" name="meeting_start_time" id="meeting_start_time"
-                                                    class="form-control">
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label
-                                                    for="meeting_duration">{{ __('course_pages.admin_create.duration_mins') }}
-                                                    *</label>
-                                                <input type="number" name="meeting_duration" id="meeting_duration"
-                                                    class="form-control" value="60">
-                                                <input type="hidden" name="meeting_start_at" id="meeting_start_at">
-                                            </div>
-                                        </div>
-                                        <small class="text-muted" id="single-meeting-hint" style="display:none;">For a
-                                            single meeting. Or choose a schedule type below for recurring sessions.</small>
-                                    </div>
+                            @php
+                                $meetingProviderOptions = $enabledMeetingProviders ?? [];
+                            @endphp
+                            {{-- Meeting Provider & Timezone (always visible for Live-Online) --}}
+                            <div class="card mt-3" id="meeting-provider-section">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i>
+                                        {{ __('course_pages.admin_create.meeting_configuration') }}</h5>
                                 </div>
-                            @endif
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label
+                                                for="meeting_provider">{{ __('course_pages.admin_create.meeting_provider') }}</label>
+                                            <select name="meeting_provider" id="meeting_provider" class="form-control">
+                                                <option value="">Select</option>
+                                                @foreach($meetingProviderOptions as $key => $label)
+                                                    <option value="{{ $key }}" {{ old('meeting_provider') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">Select the provider for this session. Enter a meeting link below when automatic link creation is not configured.</small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label
+                                                for="meeting_timezone">{{ __('course_pages.admin_create.timezone') }}</label>
+                                            <input type="text" name="meeting_timezone" id="meeting_timezone"
+                                                class="form-control" value="{{ old('meeting_timezone', 'Asia/Riyadh') }}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <label for="session_meeting_link">Meeting Link</label>
+                                            <input type="url" name="session_meeting_link" id="session_meeting_link"
+                                                class="form-control" value="{{ old('session_meeting_link') }}"
+                                                placeholder="https://...">
+                                            <small class="text-muted">Use this when the provider integration is not configured. The link will be stored on each generated session.</small>
+                                        </div>
+                                    </div>
+                                    {{-- Single meeting fields hidden — only for backward compat if needed --}}
+                                    <div class="row" id="single-meeting-fields" style="display:none;">
+                                        <div class="col-md-4 form-group">
+                                            <label
+                                                for="meeting_start_date">{{ __('course_pages.admin_create.start_date') }}
+                                                *</label>
+                                            <input type="date" name="meeting_start_date" id="meeting_start_date"
+                                                class="form-control" min="{{ date('Y-m-d') }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label
+                                                for="meeting_start_time">{{ __('course_pages.admin_create.start_time') }}
+                                                *</label>
+                                            <input type="time" name="meeting_start_time" id="meeting_start_time"
+                                                class="form-control">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label
+                                                for="meeting_duration">{{ __('course_pages.admin_create.duration_mins') }}
+                                                *</label>
+                                            <input type="number" name="meeting_duration" id="meeting_duration"
+                                                class="form-control" value="60">
+                                            <input type="hidden" name="meeting_start_at" id="meeting_start_at">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="single-meeting-hint" style="display:none;">For a
+                                        single meeting. Or choose a schedule type below for recurring sessions.</small>
+                                </div>
+                            </div>
 
                             {{-- Live Session Scheduling Section --}}
                             <div class="card mt-3" id="schedule-section">
