@@ -1,285 +1,245 @@
 @extends('backend.layouts.app')
 
-@section('title', __('labels.backend.teachers.title').' | '.app_name())
+@section('title', __('labels.backend.teachers.title') . ' | ' . app_name())
 
 @push('after-styles')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/colors/switch.css') }}">
+    <style>
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
 
-<style>
-.switch.switch-3d.switch-lg {
-    width: 40px;
-    height: 20px;
-}
-.switch.switch-3d.switch-lg .switch-handle {
-    width: 20px;
-    height: 20px;
-}
+        .actions-cell a,
+        .actions-cell button,
+        .actions-cell form {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
 
-/* Column visibility dropdown checkbox styles */
-.dt-button-collection .dt-button {
-    padding: 0 !important;
-    background: transparent !important;
-}
+        .actions-cell i {
+            font-size: 14px;
+        }
 
-.dt-button-collection .dt-button:hover {
-    background: #f5f5f5 !important;
-}
+        .switch.switch-3d.switch-lg {
+            width: 40px;
+            height: 20px;
+        }
 
-.dt-button-collection .dt-button label {
-    cursor: pointer;
-    display: block;
-    padding: 8px 12px;
-    margin: 0;
-    width: 100%;
-    user-select: none;
-}
-
-.dt-button-collection .dt-button input[type="checkbox"] {
-    margin-right: 8px;
-    cursor: pointer;
-}
-</style>
+        .switch.switch-3d.switch-lg .switch-handle {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
 @endpush
 
 @section('content')
+    <div>
+        <div class="pb-3 d-flex justify-content-between align-items-center">
+            <h4>{{ __('admin_pages.teachers.title') }}</h4>
 
-<div>
-    <div class="d-flex justify-content-between pb-3 align-items-center">
-        <h4>{{ __('admin_pages.teachers.title') }}</h4>
-
-        @can('trainer_create')
-        <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}" class="btn add-btn">
-            {{ __('admin_pages.teachers.add_more_trainers') }}
-        </a>
-        @endcan
-    </div>
-
-    <div class="card border-0">
-        <div class="card-body">
-
-            <ul class="list-inline mb-3">
-                <li class="list-inline-item">
-                    <a href="{{ route('admin.teachers.index') }}"
-                       style="{{ request('show_deleted') ? '' : 'font-weight:700' }}">
-                        {{ __('labels.general.all') }}
+            @can('trainer_create')
+                <div>
+                    <a href="{{ route('admin.auth.user.create', ['return_to' => route('admin.teachers.index')]) }}"
+                       class="btn add-btn">
+                        {{ __('admin_pages.teachers.add_more_trainers') }}
                     </a>
-                </li>
-                |
-                <li class="list-inline-item">
-                    <a href="{{ route('admin.teachers.index',['show_deleted'=>1]) }}"
-                       style="{{ request('show_deleted') ? 'font-weight:700' : '' }}">
-                        {{ __('labels.general.trash') }}
-                    </a>
-                </li>
-            </ul>
+                </div>
+            @endcan
+        </div>
 
-            <div class="table-responsive">
-                <table id="myTable" class="table table-striped">
+        <div class="card" style="border: none;">
+            <div class="card-body">
+                <div class="d-block mt-2">
+                    <ul class="list-inline">
+                        <li class="list-inline-item">
+                            <a href="{{ route('admin.teachers.index') }}"
+                               style="{{ request('show_deleted') == 1 ? '' : 'font-weight: 700' }}">
+                                {{ trans('labels.general.all') }}
+                            </a>
+                        </li>
+                        |
+                        <li class="list-inline-item">
+                            <a href="{{ route('admin.teachers.index', ['show_deleted' => 1]) }}"
+                               style="{{ request('show_deleted') == 1 ? 'font-weight: 700' : '' }}">
+                                {{ trans('labels.general.trash') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <table id="myTable" class="custom-teacher-table table-striped" style="width: 1550px;">
                     <thead>
-                    <tr>
-                        @if(request('show_deleted') != 1)
-                        <th>
-                            <input type="checkbox" id="select-all">
-                        </th>
-                        @endif
-                        <th>ID</th>
-                        <th>{{ __('labels.backend.teachers.fields.first_name') }}</th>
-                        <th>{{ __('labels.backend.teachers.fields.last_name') }}</th>
-                        <th>{{ __('labels.backend.teachers.fields.email') }}</th>
-                        <th>{{ __('admin_pages.auth_users.department') }}</th>
-                        @if(request('show_deleted') != 1)
-                        <th>{{ __('labels.backend.teachers.fields.status') }}</th>
-                        @endif
-                        <th>{{ __('strings.backend.general.actions') }}</th>
-                    </tr>
+                        <tr>
+                            @can('trainer_delete')
+                                @if(request('show_deleted') != 1)
+                                    <th style="text-align:center;">
+                                        <input type="checkbox" class="mass" id="select-all">
+                                    </th>
+                                @endif
+                            @endcan
+
+                            <th>{{ __('labels.general.sr_no') }}</th>
+                            <th>{{ __('admin_pages.employee.employee_id') }}</th>
+                            <th>{{ __('labels.backend.teachers.fields.first_name') }}</th>
+                            <th>{{ __('labels.backend.teachers.fields.last_name') }}</th>
+                            <th>{{ __('labels.backend.teachers.fields.email') }}</th>
+                            <th>{{ __('admin_pages.auth_users.department') }}</th>
+                            <th>{{ __('position_pages.table.position_name') }}</th>
+                            @if(request('show_deleted') != 1)
+                                <th>{{ __('labels.backend.teachers.fields.status') }}</th>
+                            @endif
+                            <th style="text-align:center;">{{ __('strings.backend.general.actions') }}</th>
+                        </tr>
                     </thead>
+                    <tbody></tbody>
                 </table>
             </div>
-
         </div>
     </div>
-</div>
-
 @endsection
 
 @push('after-scripts')
+    <script>
+        $(document).ready(function () {
+            var route = '{{ route('admin.teachers.get_data') }}';
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-<!-- DataTables -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-<!-- Buttons -->
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
-
-<!-- Export libs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-
-<script>
-$(function () {
-
-    let route = "{{ route('admin.teachers.get_data') }}";
-
-    @if(request('show_deleted') == 1)
-        route = "{{ route('admin.teachers.get_data',['show_deleted'=>1]) }}";
-    @endif
-
-    let table = $('#myTable').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 10,
-
-        dom:
-            "<'table-controls'lfB>" +
-            "<'table-responsive't>" +
-            "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
-
-        buttons: [
-            {
-                extend: 'collection',
-                text: '<i class="fa fa-download icon-styles"></i>',
-                buttons: ['csv', 'pdf']
-            },
-            {
-                extend: 'colvis',
-                text: '<i class="fa fa-eye icon-styles"></i>',
-            }
-        ],
-
-        ajax: route,
-
-        columns: [
-            @if(request('show_deleted') != 1)
-            {
-                data: function (row) {
-                    return `<input type="checkbox" class="single" value="${row.id}">`;
-                },
-                orderable: false,
-                searchable: false
-            },
+            @if(request('show_deleted') == 1)
+                route = '{{ route('admin.teachers.get_data', ['show_deleted' => 1]) }}';
             @endif
-            { data: 'id' },
-            { data: 'first_name' },
-            { data: 'last_name' },
-            { data: 'email' },
-            { data: 'department', orderable: false, searchable: false },
-            @if(request('show_deleted') != 1)
-            { data: 'status' },
-            @endif
-            { data: 'actions', orderable: false, searchable: false }
-        ],
 
-        columnDefs: [
-            {
-                targets: -1,
-                className: 'text-center'
-            }
-        ],
-                 initComplete: function () {
-                     let $searchInput = $('#myTable_filter input[type="search"]');
-    $searchInput
-        .addClass('custom-search')
-        .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
-        .after('<i class="fa fa-search search-icon"></i>');
+            var table = $('#myTable').DataTable({
+                processing: true,
+                serverSide: true,
+                iDisplayLength: 10,
+                retrieve: true,
+                dom: "<'table-controls'lfB>" +
+                     "<'table-responsive't>" +
+                     "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
+                buttons: [
+                    {
+                        extend: 'collection',
+                        text: '<i class="fa fa-download icon-styles"></i>',
+                        className: '',
+                        buttons: [
+                            {
+                                extend: 'csv',
+                                text: 'CSV',
+                                exportOptions: { columns: [1, 2, 3, 4, 5] }
+                            },
+                            {
+                                extend: 'pdf',
+                                text: 'PDF',
+                                exportOptions: { columns: [1, 2, 3, 4, 5] }
+                            }
+                        ]
+                    },
+                    {
+                        extend: 'colvis',
+                        text: '<i class="fa fa-eye icon-styles" aria-hidden="true"></i>'
+                    }
+                ],
+                ajax: route,
+                columns: [
+                    @can('trainer_delete')
+                        @if(request('show_deleted') != 1)
+                            {
+                                data: null,
+                                name: 'checkbox',
+                                orderable: false,
+                                searchable: false,
+                                render: function (data, type, row) {
+                                    return '<input type="checkbox" class="mass" name="ids[]" value="' + row.id + '">';
+                                }
+                            },
+                        @endif
+                    @endcan
+                    { data: 'id', name: 'id' },
+                    { data: 'emp_id', name: 'emp_id' },
+                    { data: 'first_name', name: 'first_name' },
+                    { data: 'last_name', name: 'last_name' },
+                    { data: 'email', name: 'email' },
+                    { data: 'department', name: 'department', orderable: false, searchable: false },
+                    { data: 'position', name: 'position', orderable: false, searchable: false },
+                    @if(request('show_deleted') != 1)
+                        { data: 'status', name: 'status', orderable: false, searchable: false },
+                    @endif
+                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                ],
+                @if(request('show_deleted') != 1)
+                    columnDefs: [
+                        { width: '5%', targets: -1 },
+                        { className: 'text-center', targets: -1 }
+                    ],
+                @endif
+                initComplete: function () {
+                    let $searchInput = $('#myTable_filter input[type="search"]');
+                    $searchInput
+                        .addClass('custom-search')
+                        .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
+                        .after('<i class="fa fa-search search-icon"></i>');
 
-    $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
+                    $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
                 },
-
-                createdRow: function (row, data, dataIndex) {
+                createdRow: function (row, data) {
                     $(row).attr('data-entry-id', data.id);
                 },
-                language:{
-                    url : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
-                    buttons :{
-                        colvis : '{{trans("datatable.colvis")}}',
-                        pdf : '{{trans("datatable.pdf")}}',
-                        csv : '{{trans("datatable.csv")}}',
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{ $locale_full_name }}.json",
+                    buttons: {
+                        colvis: '{{ trans('datatable.colvis') }}',
+                        pdf: '{{ trans('datatable.pdf') }}',
+                        csv: '{{ trans('datatable.csv') }}'
                     },
                     emptyTable: '{{ __('admin_pages.teachers.no_data_available') }}',
-                    search:"",
-    //                  paginate: {
-    //     previous: '<i class="fa fa-angle-left"></i>',
-    //     next: '<i class="fa fa-angle-right"></i>'
-    // },
+                    search: ''
                 }
-
             });
+
             @if(auth()->user()->isAdmin())
-            $('.actions').html('<a href="' + '{{ route('admin.teachers.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">{{ __('admin_pages.teachers.delete_selected') }}</a>');
+                $('.actions').html(
+                    '<a href="{{ route('admin.teachers.mass_destroy') }}" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left:20px;">{{ __('admin_pages.teachers.delete_selected') }}</a>'
+                );
             @endif
 
-    // Stable trainer status toggle
-    $(document).on('change', '.switch-input', function (e) {
+            $(document).on('change', '.switch-input', function () {
+                let checkbox = $(this);
+                let id = checkbox.data('id');
+                let isChecked = checkbox.prop('checked');
+                let message = isChecked
+                    ? '{{ __('admin_pages.teachers.activate_user_confirm') }}'
+                    : '{{ __('admin_pages.teachers.deactivate_user_confirm') }}';
 
-        let checkbox = $(this);
-
-        // Prevent double clicking
-        if (checkbox.data('processing')) {
-            return false;
-        }
-
-        checkbox.data('processing', true);
-
-        let id = checkbox.data('id');
-        let isChecked = checkbox.prop('checked');
-
-        let message = isChecked
-            ? '{{ __('admin_pages.teachers.activate_user_confirm') }}'
-            : '{{ __('admin_pages.teachers.deactivate_user_confirm') }}';
-
-        if (!confirm(message)) {
-
-            // revert immediately if cancelled
-            checkbox.prop('checked', !isChecked);
-            checkbox.data('processing', false);
-
-            return false;
-        }
-
-        $.ajax({
-            type: "POST",
-            url: "{{ route('admin.teachers.status') }}",
-
-            data: {
-                _token: "{{ csrf_token() }}",
-                id: id,
-                status: isChecked ? 1 : 0
-            },
-
-            success: function (response) {
-
-                checkbox.data('processing', false);
-
-                // Keep UI synced
-                checkbox.prop('checked', response.status == 1);
-
-                // Reload table without page refresh
-                table.ajax.reload(null, false);
-
-                // Optional success toast
-                if (typeof toastr !== 'undefined') {
-                    toastr.success('Status updated successfully');
+                if (!confirm(message)) {
+                    checkbox.prop('checked', !isChecked);
+                    return false;
                 }
-            },
 
-            error: function () {
-
-                checkbox.data('processing', false);
-
-                // revert if failed
-                checkbox.prop('checked', !isChecked);
-
-                alert('{{ __('admin_pages.teachers.something_went_wrong') }}');
-            }
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('admin.teachers.status') }}',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id,
+                        status: isChecked ? 1 : 0
+                    },
+                    success: function () {
+                        table.ajax.reload(null, false);
+                    },
+                    error: function () {
+                        checkbox.prop('checked', !isChecked);
+                        alert('{{ __('admin_pages.teachers.something_went_wrong') }}');
+                    }
+                });
+            });
         });
-    });
-});
-</script>
-
+    </script>
 @endpush
