@@ -50,6 +50,7 @@ class LessonsController extends Controller
         $lessons = Lesson::query()
             ->select('lessons.*')
             ->with(['attendance_list', 'course'])
+            ->orderBy('created_at', 'desc')
             ->where(function ($query) {
                 $query->where('live_lesson', 0)->orWhereNull('live_lesson');
             });
