@@ -78,6 +78,18 @@
                             </div>
                         @endif
                     @endforeach
+
+                    <!-- Final Feedback Textarea -->
+                    <div class="form-group mg_form py-4 border-top">
+                        <h5 class="mb-3">Additional Feedback</h5>
+                        <label for="final_feedback" class="form-label mb-2">
+                            Please share any additional comments or feedback about this course:
+                        </label>
+                        <textarea class="form-control" id="final_feedback" name="final_feedback" rows="4"
+                            placeholder="Your feedback helps us improve the learning experience..."></textarea>
+                        <small class="form-text text-muted mt-2">This field is optional</small>
+                    </div>
+
                     <button type="button" class="btn btn-primary feedback_submit">Submit</button>
                 </form>
             </div>
@@ -177,6 +189,7 @@
             $('.feedback_submit').prop('disabled', true);
 
             all_data = dataCollection();
+            var final_feedback = $('#final_feedback').val();
             // console.log(all_data)
             $.ajax({
                 url: "{{ route('online_assessment.feedback_submit') }}",
@@ -184,6 +197,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     all_data: JSON.stringify(all_data.get()),
+                    final_feedback: final_feedback,
                     course_id: "{{ $course_id }}"
                 },
                 success: function(response) {
