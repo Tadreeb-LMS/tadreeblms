@@ -137,8 +137,7 @@ class TeachersController extends Controller
             $courseLink = '<a title="Courses" class="" href="' . route('admin.courses.index', ['teacher_id' => $q->id]) . '">
             <i class="fa fa-address-book" aria-hidden="true"></i>  </a>';
 
-        // Wrap all actions in a flexbox container with spacing
-            return '<div class="action-pill" >' . $view . $edit . $delete . $courseLink . '</div>';
+            return '<div class="actions-cell">' . $view . $edit . $delete . $courseLink . '</div>';
         })
 
                     ->addColumn('status', function ($q) {
@@ -154,9 +153,12 @@ class TeachersController extends Controller
             return $html;
         })
             ->addColumn('department', function ($q) {
-                return optional(optional($q->employee)->department_details)->title ?? '-';
+                return $q->getDepartment() ?: '-';
             })
-            ->rawColumns(['actions', 'image', 'status'])
+            ->addColumn('position', function ($q) {
+                return $q->getPosition() ?: '-';
+            })
+            ->rawColumns(['actions', 'department', 'position', 'image', 'status'])
             ->make();
     }
 
