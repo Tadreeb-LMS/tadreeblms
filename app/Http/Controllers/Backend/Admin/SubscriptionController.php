@@ -97,7 +97,7 @@ class SubscriptionController extends Controller
                 */
                 if ($has_delete) {
                     $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.subscription.destroy', ['page' => $q->id])])
+                        ->with(['route' => route('admin.subscription.destroy', ['id' => $q->id])])
                         ->render();
                     $view .= $delete;
                 }
@@ -307,7 +307,7 @@ class SubscriptionController extends Controller
         if (!Gate::allows('page_delete')) {
             return abort(401);
         }
-        $page = Department::onlyTrashed()->findOrFail($id);
+        $page = SubscribeCourse::onlyTrashed()->findOrFail($id);
         $page->restore();
 
         return redirect()->route('admin.subscription.index')->withFlashSuccess(trans('alerts.backend.general.restored'));
@@ -324,7 +324,7 @@ class SubscriptionController extends Controller
         if (!Gate::allows('page_delete')) {
             return abort(401);
         }
-        $page = Department::onlyTrashed()->findOrFail($id);
+        $page = SubscribeCourse::onlyTrashed()->findOrFail($id);
         $page->forceDelete();
 
         return redirect()->route('admin.subscription.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
