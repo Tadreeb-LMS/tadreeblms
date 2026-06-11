@@ -644,15 +644,15 @@ Route::delete('position_perma_del/{page}', 'Admin\PositionController@disabled')-
 Route::get('subscription', 'Admin\SubscriptionController@index')->name('subscription.index');
 Route::get('subscription-create', 'Admin\SubscriptionController@create')->name('subscription.create');
 Route::post('subscription-store', 'Admin\SubscriptionController@store')->name('subscription.store');
-Route::get('subscription-view/{page}', 'Admin\SubscriptionController@show')->name('subscription.show');
-Route::get('subscription-edit/{page}', 'Admin\SubscriptionController@edit')->name('subscription.edit');
-Route::post('subscription-update/{page}', 'Admin\SubscriptionController@update')->name('subscription.update');
-Route::delete('subscription-destroy/{page}', 'Admin\SubscriptionController@destroy')->name('subscription.destroy');
+Route::get('subscription-view/{id}', 'Admin\SubscriptionController@show')->name('subscription.show');
+Route::get('subscription-edit/{id}', 'Admin\SubscriptionController@edit')->name('subscription.edit');
+Route::post('subscription-update/{id}', 'Admin\SubscriptionController@update')->name('subscription.update');
+Route::delete('subscription-destroy/{id}', 'Admin\SubscriptionController@destroy')->name('subscription.destroy');
 
 Route::get('get-subscription-data', ['uses' => 'Admin\SubscriptionController@getData', 'as' => 'subscription.get_data']);
 Route::post('subscription_mass_destroy', ['uses' => 'Admin\SubscriptionController@massDestroy', 'as' => 'subscription.mass_destroy']);
-Route::post('psubscription_restore/{page}', ['uses' => 'Admin\SubscriptionController@restore', 'as' => 'subscription.restore']);
-Route::delete('psubscription_perma_del/{page}', ['uses' => 'Admin\SubscriptionController@perma_del', 'as' => 'subscription.perma_del']);
+Route::post('psubscription_restore/{id}', ['uses' => 'Admin\SubscriptionController@restore', 'as' => 'subscription.restore']);
+Route::delete('psubscription_perma_del/{id}', ['uses' => 'Admin\SubscriptionController@perma_del', 'as' => 'subscription.perma_del']);
 Route::post('subscription/status', ['uses' => 'Admin\SubscriptionController@updateStatus', 'as' => 'subscription.status']);
 
 // Custom Track Student Progress
