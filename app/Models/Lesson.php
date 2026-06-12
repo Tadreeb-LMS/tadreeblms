@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Question;
 //use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 //use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Illuminate\Support\Facades\File;
@@ -142,6 +142,14 @@ class Lesson extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(
+            Question::class,
+            'lesson_id'
+        );
     }
 
     public function test()
