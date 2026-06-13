@@ -43,7 +43,7 @@
 
 //echo '<pre>';print_r(Auth::user());
 @endphp
-@if(Auth::user()->isAdmin())
+<!-- @if(Auth::user()->isAdmin())
 <li class="nav-item px-3 dropdown">
 <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
 <span class="d-md-down-none">
@@ -67,7 +67,7 @@
 <small><a href="{{ route('admin.setvaluesession',3) }}" class="dropdown-item">@lang('menus.backend.sidebar.external')</a></small>
 </div>
 </li>
-@endif
+@endif -->
 @php
     $bellUnreadNotifications = auth()->check()
         ? \App\Models\UserNotification::forUser(auth()->id())->unread()->orderBy('created_at', 'desc')->take(10)->get()
@@ -148,10 +148,10 @@
               <strong>@lang('navs.general.account')</strong>
             </div>
 
-            <a class="dropdown-item" href="{{route('admin.messages')}}">
+            <!-- <a class="dropdown-item" href="{{route('admin.messages')}}">
               <i class="fa fa-envelope"></i> @lang('navs.general.messages')
               <span class="badge unreadMessageCounter d-none badge-success">5</span>
-            </a>
+            </a> -->
 
             <a class="dropdown-item" href="{{ route('admin.account') }}">
               <i class="fa fa-user"></i> @lang('navs.general.profile')
