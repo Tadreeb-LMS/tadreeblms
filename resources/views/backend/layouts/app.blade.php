@@ -16,7 +16,11 @@
     <title>@if(View::hasSection('title'))@yield('title')@else{{ app_name() }}@endif</title>
     <meta name="description" content="@yield('meta_description', config('app.name', 'Learning Management System'))">
     <meta name="author" content="@yield('meta_author', config('app.author', 'Tadreeb LMS'))">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('storage/logos/' . config('favicon_image', 'popup-logo.jpg')) }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    @if(config('favicon_image') && config('favicon_image') != '')
+        @php $faviconExt = strtolower(pathinfo(config('favicon_image'), PATHINFO_EXTENSION)); @endphp
+        <link rel="icon" type="{{ in_array($faviconExt, ['png']) ? 'image/png' : 'image/x-icon' }}" href="{{ asset('storage/logos/' . config('favicon_image')) }}" />
+    @endif
     @yield('meta')
     <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.css') }}">
