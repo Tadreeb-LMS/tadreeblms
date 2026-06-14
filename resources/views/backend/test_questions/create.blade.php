@@ -404,9 +404,17 @@
                                 <select class="form-control custom-select-box" id="lesson_id_select">
                                     <option value="">-- Final Assessment (No Lesson) --</option>
                                     @foreach($lessons as $lsn)
-                                        <option value="{{ $lsn->id }}" @if((int)($lesson_id_preselect ?? 0) === (int)$lsn->id) selected @endif>
+                                        <option value="{{ $lsn->id }}"
+                                        @if((int)($lesson_id_preselect ?? 0)===(int)$lsn->id)
+                                            selected
+                                        @endif
+                                        >
+
                                             {{ $lsn->title }}
+                                        ({{ $lsn->questions_count ?? 0 }} Questions)
+
                                         </option>
+
                                     @endforeach
                                 </select>
                                 <span class="custom-select-icon"><i class="fa fa-chevron-down"></i></span>

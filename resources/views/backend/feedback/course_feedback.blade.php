@@ -83,7 +83,6 @@
     </div> -->
 
     <div class="card-body">
-        @if (Auth::user()->isAdmin())
         <div class="row">  <div class="col-12 col-md-2"> </div>
         <div class="col-12 col-md-4">
             <div class="form-control-div" for="first_name">{{ __('user_feedback.course_feedback.courses') }}</div>
@@ -104,9 +103,7 @@
             </div>
             <!--col-->
         </div>
-        @endif
 
-        @if (Auth::user()->isAdmin())
         <div class="col-12 col-md-4">
     <div class="form-control-div" for="questions">
         {{ __('user_feedback.course_feedback.feedback_questions') }}
@@ -130,7 +127,6 @@
             {!! Form::select('feedback_question_ids[]', $questions, old('questions'), ['class' => 'form-control select2 js-example-questions-placeholder-multiple', 'multiple' => 'multiple', 'required' => true]) !!}
             </div>
         </div> --}}
-        @endif
 <div class="mt-4">
         <div class="btmbtns mt-4">
   <div class="row">
