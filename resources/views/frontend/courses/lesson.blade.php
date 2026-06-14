@@ -20,7 +20,8 @@
 
         .course-timeline-list {
             max-height: 300px;
-            overflow: scroll;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .options-list li {
@@ -851,6 +852,73 @@
             window.addEventListener('pagehide', pauseLessonVideos);
             window.addEventListener('beforeunload', pauseLessonVideos);
 
+           
+            @if (!$lesson->isCompleted())
+            var lessonVideoCompletionThreshold = 90; // percent of each video watched
+            var trackedLessonVideos = [];
+            var lessonCompletionSubmitted = false;
+
+            function markLessonCompleteWhenAllVideosWatched() {
+                if (lessonCompletionSubmitted) {
+                    return;
+                }
+                if (!trackedLessonVideos.length || !trackedLessonVideos.every(function(state) { return state.completed; })) {
+                    return;
+                }
+
+                lessonCompletionSubmitted = true;
+                $.ajax({
+                    url: "{{ route('update.course.progress') }}",
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        'model_id': parseInt("{{ $lesson->id }}"),
+                        'model_type': "{{ addslashes(get_class($lesson)) }}",
+                    },
+                    success: function() {
+                        // Reload so the completion indicator and quiz section appear.
+                        window.location.reload();
+                    }
+                });
+            }
+
+            function trackLessonVideoPlayer(playerInstance) {
+                var state = {
+                    completed: false,
+                    lastTime: 0,
+                    watchedSeconds: 0
+                };
+                trackedLessonVideos.push(state);
+
+                playerInstance.on('timeupdate', function() {
+                    var videoDuration = playerInstance.duration;
+                    var currentTime = playerInstance.currentTime;
+
+                    if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                        return;
+                    }
+
+                    // Count only continuous playback and ignore large skips.
+                    if (currentTime >= state.lastTime && (currentTime - state.lastTime) <= 1) {
+                        state.watchedSeconds += (currentTime - state.lastTime);
+                    }
+                    state.lastTime = currentTime;
+
+                    if (!state.completed && ((state.watchedSeconds / videoDuration) * 100) >= lessonVideoCompletionThreshold) {
+                        state.completed = true;
+                        markLessonCompleteWhenAllVideosWatched();
+                    }
+                });
+
+                playerInstance.on('ended', function() {
+                    if (!state.completed) {
+                        state.completed = true;
+                        markLessonCompleteWhenAllVideosWatched();
+                    }
+                });
+            }
+            @endif
+
             document.querySelectorAll('.js-player, .lesson-video-player').forEach(function(playerElement) {
                 var plyrInstance = registerLessonVideoPlayer(new Plyr(playerElement, {
                     youtube: {
@@ -861,6 +929,11 @@
                 if (playerElement.id === 'player') {
                     player = plyrInstance;
                 }
+                @if (!$lesson->isCompleted())
+                else if (playerElement.classList.contains('lesson-video-player')) {
+                    trackLessonVideoPlayer(plyrInstance);
+                }
+                @endif
         });
 
         @if ($lesson->mediaPDF)
