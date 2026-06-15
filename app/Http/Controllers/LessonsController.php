@@ -877,45 +877,53 @@ class LessonsController extends Controller
         }
         // ─────────────────────────────────────────────────────────────────────
 
-        return view($this->path . '.courses.lesson', compact(
-            'is_certificate_download',
-            'is_assesment_taken',
-            'is_feedback_taken',
-            'has_feedback',
-            'has_assesment',
-            'nextTasks',
-            'lessonCompletedCount',
-            'is_attended',
-            'is_offline_course',
-            'is_course_completed',
-            'mediavideo',
-            'assessment_link',
-            'course_lessons',
-            'lessonCount',
-            'lesson',
-            'previous_lesson',
-            'next_lesson',
-            'test_result',
-            'purchased_course',
-            'test_exists',
-            'lessons',
-            'completed_lessons',
-            'test_pass',
-            'percentage',
-            'total_questions',
-            'course_id',
-            'isAssignmentTaken',
-            'courseFeedbackLink',
-            'assignment_status',
-            'course_lessons_arr',
-            'lesson_quiz',
-            'lesson_quiz_pass',
-            'lesson_quiz_url',
-            'requires_lesson_quiz_pass_for_next',
-            'can_access_next_lesson',
-            'effective_previous_lesson',
-            'effective_next_lesson'
-        ));
+        // This page reflects per-user, real-time progress (completion indicator,
+        // certificate, next-step buttons). It must never be served from browser
+        // cache, otherwise after finishing feedback the learner lands back here
+        // showing the stale pre-completion state until a manual refresh.
+        return response()
+            ->view($this->path . '.courses.lesson', compact(
+                'is_certificate_download',
+                'is_assesment_taken',
+                'is_feedback_taken',
+                'has_feedback',
+                'has_assesment',
+                'nextTasks',
+                'lessonCompletedCount',
+                'is_attended',
+                'is_offline_course',
+                'is_course_completed',
+                'mediavideo',
+                'assessment_link',
+                'course_lessons',
+                'lessonCount',
+                'lesson',
+                'previous_lesson',
+                'next_lesson',
+                'test_result',
+                'purchased_course',
+                'test_exists',
+                'lessons',
+                'completed_lessons',
+                'test_pass',
+                'percentage',
+                'total_questions',
+                'course_id',
+                'isAssignmentTaken',
+                'courseFeedbackLink',
+                'assignment_status',
+                'course_lessons_arr',
+                'lesson_quiz',
+                'lesson_quiz_pass',
+                'lesson_quiz_url',
+                'requires_lesson_quiz_pass_for_next',
+                'can_access_next_lesson',
+                'effective_previous_lesson',
+                'effective_next_lesson'
+            ))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     /**

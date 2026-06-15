@@ -601,18 +601,24 @@ class AssessmentController extends Controller
         //dd($all_assignment_answers);
         foreach ($all_assignment_answers as $key => $value) {
 
+            // Skip non-question entries (e.g. the free-text "Additional Feedback"
+            // box) that carry no question_id, so they don't break the insert.
+            if (!isset($value->question_id)) {
+                continue;
+            }
+
             $data = array(
                 'user_id' => $user_id,
                 'course_id' => $course_id,
                 'feedback_id' => $value->question_id,
-                'feedback' => $value->answer,
-                'feedback_questions_type' => $value->question_type,
+                'feedback' => $value->answer ?? null,
+                'feedback_questions_type' => $value->question_type ?? null,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             );
 
             DB::table('user_feedback')->insert($data);
-            
+
         }
 
         

@@ -80,7 +80,7 @@
                     @endforeach
 
                     <!-- Final Feedback Textarea -->
-                    <div class="form-group mg_form py-4 border-top">
+                    <div class="form-group py-4 border-top">
                         <h5 class="mb-3">Additional Feedback</h5>
                         <label for="final_feedback" class="form-label mb-2">
                             Please share any additional comments or feedback about this course:
