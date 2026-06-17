@@ -81,7 +81,7 @@ return array(
     'page_title' => 'Trainees',
     'title' => 'Trainees',
     'add_more_trainees' => 'Add More Trainees',
-    'import_department' => 'Import User Group',
+    'import_department' => 'Import Internal Trainee',
     'import' => 'Import',
     'download_sample_excel' => 'Download Sample Excel',
     'employee_id' => 'Employee Id',
