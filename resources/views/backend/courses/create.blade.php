@@ -160,6 +160,13 @@
         user-select: none;
         -webkit-user-select: none;
     }
+
+    .inline-error {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
 </style>
 
 <div id="main-flow">
@@ -198,7 +205,7 @@
             </div> --}}
 
             <div class="card-body">
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-md-6 col-12 form-group frmbm10">
                             <div class="row">
                                 <div class="col-md-8 col-12 form-group">
@@ -349,7 +356,7 @@
                                     class="control-label">{{ trans('labels.backend.courses.fields.title') }} *</label>
                                 <input class="form-control"
                                     placeholder="{{ trans('labels.backend.courses.fields.title') }}" name="title"
-                                    type="text" value="{{ old('title') }}">
+                                    type="text" value="{{ old('title') }} ">
                             </div>
                             {{-- <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                                 {!! Form::label('arabic_title', trans('Title In Arabic') . ' *', ['class' =>
@@ -382,7 +389,7 @@
                                 name="description" cols="50" rows="10">{{ old('description') }}</textarea>
 
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
 
@@ -549,7 +556,7 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label class="font-weight-bold">Schedule Type *</label>
-                                        <div class="d-flex gap-3 mt-2">
+                                        <div class="d-flex gap-3 mt-2" id="schedule-type-container">
                                             <label class="mr-4"><input type="radio" name="schedule_type" value="daily"
                                                     class="mr-1 schedule-type-radio"> Daily</label>
                                             <label class="mr-4"><input type="radio" name="schedule_type" value="weekly"
@@ -1024,6 +1031,8 @@
             function clearInlineErrors() {
                 $form.find('.inline-error').remove();
                 $form.find('.is-invalid').removeClass('is-invalid');
+
+                $('#schedule-type-container').removeClass('is-invalid');
             }
 
             function showInlineError(field, message) {
@@ -1033,7 +1042,44 @@
                 $field.after('<span class="text-danger inline-error w-100 d-block mt-1">' + message + '</span>');
             }
 
+            function validateRequiredField(selector, message) {
+                const field = $(selector);
+
+                if (!field.val() || field.val().trim() === '') {
+                    showInlineError(selector, message);
+                    return false;
+                }
+
+                return true;
+            }
+
             clearInlineErrors();
+            var hasError = false;
+
+            // Category
+            if (!validateRequiredField(
+                'select[name="category_id"]',
+                'Category is required'
+            )) {
+                hasError = true;
+            }
+
+            // Course Code
+            if (!validateRequiredField(
+                'input[name="course_code"]',
+                'Course code is required'
+            )) {
+                hasError = true;
+            }
+
+            // Title
+            if (!validateRequiredField(
+                'input[name="title"]',
+                'Title is required'
+            )) {
+                hasError = true;
+            }
+
 
             // Validate weightage
             if (!validateWeightage()) {
@@ -1045,7 +1091,6 @@
             var startDateVal = $('#start_date').val();
             var expireDateVal = $('#expire_at').val();
             var courseType = $('input[name="course_type"]:checked').val();
-            var hasError = false;
 
             // Populate meeting_start_at if offline course
             if (courseType === 'Offline' && $('#meeting_start_date').val() && $('#meeting_start_time').val()) {
@@ -1084,10 +1129,148 @@
                 }
             }
 
+            if (courseType === 'Offline') {
+                if (!$('#meeting_provider').val()) {
+                    $('#meeting_provider')
+                        .closest('.form-group')
+                        .find('.inline-error')
+                        .remove();
+
+                    $('#meeting_provider').after(
+                        '<span class="text-danger inline-error w-100 d-block mt-1">' +
+                        'Please select a meeting provider' +
+                        '</span>'
+                    );
+
+                    hasError = true;
+                }
+                    const scheduleType =
+                        $('input[name="schedule_type"]:checked').val();
+
+                        if (!scheduleType) {
+                            $('#schedule-type-container')
+                                .addClass('is-invalid')
+                                .after(
+                                    '<span class="text-danger inline-error d-block mt-1">' +
+                                    'Please select a schedule type' +
+                                    '</span>'
+                                );
+                            hasError = true;
+                        }
+                        }
+
+                if (
+                    courseType === 'Offline' &&
+                    $('input[name="schedule_type"]:checked').val() === 'daily'
+                ) {
+
+                    if (!$('#daily_time').val()) {
+                    $('#daily_time')
+                        .closest('.form-group')
+                        .find('.inline-error')
+                        .remove();
+
+                    $('#daily_time').after(
+                        '<span class="text-danger inline-error w-100 d-block mt-1">' +
+                        'Session time is required' +
+                        '</span>'
+                    );
+
+                    hasError = true;
+                }
+                    if (!$('#daily_duration').val()) {
+                        showInlineError(
+                            '#daily_duration',
+                            'Duration is required'
+                        );
+                        hasError = true;
+                    }
+                }
+
+                if (
+                    courseType === 'Offline' &&
+                    $('input[name="schedule_type"]:checked').val() === 'weekly'
+                ) {
+
+                    if (
+                        $('input[name="weekly_days[]"]:checked').length === 0
+                    ) {
+
+                        toastr.error(
+                            'Please select at least one day'
+                        );
+
+                        hasError = true;
+                    }
+
+                    if (!$('#weekly_time').val()) {
+                    $('#weekly_time')
+                        .closest('.form-group')
+                        .find('.inline-error')
+                        .remove();
+
+                    $('#weekly_time').after(
+                        '<span class="text-danger inline-error w-100 d-block mt-1">' +
+                        'Session time is required' +
+                        '</span>'
+                    );
+
+                    hasError = true;
+                }
+
+                    if (!$('#weekly_duration').val()) {
+
+                        showInlineError(
+                            '#weekly_duration',
+                            'Duration is required'
+                        );
+
+                        hasError = true;
+                    }
+                }
+
+                if (
+                    courseType === 'Offline' &&
+                    $('input[name="schedule_type"]:checked').val() === 'custom'
+                ) {
+
+                    $('.custom-session-row').each(function () {
+
+                        const date =
+                            $(this).find('input[name="custom_dates[]"]');
+
+                        const time =
+                            $(this).find('input[name="custom_times[]"]');
+
+                        const duration =
+                            $(this).find('input[name="custom_durations[]"]');
+
+                        if (!date.val()) {
+                            date.addClass('is-invalid');
+                            hasError = true;
+                        }
+
+                        if (!time.val()) {
+                            time.addClass('is-invalid');
+                            hasError = true;
+                        }
+
+                        if (!duration.val()) {
+                            duration.addClass('is-invalid');
+                            hasError = true;
+                        }
+                    });
+                }
             if (hasError) {
                 enableButtons();
                 setTimeout(enableButtons, 0);
-                scrollToClass('inline-error');
+                if ($('.is-invalid').length) {
+
+    $('html, body').animate({
+        scrollTop:
+            $('.is-invalid:first').offset().top - 120
+    }, 300);
+}   
                 return false;
             }
 
