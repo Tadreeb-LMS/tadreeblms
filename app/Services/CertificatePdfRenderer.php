@@ -55,7 +55,7 @@ class CertificatePdfRenderer
             $process->setTimeout(60);
             $process->run();
 
-            if (! $process->isSuccessful() || ! File::exists($pdfPath)) {
+            if (!$process->isSuccessful() || !File::exists($pdfPath)) {
                 throw new RuntimeException(trim($process->getErrorOutput() ?: $process->getOutput()));
             }
         } finally {
@@ -81,9 +81,27 @@ class CertificatePdfRenderer
 
     private function chromiumBinary(): string
     {
-        $candidates = array_filter([
-            env('CHROME_BIN'),
-            env('CHROMIUM_PATH'),
+        if ($binary = env('CHROME_BIN')) {
+            return $binary;
+        }
+
+        if ($binary = env('CHROMIUM_PATH')) {
+            return $binary;
+        }
+
+        $finder = new \Symfony\Component\Process\ExecutableFinder();
+        $binary = $finder->find('google-chrome')
+            ?: $finder->find('google-chrome-stable')
+            ?: $finder->find('chromium')
+            ?: $finder->find('chromium-browser')
+            ?: $finder->find('chrome')
+            ?: $finder->find('msedge');
+
+        if ($binary) {
+            return $binary;
+        }
+
+        $candidates = [
             // Linux
             '/usr/bin/google-chrome',
             '/usr/bin/google-chrome-stable',
@@ -101,7 +119,7 @@ class CertificatePdfRenderer
             // Mac
             '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
             '/Applications/Chromium.app/Contents/MacOS/Chromium',
-        ]);
+        ];
 
         foreach ($candidates as $candidate) {
             if (File::exists($candidate)) {
