@@ -205,7 +205,7 @@
             </div> --}}
 
             <div class="card-body">
-                    <!-- <div class="row">
+                    <div class="row">
                         <div class="col-md-6 col-12 form-group frmbm10">
                             <div class="row">
                                 <div class="col-md-8 col-12 form-group">
@@ -389,7 +389,7 @@
                                 name="description" cols="50" rows="10">{{ old('description') }}</textarea>
 
                         </div>
-                    </div> -->
+                    </div>
                 </div>
 
 
