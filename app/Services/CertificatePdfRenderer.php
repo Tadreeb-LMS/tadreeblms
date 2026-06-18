@@ -84,11 +84,23 @@ class CertificatePdfRenderer
         $candidates = array_filter([
             env('CHROME_BIN'),
             env('CHROMIUM_PATH'),
-            '/usr/bin/chromium-browser',
-            '/snap/bin/chromium',
-            '/usr/bin/chromium',
+            // Linux
             '/usr/bin/google-chrome',
             '/usr/bin/google-chrome-stable',
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/usr/local/bin/chromium',
+            '/usr/local/bin/chromium-browser',
+            '/snap/bin/chromium',
+            '/opt/google/chrome/chrome',
+            // Windows
+            'C:\Program Files\Google\Chrome\Application\chrome.exe',
+            'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
+            'C:\Program Files\Microsoft\Edge\Application\msedge.exe',
+            'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
+            // Mac
+            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+            '/Applications/Chromium.app/Contents/MacOS/Chromium',
         ]);
 
         foreach ($candidates as $candidate) {
@@ -97,6 +109,6 @@ class CertificatePdfRenderer
             }
         }
 
-        throw new RuntimeException('Chromium is required to render certificate PDFs. Set CHROME_BIN or CHROMIUM_PATH.');
+        throw new RuntimeException('Chromium or Google Chrome is required to render PDFs. It was not found in any standard path. Please install it on your server or set CHROME_BIN / CHROMIUM_PATH in your .env file.');
     }
 }
