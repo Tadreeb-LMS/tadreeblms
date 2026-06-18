@@ -198,9 +198,6 @@
             </div> --}}
 
             <div class="card-body">
-                @if (Auth::user()->isAdmin())
-
-
                     <div class="row">
                         <div class="col-md-6 col-12 form-group frmbm10">
                             <div class="row">
@@ -229,7 +226,6 @@
                                         href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                                 </div>
                             </div>
-                @endif
 
                         @if (Auth::user()->isAdmin())
                             {{-- <div class="row">
@@ -437,7 +433,6 @@
                             placeholder="yyyy-mm-dd" value="{{ old('start_date') }}">
                     </div>
 
-                    @if (Auth::user()->isAdmin())
                         <div class="col-sm-12 col-lg-4 col-md-12 form-group">
                             <label for="expire_at"
                                 class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }} (yyyy-mm-dd)
@@ -448,7 +443,6 @@
                                 autocomplete="off" name="expire_at" type="text" value="{{ old('expire_at') }}">
 
                         </div>
-                    @endif
                 </div>
 
                 {{-- <div class="row">

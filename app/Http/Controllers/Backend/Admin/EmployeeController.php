@@ -723,6 +723,7 @@ class EmployeeController extends Controller
 
     public function enrolled_get_data(Request $request, $course_id, $show_deleted = 0, $search_type = null)
     {
+        \Log::info("HIT ENROLLED_GET_DATA: " . $course_id);
         //dd($show_deleted);
         $has_view = false;
         $has_delete = false;

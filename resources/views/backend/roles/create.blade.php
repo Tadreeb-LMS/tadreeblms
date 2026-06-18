@@ -15,7 +15,9 @@
             @endif
 
             <div class="mb-3">
-                <label for="name" class="form-label">{{ __('admin_pages.roles.role_name') }}</label>
+                <label for="name" class="form-label">{{ __('admin_pages.roles.role_name') }}
+                    <span class="required"></span>
+                </label>
                 <input type="text" name="name" id="name" class="form-control" value="{{ $role->name ?? old('name') }}" required>
             </div>
 

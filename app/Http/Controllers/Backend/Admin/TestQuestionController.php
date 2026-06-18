@@ -52,7 +52,10 @@ class TestQuestionController extends Controller
 
     public function create(Request $request, $course_id = null, $temp_id = null)
     {
-        $course_id = $course_id ?? $request->course_id;
+        $course_id = $request->input('course_id')
+            ?? $course_id
+            ?? optional(Test::find($request->test_id))->course_id
+            ?? optional(Test::find($request->input('test_id')))->course_id;
         $temp_id = $temp_id ?? $request->uuid; 
         $legacy_test_id = (int) $request->input('test_id');
         $selected_test = $legacy_test_id > 0 ? Test::find($legacy_test_id) : null;
@@ -68,13 +71,25 @@ class TestQuestionController extends Controller
         }
 
         $lessons = $course_id
-            ? Lesson::where('course_id', $course_id)
-                ->where('published', 1)
+            ? Lesson::query()
+                ->where('course_id', $course_id)
+                ->where(function ($q) {
+                     $q->where('published', 1)
+                        ->orWhereNull('published'); // fallback for old data
+                })
+                ->withCount([
+                    'questions as questions_count' => function ($query) {
+                        $query->whereNull('deleted_at');
+                    }
+                ])
                 ->orderBy('position')
                 ->orderBy('id')
-                ->get(['id', 'title'])
-            : collect();
-
+                ->get([
+                    'id',
+                    'title',
+                    'course_id'
+                ])
+            : collect([])->values();
         $lesson_id_preselect = $request->input('lesson_id');
         $lock_lesson_selection = $request->filled('lesson_id');
 
@@ -295,26 +310,26 @@ class TestQuestionController extends Controller
         }
     }
 
-    if ($request->action_btn == 'save_and_add_more') {
-        if ($legacy_test_id > 0 && !$lesson_id) {
-            $params = ['test_id=' . $legacy_test_id];
-            if ($course_id) {
-                $params[] = 'course_id=' . $course_id;
-            }
-            if (!empty($request->temp_id)) {
-                $params[] = 'uuid=' . urlencode($request->temp_id);
-            }
-            if ($lesson_id) {
-                $params[] = 'lesson_id=' . $lesson_id;
-            }
-            $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
-        } else {
-            $redirect_url = route('admin.test_questions.create', [$course_id, $request->temp_id]);
-            if ($lesson_id) {
-                $redirect_url .= '?lesson_id=' . $lesson_id;
-            }
-        }
+if ($request->action_btn == 'save_and_add_more') {
+
+    $params = [
+        'course_id=' . $course_id,
+    ];
+
+    if ($lesson_id !== null) {
+        $params[] = 'lesson_id=' . ($lesson_id ?? 0);
     }
+
+    if (!empty($request->temp_id)) {
+        $params[] = 'uuid=' . urlencode($request->temp_id);
+    }
+
+    if ($legacy_test_id > 0) {
+        $params[] = 'test_id=' . $legacy_test_id;
+    }
+
+    $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
+} 
 
     Course::where('id', $course_id)->update([
         'current_step' => 'question-added'

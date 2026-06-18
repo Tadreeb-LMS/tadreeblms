@@ -15,6 +15,15 @@ class CertificatePdfRenderer
         $directory = storage_path('app/certificates/rendered');
         File::ensureDirectoryExists($directory);
 
+        // Chrome needs its own writable profile directory. When the renderer runs
+        // from the web-server process (e.g. Apache/PHP on Windows), the default
+        // profile location is not accessible, which makes Crashpad fail to start
+        // ("BuildSecurityDescriptor: The specified network provider name is
+        // invalid") and no PDF is produced. Giving Chrome a dedicated profile dir
+        // and disabling the crash reporter avoids that.
+        $profileDirectory = storage_path('app/certificates/chrome-profile');
+        File::ensureDirectoryExists($profileDirectory);
+
         $id = (string) Str::uuid();
         $htmlPath = $directory . "/certificate-{$id}.html";
         $pdfPath = $directory . "/certificate-{$id}.pdf";
@@ -33,6 +42,10 @@ class CertificatePdfRenderer
                 '--disable-gpu',
                 '--disable-dev-shm-usage',
                 '--no-sandbox',
+                '--user-data-dir=' . $profileDirectory,
+                '--disable-crash-reporter',
+                '--disable-breakpad',
+                '--no-first-run',
                 '--allow-file-access-from-files',
                 '--no-pdf-header-footer',
                 '--print-to-pdf-no-header',
