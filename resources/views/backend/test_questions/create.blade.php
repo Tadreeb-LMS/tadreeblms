@@ -21,7 +21,7 @@
     .question-builder-container {
         padding: 20px 0;
     }
- 
+
 
     .card-header {
         background-color: #fff !important;
@@ -342,7 +342,7 @@
          <div class="">
        <a href="{{ route('admin.test_questions.index') }}" class="btn btn-primary">@lang('labels.backend.questions.view')</a>
    </div>
-     
+
    </div>
 <div class="card">
     <!-- <div class="card-header">
@@ -404,9 +404,17 @@
                                 <select class="form-control custom-select-box" id="lesson_id_select">
                                     <option value="">-- Final Assessment (No Lesson) --</option>
                                     @foreach($lessons as $lsn)
-                                        <option value="{{ $lsn->id }}" @if((int)($lesson_id_preselect ?? 0) === (int)$lsn->id) selected @endif>
+                                        <option value="{{ $lsn->id }}"
+                                        @if((int)($lesson_id_preselect ?? 0)===(int)$lsn->id)
+                                            selected
+                                        @endif
+                                        >
+
                                             {{ $lsn->title }}
+                                        ({{ $lsn->questions_count ?? 0 }} Questions)
+
                                         </option>
+
                                     @endforeach
                                 </select>
                                 <span class="custom-select-icon"><i class="fa fa-chevron-down"></i></span>
@@ -438,8 +446,8 @@
 
                     <select class="form-control custom-select-box" name="question_type" id="question_type">
                         <option value="1"> Single Choice </option>
-                        {{-- <option value="2"> Multiple Choice </option>
-                        <option value="3"> Short Answer </option> --}}
+                        <option value="2"> Multiple Choice </option>
+                        <option value="3"> Short Answer </option>
                     </select>
                      <span class="custom-select-icon">
         <i class="fa fa-chevron-down"></i>
@@ -451,12 +459,12 @@
 
 
         <div class="row">
-          <div class="col-12 col-md-6 mt-3 notextarea"> 
+          <div class="col-12 col-md-6 mt-3 notextarea">
                 <label>Question <span style="color:red">*</span></label>
                 <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1" oninvalid="this.setCustomValidity('Question is required')" oninput="this.setCustomValidity('')"></textarea>
             </div>
-         
-                <div class="col-12 col-md-6"> 
+
+                <div class="col-12 col-md-6" id="question-options-column">
                      <div class="mt-3 notextarea">
                     <label><i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>{{ __('labels.backend.questions.options') }}</label>
                     <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
@@ -478,7 +486,7 @@
                     <label>Solution</label>
                     <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" data-collapsible-toolbar="1"></textarea>
                 </div>
-             
+
              <div class="col-12 col-md-2">
                     <label>Marks <span style="color:red">*</span></label>
                     <input type="number"
@@ -491,14 +499,14 @@
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
                         required />
                 </div>
-             
+
                 <div class="col-12 col-md-5 notextarea">
                     <label>Comment</label>
                     <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment" data-collapsible-toolbar="1"></textarea>
 
-         
 
-         
+
+
         </div>
         </div>
 
@@ -506,9 +514,9 @@
      <div class="btmbtns">
         <div class="row">
     <div class="col-12 mt-5 buttons">
-        
+
      <button type="button" class="frm_submit add-btn" id="save_and_add_more" value="save_and_add_more">Save & Add More</button>
-    
+
      <span class="text-right pull-right">
         <button
             type="button"
@@ -527,7 +535,7 @@
         </button>
 </span>
     </div>
-    
+
 </div>
 </div>
 
@@ -548,14 +556,39 @@
         optionField: @json(__('labels.backend.questions.fields.option_text')),
         optionAdded: @json(__('labels.backend.questions.option_added')),
         options: @json(__('labels.backend.questions.options')),
-        correct: @json(__('labels.backend.questions.fields.correct')),
-        noOptionsAdded: @json(__('labels.backend.questions.no_options_added')),
-        emptyOptionsHelp: @json(__('labels.backend.questions.empty_options_help')),
         questionOptions: @json(__('labels.backend.questions.question_options')),
         removeOption: @json(__('labels.backend.questions.remove_option')),
         removeOptionTitle: @json(__('labels.backend.questions.remove_option_title')),
+        correct: @json(__('labels.backend.questions.fields.correct')),
+        noOptionsAdded: @json(__('labels.backend.questions.no_options_added')),
+        emptyOptionsHelp: @json(__('labels.backend.questions.empty_options_help')),
+        optionEmptyHelp: @json(__('labels.backend.questions.option_empty_help')),
         optionRequired: @json(__('labels.backend.questions.option_required')),
     };
+
+    function isShortAnswerQuestion() {
+        return $('#question_type').val() == 3;
+    }
+
+    function syncQuestionTypeFields() {
+        var optionsColumn = document.getElementById('question-options-column');
+        var optionField = document.getElementById('option');
+
+        if (optionsColumn) {
+            optionsColumn.style.display = isShortAnswerQuestion() ? 'none' : '';
+        }
+
+        if (optionField) {
+            optionField.required = !isShortAnswerQuestion();
+        }
+
+        if (isShortAnswerQuestion()) {
+            $('#option-area').empty();
+            return;
+        }
+
+        showOptions();
+    }
 
     function removeOptions(pos) {
         options.splice(pos, 1);
@@ -587,13 +620,22 @@
 
     function showOptions(show_remove_options = true) {
         const container = document.getElementById('option-area');
-        
+
+        if (!container) {
+            return;
+        }
+
+        if (isShortAnswerQuestion()) {
+            container.innerHTML = '';
+            return;
+        }
+
         if (options.length === 0) {
             container.innerHTML = `
                 <div class="option-item empty-state">
                     <i class="fa fa-inbox"></i>
                     <p><strong>${questionOptionLabels.noOptionsAdded}</strong></p>
-                    <small>${questionOptionLabels.emptyOptionsHelp}</small>
+                    <small>${questionOptionLabels.emptyOptionsHelp || questionOptionLabels.optionEmptyHelp}</small>
                 </div>
             `;
             return;
@@ -614,7 +656,7 @@
             const inputType = parseInt($('#question_type').val()) === 1 ? 'radio' : 'checkbox';
             const correctClass = isCorrect ? 'correct' : '';
             const correctIcon = isCorrect ? '<i class="fa fa-check-circle" style="color: #1cc88a;"></i>' : '<i class="fa fa-circle-o" style="color: #cbd5e0;"></i>';
-            
+
             html += `
                 <div class="option-item ${correctClass}">
                     <div class="option-number">${i + 1}</div>
@@ -627,7 +669,7 @@
                     </div>
                     ${show_remove_options ? `
                     <div class="option-actions">
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="${questionOptionLabels.removeOptionTitle}">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeOptions(${i})" title="${questionOptionLabels.removeOptionTitle || questionOptionLabels.removeOption}">
                             <i class="fa fa-trash"></i> ${questionOptionLabels.removeOption}
                         </button>
                     </div>
@@ -708,7 +750,7 @@
             lesson_id,
             question_type,
             question,
-            options: JSON.stringify(options),
+            options: JSON.stringify(question_type == 3 ? [] : options),
             solution,
             comment,
             score
@@ -719,7 +761,7 @@
         $('#action_btn').val($(this).val());
         flag = 0;
         sendData();
-       
+
     });
 
     var question_submit_url = "{{route('admin.test_questions.store')}}";
@@ -811,6 +853,7 @@
 
     $(document).on('change', '#question_type', function() {
         var question_type = $(this).val();
+        syncQuestionTypeFields();
         $.ajax({
             url: "{{route('admin.test_questions.question_setup')}}",
             type: 'post',
@@ -829,6 +872,8 @@
             },
         });
     });
+
+    $(syncQuestionTypeFields);
 
     @if($course_id && isset($lessons) && $lessons->count() > 0)
     <!-- Course Creation Flow: Lesson selection handling -->

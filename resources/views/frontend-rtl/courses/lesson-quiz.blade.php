@@ -61,9 +61,12 @@
                                 ({{ $lesson_quiz_result->test_result }} / {{ $lesson_quiz_questions->count() }})
                                 <br>
                                 {{ __('lesson_quiz_pages.result') }}
-                                <strong class="{{ $lesson_quiz_pass === 'Pass' ? 'text-success' : 'text-danger' }}">
+                                <strong class="{{ $lesson_quiz_pass === 'Pass' ? 'text-success' : ($lesson_quiz_pass === 'Pending Evaluation' ? 'text-warning' : 'text-danger') }}">
                                     {{ $lesson_quiz_pass }}
                                 </strong>
+                                @if($lesson_quiz_pass === 'Pending Evaluation')
+                                    <br>{{ __('lesson_quiz_pages.pending_evaluation_message') }}
+                                @endif
                             </div>
 
                             @if($next_lesson && !$can_access_next_lesson)
@@ -75,11 +78,31 @@
                             @foreach($lesson_quiz_questions as $question)
                                 @php $questionOptions = $question->options ?? \DB::table('test_question_options')->where('question_id', $question->id)->get(); @endphp
                                 <h4 class="mb-1">{{ $loop->iteration }}. {!! $question->question_text !!}</h4>
-                                <ul class="quiz-options pl-4">
-                                    @foreach($questionOptions as $option)
-                                        <li class="{{ $option->is_right ? 'correct' : '' }}">{!! $option->option_text !!}</li>
-                                    @endforeach
-                                </ul>
+                                @if((int) $question->question_type === 3)
+                                    @php
+                                        $shortAnswer = \DB::table('lesson_quiz_answers')
+                                            ->where('tests_result_id', $lesson_quiz_result->id)
+                                            ->where('question_id', $question->id)
+                                            ->first();
+                                    @endphp
+                                    <div class="quiz-options pl-4">
+                                        <strong>{{ __('lesson_quiz_pages.your_answer') }}:</strong>
+                                        {{ $shortAnswer->answer_text ?? '' }}
+                                        <br>
+                                        @if($shortAnswer && !is_null($shortAnswer->is_correct))
+                                            <strong>{{ __('lesson_quiz_pages.correct_answer') }}:</strong>
+                                            {!! $question->solution !!}
+                                        @else
+                                            <span class="badge badge-warning">{{ __('lesson_quiz_pages.pending_review') }}</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <ul class="quiz-options pl-4">
+                                        @foreach($questionOptions as $option)
+                                            <li class="{{ $option->is_right ? 'correct' : '' }}">{!! $option->option_text !!}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                                 <br>
                             @endforeach
 
@@ -96,15 +119,26 @@
                                 @foreach($lesson_quiz_questions as $question)
                                     @php $questionOptions = $question->options ?? \DB::table('test_question_options')->where('question_id', $question->id)->get(); @endphp
                                     <h4 class="mb-1">{{ $loop->iteration }}. {!! $question->question_text !!}</h4>
-                                    @foreach($questionOptions as $option)
-                                        <div class="radio">
-                                            <label>
-                                                <input type="radio" name="lesson_quiz_questions[{{ $question->id }}]" value="{{ $option->id }}" required />
-                                                <span class="cr"><i class="cr-icon fa fa-circle"></i></span>
-                                                {!! $option->option_text !!}
-                                            </label>
+                                    @if((int) $question->question_type === 3)
+                                        <div class="form-group">
+                                            <textarea class="form-control" name="lesson_quiz_questions[{{ $question->id }}]" rows="4" required></textarea>
                                         </div>
-                                    @endforeach
+                                    @else
+                                        @foreach($questionOptions as $option)
+                                            <div class="radio">
+                                                <label>
+                                                    <input
+                                                        type="{{ (int) $question->question_type === 2 ? 'checkbox' : 'radio' }}"
+                                                        name="lesson_quiz_questions[{{ $question->id }}]{{ (int) $question->question_type === 2 ? '[]' : '' }}"
+                                                        value="{{ $option->id }}"
+                                                        {{ (int) $question->question_type === 1 ? 'required' : '' }}
+                                                    />
+                                                    <span class="cr"><i class="cr-icon fa fa-circle"></i></span>
+                                                    {!! $option->option_text !!}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                     <br>
                                 @endforeach
 
