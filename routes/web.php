@@ -208,6 +208,7 @@ Route::get('department/{id}', [DepartmentController::class, 'show'])->name('depa
 //============Course Routes=================//
 Route::get('courses', ['uses' => 'CoursesController@all', 'as' => 'courses.all']);
 Route::get('cme-courses', ['uses' => 'CoursesController@allCme', 'as' => 'courses.allCme']);
+Route::post('course/{slug}/attendance', ['uses' => 'CoursesController@recordLiveSessionAttendance', 'as' => 'courses.attendance'])->middleware(['subscribed', 'auth']);
 Route::get('course/{slug}', ['uses' => 'CoursesController@show', 'as' => 'courses.show'])->middleware(['subscribed', 'auth']);
 Route::get('course-preview/{slug}', 'CoursesController@coursePreview')->name('coursePreview')->middleware('subscribed');
 
@@ -359,8 +360,11 @@ Route::group(['prefix' => 'subscription'], function () {
     Route::post('subscribe', 'SubscriptionController@courseSubscribed')->name('subscription.course_subscribe');
 });
 
-Route::get('subscriptions', [SubscriptionController::class, 'show_list'])->name('user.subscriptions');
-Route::get('get-subscription-data', [SubscriptionController::class, 'getData'])->name('user.subscriptions.getdata');
+Route::middleware('auth')->group(function () {
+    Route::get('subscriptions', [SubscriptionController::class, 'show_list'])->name('user.subscriptions');
+    Route::get('get-subscription-data', [SubscriptionController::class, 'getData'])->name('user.subscriptions.getdata');
+    Route::post('subscriptions/{subscription}/restore', [SubscriptionController::class, 'restore'])->name('user.subscriptions.restore');
+});
 
 // wishlist
 Route::post('add-to-wishlist', 'Backend\WishlistController@store')->name('add-to-wishlist');

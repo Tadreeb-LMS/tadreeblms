@@ -31,6 +31,7 @@ use App\Exports\CourseAssignmentReportExport;
 use App\Notifications\Backend\CourseNotification;
 use App\Services\NotificationSettingsService;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CoursesController extends Controller
 {
@@ -551,16 +552,7 @@ class CoursesController extends Controller
         $categories = Category::where('status', '=', 1)->pluck('name', 'id');
         $departments = Department::all();
 
-        $enabledMeetingProviders = [];
-        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['zoom'] = 'Zoom';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['teams'] = 'Microsoft Teams';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
-        }
+        $enabledMeetingProviders = $this->meetingProviderOptions();
 
         $selected_category = request('cat_id');
 
@@ -589,39 +581,19 @@ class CoursesController extends Controller
              'course_type' => 'required',
              'course_payment_type' => 'required',
              'teacher_id' => 'required|exists:users,id',
+             'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
 
-        if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+        $this->validateMeetingProvider($request);
 
+        if ($request->course_type === 'Offline') {
             $teacherId = \Auth::user()->isAdmin()
                 ? $request->input('teacher_id')
                 : \Auth::user()->id;
-            $teachers = [$teacherId]; // force single teacher
+            $teachers = array_filter([$teacherId]);
 
-            $this->validateScheduleRequest($request);
-            $this->validateTrainerScheduleAvailability($request, $teachers);
-        } elseif ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
-                // Original single-meeting validation
-                $request->validate([
-                    'meeting_start_at' => 'required|date|after:now',
-                    'meeting_duration' => 'required|integer|min:1',
-                ], [
-                    'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
-                ]);
-
-                $teachers = array_filter(\Auth::user()->isAdmin() ? [$request->input('teacher_id')] : [\Auth::user()->id]);
-                $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
-                $meetingDuration = (int)$request->meeting_duration;
-                $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
-
-                $overlap = $this->findTrainerOverlappingSession($teachers, $meetingStart, $meetingEnd);
-
-                if ($overlap) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'meeting_start_at' => [$this->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd)]
-                    ]);
-                }
+            $this->validateLiveCourseTrainerSchedule($request, $teachers);
         }
         DB::beginTransaction();
 
@@ -670,6 +642,9 @@ class CoursesController extends Controller
 
             $request->merge([
                 'include_in_kpi' => $request->boolean('include_in_kpi', true),
+                'final_assessment_max_attempts' => $request->filled('final_assessment_max_attempts')
+                    ? (int) $request->input('final_assessment_max_attempts')
+                    : null,
             ]);
 
             if ($request->course_type !== 'Offline') {
@@ -869,12 +844,19 @@ $teachers = [$teacherId];
             $course->students()->sync($students);
             // Auto subscribe into courses
             foreach ($students as $id) {
-                $data = [
-                    'user_id' => $id,
-                    'course_id' =>  $course->id,
-                    'status' => 1
-                ];
-                SubscribeCourse::updateOrCreate($data);
+                $subscription = SubscribeCourse::updateOrCreate(
+                    [
+                        'user_id' => $id,
+                        'course_id' => $course->id,
+                    ],
+                    [
+                        'status' => 1,
+                    ]
+                );
+
+                if ($subscription->wasRecentlyCreated && ($student = User::find($id))) {
+                    CourseNotification::createCourseEnrollmentBell($student, $course);
+                }
             }
             $internalStudents = \App\Models\Auth\User::whereHas('roles', function ($q) {
                 $q->where('role_id', 3)->where('employee_type', 'internal');
@@ -989,16 +971,7 @@ $teachers = [$teacherId];
         $course = Course::with('latestModuleWeightage')->findOrFail($id);
         //dd($course);
 
-        $enabledMeetingProviders = [];
-        if (\App\Models\ExternalApp::where('slug', 'zoom')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['zoom'] = 'Zoom';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'teams')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['teams'] = 'Microsoft Teams';
-        }
-        if (\App\Models\ExternalApp::where('slug', 'google-meet-integration')->where('is_enabled', true)->where('is_setup', true)->where('status', 'active')->exists()) {
-            $enabledMeetingProviders['google-meet-integration'] = 'Google Meet';
-        }
+        $enabledMeetingProviders = $this->meetingProviderOptions();
 
         return view('backend.courses.edit', compact('already_assigned_internal_users', 'internalStudents', 'externalStudents', 'course', 'teachers', 'categories', 'departments', 'enabledMeetingProviders'));
     }
@@ -1018,6 +991,8 @@ $teachers = [$teacherId];
         }
         $course = Course::findOrFail($id);
 
+        $this->validateMeetingProvider($request);
+
         $teacherId = \Auth::user()->isAdmin()
             ? $request->input('teacher_id', optional($course->teachers->first())->id)
             : \Auth::user()->id;
@@ -1033,11 +1008,13 @@ $teachers = [$teacherId];
             $request->validate([
                 'start_date' => 'required|date',
                 'expire_at'  => 'required|date|after_or_equal:start_date',
+                'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
             ]);
         } else {
             $request->validate([
                 'start_date' => 'nullable|date',
                 'expire_at'  => 'nullable|date|after_or_equal:start_date',
+                'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
             ]);
         }
 
@@ -1055,33 +1032,30 @@ $teachers = [$teacherId];
             return back()->withFlashDanger(__('alerts.backend.general.slug_exist'));
         }
 
-        if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+        if ($request->course_type === 'Offline') {
+            if (empty($teachers)) {
+                $teachers = $course->teachers->pluck('id')->toArray();
+            }
 
-            $this->validateScheduleRequest($request);
-            $this->validateTrainerScheduleAvailability($request, $teachers, $course->id);
-        } elseif ($request->course_type === 'Offline' && in_array($request->meeting_provider, ['zoom', 'teams', 'google-meet-integration', 'google_meet'])) {
-                // Original single-meeting validation
-                $request->validate([
-                    'meeting_start_at' => 'required|date|after:now',
-                    'meeting_duration' => 'required|integer|min:1',
-                ], [
-                    'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
-                ]);
+            try {
+                $this->validateLiveCourseTrainerSchedule($request, $teachers, $course->id);
+            } catch (ValidationException $e) {
+                $message = collect($e->errors())->flatten()->first()
+                    ?: 'Trainer schedule overlaps with another session.';
 
-                $teachers = array_filter(\Auth::user()->isAdmin() ? [$teacherId] : [\Auth::user()->id]);
-                if(empty($teachers)){
-                   $teachers = $course->teachers->pluck('id')->toArray();
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'clientmsg' => $message,
+                        'errors' => $e->errors(),
+                    ], 422);
                 }
 
-                $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
-                $meetingDuration = (int)$request->meeting_duration;
-                $meetingEnd = $meetingStart->copy()->addMinutes($meetingDuration);
-
-                $overlap = $this->findTrainerOverlappingSession($teachers, $meetingStart, $meetingEnd, $course->id);
-
-                if ($overlap) {
-                    return back()->withFlashDanger($this->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd))->withInput();
-                }
+                return back()
+                    ->withErrors($e->errors())
+                    ->withInput()
+                    ->withFlashDanger($message);
+            }
         }
 
 
@@ -1165,10 +1139,16 @@ $teachers = [$teacherId];
                 'meeting_duration' => null,
                 'meeting_timezone' => null,
                 'include_in_kpi' => $request->boolean('include_in_kpi', true),
+                'final_assessment_max_attempts' => $request->filled('final_assessment_max_attempts')
+                    ? (int) $request->input('final_assessment_max_attempts')
+                    : null,
             ]);
         } else {
             $request->merge([
                 'include_in_kpi' => $request->boolean('include_in_kpi', true),
+                'final_assessment_max_attempts' => $request->filled('final_assessment_max_attempts')
+                    ? (int) $request->input('final_assessment_max_attempts')
+                    : null,
             ]);
         }
         
@@ -1184,7 +1164,7 @@ $teachers = [$teacherId];
             $course->students()->sync($students);
 
             foreach ($students as $studentId) {
-                SubscribeCourse::updateOrCreate(
+                $subscription = SubscribeCourse::updateOrCreate(
                     [
                         'user_id' => $studentId,
                         'course_id' => $course->id,
@@ -1193,13 +1173,21 @@ $teachers = [$teacherId];
                         'status' => 1,
                     ]
                 );
+
+                if ($subscription->wasRecentlyCreated && ($student = User::find($studentId))) {
+                    CourseNotification::createCourseEnrollmentBell($student, $course);
+                }
             }
         }
         
         $course->is_online = $request->course_type ?? 'Online';
 
         // Handle live session scheduling on update
-        if ($request->course_type === 'Offline' && $request->meeting_provider && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+        if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
+            if (!$request->filled('meeting_provider') && $course->meeting_provider) {
+                $request->merge(['meeting_provider' => $course->meeting_provider]);
+            }
+
             $course->schedule_type = $request->schedule_type;
             if ($request->schedule_type === 'weekly') {
                 $course->schedule_days = $request->weekly_days;
@@ -1749,8 +1737,8 @@ $teachers = [$teacherId];
     {
         $scheduleType = $request->schedule_type;
 
-        $startDateValue = $course->getRawOriginal('start_date') ?: ($course->getAttributes()['start_date'] ?? $request->start_date);
-        $endDateValue = $course->getRawOriginal('expire_at') ?: ($course->getAttributes()['expire_at'] ?? $request->expire_at);
+        $startDateValue = $request->start_date ?? $course->getRawOriginal('start_date');
+        $endDateValue = $request->expire_at ?? $course->getRawOriginal('expire_at');
 
         $startDate = \Carbon\Carbon::parse($startDateValue);
         $endDate = \Carbon\Carbon::parse($endDateValue);
@@ -1842,13 +1830,112 @@ $teachers = [$teacherId];
         }
     }
 
+    private function validateMeetingProvider(Request $request): void
+    {
+        if ($request->course_type !== 'Offline') {
+            return;
+        }
+
+        $request->validate([
+            'session_meeting_link' => 'nullable|url',
+            'meeting_provider' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if ($value && !LiveSession::normalizeMeetingProvider($value)) {
+                        $fail('The selected meeting provider is invalid.');
+                    }
+                },
+            ],
+        ]);
+
+        if ($request->schedule_type && !$request->filled('meeting_provider') && !$request->filled('session_meeting_link')) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'meeting_provider' => ['Please select a meeting provider or enter a meeting link.'],
+            ]);
+        }
+    }
+
+    private function validateLiveCourseTrainerSchedule(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
+    {
+        if ($this->hasRecurringLiveSchedule($request)) {
+            $this->validateScheduleRequest($request);
+            $this->validateTrainerScheduleAvailability($request, $teacherIds, $ignoreCourseId);
+
+            return;
+        }
+
+        if ($this->hasSingleMeetingSchedule($request)) {
+            $this->validateSingleMeetingScheduleRequest($request);
+            $this->validateSingleMeetingTrainerAvailability($request, $teacherIds, $ignoreCourseId);
+        }
+    }
+
+    private function hasRecurringLiveSchedule(Request $request): bool
+    {
+        return in_array($request->schedule_type, ['daily', 'weekly', 'custom'], true);
+    }
+
+    private function hasSingleMeetingSchedule(Request $request): bool
+    {
+        return $request->filled('meeting_start_at')
+            || $request->filled('meeting_start_date')
+            || $request->filled('meeting_start_time')
+            || $request->filled('meeting_duration');
+    }
+
+    private function validateSingleMeetingScheduleRequest(Request $request): void
+    {
+        if (!$request->filled('meeting_start_at') && $request->filled('meeting_start_date') && $request->filled('meeting_start_time')) {
+            $request->merge([
+                'meeting_start_at' => $request->meeting_start_date . ' ' . $request->meeting_start_time . ':00',
+            ]);
+        }
+
+        $request->validate([
+            'meeting_start_at' => 'required|date|after:now',
+            'meeting_duration' => 'required|integer|min:1',
+        ], [
+            'meeting_start_at.after' => 'Meeting start date must be from the current date and time must be from the current time. Past time is not allowed.',
+        ]);
+    }
+
+    private function validateSingleMeetingTrainerAvailability(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
+    {
+        $meetingStart = \Carbon\Carbon::parse($request->meeting_start_at);
+        $meetingEnd = $meetingStart->copy()->addMinutes((int)$request->meeting_duration);
+
+        $overlap = $this->findTrainerOverlappingSession($teacherIds, $meetingStart, $meetingEnd, $ignoreCourseId);
+
+        if ($overlap) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'meeting_start_at' => [$this->formatTrainerOverlapMessage($overlap, $meetingStart, $meetingEnd)],
+            ]);
+        }
+    }
+
     private function validateTrainerScheduleAvailability(Request $request, array $teacherIds, ?int $ignoreCourseId = null): void
     {
         $course = new Course();
         $course->start_date = $request->start_date;
         $course->expire_at = $request->expire_at;
 
-        foreach ($this->buildRequestedLiveSessions($course, $request) as $session) {
+        $requestedSessions = $this->buildRequestedLiveSessions($course, $request);
+
+        if (empty($requestedSessions)) {
+            $scheduleType = $request->schedule_type;
+            $messages = [
+                'weekly' => 'No live sessions were generated. The selected weekdays do not fall within the course date range (' . $request->start_date . ' to ' . $request->expire_at . '). Please check the course dates or change the selected days.',
+                'daily' => 'No live sessions were generated. The course date range (' . $request->start_date . ' to ' . $request->expire_at . ') may not cover any valid session days. Please check the course dates.',
+                'custom' => 'No live sessions were generated. No custom session dates were provided, or they fall outside the course range.',
+            ];
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'schedule_type' => [$messages[$scheduleType] ?? 'No live sessions were generated. Please check the course start/end dates and selected schedule days.'],
+            ]);
+        }
+
+        $this->validateRequestedLiveSessionsDoNotOverlap($requestedSessions);
+
+        foreach ($requestedSessions as $session) {
             $sessionStart = \Carbon\Carbon::parse($session['date'] . ' ' . $session['time']);
             $sessionEnd = $sessionStart->copy()->addMinutes((int)$session['duration']);
 
@@ -1858,6 +1945,35 @@ $teachers = [$teacherId];
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'schedule_type' => [$this->formatTrainerOverlapMessage($overlap, $sessionStart, $sessionEnd)],
                 ]);
+            }
+        }
+    }
+
+    private function validateRequestedLiveSessionsDoNotOverlap(array $sessions): void
+    {
+        $normalizedSessions = [];
+
+        foreach ($sessions as $session) {
+            $start = \Carbon\Carbon::parse($session['date'] . ' ' . $session['time']);
+            $normalizedSessions[] = [
+                'start' => $start,
+                'end' => $start->copy()->addMinutes((int)$session['duration']),
+            ];
+        }
+
+        foreach ($normalizedSessions as $index => $session) {
+            foreach (array_slice($normalizedSessions, $index + 1) as $otherSession) {
+                if ($this->timeRangesOverlap($session['start'], $session['end'], $otherSession['start'], $otherSession['end'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'schedule_type' => [sprintf(
+                            'Trainer is already assigned for another course at this time. Requested sessions overlap: %s to %s conflicts with %s to %s.',
+                            $session['start']->format('Y-m-d H:i'),
+                            $session['end']->format('H:i'),
+                            $otherSession['start']->format('Y-m-d H:i'),
+                            $otherSession['end']->format('H:i')
+                        )],
+                    ]);
+                }
             }
         }
     }
@@ -1955,13 +2071,26 @@ $teachers = [$teacherId];
 
     private function generateLiveSessions(Course $course, Request $request): int
     {
-        // Delete any existing sessions for this course
-        $course->liveSessions()->delete();
-
-        $provider = $request->meeting_provider;
+        $provider = LiveSession::normalizeMeetingProvider($request->meeting_provider);
+        $providerSlug = $request->meeting_provider;
+        $manualMeetingLink = $request->filled('session_meeting_link') ? $request->session_meeting_link : null;
         $timezone = $request->meeting_timezone ?? 'Asia/Riyadh';
         $scheduleType = $request->schedule_type;
         $sessions = $this->buildRequestedLiveSessions($course, $request);
+
+        if (empty($sessions)) {
+            $messages = [
+                'weekly' => 'No live sessions were generated. The selected weekdays do not fall within the course date range (' . $course->start_date . ' to ' . $course->expire_at . '). Please check the course dates or change the selected days.',
+                'daily' => 'No live sessions were generated. The course date range (' . $course->start_date . ' to ' . $course->expire_at . ') may not cover any valid session days. Please check the course dates.',
+                'custom' => 'No live sessions were generated. No custom session dates were provided, or they fall outside the course range.',
+            ];
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'schedule_type' => [$messages[$scheduleType] ?? 'No live sessions were generated. Please check the course start/end dates and selected schedule days.'],
+            ]);
+        }
+
+        // Delete existing sessions only after confirming new sessions exist
+        $course->liveSessions()->delete();
 
         $lastSessionDate = null;
         $failedCount = 0;
@@ -1981,24 +2110,29 @@ $teachers = [$teacherId];
                 'meeting_timezone' => $timezone,
             ]);
 
-            try {
-                $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
-                if ($meetingData) {
-                    $meetingLink = $meetingData['meeting_join_url'] ?? null;
-                    $meetingId = $meetingData['meeting_id'] ?? null;
-                    $hostUrl = $meetingData['meeting_host_url'] ?? null;
-                }
-                if (!$meetingLink) {
+            if ($manualMeetingLink) {
+                $meetingLink = $manualMeetingLink;
+            } else {
+                try {
+                    $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
+                    if ($meetingData) {
+                        $meetingLink = $meetingData['meeting_join_url'] ?? null;
+                        $meetingId = $meetingData['meeting_id'] ?? null;
+                        $hostUrl = $meetingData['meeting_host_url'] ?? null;
+                    }
+                    if (!$meetingLink) {
+                        $failedCount++;
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning("Failed to create meeting for session {$session['date']}: " . $e->getMessage());
                     $failedCount++;
                 }
-            } catch (\Throwable $e) {
-                \Log::warning("Failed to create meeting for session {$session['date']}: " . $e->getMessage());
-                $failedCount++;
             }
 
             LiveSession::create([
                 'course_id' => $course->id,
-                'provider' => $provider,
+                'provider' => $providerSlug,
+                'meeting_provider' => $provider,
                 'session_date' => $session['date'],
                 'session_time' => $session['time'],
                 'meeting_link' => $meetingLink,
@@ -2024,11 +2158,15 @@ $teachers = [$teacherId];
     /**
      * Regenerate meeting links for sessions that have null meeting_link.
      */
-    public function regenerateMeetingLinks($courseId)
+    public function regenerateMeetingLinks(Request $request, $courseId)
     {
         if (!Gate::allows('course_edit')) {
             return abort(401);
         }
+
+        $request->validate([
+            'session_meeting_link' => 'nullable|url',
+        ]);
 
         $course = Course::findOrFail($courseId);
         $sessions = $course->liveSessions()->whereNull('meeting_link')->get();
@@ -2037,12 +2175,27 @@ $teachers = [$teacherId];
             return back()->withFlashSuccess('All sessions already have meeting links.');
         }
 
-        $provider = $course->meeting_provider;
         $timezone = $course->meeting_timezone ?? 'Asia/Riyadh';
+        $manualMeetingLink = $request->filled('session_meeting_link') ? $request->session_meeting_link : null;
         $successCount = 0;
         $failedCount = 0;
 
         foreach ($sessions as $session) {
+            $provider = $session->meeting_provider ?: LiveSession::normalizeMeetingProvider($course->meeting_provider);
+
+            if ($manualMeetingLink) {
+                $session->update([
+                    'meeting_link' => $manualMeetingLink,
+                    'meeting_provider' => $provider,
+                ]);
+                $successCount++;
+                continue;
+            }
+
+            if (!$provider || !$this->canCreateMeetingsForProvider($provider)) {
+                return back()->withFlashDanger('Enter a manual meeting link before regenerating, or configure an active meeting provider integration.');
+            }
+
             $timeFormatted = \Carbon\Carbon::parse($session->session_time)->format('H:i:s');
             $sessionDateTime = $session->session_date->format('Y-m-d') . ' ' . $timeFormatted;
 
@@ -2054,12 +2207,18 @@ $teachers = [$teacherId];
             ]);
 
             try {
+                if (!$provider) {
+                    $failedCount++;
+                    continue;
+                }
+
                 $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
-                if ($meetingData) {
+                if ($meetingData && $meetingData['meeting_join_url']) {
                     $session->update([
-                        'meeting_link' => $meetingData['meeting_join_url'] ?? null,
+                        'meeting_link' => $meetingData['meeting_join_url'],
                         'meeting_id' => $meetingData['meeting_id'] ?? null,
                         'host_url' => $meetingData['meeting_host_url'] ?? null,
+                        'meeting_provider' => $provider,
                     ]);
                     $successCount++;
                 } else {
@@ -2071,32 +2230,85 @@ $teachers = [$teacherId];
             }
         }
 
+        if ($successCount === 0 && $failedCount > 0) {
+            return back()->withFlashDanger("Failed to regenerate any meeting links ({$failedCount} failed). Please check your {$provider} credentials in External Apps settings.");
+        }
+
         if ($failedCount > 0) {
-            return back()->withFlashDanger("Regenerated {$successCount} meeting link(s), but {$failedCount} failed. Please check your {$provider} credentials in External Apps settings.");
+            return back()->withFlashDanger("Regenerated {$successCount} meeting link(s), but {$failedCount} failed. Please check your meeting provider credentials in External Apps settings.");
         }
 
         return back()->withFlashSuccess("Successfully regenerated {$successCount} meeting link(s).");
     }
 
-    private function createMeetingViaModule(string $provider, Request $request, Course $course): ?array
+    private function createMeetingViaModule(?string $provider, Request $request, Course $course): ?array
     {
-        if ($provider === 'zoom') {
-            $service = new \Modules\Zoom\Services\ZoomMeetingService();
-            $meeting = $service->createMeeting(
-                $course->title,
-                $request->meeting_start_at,
-                $request->meeting_duration,
-                $request->meeting_timezone
-            );
+        $provider = LiveSession::normalizeMeetingProvider($provider);
 
-            if ($meeting) {
-                return [
-                    'meeting_id'       => $meeting['id'],
-                    'meeting_join_url' => $meeting['join_url'],
-                    'meeting_host_url' => $meeting['host_url'] ?? null,
-                ];
+        if (!$provider) {
+            return null;
+        }
+
+        if ($provider === 'zoom') {
+            if (class_exists(\Modules\Zoom\Services\ZoomMeetingService::class)) {
+                $service = new \Modules\Zoom\Services\ZoomMeetingService();
+                $meeting = $service->createMeeting(
+                    $course->title,
+                    $request->meeting_start_at,
+                    $request->meeting_duration,
+                    $request->meeting_timezone
+                );
+
+                if ($meeting) {
+                    return [
+                        'meeting_id'       => $meeting['id'],
+                        'meeting_join_url' => $meeting['join_url'],
+                        'meeting_host_url' => $meeting['host_url'] ?? null,
+                    ];
+                }
+            }
+
+            if (class_exists(\App\Services\ZoomService::class)) {
+                $service = app(\App\Services\ZoomService::class);
+                $user = $service->getFirstUser();
+
+                if (!$user) {
+                    return null;
+                }
+
+                $response = $service->createMeeting($user['id'], [
+                    'topic' => $course->title,
+                    'type' => 2,
+                    'start_time' => $request->meeting_start_at,
+                    'duration' => $request->meeting_duration,
+                    'timezone' => $request->meeting_timezone,
+                    'settings' => [
+                        'join_before_host' => (bool) config('zoom.join_before_host'),
+                        'host_video' => (bool) config('zoom.host_video'),
+                        'participant_video' => (bool) config('zoom.participant_video'),
+                        'mute_upon_entry' => (bool) config('zoom.mute_upon_entry'),
+                        'waiting_room' => (bool) config('zoom.waiting_room'),
+                        'approval_type' => config('zoom.approval_type'),
+                        'audio' => config('zoom.audio'),
+                        'auto_recording' => config('zoom.auto_recording'),
+                    ],
+                ]);
+
+                if ($response->successful()) {
+                    $meeting = $response->json();
+
+                    return [
+                        'meeting_id'       => $meeting['id'],
+                        'meeting_join_url' => $meeting['join_url'],
+                        'meeting_host_url' => $meeting['start_url'] ?? null,
+                    ];
+                }
             }
         } elseif ($provider === 'teams') {
+            if (!class_exists(\Modules\Teams\Services\TeamsMeetingService::class)) {
+                return null;
+            }
+
             $service = new \Modules\Teams\Services\TeamsMeetingService();
             $meeting = $service->createMeeting(
                 $course->title,
@@ -2112,7 +2324,11 @@ $teachers = [$teacherId];
                     'meeting_host_url' => $meeting['host_url'] ?? null,
                 ];
             }
-        } elseif (in_array($provider, ['google-meet-integration', 'google_meet'])) {
+        } elseif ($provider === 'google_meet') {
+            if (!class_exists(\Modules\GoogleMeetIntegration\Services\GoogleMeetService::class)) {
+                return null;
+            }
+
             $service = new \Modules\GoogleMeetIntegration\Services\GoogleMeetService();
             
             $hostEmail = null;
@@ -2142,6 +2358,25 @@ $teachers = [$teacherId];
             }
         }
         return null;
+    }
+
+    private function meetingProviderOptions(): array
+    {
+        return [
+            'zoom' => 'Zoom',
+            'teams' => 'Microsoft Teams',
+            'google-meet-integration' => 'Google Meet',
+        ];
+    }
+
+    private function canCreateMeetingsForProvider(?string $provider): bool
+    {
+        return match (LiveSession::normalizeMeetingProvider($provider)) {
+            'zoom' => class_exists(\Modules\Zoom\Services\ZoomMeetingService::class) || class_exists(\App\Services\ZoomService::class),
+            'teams' => class_exists(\Modules\Teams\Services\TeamsMeetingService::class),
+            'google_meet' => class_exists(\Modules\GoogleMeetIntegration\Services\GoogleMeetService::class),
+            default => false,
+        };
     }
 
     private function sendMeetingInviteToStudents(Course $course, array $studentIds): void

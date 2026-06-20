@@ -8,6 +8,7 @@ return array(
   'legend_scheduled_sessions' => 'Sesiones programadas',
   'add_schedule' => 'Agregar su horario',
   'edit_schedule' => 'Editar su horario',
+  'event_added_successfully' => 'Evento agregado correctamente',
   'schedule_name' => 'Nombre del horario:',
   'close' => 'Cerrar',
   'save_schedule' => 'Guardar su horario',
@@ -18,4 +19,5 @@ return array(
   'save_event' => 'Guardar evento',
   'cannot_create_past_events' => 'No puede crear eventos en el pasado.',
   'live_badge' => 'En vivo',
+  'legend_user_events' => 'Mis eventos',
 );

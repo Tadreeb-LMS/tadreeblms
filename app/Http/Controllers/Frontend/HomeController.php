@@ -129,7 +129,10 @@ class HomeController extends Controller
             Role::create(['name' => 'student']);
         }    
             
-        $teachers = User::role('teacher')->with('courses')->where('active', '=', 1)->take(7)->get();
+        // Avoid eager-loading the `courses` relationship here because
+        // the pivot table `course_user` may not contain the
+        // `assigned_at` column that `withPivot` expects.
+        $teachers = User::role('teacher')->where('active', '=', 1)->take(7)->get();
 
         //dd($teachers);
 

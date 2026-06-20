@@ -383,34 +383,9 @@ $hasFeedBack       = $subscribe_data ? ($subscribe_data->has_feedback ?? 0) : 0;
             $isScheduledCourse = in_array($course->schedule_type, ['daily', 'weekly', 'custom']);
 
             if ($isScheduledCourse && $subscribe_data && request()->has('joined')) {
-                // Scheduled course: mark per-session attendance (only within time window)
                 $joinedSessionId = request()->get('session_id');
                 if ($joinedSessionId) {
-                    $joinedSession = LiveSession::find($joinedSessionId);
-                    if ($joinedSession) {
-                        $sessionStart = Carbon::parse($joinedSession->session_date->format('Y-m-d') . ' ' . $joinedSession->session_time);
-                        $sessionEnd = $sessionStart->copy()->addMinutes((int)($joinedSession->duration ?? 60));
-                        $windowStart = $sessionStart->copy()->subMinutes(15);
-                        $now = Carbon::now();
-
-                        if ($now->between($windowStart, $sessionEnd)) {
-                            LiveSessionAttendance::firstOrCreate(
-                                ['live_session_id' => $joinedSessionId, 'user_id' => $logged_in_user_id],
-                                ['attended_at' => Carbon::now()]
-                            );
-                        }
-                    }
-                }
-
-                // Check if this is the last session (no future sessions after today)
-                $futureSessionsCount = LiveSession::where('course_id', $course->id)
-                    ->where('session_date', '>', Carbon::today())
-                    ->count();
-
-                if ($futureSessionsCount == 0 && !$subscribe_data->is_attended) {
-                    // Last session day — mark course-level attendance to trigger post-attendance flow
-                    DB::table('subscribe_courses')->where('id', $subscribe_data->id)->update(['is_attended' => 1]);
-                    $subscribe_data->is_attended = 1;
+                    $this->recordScheduledLiveSessionAttendance($course, $subscribe_data, $joinedSessionId, $logged_in_user_id);
                 }
             } elseif (!$isScheduledCourse && $subscribe_data && !$subscribe_data->is_attended && request()->has('joined')) {
                 // Single meeting: existing flow — mark attended immediately
@@ -1342,10 +1317,127 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             ->make();
     }
 
+    public function recordLiveSessionAttendance(Request $request, $slug)
+    {
+        $course = Course::withoutGlobalScope('filter')->where('slug', $slug)->firstOrFail();
+        $userId = Auth::id();
+        $subscribeData = SubscribeCourse::where('user_id', $userId)
+            ->where('course_id', $course->id)
+            ->where('status', 1)
+            ->first();
+
+        if (!$subscribeData) {
+            return response()->json([
+                'message' => __('You are not subscribed to this course.'),
+            ], 403);
+        }
+
+        if (!in_array($course->is_online, ['Offline', 'Live-Classroom', 'Live-Online'])) {
+            return response()->json([
+                'message' => __('This course does not have a live meeting.'),
+            ], 422);
+        }
+
+        $isScheduledCourse = in_array($course->schedule_type, ['daily', 'weekly', 'custom']);
+
+        if ($isScheduledCourse) {
+            $request->validate([
+                'session_id' => 'required|integer',
+            ]);
+
+            $session = LiveSession::where('id', $request->input('session_id'))
+                ->where('course_id', $course->id)
+                ->first();
+
+            if (!$session) {
+                return response()->json([
+                    'message' => __('Live session was not found for this course.'),
+                ], 404);
+            }
+
+            $meetingLink = $session->meeting_link;
+            if (!$meetingLink) {
+                return response()->json([
+                    'message' => __('Meeting link is missing for this session.'),
+                ], 422);
+            }
+
+            if (!$this->isLiveSessionJoinWindowOpen($session)) {
+                return response()->json([
+                    'message' => __('Join is not open for this session.'),
+                ], 422);
+            }
+
+            $this->recordScheduledLiveSessionAttendance($course, $subscribeData, $session->id, $userId);
+
+            return response()->json([
+                'meeting_link' => $meetingLink,
+            ]);
+        }
+
+        $meetingLink = $course->meeting_join_url;
+        if (!$meetingLink) {
+            return response()->json([
+                'message' => __('Meeting link is missing for this course.'),
+            ], 422);
+        }
+
+        if (!$subscribeData->is_attended) {
+            DB::table('subscribe_courses')->where('id', $subscribeData->id)->update(['is_attended' => 1]);
+        }
+
+        return response()->json([
+            'meeting_link' => $meetingLink,
+        ]);
+    }
+
+    private function recordScheduledLiveSessionAttendance($course, $subscribeData, $sessionId, $userId)
+    {
+        $session = LiveSession::where('id', $sessionId)
+            ->where('course_id', $course->id)
+            ->first();
+
+        if (!$session || !$this->isLiveSessionJoinWindowOpen($session)) {
+            return false;
+        }
+
+        try {
+            LiveSessionAttendance::firstOrCreate(
+                ['live_session_id' => $session->id, 'user_id' => $userId],
+                ['attended_at' => Carbon::now()]
+            );
+        } catch (\Illuminate\Database\QueryException $exception) {
+            if (!LiveSessionAttendance::where('live_session_id', $session->id)->where('user_id', $userId)->exists()) {
+                throw $exception;
+            }
+        }
+
+        $futureSessionsCount = LiveSession::where('course_id', $course->id)
+            ->where('session_date', '>', Carbon::today())
+            ->count();
+
+        if ($futureSessionsCount == 0 && !$subscribeData->is_attended) {
+            DB::table('subscribe_courses')->where('id', $subscribeData->id)->update(['is_attended' => 1]);
+            $subscribeData->is_attended = 1;
+        }
+
+        return true;
+    }
+
+    private function isLiveSessionJoinWindowOpen($session)
+    {
+        $sessionDate = $session->session_date instanceof Carbon
+            ? $session->session_date->format('Y-m-d')
+            : Carbon::parse($session->session_date)->format('Y-m-d');
+        $sessionStart = Carbon::parse($sessionDate . ' ' . $session->session_time);
+        $sessionEnd = $sessionStart->copy()->addMinutes((int)($session->duration ?? 60));
+
+        return Carbon::now()->between($sessionStart->copy()->subMinutes(15), $sessionEnd);
+    }
+
     private function isLiveCourse($course)
-{
-    return in_array($course->is_online, ['Live-Online', 'Live-Classroom', 'Offline']);
-}
+    {
+        return in_array($course->is_online, ['Live-Online', 'Live-Classroom', 'Offline']);
+    }
 
 }
-

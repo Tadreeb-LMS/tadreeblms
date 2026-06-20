@@ -61,7 +61,7 @@ class courseAssignment extends Model
 
     public function assignedBy()
     {
-        return $this->belongsTo(User::class, 'assign_by');
+        return $this->belongsTo(\App\Models\Auth\User::class, 'assign_by');
     }
 
     public function department()
