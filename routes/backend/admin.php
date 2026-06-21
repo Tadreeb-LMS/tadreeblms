@@ -453,6 +453,9 @@ Route::get('test_questions', 'Admin\TestQuestionController@index')->name('test_q
 Route::get('test_questions_delete/{id}', 'Admin\TestQuestionController@test_questions_delete')->name('test_questions_delete');
 
 
+Route::get('test_questions/lesson-quiz-short-answers', 'Admin\TestQuestionController@lessonQuizShortAnswers')->name('test_questions.lesson_quiz_short_answers');
+Route::post('test_questions/lesson-quiz-short-answers/{id}/review', 'Admin\TestQuestionController@reviewLessonQuizShortAnswer')->name('test_questions.lesson_quiz_short_answers.review');
+Route::post('test_questions/assessment-short-answers/{id}/review', 'Admin\TestQuestionController@reviewAssessmentShortAnswer')->name('test_questions.assessment_short_answers.review');
 Route::get('test_questions/create/{course_id?}/{temp_id?}/{onlytest?}', 'Admin\TestQuestionController@create')->name('test_questions.create');
 Route::post('test_questions/store', 'Admin\TestQuestionController@store')->name('test_questions.store');
 Route::get('test_questions/edit/{id}', 'Admin\TestQuestionController@edit')->name('test_questions.edit');
@@ -641,15 +644,15 @@ Route::delete('position_perma_del/{page}', 'Admin\PositionController@disabled')-
 Route::get('subscription', 'Admin\SubscriptionController@index')->name('subscription.index');
 Route::get('subscription-create', 'Admin\SubscriptionController@create')->name('subscription.create');
 Route::post('subscription-store', 'Admin\SubscriptionController@store')->name('subscription.store');
-Route::get('subscription-view/{page}', 'Admin\SubscriptionController@show')->name('subscription.show');
-Route::get('subscription-edit/{page}', 'Admin\SubscriptionController@edit')->name('subscription.edit');
-Route::post('subscription-update/{page}', 'Admin\SubscriptionController@update')->name('subscription.update');
-Route::delete('subscription-destroy/{page}', 'Admin\SubscriptionController@destroy')->name('subscription.destroy');
+Route::get('subscription-view/{id}', 'Admin\SubscriptionController@show')->name('subscription.show');
+Route::get('subscription-edit/{id}', 'Admin\SubscriptionController@edit')->name('subscription.edit');
+Route::post('subscription-update/{id}', 'Admin\SubscriptionController@update')->name('subscription.update');
+Route::delete('subscription-destroy/{id}', 'Admin\SubscriptionController@destroy')->name('subscription.destroy');
 
 Route::get('get-subscription-data', ['uses' => 'Admin\SubscriptionController@getData', 'as' => 'subscription.get_data']);
 Route::post('subscription_mass_destroy', ['uses' => 'Admin\SubscriptionController@massDestroy', 'as' => 'subscription.mass_destroy']);
-Route::post('psubscription_restore/{page}', ['uses' => 'Admin\SubscriptionController@restore', 'as' => 'subscription.restore']);
-Route::delete('psubscription_perma_del/{page}', ['uses' => 'Admin\SubscriptionController@perma_del', 'as' => 'subscription.perma_del']);
+Route::post('psubscription_restore/{id}', ['uses' => 'Admin\SubscriptionController@restore', 'as' => 'subscription.restore']);
+Route::delete('psubscription_perma_del/{id}', ['uses' => 'Admin\SubscriptionController@perma_del', 'as' => 'subscription.perma_del']);
 Route::post('subscription/status', ['uses' => 'Admin\SubscriptionController@updateStatus', 'as' => 'subscription.status']);
 
 // Custom Track Student Progress

@@ -15,6 +15,15 @@ class CertificatePdfRenderer
         $directory = storage_path('app/certificates/rendered');
         File::ensureDirectoryExists($directory);
 
+        // Chrome needs its own writable profile directory. When the renderer runs
+        // from the web-server process (e.g. Apache/PHP on Windows), the default
+        // profile location is not accessible, which makes Crashpad fail to start
+        // ("BuildSecurityDescriptor: The specified network provider name is
+        // invalid") and no PDF is produced. Giving Chrome a dedicated profile dir
+        // and disabling the crash reporter avoids that.
+        $profileDirectory = storage_path('app/certificates/chrome-profile');
+        File::ensureDirectoryExists($profileDirectory);
+
         $id = (string) Str::uuid();
         $htmlPath = $directory . "/certificate-{$id}.html";
         $pdfPath = $directory . "/certificate-{$id}.pdf";
@@ -33,6 +42,10 @@ class CertificatePdfRenderer
                 '--disable-gpu',
                 '--disable-dev-shm-usage',
                 '--no-sandbox',
+                '--user-data-dir=' . $profileDirectory,
+                '--disable-crash-reporter',
+                '--disable-breakpad',
+                '--no-first-run',
                 '--allow-file-access-from-files',
                 '--no-pdf-header-footer',
                 '--print-to-pdf-no-header',
@@ -42,7 +55,7 @@ class CertificatePdfRenderer
             $process->setTimeout(60);
             $process->run();
 
-            if (! $process->isSuccessful() || ! File::exists($pdfPath)) {
+            if (!$process->isSuccessful() || !File::exists($pdfPath)) {
                 throw new RuntimeException(trim($process->getErrorOutput() ?: $process->getOutput()));
             }
         } finally {
@@ -68,15 +81,45 @@ class CertificatePdfRenderer
 
     private function chromiumBinary(): string
     {
-        $candidates = array_filter([
-            env('CHROME_BIN'),
-            env('CHROMIUM_PATH'),
-            '/usr/bin/chromium-browser',
-            '/snap/bin/chromium',
-            '/usr/bin/chromium',
+        if ($binary = env('CHROME_BIN')) {
+            return $binary;
+        }
+
+        if ($binary = env('CHROMIUM_PATH')) {
+            return $binary;
+        }
+
+        $finder = new \Symfony\Component\Process\ExecutableFinder();
+        $binary = $finder->find('google-chrome')
+            ?: $finder->find('google-chrome-stable')
+            ?: $finder->find('chromium')
+            ?: $finder->find('chromium-browser')
+            ?: $finder->find('chrome')
+            ?: $finder->find('msedge');
+
+        if ($binary) {
+            return $binary;
+        }
+
+        $candidates = [
+            // Linux
             '/usr/bin/google-chrome',
             '/usr/bin/google-chrome-stable',
-        ]);
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/usr/local/bin/chromium',
+            '/usr/local/bin/chromium-browser',
+            '/snap/bin/chromium',
+            '/opt/google/chrome/chrome',
+            // Windows
+            'C:\Program Files\Google\Chrome\Application\chrome.exe',
+            'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
+            'C:\Program Files\Microsoft\Edge\Application\msedge.exe',
+            'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
+            // Mac
+            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+            '/Applications/Chromium.app/Contents/MacOS/Chromium',
+        ];
 
         foreach ($candidates as $candidate) {
             if (File::exists($candidate)) {
@@ -84,6 +127,6 @@ class CertificatePdfRenderer
             }
         }
 
-        throw new RuntimeException('Chromium is required to render certificate PDFs. Set CHROME_BIN or CHROMIUM_PATH.');
+        throw new RuntimeException('Chromium or Google Chrome is required to render PDFs. It was not found in any standard path. Please install it on your server or set CHROME_BIN / CHROMIUM_PATH in your .env file.');
     }
 }

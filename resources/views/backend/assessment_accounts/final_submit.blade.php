@@ -168,7 +168,7 @@
                         Cancel
                     </a>
 
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success" id="finalSubmitBtn">
                         Final Submit
                     </button>
                 </div>
@@ -177,42 +177,58 @@
 </form>
 
 <script>
-    document.querySelectorAll('.module-weight').forEach(input => {
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const inputs = document.querySelectorAll('.module-weight');
+    const submitBtn = document.getElementById('finalSubmitBtn');
+    const totalWeightEl = document.getElementById('totalWeight');
+    const weightErrorEl = document.getElementById('weightError');
+
+    inputs.forEach(input => {
         input.addEventListener('input', calculateTotal);
     });
 
     function calculateTotal() {
         let total = 0;
 
-        document.querySelectorAll('.module-weight').forEach(input => {
+        inputs.forEach(input => {
             total += Number(input.value) || 0;
         });
 
-        document.getElementById('totalWeight').innerText = total + '%';
+        totalWeightEl.innerText = total + '%';
 
         if (total === 100) {
-            document.getElementById('totalWeight').className = 'ml-2 badge badge-success';
-            document.getElementById('weightError').classList.add('d-none');
+            totalWeightEl.className = 'ml-2 badge badge-success';
+            weightErrorEl.classList.add('d-none');
+
+            // ✅ ENABLE SUBMIT
+            submitBtn.disabled = false;
+
         } else {
-            document.getElementById('totalWeight').className = 'ml-2 badge badge-danger';
-            document.getElementById('weightError').classList.remove('d-none');
+            totalWeightEl.className = 'ml-2 badge badge-danger';
+            weightErrorEl.classList.remove('d-none');
+
+            // ❌ DISABLE SUBMIT
+            submitBtn.disabled = true;
         }
     }
-    document.querySelector('form').addEventListener('submit', function(e) {
 
-    let total = 0;
+    document.querySelector('form').addEventListener('submit', function (e) {
+        let total = 0;
 
-    document.querySelectorAll('.module-weight').forEach(input => {
-        total += Number(input.value) || 0;
+        inputs.forEach(input => {
+            total += Number(input.value) || 0;
+        });
+
+        if (total !== 100) {
+            e.preventDefault();
+            alert('Total weightage must be exactly 100%');
+            submitBtn.disabled = true;
+        }
     });
 
-    if (total !== 100) {
-        e.preventDefault();
-        alert('Total weightage must be exactly 100%');
-    }
-
+    calculateTotal(); // initial run
 });
-calculateTotal();
 </script>
 
 

@@ -100,6 +100,13 @@ class AssessmentController extends Controller
                 }
             }
 
+            $attempts = CustomHelper::assignmentAttempts($assignment->id, $logged_in_user_id);
+            if ((new \App\Helpers\CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $assignment->course_id, (int) $attempts)) {
+                return redirect()
+                    ->route('user.mycourses')
+                    ->withFlashWarning('You have reached the maximum number of attempts for this final assessment.');
+            }
+
             
 
             $test_questions = DB::table('test_questions')->select('test_questions.*', 'tests.title')
@@ -312,6 +319,13 @@ class AssessmentController extends Controller
                 return redirect()->route('online_assessment', 'assignment=' . $assignment->url_code)->withFlashSuccess("Assignment Not Found.");
             }
 
+            $attempts = CustomHelper::assignmentAttempts($assignment->id, $user_id);
+            if ((new \App\Helpers\CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $assignment->course_id, (int) $attempts)) {
+                return redirect()
+                    ->route('user.mycourses')
+                    ->withFlashWarning('You have reached the maximum number of attempts for this final assessment.');
+            }
+
             $assessment_account = AssessmentAccount::where('id', $user_id)->where('assignment_id', $assignment_id)->first();
             if ($assessment_account == null) {
                 Session::flash('message', 'Assignment is not valid!');
@@ -366,13 +380,29 @@ class AssessmentController extends Controller
         $assignment_id = $request->session()->get('assessment_assignment_id');
         $assessment_test_id = $request->session()->get('assessment_test_id');
         //dd($user_id, $assignment_id, $assessment_test_id); // 4063, 1351, 9
+        $assignment = Assignment::find($assessment_test_id);
+        if ($assignment) {
+            $attempts = CustomHelper::assignmentAttempts($assignment->id, $user_id);
+            if ((new \App\Helpers\CustomHelper())->isFinalAssessmentAttemptLimitReached((int) $assignment->course_id, (int) $attempts)) {
+                return json_encode([
+                    'status' => 200,
+                    'has_feedback' => 0,
+                    'return_url' => route('user.mycourses'),
+                    'message' => 'You have reached the maximum number of attempts for this final assessment.'
+                ]);
+            }
+        }
+
         $all_assignment_answers = json_decode($request->all_data);
 
-        $aq = AssignmentQuestion::where('assignment_id', $assignment_id)->where('assessment_account_id', $user_id)->first();
+        $latestAttempt = AssignmentQuestion::where('assignment_id', $assignment_id)
+            ->where('assessment_account_id', $user_id)
+            ->max('attempt');
 
-        $attempt = $aq ? $aq->attempt + 1 : 1;
+        $attempt = $latestAttempt ? ((int) $latestAttempt + 1) : 1;
 
         //dd($all_assignment_answers);
+        $has_pending_evaluation = false;
 
         foreach ($all_assignment_answers as $key => $value) {
             $question = DB::table('test_questions')->where('id', "=", $value->question_id)->first();
@@ -425,6 +455,9 @@ class AssessmentController extends Controller
                 } else {
                     $is_correct = 2;
                 }
+            } else if ($question->question_type == 3) {
+                $is_correct = 0;
+                $has_pending_evaluation = true;
             }
             $data['attempt'] = $attempt;
             $data['marks'] = $is_correct == 1 ? $question->marks : 0;
@@ -522,7 +555,7 @@ class AssessmentController extends Controller
                             AssessmentNotification::createAssessmentSubmittedBell($notifUser, $courseName);
                         }
 
-                        if ($notificationSettings->shouldNotify('assessments', 'test_results_published', 'email')) {
+                        if (!$has_pending_evaluation && $notificationSettings->shouldNotify('assessments', 'test_results_published', 'email')) {
                             $scorePercent = round((float) $sb->assignmentScore($user_id));
                             $status = $sb->course->assignmentStatus($user_id, $scorePercent) ?? 'Completed';
                             AssessmentNotification::sendAssessmentGradedEmail($notifUser, $courseName, $scorePercent, $status);
@@ -546,7 +579,9 @@ class AssessmentController extends Controller
             'status' => 200,
             'has_feedback' => $has_feedback,
             'return_url' => $return_url,
-            'message' => 'Thank you for attending this assessment. We will get back to you with the result soon.'
+            'message' => $has_pending_evaluation
+                ? 'Thank you for attending this assessment. Your short answer is pending evaluation, and we will notify you when the result is reviewed.'
+                : 'Thank you for attending this assessment. We will get back to you with the result soon.'
         ));
     }
 
@@ -566,18 +601,24 @@ class AssessmentController extends Controller
         //dd($all_assignment_answers);
         foreach ($all_assignment_answers as $key => $value) {
 
+            // Skip non-question entries (e.g. the free-text "Additional Feedback"
+            // box) that carry no question_id, so they don't break the insert.
+            if (!isset($value->question_id)) {
+                continue;
+            }
+
             $data = array(
                 'user_id' => $user_id,
                 'course_id' => $course_id,
                 'feedback_id' => $value->question_id,
-                'feedback' => $value->answer,
-                'feedback_questions_type' => $value->question_type,
+                'feedback' => $value->answer ?? null,
+                'feedback_questions_type' => $value->question_type ?? null,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             );
 
             DB::table('user_feedback')->insert($data);
-            
+
         }
 
         
