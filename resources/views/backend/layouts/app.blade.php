@@ -13,11 +13,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', app_name())</title>
-    <meta name="description" content="@yield('meta_description', 'Laravel 5 Boilerplate')">
-    <meta name="author" content="@yield('meta_author', 'Anthony Rappa')">
-    @if (config('favicon_image') != '')
-        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('storage/logos/' . config('favicon_image')) }}" />
+    <title>@if(View::hasSection('title'))@yield('title')@else{{ app_name() }}@endif</title>
+    <meta name="description" content="@yield('meta_description', config('app.name', 'Learning Management System'))">
+    <meta name="author" content="@yield('meta_author', config('app.author', 'Tadreeb LMS'))">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    @if(config('favicon_image') && config('favicon_image') != '')
+        @php $faviconExt = strtolower(pathinfo(config('favicon_image'), PATHINFO_EXTENSION)); @endphp
+        <link rel="icon" type="{{ in_array($faviconExt, ['png']) ? 'image/png' : 'image/x-icon' }}" href="{{ asset('storage/logos/' . config('favicon_image')) }}" />
     @endif
     @yield('meta')
     <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">

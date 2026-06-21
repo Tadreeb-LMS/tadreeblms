@@ -42,6 +42,70 @@ button.dt-button:hover, div.dt-button:hover, a.dt-button:hover {
   opacity: 0.7;
 }
 
+div.dt-button-collection .buttons-columnVisibility,
+div.dt-button-collection .dt-button[data-cv-idx] {
+  position: relative;
+  width: auto !important;
+  min-width: 100%;
+  padding-left: 2rem !important;
+  padding-right: 1rem !important;
+  color: #6c757d !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  text-align: left;
+  white-space: nowrap;
+}
+
+div.dt-button-collection.dt-column-visibility-collection,
+div.dt-button-collection:has(.buttons-columnVisibility),
+div.dt-button-collection:has(.dt-button[data-cv-idx]) {
+  width: max-content !important;
+  min-width: 14rem;
+  max-width: min(90vw, 28rem);
+  overflow-x: auto;
+}
+
+div.dt-button-collection .buttons-columnVisibility.active,
+div.dt-button-collection .buttons-columnVisibility.dt-button-active,
+div.dt-button-collection .dt-button[data-cv-idx].active,
+div.dt-button-collection .dt-button[data-cv-idx].dt-button-active {
+  color: #212529 !important;
+  background: #f8f9fa !important;
+  font-weight: 600;
+}
+
+div.dt-button-collection .buttons-columnVisibility.active::before,
+div.dt-button-collection .buttons-columnVisibility.dt-button-active::before,
+div.dt-button-collection .dt-button[data-cv-idx].active::before,
+div.dt-button-collection .dt-button[data-cv-idx].dt-button-active::before {
+  content: "\2713";
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: #28a745;
+  font-weight: 700;
+}
+
+div.dt-button-collection .buttons-columnVisibility.dt-column-hidden,
+div.dt-button-collection .dt-button[data-cv-idx].dt-column-hidden {
+  color: #9aa0a6 !important;
+  font-weight: 400;
+}
+
+@media screen and (max-width: 480px) {
+  div.dt-button-collection.dt-column-visibility-collection,
+  div.dt-button-collection:has(.buttons-columnVisibility),
+  div.dt-button-collection:has(.dt-button[data-cv-idx]) {
+    width: 90vw !important;
+  }
+
+  div.dt-button-collection .buttons-columnVisibility,
+  div.dt-button-collection .dt-button[data-cv-idx] {
+    white-space: normal;
+  }
+}
+
 .form-control:focus {
   border-color: #cccccc;
   -webkit-box-shadow: none;
@@ -397,4 +461,3 @@ div.dt-buttons {
     }
   }
 }
-

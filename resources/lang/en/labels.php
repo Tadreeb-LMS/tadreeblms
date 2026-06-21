@@ -382,12 +382,13 @@ return array(
       'view' => 'View Questions',
       'test' => 'Test',
       'options' => 'Options',
+      'question_options' => 'Question Options',
       'add_option' => 'Add Option',
       'option_placeholder' => 'Write the answer option here...',
       'option_added' => 'Option Added!',
       'no_options_added' => 'No options added',
       'empty_options_help' => 'Fill the Option field and click Add Option to get started',
-      'question_options' => 'Question Options',
+      'option_empty_help' => 'Fill the option field and click Add Option to start.',
       'remove_option' => 'Remove',
       'remove_option_title' => 'Remove this option',
       'option_required' => 'Please fill the option field before adding it.',
@@ -411,6 +412,7 @@ return array(
     array(
       'title' => 'General',
       'disable_landing_page' => 'Disable Landing Page',
+      'site_logo' => 'Site Logo',
       'contact' =>
       array(
         'short_text' => 'Short Text',
@@ -485,7 +487,6 @@ return array(
         'mail_password_note' => 'Add your email password you want to configure for sending emails',
         'mail_encryption' => 'Mail Encryption',
         'mail_encryption_note' => 'Use <b>tls</b> if your site uses <b>HTTP</b> protocol and <b>ssl</b> if you site uses <b>HTTPS</b> protocol',
-        'site_logo' => 'Site Logo',
         'save_settings' => 'Save Settings',
         'note' => '<b>Important Note</b> : IF you are using <b>GMAIL</b> for Mail configuration, make sure you have completed following process before updating:
       <ul>

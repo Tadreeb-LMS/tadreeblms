@@ -210,6 +210,20 @@ class CourseNotification
         }
     }
 
+    public static function createCourseEnrollmentBell($user, $course)
+    {
+        UserNotification::create([
+            'user_id' => $user->id,
+            'type' => 'course_enrollment',
+            'title' => 'Course Enrollment',
+            'message' => 'You have been enrolled in a course: ' . ($course->title ?? 'Untitled') . '.',
+            'icon' => 'fas fa-book',
+            'icon_color' => 'primary',
+            'link' => $course->slug ? route('courses.show', $course->slug) : null,
+            'is_read' => false,
+        ]);
+    }
+
     // =========================================================================
     // COURSE COMPLETED
     // =========================================================================

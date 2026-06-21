@@ -74,6 +74,7 @@
            aria-disabled="{{ $add_new_disabled ? 'true' : 'false' }}"
            title="{{ $add_new_disabled ? __('course_pages.admin_test_questions_index.select_course_first') : '' }}"
        >@lang('strings.backend.general.app_add_new')</a>
+       <a href="{{ route('admin.test_questions.lesson_quiz_short_answers') }}" class="btn btn-secondary ml-2">Review Short Answers</a>
    </div>
  
 </div>

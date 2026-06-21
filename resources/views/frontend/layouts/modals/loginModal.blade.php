@@ -270,19 +270,6 @@
                                 </div>
                             </div>
 
-                            <!-- Language Select -->
-                            <div class="contact-info mb-2 plang">
-                                <label>{{ __('auth_pages.modal.preferred_language') }}</label><br>
-
-                                <label class="radio-inline mr-3 mb-0">
-                                    <input type="radio" name="fav_lang" value="english" checked> {{ __('auth_pages.modal.english') }}
-                                </label>
-
-                                <label class="radio-inline mr-3 mb-0">
-                                    <input type="radio" name="fav_lang" value="arabic"> {{ __('auth_pages.modal.arabic') }}
-                                </label>
-                            </div>
-
                             <!-- Dynamic fields -->
                             @if(config('registration_fields') != NULL)
                                 @php

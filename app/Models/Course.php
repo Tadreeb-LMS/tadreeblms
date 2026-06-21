@@ -59,6 +59,7 @@ class Course extends Model
         'qr_code', 
         'course_video',  
         'marks_required', 
+        'final_assessment_max_attempts',
         'course_code', 
         'arabic_title',
         'course_lang',
@@ -772,6 +773,10 @@ public function getStatusLabelAttribute()
 
     public function assignmentStatus($user_id, $progress = null)
     {
+        if (CustomHelper::hasPendingAssessmentEvaluation($this->id, $user_id)) {
+            return 'Pending Evaluation';
+        }
+
         $assignmentScoreValue = 0;
         try {
             $assignmentScoreValue = $this->assignmentScoreValue($user_id, $progress);

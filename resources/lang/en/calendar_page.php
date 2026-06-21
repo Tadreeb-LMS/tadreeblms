@@ -8,6 +8,7 @@ return array(
   'legend_scheduled_sessions' => 'Scheduled Sessions',
   'add_schedule' => 'Add Your Schedule',
   'edit_schedule' => 'Edit Your Schedule',
+  'event_added_successfully' => 'Event Added Successfully',
   'schedule_name' => 'Schedule Name:',
   'close' => 'Close',
   'save_schedule' => 'Save Your Schedule',
@@ -18,4 +19,5 @@ return array(
   'save_event' => 'Save Event',
   'cannot_create_past_events' => 'You cannot create events in the past.',
   'live_badge' => 'Live',
+  'legend_user_events' => 'My Events',
 );
