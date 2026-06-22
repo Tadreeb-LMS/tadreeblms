@@ -94,6 +94,7 @@
 
                                 </div>
 
+                                @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
                                 @if(config('access.captcha.registration'))
                                     <div class="contact-info mb-2 text-center">
                                         {{ no_captcha()->display() }}
@@ -102,6 +103,7 @@
 
                                     </div><!--col-->
                                 @endif
+                                @endunless
 
                                 <div class="nws-button text-center white text-capitalize">
                                     <button type="submit"
@@ -200,6 +202,7 @@
                                     @endforeach
                                 @endif
 
+                                @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
                                 @if(config('access.captcha.registration'))
                                     <div class="contact-info mt-3 text-center">
                                         {{ no_captcha()->display() }}
@@ -208,6 +211,7 @@
 
                                     </div><!--col-->
                                 @endif
+                                @endunless
 
 
                                 <div class="contact-info mb-2 mx-auto w-50 py-4">
@@ -241,9 +245,11 @@
             $('#myModal').modal('show');
         </script>
 @endif
+    @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
     @if(config('access.captcha.registration'))
         {{ no_captcha()->script() }}
     @endif
+    @endunless
 
     <script>
         $(function () {

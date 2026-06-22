@@ -49,22 +49,38 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        if (request()->ajax()) {
-            $captcha = CaptchaGenerator::generate();
+        $isQa = CaptchaGenerator::isQaEnvironment();
 
-            return [
+        if (request()->ajax()) {
+            $response = [
                 'socialLinks' => (new Socialite)->getSocialLinks(),
-                'captcha_image' => $captcha['image'],
-                'captcha_question' => 'Enter the code shown above',
-                'captha' => $captcha['code'], // backward compatibility
+                'is_qa' => $isQa,
             ];
+
+            if (!$isQa) {
+                $captcha = CaptchaGenerator::generate();
+                $response['captcha_image']    = $captcha['image'];
+                $response['captcha_question'] = 'Enter the code shown above';
+                $response['captha']           = $captcha['code'];
+            }
+
+            return $response;
+        }
+
+        if ($isQa) {
+            return view('frontend.auth.login', [
+                'captcha_image' => null,
+                'captha'        => null,
+                'is_qa'         => true,
+            ]);
         }
 
         $captcha = CaptchaGenerator::generate();
 
         return view('frontend.auth.login', [
             'captcha_image' => $captcha['image'],
-            'captha' => $captcha['code'],
+            'captha'        => $captcha['code'],
+            'is_qa'         => false,
         ]);
     }
 
@@ -92,19 +108,22 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'email' => 'required|email|max:255',
-                'password' => 'required|min:6',
-                'captcha' => 'required',
-            ],
-            [
-                'captcha.required' => __('validation.required', [
-                    'attribute' => __('auth_pages.login.captcha'),
-                ]),
-            ]
-        );
+        $isQa = CaptchaGenerator::isQaEnvironment();
+
+        $rules = [
+            'email'    => 'required|email|max:255',
+            'password' => 'required|min:6',
+        ];
+        $messages = [];
+
+        if (!$isQa) {
+            $rules['captcha'] = 'required';
+            $messages['captcha.required'] = __('validation.required', [
+                'attribute' => __('auth_pages.login.captcha'),
+            ]);
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return response([
@@ -114,7 +133,7 @@ class LoginController extends Controller
         }
 
         // CAPTCHA CHECK
-        if (!CaptchaGenerator::validate($request->captcha)) {
+        if (!$isQa && !CaptchaGenerator::validate($request->captcha)) {
             return response([
                 'success' => false,
                 'errors' => [

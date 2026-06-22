@@ -7,6 +7,21 @@ use Illuminate\Support\Facades\Session;
 class CaptchaGenerator
 {
     /**
+     * Determine if the current environment is QA.
+     * Returns true when APP_ENV=qa OR the request host contains qa.tadreeblms.com.
+     *
+     * @return bool
+     */
+    public static function isQaEnvironment(): bool
+    {
+        if (strtolower(env('APP_ENV', '')) === 'qa') {
+            return true;
+        }
+
+        $host = request()->getHost();
+        return str_contains($host, 'qa.tadreeblms.com');
+    }
+    /**
      * Generate a visual captcha with noise elements
      * 
      * @return array Returns captcha code and image data
@@ -116,6 +131,11 @@ class CaptchaGenerator
      */
     public static function validate($input)
     {
+        // Skip captcha validation entirely on QA environment
+        if (self::isQaEnvironment()) {
+            return true;
+        }
+
         if (empty($input)) {
             return false;
         }

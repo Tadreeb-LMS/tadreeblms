@@ -258,7 +258,8 @@
                         </a>
                     </div>
 
-                    {{-- Captcha --}}
+                    {{-- Captcha (hidden on QA) --}}
+                    @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
                     <div class="form-group">
                         <div class="captcha-container">
                             <img src="{{ isset($captcha_image) ? $captcha_image : '' }}" id="captchaImage" alt="captcha" />
@@ -280,6 +281,7 @@
                             @endif
                         </div>
                     </div>
+                    @endunless
 
                     {{-- Submit --}}
                     <div class="form-group nws-button">
@@ -311,11 +313,14 @@
 @push('after-scripts')
 
 <script>
-    // Init
+    var isQaEnv = window.isQaEnv || {{ App\Helpers\CaptchaGenerator::isQaEnvironment() ? 'true' : 'false' }};
+
+    // Init refresh button only when captcha is shown
     document.addEventListener('DOMContentLoaded', function () {
-        // Refresh button
-        document.getElementById('refreshCaptcha')
-            .addEventListener('click', refreshLoginCaptcha);
+        const refreshBtn = document.getElementById('refreshCaptcha');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', refreshLoginCaptcha);
+        }
     });
 
 $(document).ready(function () {
@@ -359,10 +364,12 @@ $(document).ready(function () {
                 }
                 
                 $('#error-msg').text(message).show();
-                if (typeof refreshLoginCaptcha === "function") {
+                if (!isQaEnv && typeof refreshLoginCaptcha === "function") {
                     refreshLoginCaptcha();
                 }
-                $('#captcha-input').val('').focus();
+                if (!isQaEnv) {
+                    $('#captcha-input').val('').focus();
+                }
             },
             complete: function () {
                 $('#loginBtn').prop('disabled', false).text(@json(__('labels.frontend.auth.login_button')));
@@ -371,7 +378,9 @@ $(document).ready(function () {
     });
 
 });
+
 function refreshLoginCaptcha() {
+    if (isQaEnv) return;
     fetch("{{ route('refresh.captcha') }}?t=" + new Date().getTime(), {
         headers: {
             'Cache-Control': 'no-cache',

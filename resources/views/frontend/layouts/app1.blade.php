@@ -247,7 +247,9 @@
                         </li>
                         <li class="sm-tb-space">
                             <div class="log-in">
-                                <a id="openRegisterModal" data-target="#myRegisterModal"
+                                <a id="openRegisterModal"
+                                    data-toggle="modal"
+                                    data-target="#myRegisterModal"
                                     href="#">@lang('SignUp')</a>
                                 {{-- @include('frontend.layouts.modals.loginModal') --}}
 
