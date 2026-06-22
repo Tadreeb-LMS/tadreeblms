@@ -69,9 +69,13 @@ class RegisterController extends Controller
     {
         abort_unless(config('access.registration'), 404);
 
-        // Generate captcha for registration form
-        $captcha = \App\Helpers\CaptchaGenerator::generate();
-        session(['captcha_image' => $captcha['image']]);
+        // Generate captcha for registration form (skip on QA)
+        if (!CaptchaGenerator::isQaEnvironment()) {
+            $captcha = CaptchaGenerator::generate();
+            session(['captcha_image' => $captcha['image']]);
+        } else {
+            session(['captcha_image' => null]);
+        }
 
         return view('frontend.auth.register')
             ->withSocialiteLinks((new Socialite)->getSocialLinks());
@@ -121,7 +125,7 @@ class RegisterController extends Controller
 
         if ($validator->passes()) {
             // Store your user in database
-            if (!CaptchaGenerator::validate($request->captcha)) {
+            if (!CaptchaGenerator::isQaEnvironment() && !CaptchaGenerator::validate($request->captcha)) {
                 return response([
                     'success' => false,
                     'error_type'=>'captcha',

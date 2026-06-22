@@ -14,6 +14,7 @@
 
                 <div class="card-body">
                     {{ html()->form('POST', route('frontend.auth.register.post'))->id('registerForm')->open() }}
+                        <input type="hidden" name="fav_lang" value="{{ app()->getLocale() == 'ar' ? 'arabic' : 'english' }}">
                         <div class="row">
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
@@ -78,6 +79,7 @@
                             </div><!--col-->
                         </div><!--row-->
 
+                        @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
                         <div class="row">
                             <div class="col">
                                 <div class="form-group mb-4 mt-2">
@@ -103,6 +105,7 @@
                                 </div><!--form-group-->
                             </div><!--col-->
                         </div><!--row-->
+                        @endunless
 
 
                         <div class="row">
@@ -167,8 +170,10 @@
 @push('after-scripts')
 <script>
     const refreshCaptchaUrl = "{{ route('refresh.captcha') }}";
+    const isQaEnv = {{ App\Helpers\CaptchaGenerator::isQaEnvironment() ? 'true' : 'false' }};
 
     function refreshCaptcha() {
+        if (isQaEnv) return;
         fetch(refreshCaptchaUrl + '?t=' + new Date().getTime())
             .then(res => res.json())
             .then(data => {

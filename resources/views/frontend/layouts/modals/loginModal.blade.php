@@ -159,6 +159,7 @@
                                 </a>
                             </div>
 
+                            @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
                             <div class="contact-info mb-2 catcha-block">
                                 <label>{{ __('auth_pages.login.captcha') }}</label>
                                 <div class="captcha-container">
@@ -175,6 +176,7 @@
                                 <input type="text" name="captcha" class="captcha" placeholder="Enter captcha code" required>
                                 <span id="login-captcha-error" class="text-danger"></span>
                             </div>
+                            @endunless
 
                             <div class="nws-button text-center white text-capitalize">
                                 <button type="submit">@lang('labels.frontend.modal.login_now')</button>
@@ -221,6 +223,7 @@
                             @endif
 
                             <input type="hidden" name="active_page" class="active_page" value="{{ Route::currentRouteName() }}">
+                            <input type="hidden" name="fav_lang" value="{{ app()->getLocale() == 'ar' ? 'arabic' : 'english' }}">
 
                             <div class="row">
                                 <div class="col-md-6">
@@ -309,6 +312,7 @@
                                 @endforeach
                             @endif
 
+                            @unless(App\Helpers\CaptchaGenerator::isQaEnvironment())
                             <div class="contact-info mb-4 mt-3">
                                 <label class="font-weight-bold d-block mb-2">{{ __('auth_pages.login.captcha') }}</label>
                                 <div class="row align-items-center mb-2">
@@ -331,6 +335,7 @@
                                 </div>
                                 <span id="register-captcha-error" class="text-danger d-block font-weight-bold"></span>
                             </div>
+                            @endunless
 
                             <div class="nws-button text-center white text-capitalize">
                                 <button id="registerButton" type="submit">@lang('labels.frontend.modal.register_now')</button>
@@ -398,8 +403,10 @@
     <script>
 
         const refreshCaptchaUrl = "{{ route('refresh.captcha') }}";
+        var isQaEnv = window.isQaEnv || {{ App\Helpers\CaptchaGenerator::isQaEnvironment() ? 'true' : 'false' }};
 
         function loadCaptcha(mode) {
+            if (isQaEnv) return;
             fetch(refreshCaptchaUrl)
                 .then(res => res.json())
                 .then(data => {
@@ -503,22 +510,19 @@
                     });
                 });
 
+                // When the register modal is about to open (Bootstrap event),
+                // load captcha and reset the form
+                $('#myRegisterModal').on('show.bs.modal', function () {
+                    loadCaptcha('register');
+                    let form = $(this).find('form')[0];
+                    if (form) form.reset();
+                    $(this).find('.text-danger').text('');
+                });
+
+                // Click handler as explicit fallback (data-toggle="modal" handles it natively)
                 $(document).on('click', '#openRegisterModal', function (e) {
                     e.preventDefault();
-                    $.ajax({
-                        type: "GET",
-                        url: "{{route('frontend.auth.register')}}",
-                        success: function (response) {
-                            $('#socialLinks').html(response.socialLinks);
-                            loadCaptcha('register');
-                            let form = $('#myRegisterModal').find('form')[0];
-                            if (form) form.reset();
-
-                            $('#myRegisterModal').find('.text-danger').text('');
-                            $('#myRegisterModal').modal('show');
-                            //alert("jo")
-                        },
-                    });
+                    $('#myRegisterModal').modal('show');
                 });
 
 
