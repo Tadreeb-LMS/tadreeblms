@@ -114,12 +114,13 @@
                             <th>@lang('labels.backend.courses.fields.category')</th>
                             <th>@lang('labels.backend.courses.fields.price')</th>
                             
-                            @if (Auth::user()->isAdmin())
-                               
+                            {{-- Show the Trainer column for any role with the
+                                 trainer_access permission, not only the
+                                 built-in 'administrator' role, so custom
+                                 admin roles also see facilitator info. --}}
+                            @can('trainer_access')
                                 <th>@lang('labels.backend.courses.fields.teachers')</th>
-                            @else
-                              
-                            @endif
+                            @endcan
                             {{-- <th>@lang('Assignment')</th> --}}
                             <th>{{ __('course_pages.admin_index.total_students_enrolled') }}</th>
                             <th>{{ __('course_pages.admin_index.total_duration') }}</th>
@@ -321,17 +322,14 @@ window.addEventListener('load', function () {
     name: 'price'
 },
                     // {data: "department", name: 'department'},
-                    @if (Auth::user()->isAdmin())
+                    @can('trainer_access')
                         // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
                         // {data: "id", name: 'id'},
                         {
                             data: "teachers",
                             name: 'teachers'
                         },
-                    @else
-                        // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false},
-                        // {data: "id", name: 'id'},
-                    @endif
+                    @endcan
                     {
                         data: "total_students_enrolled",
                         name: "total_students_enrolled"
