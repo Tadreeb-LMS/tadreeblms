@@ -111,6 +111,7 @@
                             <th>{{ __('course_pages.admin_index.course_language') }}</th>
                             <th>@lang('labels.backend.courses.fields.title')</th>
                             <!-- <th>@lang('Arabic Title')</th> -->
+                            <th>{{ __('course_pages.admin_index.course_type') }}</th>
                             <th>@lang('labels.backend.courses.fields.category')</th>
                             <th>@lang('labels.backend.courses.fields.price')</th>
                             
@@ -255,14 +256,14 @@ window.addEventListener('load', function () {
                         },
                             text: 'CSV',
                             exportOptions: {
-                                columns: [1, 2, 3, 4, 5]
+                                columns: [1, 2, 3, 4, 5, 6]
                             }
                         },
                         {
                             extend: 'pdf',
                             text: 'PDF',
                             exportOptions: {
-                                columns: [1, 2, 3, 4, 5]
+                                columns: [1, 2, 3, 4, 5, 6]
                             }
                         }
                     ]
@@ -312,6 +313,12 @@ window.addEventListener('load', function () {
                     //     data: "arabic_title",
                     //     name: 'arabic_title'
                     // },
+                    {
+                        data: "course_type",
+                        name: 'is_online',
+                        orderable: true,
+                        searchable: true
+                    },
                     {
                         data: "category",
                         name: 'category'
