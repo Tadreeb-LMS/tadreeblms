@@ -38,9 +38,9 @@
 
             <div class="row">
 
-                <!-- Import Internal Trainee -->
+                <!-- Import User Groups -->
                 <div class="col-6 mb-2">
-                    <h6>@lang('Import Internal Trainee')</h6>
+                    <h6>@lang('Import User Groups')</h6>
 
                     <form method="POST"
                           action="{{ route('admin.department.add.import') }}"
