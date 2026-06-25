@@ -1,0 +1,44 @@
+name: Deploy TadreebLMS (qa)
+
+on:
+  push:
+    branches: [ QA ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+
+          script: |
+            set -e
+
+            echo "🚀 Connected to server"
+            hostname
+
+            cd /var/www/html/qa/tadreeblms
+
+            # Fix git safe directory
+            
+
+            echo "📥 Pulling latest code..."
+            sudo -u www-data git branch
+            sudo -u www-data git stash
+            sudo -u www-data git pull
+
+            echo "🧹 Clearing old cache..."
+            
+            php artisan config:clear || true
+            php artisan view:clear || true
+            php artisan view:cache
+
+            echo "🗄 Running migrations..."
+            sudo -u www-data php artisan migrate 
+
+            echo "✅ Deployment completed successfully"
