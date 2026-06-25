@@ -353,15 +353,21 @@ class CoursesController extends Controller
             //     return $lesson;
             // })
             ->addColumn('lessons', function ($q) {
-    $dropdown = '
-        
-           
-            <div class="">
-            
-                <a class="createbtn" href="' . route('admin.lessons.create', ['course_id' => $q->id]) . '">
+    // Lessons (modules) only apply to E-Learning (Online) courses.
+    // Live-Online and Live-Classroom (E-Live) courses are delivered via
+    // live sessions and do not support lesson creation, so the "Create"
+    // action is hidden for those types and only "View" remains visible.
+    $isELearning = ($q->is_online === 'Online' || empty($q->is_online));
+    $createBtn = $isELearning
+        ? '<a class="createbtn" href="' . route('admin.lessons.create', ['course_id' => $q->id]) . '">
                 Create
                    <!-- <i class="fa fa-plus-circle" aria-hidden="true" style="font-size:20px"></i> -->
-                </a>
+                </a>'
+        : '';
+
+    $dropdown = '
+            <div class="">
+                ' . $createBtn . '
                 <a class="viewbtn" href="' . route('admin.lessons.index', ['course_id' => $q->id]) . '">
                 View
                    <!-- <i class="fa fa-eye" aria-hidden="true" style="font-size:18px margin-bottom:-3px"></i> -->
