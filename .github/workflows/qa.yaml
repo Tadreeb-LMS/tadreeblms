@@ -32,12 +32,6 @@ jobs:
             sudo -u www-data git stash
             sudo -u www-data git pull
 
-            echo "🧹 Clearing old cache..."
-            
-            sudo -u www-data php artisan config:clear || true
-            sudo -u www-data php artisan view:clear || true
-            sudo -u www-data php artisan view:cache
-
             echo "🗄 Running migrations..."
             sudo -u www-data php artisan migrate 
 
