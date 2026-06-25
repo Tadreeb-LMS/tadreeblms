@@ -522,7 +522,19 @@ class CoursesController extends Controller
                 }
                 //return '<a class="add-btn" style="padding:7px 20px 11px 20px"  href="' . route('admin.enrolled_student', ['course_id' => $q->id]) . '"> (' . CustomHelper::totalEnrolled($q->id) . ') <i class="fa fa-eye ml-1" aria-hidden="true"></i> </a>';
             })
-            ->rawColumns(['teachers', 'assignment', 'department', 'duration', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status','qr_code',  'expiry_date'])
+            ->addColumn('course_type', function ($q) {
+                switch ($q->is_online) {
+                    case 'Online':
+                        return '<span class="badge badge-info">' . __('course_pages.admin_create.course_type_e_learning') . '</span>';
+                    case 'Offline':
+                        return '<span class="badge badge-warning">' . __('course_pages.admin_create.course_type_live_online') . '</span>';
+                    case 'Live-Classroom':
+                        return '<span class="badge badge-success">' . __('course_pages.admin_create.course_type_live_classroom') . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">-</span>';
+                }
+            })
+            ->rawColumns(['teachers', 'assignment', 'department', 'duration', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status','qr_code',  'expiry_date', 'course_type'])
             ->make();
     }
 
