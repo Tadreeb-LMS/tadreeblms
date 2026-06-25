@@ -835,12 +835,15 @@ $teachers = [$teacherId];
 
             $course->teachers()->sync($teachers);
 
-            $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
-            $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
+            $internalStudents = (array) $request->input('internalStudents', []);
+            $externalStudents = (array) $request->input('externalStudents', []);
 
             //dd($internalStudents, $externalStudents);
 
-            $students = array_merge($internalStudents, $externalStudents);
+            $students = array_values(array_unique(array_filter(array_merge(
+                $internalStudents,
+                $externalStudents
+            ))));
             $course->students()->sync($students);
             // Auto subscribe into courses
             foreach ($students as $id) {
