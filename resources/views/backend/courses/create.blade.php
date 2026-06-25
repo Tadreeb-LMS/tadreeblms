@@ -486,7 +486,9 @@
                                     <div class="row">
                                         <div class="col-md-6 form-group">
                                             <label
-                                                for="meeting_provider">{{ __('course_pages.admin_create.meeting_provider') }}</label>
+                                                for="meeting_provider">{{ __('course_pages.admin_create.meeting_provider') }}
+                                                <span class="required"></span> 
+                                            </label>
                                             <select name="meeting_provider" id="meeting_provider" class="form-control">
                                                 <option value="">Select</option>
                                                 @foreach($meetingProviderOptions as $key => $label)
