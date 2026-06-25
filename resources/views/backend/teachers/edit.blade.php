@@ -39,7 +39,7 @@
 
                 <!-- ID Number -->
                 <div class="col-lg-6 mt-3">
-                    <label>Id Number</label>
+                    <label>Id Number <span style="color: red;">*</span></label>
                     <input type="text"
                            name="id_number"
                            class="form-control"
@@ -49,7 +49,7 @@
 
                 <!-- First Name -->
                 <div class="col-lg-6 mt-3">
-                    <label>First Name</label>
+                    <label>First Name <span style="color: red;">*</span></label>
                     <input type="text"
                            name="first_name"
                            class="form-control"
@@ -59,7 +59,7 @@
 
                 <!-- Last Name -->
                 <div class="col-lg-6 mt-3">
-                    <label>Last Name</label>
+                    <label>Last Name <span style="color: red;">*</span></label>
                     <input type="text"
                            name="last_name"
                            class="form-control"
@@ -102,7 +102,7 @@
 
                 <!-- Gender -->
                 <div class="col-lg-6 mt-3">
-                    <label>Gender</label><br>
+                    <label>Gender <span style="color: red;">*</span></label><br>
                     <label>
                         <input type="radio"
                                name="gender"
