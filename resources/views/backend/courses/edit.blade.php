@@ -1030,7 +1030,7 @@
             });
 
             $(".js-example-placeholder-single").select2({
-                placeholder: "Select Teacher",
+                placeholder: "Select Category",
                 allowClear: false
             });
 
