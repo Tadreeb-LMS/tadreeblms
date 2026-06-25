@@ -195,24 +195,20 @@ window.addEventListener('load', function () {
 @endif
     <script>
         $(document).ready(function() {
+            // Use one base route; pass filter values through the ajax `data`
+            // callback below so they're sent on every paginated request
+            // instead of being baked into the URL (which caused duplicate
+            // query params and stale pages when navigating).
             var route = '{{ route('admin.courses.get_data') }}';
 
-            @if (request('show_deleted') == 1)
-                route = '{{ route('admin.courses.get_data', ['show_deleted' => 1]) }}';
-            @endif
-
-            @if (request('teacher_id') != '')
-                route = '{{ route('admin.courses.get_data', ['teacher_id' => request('teacher_id')]) }}';
-            @endif
-
-            @if (request('cat_id') != '')
-                route = '{{ route('admin.courses.get_data', ['cat_id' => request('cat_id')]) }}';
-            @endif
+            var initialShowDeleted = '{{ request('show_deleted') }}';
+            var initialTeacherId = '{{ request('teacher_id') }}';
+            var initialCatId = '{{ request('cat_id') }}';
 
             $('#myTable').DataTable({
                 processing: true,
                 serverSide: true,
-                iDisplayLength: 10,
+                pageLength: 10,
                 //retrieve: true,
                 dom: "<'table-controls'lfB>" +
                      "<'table-responsive't>" +
@@ -276,10 +272,15 @@ window.addEventListener('load', function () {
                
                 ajax: {
                     url: route,
+                    type: 'GET',
+                    cache: false,
                     data: function (d) {
                         d.status = $('#filter_status').val();
-                        d.teacher_id = $('#filter_teacher').val();
-                        d.cat_id = $('#filter_category').val();
+                        d.teacher_id = $('#filter_teacher').val() || initialTeacherId;
+                        d.cat_id = $('#filter_category').val() || initialCatId;
+                        if (initialShowDeleted == '1') {
+                            d.show_deleted = 1;
+                        }
                     }
                 },
                 columns: [
