@@ -323,7 +323,6 @@
     const fromDateInput = document.getElementById('assign_from_date');
     const toDateInput = document.getElementById('assign_to_date');
     const MS_PER_DAY = 24 * 60 * 60 * 1000;
-    const MAX_RANGE_DAYS = 90;
     const today = new Date();
 
     function setSelectUser(emp_by) {
@@ -344,52 +343,13 @@
     }
 
     function initializeDates() {
-        if (!isValidDate(fromDateInput.value)) {
-            const defaultFrom = new Date(today.getTime() - MAX_RANGE_DAYS * MS_PER_DAY);
-            fromDateInput.value = formatDate(defaultFrom);
-        }
-
-        if (!isValidDate(toDateInput.value)) {
-            toDateInput.value = formatDate(today);
-        }
-
         const minDate = new Date(today.getTime() - 365 * MS_PER_DAY);
+
         fromDateInput.min = formatDate(minDate);
         fromDateInput.max = formatDate(today);
+
         toDateInput.min = formatDate(minDate);
         toDateInput.max = formatDate(today);
-    }
-
-    function enforceMaxRangeOnFromChange() {
-        const fromDate = new Date(fromDateInput.value);
-        if (!isValidDate(fromDateInput.value)) {
-            return;
-        }
-
-        const toDate = new Date(toDateInput.value);
-        if (!isValidDate(toDateInput.value) || (toDate - fromDate) > MAX_RANGE_DAYS * MS_PER_DAY) {
-            let newToDate = new Date(fromDate.getTime() + MAX_RANGE_DAYS * MS_PER_DAY);
-            if (newToDate > today) {
-                newToDate = today;
-            }
-            toDateInput.value = formatDate(newToDate);
-        }
-    }
-
-    function enforceMaxRangeOnToChange() {
-        const toDate = new Date(toDateInput.value);
-        if (!isValidDate(toDateInput.value)) {
-            return;
-        }
-
-        const fromDate = new Date(fromDateInput.value);
-        if (!isValidDate(fromDateInput.value) || (toDate - fromDate) > MAX_RANGE_DAYS * MS_PER_DAY) {
-            let newFromDate = new Date(toDate.getTime() - MAX_RANGE_DAYS * MS_PER_DAY);
-            if (newFromDate < new Date(fromDateInput.min)) {
-                newFromDate = new Date(fromDateInput.min);
-            }
-            fromDateInput.value = formatDate(newFromDate);
-        }
     }
 
     function selectedUserId() {
@@ -529,9 +489,6 @@
         $('#user_by').change(function () {
             setSelectUser($(this).val());
         });
-
-        $('#assign_from_date').change(enforceMaxRangeOnFromChange);
-        $('#assign_to_date').change(enforceMaxRangeOnToChange);
 
         $('#reset').click(function () {
             $('#user').val(null).trigger('change');
