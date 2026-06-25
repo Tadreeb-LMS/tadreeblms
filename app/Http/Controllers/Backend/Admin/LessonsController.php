@@ -209,6 +209,46 @@ class LessonsController extends Controller
 
         $count = is_array($titles) ? count($titles) : 0;
 
+        $hasAttachment = false;
+
+        foreach ($request->allFiles() as $key => $files) {
+
+            if (
+                str_starts_with($key, 'downloadable_files_') ||
+                str_starts_with($key, 'add_pdf_') ||
+                str_starts_with($key, 'add_audio_')
+            ) {
+
+                if (!empty($files)) {
+                    $hasAttachment = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$hasAttachment && !empty($request->videos)) {
+
+            foreach ($request->videos as $video) {
+
+                if (
+                    !empty($video['url']) ||
+                    isset($video['file']) ||
+                    !empty($video['title'])
+                ) {
+                    $hasAttachment = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$hasAttachment) {
+
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'Please add at least one content attachment to proceed.'
+            ], 422);
+        }
+
         if ($count < 1) {
             return response()->json([
                 'status' => 'error',
@@ -416,6 +456,8 @@ class LessonsController extends Controller
         $lesson     = Lesson::with(['media', 'mediaVideo', 'videos'])->findOrFail($id);
         $videos     = $lesson->media ? $lesson->media()->pluck('url')->implode(',') : '';
         $mediavideo = $lesson->mediaVideo;
+
+        
 
         return view('backend.lessons.edit', compact('mediavideo', 'lesson', 'courses', 'videos'));
     }
