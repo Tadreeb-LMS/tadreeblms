@@ -5,12 +5,19 @@
 @push('after-styles')
     <link rel="stylesheet" href="{{ asset('assets/css/colors/switch.css') }}">
        <style>
-        .dropdown-menu{
-            padding: 5px;
-        }
-      .dropdown-item{
-        border-bottom: none;
-      }
+            .dropdown-menu{
+                padding: 5px;
+            }
+            .dropdown-item{
+                border-bottom: none;
+            }
+            .download-template-btn {
+                white-space: nowrap;
+            }
+            .custom-file-upload-wrapper {
+                min-width: 380px;
+            }
+
    
     </style>
 @endpush
@@ -68,6 +75,12 @@
                                     value="submit">
                                 @lang('Import')
                             </button>
+
+                            <a href="{{ route('admin.department.template.download') }}"
+                                class="btn btn-light border ml-3 download-template-btn">
+                                    <i class="fa fa-download"></i>
+                                    Download Template
+                            </a>
 
                         </div>
 
