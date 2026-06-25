@@ -54,8 +54,13 @@ class CertificateController extends Controller
     {
         abort_unless($this->hasCertificatePermission('certificate_access'), 403);
 
-        $query = Certificate::query()->with(['user:id,first_name,last_name,email', 'course:id,title']);
-
+        $query = Certificate::query()
+        ->with([
+            'user:id,first_name,last_name,email',
+            'course:id,title'
+        ])
+        ->latest('created_at');
+        
         return DataTables::of($query)
             ->filter(function ($query) use ($request) {
                 if ($request->filled('course_id')) {

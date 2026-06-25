@@ -65,6 +65,7 @@ return array(
     'reset' => 'Reset',
     'course_code' => 'Course Code',
     'course_language' => 'Course Language',
+    'course_type' => 'Course Type',
     'total_students_enrolled' => 'Total Students Enrolled',
     'total_duration' => 'Total Duration',
     'start_date' => 'Start Date',

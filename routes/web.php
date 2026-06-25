@@ -23,6 +23,13 @@ use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
+use App\Http\Controllers\Backend\Admin\DepartmentController as AdminDepartmentController;
+
+Route::get(
+    'user/department/template/download',
+    [AdminDepartmentController::class, 'downloadTemplate']
+)->name('admin.department.template.download');
+
 Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
 ->name('admin.course.assign');
 Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);
