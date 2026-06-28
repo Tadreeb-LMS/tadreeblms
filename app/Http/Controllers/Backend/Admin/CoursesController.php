@@ -259,7 +259,14 @@ class CoursesController extends Controller
             }
         }
 
-        $courses = $courses->orderBy('created_at', 'desc');
+        // Add a deterministic secondary order by primary key. Without it,
+        // courses that share the same created_at value (common in seeded
+        // and bulk-imported data) can be returned in arbitrary order by
+        // MySQL with LIMIT/OFFSET, which makes server-side pagination
+        // return overlapping rows — the user sees page 1's records on
+        // every subsequent page even though the request reaches the
+        // server with the correct start offset. See issue #802.
+        $courses = $courses->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
         $courses = $courses->with('courseFeedback');
         //dd($courses->get());
