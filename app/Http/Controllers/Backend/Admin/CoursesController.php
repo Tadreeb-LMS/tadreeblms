@@ -340,13 +340,22 @@ class CoursesController extends Controller
     return $actions;
 })
             ->addColumn('teachers', function ($q) {
-                $teachers = "";
-                foreach ($q->teachers as $singleTeachers) {
-                    if($singleTeachers->hasRole('teacher')){
-                    $teachers .= '<span class="text-dark">' . $singleTeachers->name . ' </span>';
+                // The course_user pivot stores every facilitator attached
+                // to a course. Historically this was filtered to role='teacher'
+                // only, but when a non-administrator creates a course the
+                // store flow attaches the creator (e.g. a custom admin role)
+                // as the facilitator. Filtering by hasRole('teacher') then
+                // produced an empty column for those courses. We now show
+                // every attached user that is NOT a student, which covers
+                // teachers, administrators and custom admin roles.
+                $names = [];
+                foreach ($q->teachers as $facilitator) {
+                    if ($facilitator->hasRole('student')) {
+                        continue;
                     }
+                    $names[] = '<span class="text-dark">' . e($facilitator->name) . '</span>';
                 }
-                return $teachers;
+                return implode(' ', $names);
             })
             // ->addColumn('lessons', function ($q) {
             //     $lesson = '<a href="' . route('admin.lessons.create', ['course_id' => $q->id]) . '" class="btn btn-success mb-1"><i class="fa fa-plus-circle"></i></a>  <a href="' . route('admin.lessons.index', ['course_id' => $q->id]) . '" class="btn mb-1 btn-warning text-white"><i class="fa fa-arrow-circle-right"></a>';
