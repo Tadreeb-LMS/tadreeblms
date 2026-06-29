@@ -592,8 +592,13 @@ class CoursesController extends Controller
             return abort(401);
         }
         $request->validate([
-             'start_date' => 'required|date',
-             'expire_at'  => 'required|date|after_or_equal:start_date',
+            'start_date' => $request->course_type === 'Online'
+                ? 'nullable|date'
+                : 'required|date',
+
+            'expire_at' => $request->course_type === 'Online'
+                ? 'nullable|date'
+                : 'required|date|after_or_equal:start_date',
              'title' => 'required|string|max:255',
              'category_id' => 'required',
              'course_type' => 'required',
