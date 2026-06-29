@@ -86,6 +86,20 @@
                             @endforeach
                         </select>
                         <small class="form-text text-muted">@lang('kpi.help.formulas_managed')</small>
+                    </div>      
+                </div>
+
+                <div class="row">
+                    <div class="col-12 form-group">
+                        <label for="category_ids">@lang('kpi.labels.mapped_course_categories') *</label>
+                        <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ in_array($category->id, old('category_ids', []), true) ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">@lang('kpi.help.category_scope')</small>
                     </div>
 
                     <div class="col-md-6 form-group">
@@ -108,20 +122,6 @@
                             @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
                         </div>
                         <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12 form-group">
-                        <label for="category_ids">@lang('kpi.labels.mapped_course_categories') *</label>
-                        <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ in_array($category->id, old('category_ids', []), true) ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="form-text text-muted">@lang('kpi.help.category_scope')</small>
                     </div>
 
                     <div class="col-12 form-group">
