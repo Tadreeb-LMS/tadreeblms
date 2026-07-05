@@ -516,8 +516,41 @@
         $('#btn_clicked').val(clickedButtonId);
     });
 
+
     $(document).on('submit', '#addLesson', function (e) {
         e.preventDefault();
+        let hasAttachment = false;
+
+        // Check downloadable files
+        $('input[name^="downloadable_files_"]').each(function () {
+            if (this.files.length > 0) {
+                hasAttachment = true;
+            }
+        });
+
+        // Check PDFs
+        $('input[name^="add_pdf_"]').each(function () {
+            if (this.files.length > 0) {
+                hasAttachment = true;
+            }
+        });
+
+        // Check Audio
+        $('input[name^="add_audio_"]').each(function () {
+            if (this.files.length > 0) {
+                hasAttachment = true;
+            }
+        });
+
+        // Check Lesson Videos
+        if ($('.video-item').length > 0) {
+            hasAttachment = true;
+        }
+
+        if (!hasAttachment) {
+            alert('Please add at least one content attachment to proceed.');
+            return false;
+        }
 
         function parseIniSizeToBytes(sizeText) {
             if (!sizeText) return 0;

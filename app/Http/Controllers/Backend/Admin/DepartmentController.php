@@ -15,6 +15,7 @@ use App\Imports\DepartmentImport;
 use Config;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
+use App\Exports\DepartmentTemplateExport;
 
 
 class DepartmentController extends Controller
@@ -133,6 +134,14 @@ class DepartmentController extends Controller
 
     }
 
+
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new DepartmentTemplateExport(),
+            'user-group-import-template.xlsx'
+        );
+    }
 
     /**
      * Store a newly created resource in storage.

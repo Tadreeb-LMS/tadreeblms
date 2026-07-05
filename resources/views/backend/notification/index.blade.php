@@ -287,6 +287,35 @@
 
         $('input[name="recipient_mode"]').on('change', function() {
             setRecipientMode($(this).val());
+            // Clear the users validation message when switching recipient source
+            $('.recipient-source-group[data-recipient-mode="users"] .users-error').remove();
+        });
+
+        // Client-side validation: block submission and show inline message
+        // when the "Select Users" mode is active but no user is selected.
+        $('form.ajax').on('submit', function(e) {
+            var mode = $('input[name="recipient_mode"]:checked').val();
+            if (mode === 'users') {
+                var selectedUsers = $('[name="users[]"]').val() || [];
+                var $group = $('.recipient-source-group[data-recipient-mode="users"]');
+                $group.find('.users-error').remove();
+
+                if (selectedUsers.length === 0) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    $group.find('.custom-select-wrapper').append(
+                        '<span class="text-danger w-100 users-error">{{ __('admin_pages.email_notifications.messages.no_users_selected') }}</span>'
+                    );
+                    return false;
+                }
+            }
+        });
+
+        // Remove the validation message once the user makes a selection
+        $('[name="users[]"]').on('change', function() {
+            if (($(this).val() || []).length > 0) {
+                $('.recipient-source-group[data-recipient-mode="users"] .users-error').remove();
+            }
         });
 
         ClassicEditor
