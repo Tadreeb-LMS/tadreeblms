@@ -151,6 +151,7 @@ class SmtpSettingsController extends Controller
                 'auth_mode' => null,
             ];
 
+            config(['mail.default' => 'smtp']);
             config(['mail.mailers.smtp' => $mailConfig]);
             config(['mail.from.address' => env('MAIL_FROM_ADDRESS')]);
             config(['mail.from.name' => env('MAIL_FROM_NAME')]);

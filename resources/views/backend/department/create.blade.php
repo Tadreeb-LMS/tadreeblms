@@ -33,8 +33,7 @@
 
 @section('content')
 
-    <!-- <form action="{{ route('admin.department.store') }}" method="post" enctype="multipart/form-data"> -->
-    <form id="add-dep" method="post" enctype="multipart/form-data">
+    <form id="add-dep" action="{{ route('admin.department.store') }}" method="post" enctype="multipart/form-data" novalidate>
          @csrf()
 
          <div class="pb-3 d-flex justify-content-between align-items-center">
@@ -61,8 +60,21 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-12 form-group">
-                        <label for="title" class="control-label">Title</label>
-                        <input value="{{ old('title') }}" class="form-control" placeholder="Title" name="title" type="text" id="title">
+                        <label for="title" class="control-label">
+                            Title <span class="text-danger">*</span>
+                        </label>
+                        <input value="{{ old('title') }}"
+                               class="form-control @error('title') is-invalid @enderror"
+                               placeholder="Title"
+                               name="title"
+                               type="text"
+                               id="title"
+                               required
+                               aria-required="true"
+                               aria-describedby="title-error">
+                        <div id="title-error" class="invalid-feedback" data-required-message="The title field is required.">
+                            {{ $errors->first('title', 'The title field is required.') }}
+                        </div>
                     </div>
 
                 </div>
@@ -137,38 +149,60 @@
     $('.frm_submit').on('click', function (){
         nxt_url_val = $(this).val();
     });
+    $(document).on('input', '#add-dep [required]', function () {
+        $(this).removeClass('is-invalid');
+    });
+
     $(document).on('submit', '#add-dep', function (e) {
-    e.preventDefault();
-    hrefurl=$(location).attr("href");
-    last_part=hrefurl.substr(hrefurl.lastIndexOf('/') + 19)
-   // alert(last_part)
-    setTimeout(() => {
+        e.preventDefault();
+
+        var form = this;
+        var $form = $(form);
+        var hrefurl = $(location).attr("href");
+        var last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 19);
+
+        $form.find('.is-invalid').removeClass('is-invalid');
+        $form.find('.invalid-feedback[data-required-message]').each(function () {
+            $(this).text($(this).data('required-message'));
+        });
+
+        if (!form.checkValidity()) {
+            $form.find(':invalid').addClass('is-invalid').first().focus();
+            return;
+        }
+
         // Sync CKEditor content back to textarea before serializing
         for (var instance in CKEDITOR.instances) {
             CKEDITOR.instances[instance].updateElement();
         }
-        let data = $('#add-dep').serialize();
-        let url = '{{route('admin.department.store')}}';
-        var redirect_url=$("#feedback_index").val();
-        var redirect_url_course=$("#user-assisment").val();
-            $.ajax({
-                    type: 'POST',
-                    url: url,
-                    data: data,
-                    datatype: "json",
-                    success: function (res) {
-                    console.log(res)
-                    if(last_part == 'add_dep'){
-                        window.location.href = redirect_url_course;
-                        return;
-                    }
-                    else{
-                        window.location.href = redirect_url;
-                        return;
-                    }
+
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function () {
+                if (last_part == 'add_dep') {
+                    window.location.href = $("#user-assisment").val();
+                    return;
                 }
-                })
-            }, 100);
-        })
+
+                window.location.href = $("#feedback_index").val();
+            },
+            error: function (xhr) {
+                if (xhr.status !== 422 || !xhr.responseJSON || !xhr.responseJSON.errors) {
+                    return;
+                }
+
+                $.each(xhr.responseJSON.errors, function (field, messages) {
+                    var $field = $form.find('[name="' + field + '"]');
+                    $field.addClass('is-invalid');
+                    $field.siblings('.invalid-feedback').text(messages[0]);
+                });
+
+                $form.find('.is-invalid').first().focus();
+            }
+        });
+    });
 </script>
 @endpush

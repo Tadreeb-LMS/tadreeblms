@@ -111,15 +111,17 @@
                             <th>{{ __('course_pages.admin_index.course_language') }}</th>
                             <th>@lang('labels.backend.courses.fields.title')</th>
                             <!-- <th>@lang('Arabic Title')</th> -->
+                            <th>{{ __('course_pages.admin_index.course_type') }}</th>
                             <th>@lang('labels.backend.courses.fields.category')</th>
                             <th>@lang('labels.backend.courses.fields.price')</th>
                             
-                            @if (Auth::user()->isAdmin())
-                               
+                            {{-- Show the Trainer column for any role with the
+                                 trainer_access permission, not only the
+                                 built-in 'administrator' role, so custom
+                                 admin roles also see facilitator info. --}}
+                            @can('trainer_access')
                                 <th>@lang('labels.backend.courses.fields.teachers')</th>
-                            @else
-                              
-                            @endif
+                            @endcan
                             {{-- <th>@lang('Assignment')</th> --}}
                             <th>{{ __('course_pages.admin_index.total_students_enrolled') }}</th>
                             <th>{{ __('course_pages.admin_index.total_duration') }}</th>
@@ -194,24 +196,20 @@ window.addEventListener('load', function () {
 @endif
     <script>
         $(document).ready(function() {
+            // Use one base route; pass filter values through the ajax `data`
+            // callback below so they're sent on every paginated request
+            // instead of being baked into the URL (which caused duplicate
+            // query params and stale pages when navigating).
             var route = '{{ route('admin.courses.get_data') }}';
 
-            @if (request('show_deleted') == 1)
-                route = '{{ route('admin.courses.get_data', ['show_deleted' => 1]) }}';
-            @endif
-
-            @if (request('teacher_id') != '')
-                route = '{{ route('admin.courses.get_data', ['teacher_id' => request('teacher_id')]) }}';
-            @endif
-
-            @if (request('cat_id') != '')
-                route = '{{ route('admin.courses.get_data', ['cat_id' => request('cat_id')]) }}';
-            @endif
+            var initialShowDeleted = '{{ request('show_deleted') }}';
+            var initialTeacherId = '{{ request('teacher_id') }}';
+            var initialCatId = '{{ request('cat_id') }}';
 
             $('#myTable').DataTable({
                 processing: true,
                 serverSide: true,
-                iDisplayLength: 10,
+                pageLength: 10,
                 //retrieve: true,
                 dom: "<'table-controls'lfB>" +
                      "<'table-responsive't>" +
@@ -255,14 +253,14 @@ window.addEventListener('load', function () {
                         },
                             text: 'CSV',
                             exportOptions: {
-                                columns: [1, 2, 3, 4, 5]
+                                columns: [1, 2, 3, 4, 5, 6]
                             }
                         },
                         {
                             extend: 'pdf',
                             text: 'PDF',
                             exportOptions: {
-                                columns: [1, 2, 3, 4, 5]
+                                columns: [1, 2, 3, 4, 5, 6]
                             }
                         }
                     ]
@@ -275,10 +273,15 @@ window.addEventListener('load', function () {
                
                 ajax: {
                     url: route,
+                    type: 'GET',
+                    cache: false,
                     data: function (d) {
                         d.status = $('#filter_status').val();
-                        d.teacher_id = $('#filter_teacher').val();
-                        d.cat_id = $('#filter_category').val();
+                        d.teacher_id = $('#filter_teacher').val() || initialTeacherId;
+                        d.cat_id = $('#filter_category').val() || initialCatId;
+                        if (initialShowDeleted == '1') {
+                            d.show_deleted = 1;
+                        }
                     }
                 },
                 columns: [
@@ -313,6 +316,12 @@ window.addEventListener('load', function () {
                     //     name: 'arabic_title'
                     // },
                     {
+                        data: "course_type",
+                        name: 'is_online',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
                         data: "category",
                         name: 'category'
                     },
@@ -321,17 +330,14 @@ window.addEventListener('load', function () {
     name: 'price'
 },
                     // {data: "department", name: 'department'},
-                    @if (Auth::user()->isAdmin())
+                    @can('trainer_access')
                         // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
                         // {data: "id", name: 'id'},
                         {
                             data: "teachers",
                             name: 'teachers'
                         },
-                    @else
-                        // {data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false},
-                        // {data: "id", name: 'id'},
-                    @endif
+                    @endcan
                     {
                         data: "total_students_enrolled",
                         name: "total_students_enrolled"

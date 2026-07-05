@@ -353,15 +353,21 @@ class CoursesController extends Controller
             //     return $lesson;
             // })
             ->addColumn('lessons', function ($q) {
-    $dropdown = '
-        
-           
-            <div class="">
-            
-                <a class="createbtn" href="' . route('admin.lessons.create', ['course_id' => $q->id]) . '">
+    // Lessons (modules) only apply to E-Learning (Online) courses.
+    // Live-Online and Live-Classroom (E-Live) courses are delivered via
+    // live sessions and do not support lesson creation, so the "Create"
+    // action is hidden for those types and only "View" remains visible.
+    $isELearning = ($q->is_online === 'Online' || empty($q->is_online));
+    $createBtn = $isELearning
+        ? '<a class="createbtn" href="' . route('admin.lessons.create', ['course_id' => $q->id]) . '">
                 Create
                    <!-- <i class="fa fa-plus-circle" aria-hidden="true" style="font-size:20px"></i> -->
-                </a>
+                </a>'
+        : '';
+
+    $dropdown = '
+            <div class="">
+                ' . $createBtn . '
                 <a class="viewbtn" href="' . route('admin.lessons.index', ['course_id' => $q->id]) . '">
                 View
                    <!-- <i class="fa fa-eye" aria-hidden="true" style="font-size:18px margin-bottom:-3px"></i> -->
@@ -522,7 +528,19 @@ class CoursesController extends Controller
                 }
                 //return '<a class="add-btn" style="padding:7px 20px 11px 20px"  href="' . route('admin.enrolled_student', ['course_id' => $q->id]) . '"> (' . CustomHelper::totalEnrolled($q->id) . ') <i class="fa fa-eye ml-1" aria-hidden="true"></i> </a>';
             })
-            ->rawColumns(['teachers', 'assignment', 'department', 'duration', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status','qr_code',  'expiry_date'])
+            ->addColumn('course_type', function ($q) {
+                switch ($q->is_online) {
+                    case 'Online':
+                        return '<span class="badge badge-info">' . __('course_pages.admin_create.course_type_e_learning') . '</span>';
+                    case 'Offline':
+                        return '<span class="badge badge-warning">' . __('course_pages.admin_create.course_type_live_online') . '</span>';
+                    case 'Live-Classroom':
+                        return '<span class="badge badge-success">' . __('course_pages.admin_create.course_type_live_classroom') . '</span>';
+                    default:
+                        return '<span class="badge badge-secondary">-</span>';
+                }
+            })
+            ->rawColumns(['teachers', 'assignment', 'department', 'duration', 'total_students_enrolled', 'tests', 'lessons', 'course_image', 'actions', 'status','qr_code',  'expiry_date', 'course_type'])
             ->make();
     }
 
@@ -574,8 +592,13 @@ class CoursesController extends Controller
             return abort(401);
         }
         $request->validate([
-             'start_date' => 'required|date',
-             'expire_at'  => 'required|date|after_or_equal:start_date',
+            'start_date' => $request->course_type === 'Online'
+                ? 'nullable|date'
+                : 'required|date',
+
+            'expire_at' => $request->course_type === 'Online'
+                ? 'nullable|date'
+                : 'required|date|after_or_equal:start_date',
              'title' => 'required|string|max:255',
              'category_id' => 'required',
              'course_type' => 'required',
@@ -835,12 +858,15 @@ $teachers = [$teacherId];
 
             $course->teachers()->sync($teachers);
 
-            $internalStudents = \Auth::user()->isAdmin() ? (array)$request->input('internalStudents') : [\Auth::user()->id];
-            $externalStudents = \Auth::user()->isAdmin() ? (array)$request->input('externalStudents') : [\Auth::user()->id];
+            $internalStudents = (array) $request->input('internalStudents', []);
+            $externalStudents = (array) $request->input('externalStudents', []);
 
             //dd($internalStudents, $externalStudents);
 
-            $students = array_merge($internalStudents, $externalStudents);
+            $students = array_values(array_unique(array_filter(array_merge(
+                $internalStudents,
+                $externalStudents
+            ))));
             $course->students()->sync($students);
             // Auto subscribe into courses
             foreach ($students as $id) {
