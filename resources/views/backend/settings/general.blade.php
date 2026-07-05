@@ -89,12 +89,15 @@
 
         .workflow-publish-controls .form-control,
         .workflow-publish-controls .btn {
-            height: 38px;
+            min-height: 38px;
             border-radius: 6px;
         }
 
         .workflow-publish-controls .btn {
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            padding-left: 10px;
+            padding-right: 10px;
         }
 
         .review-action-stack {

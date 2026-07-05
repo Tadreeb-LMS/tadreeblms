@@ -1,6 +1,42 @@
 @extends('backend.layouts.app')
 
 @section('title', __('kpi.titles.create') . ' | ' . app_name())
+@push('after-styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .select2-container{
+        width:100%!important;
+    }
+    .select2-selection--multiple{
+        min-height:42px!important;
+        border:1px solid #ced4da!important;
+        border-radius:4px!important;
+    }
+    .select2-selection__choice{
+        position: relative !important;
+        background:#0d6efd!important;
+        color:#fff!important;
+        border:none!important;
+        padding:4px 23px 4px 10px!important;
+    }
+    .select2-search__field{
+        width:100%!important;
+    }
+    .select2-selection--multiple .select2-selection__choice__remove {
+        position: absolute !important;
+        right: 4px !important;
+        top: 50%;
+        transform: translateY(20%);
+        left: auto !important;
+        margin: 0 !important;
+        color: #fff !important;
+        font-size: 14px;
+        font-weight: bold;
+        border: none !important;
+    }
+</style>
+@endpush
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
@@ -50,6 +86,20 @@
                             @endforeach
                         </select>
                         <small class="form-text text-muted">@lang('kpi.help.formulas_managed')</small>
+                    </div>      
+                </div>
+
+                <div class="row">
+                    <div class="col-12 form-group">
+                        <label for="category_ids">@lang('kpi.labels.mapped_course_categories') *</label>
+                        <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ in_array($category->id, old('category_ids', []), true) ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">@lang('kpi.help.category_scope')</small>
                     </div>
 
                     <div class="col-md-6 form-group">
@@ -72,20 +122,6 @@
                             @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
                         </div>
                         <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12 form-group">
-                        <label for="category_ids">@lang('kpi.labels.mapped_course_categories') *</label>
-                        <select id="category_ids" name="category_ids[]" class="form-control" multiple required>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ in_array($category->id, old('category_ids', []), true) ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="form-text text-muted">@lang('kpi.help.category_scope')</small>
                     </div>
 
                     <div class="col-12 form-group">
@@ -122,60 +158,108 @@
         </div>
     </div>
 
-    <script>
-        (function () {
-            var weightInput = document.getElementById('weight');
-            var projectedTotalEl = document.getElementById('kpi-projected-active-total');
-            var warningEl = document.getElementById('kpi-weight-warning');
+@push('after-scripts')
 
-            if (!weightInput || !projectedTotalEl || !warningEl) {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+
+    $(document).ready(function(){
+
+        $('#category_ids').select2({
+
+            placeholder:"Select Categories",
+
+            allowClear:true,
+
+            width:'100%'
+
+        });
+
+        $('#course_ids').select2({
+
+            placeholder:"Select Courses",
+
+            allowClear:true,
+
+            width:'100%'
+
+        });
+
+    });
+
+    </script>
+
+    <script>
+
+    (function () {
+
+        var weightInput = document.getElementById('weight');
+
+        var projectedTotalEl = document.getElementById('kpi-projected-active-total');
+
+        var warningEl = document.getElementById('kpi-weight-warning');
+
+        if (!weightInput || !projectedTotalEl || !warningEl) {
+            return;
+        }
+
+        var baseActiveTotal = {{ (float) $activeTotalWeight }};
+        var extremeThreshold = {{ (float) $extremeWeightThreshold }};
+        var validationEnabled = {{ !empty($totalWeightValidation['enabled']) ? 'true' : 'false' }};
+        var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+        var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+
+        function roundTwo(value) {
+            return Math.round(value * 100) / 100;
+        }
+
+        function updateWeightSummary() {
+
+            var weight = parseFloat(weightInput.value);
+
+            if (isNaN(weight) || weight < 0) {
+                weight = 0;
+            }
+
+            var projectedTotal = roundTwo(baseActiveTotal + weight);
+
+            projectedTotalEl.textContent = projectedTotal.toFixed(2);
+
+            var warnings = [];
+
+            if (weight >= extremeThreshold) {
+                warnings.push(@json(__('kpi.js.weight_extreme')));
+            }
+
+            if (!validationEnabled && projectedTotal <= 0) {
+                warnings.push(@json(__('kpi.js.projected_zero')));
+            }
+
+            if (validationEnabled && Math.abs(projectedTotal - validationTarget) > validationTolerance) {
+                warnings.push(@json(__('kpi.js.projected_outside_target')));
+            }
+
+            if (warnings.length === 0) {
+                warningEl.style.display = 'none';
+                warningEl.textContent = '';
                 return;
             }
 
-            var baseActiveTotal = {{ (float) $activeTotalWeight }};
-            var extremeThreshold = {{ (float) $extremeWeightThreshold }};
-            var validationEnabled = {{ !empty($totalWeightValidation['enabled']) ? 'true' : 'false' }};
-            var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
-            var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+            warningEl.style.display='block';
 
-            function roundTwo(value) {
-                return Math.round(value * 100) / 100;
-            }
+            warningEl.textContent=warnings.join(' ');
+        }
 
-            function updateWeightSummary() {
-                var weight = parseFloat(weightInput.value);
-                if (isNaN(weight) || weight < 0) {
-                    weight = 0;
-                }
+        weightInput.addEventListener('input',updateWeightSummary);
 
-                var projectedTotal = roundTwo(baseActiveTotal + weight);
-                projectedTotalEl.textContent = projectedTotal.toFixed(2);
+        updateWeightSummary();
 
-                var warnings = [];
-                if (weight >= extremeThreshold) {
-                    warnings.push(@json(__('kpi.js.weight_extreme')));
-                }
+    })();
 
-                if (!validationEnabled && projectedTotal <= 0) {
-                    warnings.push(@json(__('kpi.js.projected_zero')));
-                }
-
-                if (validationEnabled && Math.abs(projectedTotal - validationTarget) > validationTolerance) {
-                    warnings.push(@json(__('kpi.js.projected_outside_target')));
-                }
-
-                if (warnings.length === 0) {
-                    warningEl.style.display = 'none';
-                    warningEl.textContent = '';
-                    return;
-                }
-
-                warningEl.style.display = 'block';
-                warningEl.textContent = warnings.join(' ');
-            }
-
-            weightInput.addEventListener('input', updateWeightSummary);
-            updateWeightSummary();
-        })();
     </script>
+
+@endpush
 @endsection
