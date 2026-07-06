@@ -171,8 +171,7 @@
                                 <div class="form-group row">
                                     <label class="col-md-4">{{ __('ldap_settings.admin_password') }}</label>
                                     <div class="col-md-8">
-                                        <input type="password" name="ldap_password" class="form-control"
-                                            value="{{ $ldap_password ?? '' }}">
+                                        <input type="password" name="ldap_password" class="form-control" placeholder="Enter new password" autocomplete="new-password">
                                     </div>
                                 </div>
 
