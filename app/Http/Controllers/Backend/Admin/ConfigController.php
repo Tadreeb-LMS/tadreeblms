@@ -497,7 +497,6 @@ class ConfigController extends Controller
         $ldap_port = (int) env('LDAP_PORT', 1389);
         $ldap_base_dn = env('LDAP_BASE_DN', '');
         $ldap_username = env('LDAP_USERNAME', '');
-        $ldap_password = env('LDAP_PASSWORD', '');
         $ldap_connected = Config::where('key', 'ldap_connected')->value('value') ?? 0;
 
         return view('backend.settings.ldap_setting', compact(
@@ -507,7 +506,6 @@ class ConfigController extends Controller
             'ldap_port',
             'ldap_base_dn',
             'ldap_username',
-            'ldap_password'
         ));
     }
 
@@ -517,21 +515,26 @@ class ConfigController extends Controller
     {
         try {
 
-            $this->setEnv([
+            $envData = [
                 'LDAP_CONNECTION' => 'default',
                 'LDAP_HOST' => $request->ldap_host,
                 'LDAP_PORT' => (int) $request->ldap_port,
                 'LDAP_BASE_DN' => $request->ldap_base_dn,
                 'LDAP_USERNAME' => $request->ldap_username,
-                'LDAP_PASSWORD' => $request->ldap_password,
-            ]);
+            ];
 
+            if ($request->filled('ldap_password')) {
+                $envData['LDAP_PASSWORD'] = $request->ldap_password;
+            }
+
+            $this->setEnv($envData);
             // Save toggle state: explicitly check the value sent from JavaScript
             // If not present or falsy, save as 0; if present and 1, save as 1
             $toggle_value = (int) $request->input('ldap_toggle', 0);
             Config::updateOrCreate(
                 ['key' => 'ldap_toggle'],
-                ['value' => $toggle_value]
+                ['value' => (int) $request->input('ldap_toggle', 0)]
+
             );
 
             return response()->json([
@@ -553,12 +556,17 @@ class ConfigController extends Controller
 
         try {
             // Update config at runtime
+
+            $password = $request->filled('ldap_password')
+                ? $request->ldap_password
+                : env('LDAP_PASSWORD');
+
             config([
                 'ldap.connections.default.hosts' => [$request->ldap_host],
                 'ldap.connections.default.port' => (int) $request->ldap_port,
                 'ldap.connections.default.base_dn' => $request->ldap_base_dn,
                 'ldap.connections.default.username' => $request->ldap_username,
-                'ldap.connections.default.password' => $request->ldap_password,
+                'ldap.connections.default.password' => $password,
             ]);
 
 

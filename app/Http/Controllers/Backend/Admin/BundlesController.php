@@ -54,12 +54,12 @@ class BundlesController extends Controller
             if (!Gate::allows('bundle_delete')) {
                 return abort(401);
             }
-            $bundles = Bundle::query()->ofAuthor()->onlyTrashed()->orderBy('created_at', 'desc');
+            $bundles = Bundle::query()->ofAuthor()->onlyTrashed()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         } elseif (request('cat_id') != "") {
             $id = request('cat_id');
-            $bundles = Bundle::query()->ofAuthor()->where('category_id', '=', $id)->orderBy('created_at', 'desc');
+            $bundles = Bundle::query()->ofAuthor()->where('category_id', '=', $id)->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         } else {
-            $bundles = Bundle::query()->ofAuthor()->orderBy('created_at', 'desc');
+            $bundles = Bundle::query()->ofAuthor()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
 
 

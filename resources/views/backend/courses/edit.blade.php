@@ -160,6 +160,36 @@
         user-select: none;
         -webkit-user-select: none;
     }
+    #date-fields .form-group{
+        margin-bottom:20px;
+    }
+    #date-fields .form-control{
+        min-height:42px;
+    }
+    @media (max-width:768px){
+        #date-fields .col-md-6{
+            flex:0 0 100%;
+            max-width:100%;
+        }
+    }
+    .weightage-card .card-header{
+        font-weight:600;
+    }
+    .weightage-box{
+        border:1px solid #dee2e6;
+        border-radius:8px;
+        padding:20px;
+        text-align:center;
+        height:100%;
+        transition:.2s;
+    }
+    .weightage-box:hover{
+        box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+    .weightage-box h4{
+        margin:0;
+        font-weight:700;
+    }
 </style>
 
 
@@ -386,7 +416,7 @@
 
                 </div>
 
-                <div class="row">
+                <div class="row align-items-start">
                     {{-- <div class="col-sm-12 col-lg-2 col-md-12 form-group">
                         <label for="price" class="control-label">{{ trans('labels.backend.courses.fields.price')
                             }}</label>
@@ -412,7 +442,7 @@
                         'pattern' => '[0-9]',
                         ]) !!}
                     </div> --}}
-                    <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                    <div class="col-lg-4 col-md-12 form-group">
                         <div style="margin-bottom: 8px;">
                             Course Image
                         </div>
@@ -426,8 +456,7 @@
 
                     </div>
 
-                    <div id="date-fields" class="row">
-                        <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                        <div class="col-lg-4 col-md-6 form-group">
                             <label for="start_date"
                                 class="control-label">{{ trans('labels.backend.courses.fields.start_date') }}
                                 (yyyy-mm-dd) *</label>
@@ -435,14 +464,14 @@
                                 value="{{ old('start_date', $course->start_date) }}">
                         </div>
 
-                            <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                            <div class="col-lg-4 col-md-6 form-group">
                                 <label for="expire_at"
                                     class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }}
                                     (yyyy-mm-dd) *</label>
                                 <input class="form-control" id="expire_at" autocomplete="off" name="expire_at" type="text"
                                     value="{{ old('expire_at', $course->expire_at) }}">
                             </div>
-                    </div>
+                    
                 </div>
 
                 <div class="row">
@@ -817,20 +846,55 @@
                             oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value>100)this.value=100;">
                     </div> --}}
 
-                    <span>
-                        @if($course->latestModuleWeightage?->normalized_weightage['LessonModule'] != 0)
-                            Lesson Weightage: {{ $course->latestModuleWeightage?->normalized_weightage['LessonModule'] }}
-                            <br />
-                        @endif
-                        @if($course->latestModuleWeightage?->normalized_weightage['QuestionModule'] != 0)
-                            Question Weightage:
-                            {{ $course->latestModuleWeightage?->normalized_weightage['QuestionModule'] }} <br />
-                        @endif
-                        @if($course->latestModuleWeightage?->normalized_weightage['FeedbackModule'] != 0)
-                            Feedback Weightage:
-                            {{ $course->latestModuleWeightage?->normalized_weightage['FeedbackModule'] }}
-                        @endif
-                    </span>
+                     <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        Course Weightage Summary
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @if($course->latestModuleWeightage?->normalized_weightage['LessonModule'] != 0)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h6 class="mb-2">
+                                                    Lesson
+                                                </h6>
+                                                <h4 class="text-primary">
+                                                    {{ $course->latestModuleWeightage->normalized_weightage['LessonModule'] }}%
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        @if($course->latestModuleWeightage?->normalized_weightage['QuestionModule'] != 0)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h6 class="mb-2">
+                                                    Question Assessment
+                                                </h6>
+                                                <h4 class="text-success">
+                                                    {{ $course->latestModuleWeightage->normalized_weightage['QuestionModule'] }}%
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        @if($course->latestModuleWeightage?->normalized_weightage['FeedbackModule'] != 0)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h6 class="mb-2">
+                                                    Feedback
+                                                </h6>
+                                                <h4 class="text-info">
+                                                    {{ $course->latestModuleWeightage->normalized_weightage['FeedbackModule'] }}%
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     {{-- <div class="col-md-12 col-lg-8 form-group">
                         <div class="row">
