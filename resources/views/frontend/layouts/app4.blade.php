@@ -137,24 +137,29 @@
                     </div>
 
                     <div class="nav-menu-4">
-                        <div class="login-cart-lang float-right ul-li">
-                            <ul class="search_cart">
-                                <li>
-                                    <div class="cart_search">
-                                        <a href="{{route('cart.index')}}"><i class="fas fa-shopping-bag"></i>
-                                            @if(auth()->check() && Cart::session(auth()->user()->id)->getTotalQuantity() != 0)
-                                                <span class="badge badge-danger position-absolute">{{Cart::session(auth()->user()->id)->getTotalQuantity()}}</span>
-                                            @endif
-                                        </a>
-                                    </div>
-                                </li>
 
-                            </ul>
-                        </div>
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <nav class="navbar-menu float-left">
                             <div class="nav-menu ul-li">
                                 <ul class="quick-menu">
+                                        @if(count($locales) > 1)
+                                            <li class="menu-item-has-children ul-li-block">
+                                                <a href="#">
+                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
+                                                        ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
+                                                </a>
+                                                <ul class="sub-menu">
+                                                    @foreach($locales as $lang)
+                                                        @if($lang != app()->getLocale())
+                                                            <li>
+                                                                <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
+                                                                   class=""> {{ locale_label($lang) }}</a>
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+                                                </ul>
+                                            </li>
+                                        @endif
                                     @if(count($custom_menus) > 0 )
                                         @foreach($custom_menus as $menu)
                                             @if($menu['id'] == $menu['parent'])
@@ -209,30 +214,17 @@
                                             <div class="login">
                                                 <a data-toggle="modal" data-target="#myModal"
                                                    href="#">@lang('navs.general.login')</a>
-                                                {{--@include('frontend.layouts.modals.loginModal')--}}
-
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="login">
+                                                <a data-toggle="modal" data-target="#myRegisterModal"
+                                                   href="#">@lang('SignUp')</a>
                                             </div>
                                         </li>
                                     @endif
 
-                                        @if(count($locales) > 1)
-                                            <li class="menu-item-has-children ul-li-block">
-                                                <a href="#">
-                                                    <span class="d-md-down-none">{{ trans('menus.language_picker.language', [], 'en') }}
-                                                        ({{ locale_flag_emoji(app()->getLocale()) }} {{ strtoupper(app()->getLocale()) }})</span>
-                                                </a>
-                                                <ul class="sub-menu">
-                                                    @foreach($locales as $lang)
-                                                        @if($lang != app()->getLocale())
-                                                            <li>
-                                                                <a href="{{ route('locale.swap', ['lang' => $lang]) }}"
-                                                                   class=""> {{ locale_label($lang) }}</a>
-                                                            </li>
-                                                        @endif
-                                                    @endforeach
-                                                </ul>
-                                            </li>
-                                        @endif
+
                                 </ul>
                             </div>
                         </nav>
@@ -281,13 +273,7 @@
                                         </ul>
                                     </li>
                                 @endif
-                                <li>
-                                    <a href="{{route('cart.index')}}"><i class="fas fa-shopping-bag"></i>
-                                        @if(auth()->check() && Cart::session(auth()->user()->id)->getTotalQuantity() != 0)
-                                            <span class="badge badge-danger position-absolute">{{Cart::session(auth()->user()->id)->getTotalQuantity()}}</span>
-                                        @endif
-                                    </a>
-                                </li>
+
                             </ul>
 
                         </div>

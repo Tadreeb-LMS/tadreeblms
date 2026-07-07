@@ -144,21 +144,7 @@
                                 <img
                                             src="{{asset("storage/logos/".config('logo_b_image'))}}" alt="logo"></a>
                             </div><!-- /.navbar-header -->
-                            <div class="cart-search float-right ul-li">
-                                <ul>
-                                    <li>
-                                        <button type="button" class="toggle-overlay search-btn">
 
-                                            <a href="{{route('cart.index')}}"><i class="fas fa-shopping-bag"></i>
-                                                @if(auth()->check() && Cart::session(auth()->user()->id)->getTotalQuantity() != 0)
-                                                    <span class="badge badge-danger position-absolute">{{Cart::session(auth()->user()->id)->getTotalQuantity()}}</span>
-                                                @endif
-                                            </a>
-                                        </button>
-
-                                    </li>
-                                </ul>
-                            </div>
                             <!-- Collect the nav links, forms, and other content for toggling -->
                             <nav class="navbar-menu float-right">
                                 <div class="nav-menu ul-li">

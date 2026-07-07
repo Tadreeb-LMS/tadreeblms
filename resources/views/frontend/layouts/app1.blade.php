@@ -253,22 +253,7 @@
 
                             </div>
                         </li>
-                        @if($disabled_landing_page == 0)
-                            <li class="sm-tb-space">
-                                <div class="cart-search float-lg-right ul-li">
-                                    <ul class="lock-icon">
-                                        <li>
-                                            <a href="{{ route('cart.index') }}"><i class="fas fa-shopping-bag"></i>
-                                                @if (auth()->check() && Cart::session(auth()->user()->id)->getTotalQuantity() != 0)
-                                                    <span
-                                                        class="badge badge-danger position-absolute">{{ Cart::session(auth()->user()->id)->getTotalQuantity() }}</span>
-                                                @endif
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                        @endif
+
                     @endif
                     
                 </ul>
