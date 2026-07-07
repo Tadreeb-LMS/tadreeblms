@@ -160,6 +160,36 @@
         user-select: none;
         -webkit-user-select: none;
     }
+    #date-fields .form-group{
+        margin-bottom:20px;
+    }
+    #date-fields .form-control{
+        min-height:42px;
+    }
+    @media (max-width:768px){
+        #date-fields .col-md-6{
+            flex:0 0 100%;
+            max-width:100%;
+        }
+    }
+    .weightage-card .card-header{
+        font-weight:600;
+    }
+    .weightage-box{
+        border:1px solid #dee2e6;
+        border-radius:8px;
+        padding:20px;
+        text-align:center;
+        height:100%;
+        transition:.2s;
+    }
+    .weightage-box:hover{
+        box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+    .weightage-box h4{
+        margin:0;
+        font-weight:700;
+    }
 </style>
 
 
@@ -170,6 +200,8 @@
     id="updateCourse">
     @csrf
     @method('PUT')
+
+    <div>
 
     <div>
         <div class="pb-3 d-flex justify-content-between addcourseheader">
@@ -195,8 +227,6 @@
         </div> -->
 
             <div class="card-body">
-                @if (Auth::user()->isAdmin())
-
                     <div class="row">
                         <div class="col-md-6 col-12 form-group frmbm10">
                             <div class="row">
@@ -227,7 +257,6 @@
                                         href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
                                 </div>
                             </div>
-                @endif
 
 
                         <div class="row">
@@ -268,6 +297,25 @@
                                 <small class="form-text text-muted">Disable to exclude this course from KPI
                                     calculations, even if its category is mapped to a KPI.</small>
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="final_assessment_max_attempts" class="control-label">
+                                Final assessment max attempts
+                            </label>
+                            <input
+                                class="form-control"
+                                id="final_assessment_max_attempts"
+                                name="final_assessment_max_attempts"
+                                type="number"
+                                min="1"
+                                max="999"
+                                value="{{ old('final_assessment_max_attempts', $course->final_assessment_max_attempts) }}"
+                                placeholder="Leave blank for unlimited attempts"
+                            >
+                            <small class="form-text text-muted">
+                                Optional. When set, learners cannot start or retry the final assessment after reaching this number of attempts.
+                            </small>
                         </div>
 
                         <div class="form-group">
@@ -368,7 +416,7 @@
 
                 </div>
 
-                <div class="row">
+                <div class="row align-items-start">
                     {{-- <div class="col-sm-12 col-lg-2 col-md-12 form-group">
                         <label for="price" class="control-label">{{ trans('labels.backend.courses.fields.price')
                             }}</label>
@@ -394,7 +442,7 @@
                         'pattern' => '[0-9]',
                         ]) !!}
                     </div> --}}
-                    <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                    <div class="col-lg-4 col-md-12 form-group">
                         <div style="margin-bottom: 8px;">
                             Course Image
                         </div>
@@ -408,8 +456,7 @@
 
                     </div>
 
-                    <div id="date-fields" class="row">
-                        <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                        <div class="col-lg-4 col-md-6 form-group">
                             <label for="start_date"
                                 class="control-label">{{ trans('labels.backend.courses.fields.start_date') }}
                                 (yyyy-mm-dd) *</label>
@@ -417,16 +464,14 @@
                                 value="{{ old('start_date', $course->start_date) }}">
                         </div>
 
-                        @if (Auth::user()->isAdmin())
-                            <div class="col-sm-12 col-lg-4 col-md-12 form-group">
+                            <div class="col-lg-4 col-md-6 form-group">
                                 <label for="expire_at"
                                     class="control-label">{{ trans('labels.backend.courses.fields.expire_at') }}
                                     (yyyy-mm-dd) *</label>
                                 <input class="form-control" id="expire_at" autocomplete="off" name="expire_at" type="text"
                                     value="{{ old('expire_at', $course->expire_at) }}">
                             </div>
-                        @endif
-                    </div>
+                    
                 </div>
 
                 <div class="row">
@@ -444,63 +489,72 @@
                         </span>
                         <span id="live-online" class="course-live-online-section" style="display: none;">
                             Live-Online type course is a course can be done on goole meet/Zoom link.
-                            @if(count($enabledMeetingProviders ?? []))
-                                <div class="card mt-3" id="meeting-provider-section">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 form-group">
-                                                <label for="meeting_provider">Meeting Provider *</label>
-                                                <select name="meeting_provider" id="meeting_provider" class="form-control">
-                                                    @if($course->meeting_provider && !array_key_exists($course->meeting_provider, $enabledMeetingProviders ?? []))
-                                                        <option value="{{ $course->meeting_provider }}" selected>{{ ucfirst(str_replace(['-', '_'], ' ', $course->meeting_provider)) }}</option>
-                                                    @endif
-                                                    @foreach($enabledMeetingProviders as $key => $label)
-                                                        <option value="{{ $key }}" {{ $course->meeting_provider == $key ? 'selected' : '' }}>{{ $label }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 form-group">
-                                                <label for="meeting_timezone">Timezone</label>
-                                                <input type="text" name="meeting_timezone" id="meeting_timezone"
-                                                    class="form-control"
-                                                    value="{{ $course->meeting_timezone ?? 'Asia/Riyadh' }}">
-                                            </div>
-                                        </div>
-                                        {{-- Single meeting fields (only shown when NO schedule type selected) --}}
-                                        <div class="row" id="single-meeting-fields" @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom'])) style="display:none;" @endif>
-                                            <div class="col-md-4 form-group">
-                                                <label for="meeting_start_date">Start Date *</label>
-                                                <input type="date" name="meeting_start_date" id="meeting_start_date"
-                                                    class="form-control"
-                                                    value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}"
-                                                    min="{{ date('Y-m-d') }}">
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label for="meeting_start_time">Start Time *</label>
-                                                <input type="time" name="meeting_start_time" id="meeting_start_time"
-                                                    class="form-control"
-                                                    value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('H:i') : '' }}">
-                                            </div>
-                                            <div class="col-md-4 form-group">
-                                                <label for="meeting_duration">Duration (mins) *</label>
-                                                <input type="number" name="meeting_duration" id="meeting_duration"
-                                                    class="form-control" value="{{ $course->meeting_duration ?? 60 }}">
-                                                <input type="hidden" name="meeting_start_at" id="meeting_start_at">
-                                            </div>
-                                        </div>
-                                        <small class="text-muted" id="single-meeting-hint"
-                                            @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom']))
-                                            style="display:none;" @endif>For a single meeting. Or choose a schedule type
-                                            below for recurring sessions.</small>
-                                    </div>
+                            @php
+                                $meetingProviderOptions = $enabledMeetingProviders ?? [];
+                                $selectedMeetingProvider = old('meeting_provider', $course->meeting_provider);
+                                $savedMeetingLink = optional($course->liveSessions->firstWhere('meeting_link', '!=', null))->meeting_link;
+                            @endphp
+                            <div class="card mt-3" id="meeting-provider-section">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fa fa-video-camera mr-2"></i> Meeting Configuration</h5>
                                 </div>
-                            @endif
-                            @if(!count($enabledMeetingProviders ?? []) && $course->meeting_provider)
-                                <input type="hidden" name="meeting_provider" value="{{ $course->meeting_provider }}">
-                            @endif
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_provider">Meeting Provider</label>
+                                            <select name="meeting_provider" id="meeting_provider" class="form-control">
+                                                <option value="">Select</option>
+                                                @foreach($meetingProviderOptions as $key => $label)
+                                                    <option value="{{ $key }}" {{ $selectedMeetingProvider == $key ? 'selected' : '' }}>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-muted">Select the provider for this session. Enter a meeting link below when automatic link creation is not configured.</small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label for="meeting_timezone">Timezone</label>
+                                            <input type="text" name="meeting_timezone" id="meeting_timezone"
+                                                class="form-control"
+                                                value="{{ old('meeting_timezone', $course->meeting_timezone ?? 'Asia/Riyadh') }}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <label for="session_meeting_link">Meeting Link</label>
+                                            <input type="url" name="session_meeting_link" id="session_meeting_link"
+                                                class="form-control"
+                                                value="{{ old('session_meeting_link', $savedMeetingLink) }}"
+                                                placeholder="https://...">
+                                            <small class="text-muted">Use this when the provider integration is not configured. The link will be stored on each generated session.</small>
+                                        </div>
+                                    </div>
+                                    {{-- Single meeting fields (only shown when NO schedule type selected) --}}
+                                    <div class="row" id="single-meeting-fields" @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom'])) style="display:none;" @endif>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_date">Start Date *</label>
+                                            <input type="date" name="meeting_start_date" id="meeting_start_date"
+                                                class="form-control"
+                                                value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('Y-m-d') : '' }}"
+                                                min="{{ date('Y-m-d') }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_start_time">Start Time *</label>
+                                            <input type="time" name="meeting_start_time" id="meeting_start_time"
+                                                class="form-control"
+                                                value="{{ $course->meeting_start_at ? \Carbon\Carbon::parse($course->meeting_start_at)->format('H:i') : '' }}">
+                                        </div>
+                                        <div class="col-md-4 form-group">
+                                            <label for="meeting_duration">Duration (mins) *</label>
+                                            <input type="number" name="meeting_duration" id="meeting_duration"
+                                                class="form-control" value="{{ $course->meeting_duration ?? 60 }}">
+                                            <input type="hidden" name="meeting_start_at" id="meeting_start_at">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="single-meeting-hint"
+                                        @if(in_array($course->schedule_type ?? '', ['daily', 'weekly', 'custom']))
+                                        style="display:none;" @endif>For a single meeting. Or choose a schedule type
+                                        below for recurring sessions.</small>
+                                </div>
+                            </div>
 
                             {{-- Live Session Scheduling Section --}}
                             @php
@@ -717,15 +771,17 @@
                                                     <i class="fa fa-check-circle mr-1"></i> All sessions have meeting links.
                                                 </span>
                                             @endif
-                                            <form method="POST"
-                                                action="{{ route('admin.courses.regenerate_meeting_links', $course->id) }}"
-                                                class="d-inline">
-                                                @csrf
+                                            <div class="d-inline">
+                                                <input type="url" id="regenerate_session_meeting_link"
+                                                    class="form-control form-control-sm d-inline-block mr-2"
+                                                    style="width: 260px;"
+                                                    placeholder="Manual meeting link">
                                                 <button type="submit"
+                                                    form="regenerate-meeting-links-form"
                                                     class="btn btn-{{ $course->liveSessions->whereNull('meeting_link')->count() > 0 ? 'warning' : 'outline-secondary' }} btn-sm">
                                                     <i class="fa fa-refresh mr-1"></i> Regenerate Meeting Links
                                                 </button>
-                                            </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -790,20 +846,55 @@
                             oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value>100)this.value=100;">
                     </div> --}}
 
-                    <span>
-                        @if($course->latestModuleWeightage?->normalized_weightage['LessonModule'] != 0)
-                            Lesson Weightage: {{ $course->latestModuleWeightage?->normalized_weightage['LessonModule'] }}
-                            <br />
-                        @endif
-                        @if($course->latestModuleWeightage?->normalized_weightage['QuestionModule'] != 0)
-                            Question Weightage:
-                            {{ $course->latestModuleWeightage?->normalized_weightage['QuestionModule'] }} <br />
-                        @endif
-                        @if($course->latestModuleWeightage?->normalized_weightage['FeedbackModule'] != 0)
-                            Feedback Weightage:
-                            {{ $course->latestModuleWeightage?->normalized_weightage['FeedbackModule'] }}
-                        @endif
-                    </span>
+                     <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        Course Weightage Summary
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @if($course->latestModuleWeightage?->normalized_weightage['LessonModule'] != 0)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h6 class="mb-2">
+                                                    Lesson
+                                                </h6>
+                                                <h4 class="text-primary">
+                                                    {{ $course->latestModuleWeightage->normalized_weightage['LessonModule'] }}%
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        @if($course->latestModuleWeightage?->normalized_weightage['QuestionModule'] != 0)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h6 class="mb-2">
+                                                    Question Assessment
+                                                </h6>
+                                                <h4 class="text-success">
+                                                    {{ $course->latestModuleWeightage->normalized_weightage['QuestionModule'] }}%
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        @if($course->latestModuleWeightage?->normalized_weightage['FeedbackModule'] != 0)
+                                        <div class="col-md-4 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h6 class="mb-2">
+                                                    Feedback
+                                                </h6>
+                                                <h4 class="text-info">
+                                                    {{ $course->latestModuleWeightage->normalized_weightage['FeedbackModule'] }}%
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     {{-- <div class="col-md-12 col-lg-8 form-group">
                         <div class="row">
@@ -921,11 +1012,16 @@
 
                                 <div class=" ">
                                     <button class="btn add-btn frm_submit" id="doneBtn"
-                                        type="submit">{{ trans('Save As Draft') }}</button>
+                                        type="submit" value="Save As Draft">
+                                        {{ trans('Save As Draft') }}
+                                    </button>
                                 </div>
                                 <div class=" ">
-                                    <button class="btn cancel-btn frm_submit" id="nextBtn"
-                                        type="submit">{{ trans('Next') }}</button>
+                                    
+                                <button class="btn cancel-btn frm_submit" id="nextBtn"
+                                    type="submit" value="Next">
+                                    {{ trans('Next') }}
+                                </button>
                                 </div>
                             @else
                                 <div class="form-group">
@@ -943,6 +1039,12 @@
         </div>
     </div>
 
+</form>
+
+<form id="regenerate-meeting-links-form" method="POST"
+    action="{{ route('admin.courses.regenerate_meeting_links', $course->id) }}">
+    @csrf
+    <input type="hidden" name="session_meeting_link" id="regenerate_session_meeting_link_hidden">
 </form>
 @stop
 
@@ -992,7 +1094,7 @@
             });
 
             $(".js-example-placeholder-single").select2({
-                placeholder: "Select Teacher",
+                placeholder: "Select Category",
                 allowClear: false
             });
 
@@ -1148,6 +1250,11 @@
     </script>
 
     <script>
+        $('#regenerate-meeting-links-form').on('submit', function () {
+            var manualLink = $('#regenerate_session_meeting_link').val() || $('#session_meeting_link').val();
+            $('#regenerate_session_meeting_link_hidden').val(manualLink);
+        });
+
         $('#updateCourse').on('submit', function (e) {
             let courseType = $('.course-type:checked').val();
             // Populate meeting_start_at if offline course

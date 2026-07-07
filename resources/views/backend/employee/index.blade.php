@@ -120,7 +120,12 @@
     @csrf
 
     <div class="import-row">
-        <input type="file" name="import_file"  id="importFileInput" class="form-control form-control-sm">
+        <input type="file" name="file"  id="importFileInput" class="form-control form-control-sm">
+        @error('file')
+    <div class="text-danger mt-1">
+        {{ $message }}
+    </div>
+@enderror
        
         <button type="submit" class="btn btn-primary btn-sm">
             {{ __('admin_pages.employee.import') }}
@@ -221,6 +226,16 @@
 
 @push('after-scripts')
     <script>
+        document.querySelector('form').addEventListener('submit', function(e){
+
+    const fileInput =
+        document.getElementById('importFileInput');
+
+    if (!fileInput.files.length) {
+        e.preventDefault();
+        alert('Please select an Excel file.');
+    }
+});
         $(document).ready(function() {
 
 

@@ -43,7 +43,7 @@
 
 //echo '<pre>';print_r(Auth::user());
 @endphp
-@if(Auth::user()->isAdmin())
+<!-- @if(Auth::user()->isAdmin())
 <li class="nav-item px-3 dropdown">
 <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
 <span class="d-md-down-none">
@@ -67,10 +67,15 @@
 <small><a href="{{ route('admin.setvaluesession',3) }}" class="dropdown-item">@lang('menus.backend.sidebar.external')</a></small>
 </div>
 </li>
-@endif
-
-
-
+@endif -->
+@php
+    $bellUnreadNotifications = auth()->check()
+        ? \App\Models\UserNotification::forUser(auth()->id())->unread()->orderBy('created_at', 'desc')->take(10)->get()
+        : collect();
+    $bellUnreadNotificationCount = auth()->check()
+        ? \App\Models\UserNotification::forUser(auth()->id())->unread()->count()
+        : 0;
+@endphp
 
     </ul>
 
@@ -79,7 +84,7 @@
         <li class="nav-item d-md-down-none dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 <i class="icon-bell"></i>
-                <span class="badge badge-pill d-none badge-danger unreadNotificationCounter"></span>
+                <span class="badge badge-pill {{ $bellUnreadNotificationCount > 0 ? '' : 'd-none' }} badge-danger unreadNotificationCounter">{{ $bellUnreadNotificationCount > 0 ? $bellUnreadNotificationCount : '' }}</span>
             </a>
             <div class="dropdown-menu dropdown-menu-right notification-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
                 <div class="dropdown-header text-center d-flex justify-content-between align-items-center">
@@ -88,7 +93,22 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="unreadNotifications">
-                   <p class="mb-0 text-center py-3 text-muted">@lang('navs.general.no_new_notifications')</p>
+                    @forelse($bellUnreadNotifications as $notification)
+                        <a class="dropdown-item notification-item py-2" href="{{ $notification->link ?: '#' }}" data-notification-id="{{ $notification->id }}">
+                            <div class="d-flex align-items-start">
+                                <div class="mr-3"><i class="fas {{ $notification->icon }} text-{{ $notification->icon_color }}"></i></div>
+                                <div class="flex-grow-1">
+                                    <p class="font-weight-bold mb-1" style="font-size: 13px;">{{ $notification->title }}</p>
+                                    @if($notification->message)
+                                        <p class="mb-1 text-muted" style="font-size: 12px;">{{ $notification->message }}</p>
+                                    @endif
+                                    <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                </div>
+                            </div>
+                        </a>
+                    @empty
+                        <p class="mb-0 text-center py-3 text-muted">@lang('navs.general.no_new_notifications')</p>
+                    @endforelse
                 </div>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item text-center py-2" href="{{ route('admin.notifications.index') }}">
@@ -128,10 +148,10 @@
               <strong>@lang('navs.general.account')</strong>
             </div>
 
-            <a class="dropdown-item" href="{{route('admin.messages')}}">
+            <!-- <a class="dropdown-item" href="{{route('admin.messages')}}">
               <i class="fa fa-envelope"></i> @lang('navs.general.messages')
               <span class="badge unreadMessageCounter d-none badge-success">5</span>
-            </a>
+            </a> -->
 
             <a class="dropdown-item" href="{{ route('admin.account') }}">
               <i class="fa fa-user"></i> @lang('navs.general.profile')

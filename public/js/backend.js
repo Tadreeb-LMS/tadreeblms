@@ -21907,6 +21907,23 @@ function addDeleteForms() {
  * Place any jQuery/helper plugins in here.
  */
 $(function () {
+    var fireConfirm = function fireConfirm(options) {
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            return window.Swal.fire(options);
+        }
+
+        if (window.swal && typeof window.swal.fire === 'function') {
+            return window.swal.fire(options);
+        }
+
+        if (typeof window.swal === 'function') {
+            return window.swal(options);
+        }
+
+        var confirmed = window.confirm(options.title);
+        return Promise.resolve({ value: confirmed, isConfirmed: confirmed });
+    };
+
     /**
      * Add the data-method="delete" forms to all delete links
      */
@@ -21928,19 +21945,20 @@ $(function () {
         e.preventDefault();
 
         var form = this;
-        var link = $('a[data-method="delete"]');
+        var link = $(form).closest('a[data-method="delete"]');
         var cancel = link.attr('data-trans-button-cancel') ? link.attr('data-trans-button-cancel') : 'Cancel';
         var confirm = link.attr('data-trans-button-confirm') ? link.attr('data-trans-button-confirm') : 'Yes, delete';
         var title = link.attr('data-trans-title') ? link.attr('data-trans-title') : 'Are you sure you want to delete this item?';
 
-        swal({
+        fireConfirm({
             title: title,
             showCancelButton: true,
             confirmButtonText: confirm,
             cancelButtonText: cancel,
+            icon: 'warning',
             type: 'warning'
         }).then(function (result) {
-            result.value && form.submit();
+            (result.value || result.isConfirmed) && form.submit();
         });
     }).on('click', 'a[name=confirm_item]', function (e) {
         /**
@@ -21953,14 +21971,15 @@ $(function () {
         var cancel = link.attr('data-trans-button-cancel') ? link.attr('data-trans-button-cancel') : 'Cancel';
         var confirm = link.attr('data-trans-button-confirm') ? link.attr('data-trans-button-confirm') : 'Continue';
 
-        swal({
+        fireConfirm({
             title: title,
             showCancelButton: true,
             confirmButtonText: confirm,
             cancelButtonText: cancel,
+            icon: 'info',
             type: 'info'
         }).then(function (result) {
-            result.value && window.location.assign(link.attr('href'));
+            (result.value || result.isConfirmed) && window.location.assign(link.attr('href'));
         });
     });
 });

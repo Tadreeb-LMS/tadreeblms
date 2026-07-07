@@ -35,9 +35,10 @@ class UserPasswordController extends Controller
      */
     public function edit(ManageUserRequest $request, User $user)
     {
-
-        return view('backend.account.index')
-            ->withUser($user);
+         return view('backend.auth.user.change-password', [
+        'user' => $user,
+        'activeTab' => 'password'
+    ]);
     }
 
     /**
@@ -47,15 +48,10 @@ class UserPasswordController extends Controller
      * @return mixed
      * @throws \App\Exceptions\GeneralException
      */
-    public function update(UpdatePasswordRequest $request, $email)
-    {
-        $user = User::where('email', $email)->first();
-        if($user) {
-            $this->userRepository->updatePassword($user, $request->validated());
-            return redirect()->back()->withFlashSuccess(__('alerts.backend.users.updated_password'));
-        }
-        else{
-            return redirect()->back()->withFlashDanger(__('exceptions.backend.access.users.update_password_error'));
-        }
-    }
+   public function update(UpdateUserPasswordRequest $request, User $user)
+{
+    $this->userRepository->updatePassword($user, $request->validated());
+
+    return redirect()->back()->withFlashSuccess(__('alerts.backend.users.updated_password'));
+}
 }

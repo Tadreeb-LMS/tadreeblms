@@ -155,13 +155,6 @@
                         null == Session::get('setvaluesession') ||
                         (null !== Session::get('setvaluesession') && in_array(Session::get('setvaluesession'), [1, 2, 3]))
                     )
-                    <li class="nav-item ">
-                        <a class="nav-link {{ $request->segment(2) == 'categories' ? 'active' : '' }}"
-                            href="{{ route('admin.categories.index') }}">
-                            <i class="nav-icon fas fa-tags"></i>
-                            <span class="title">@lang('menus.backend.sidebar.categories.title')</span>
-                        </a>
-                    </li>
                 @endif
 
                 {{-- Temporarily disabled: Positions menu item hidden per issue #466 --}}
@@ -264,6 +257,12 @@
                             </a>
                             <ul class="nav-dropdown-items">
                                 @can('course_access')
+                                    <li class="nav-item ">
+                                        <a class="nav-link {{ $request->segment(2) == 'categories' ? 'active' : '' }}"
+                                            href="{{ route('admin.categories.index') }}">
+                                            <span class="title">@lang('menus.backend.sidebar.categories.title')</span>
+                                        </a>
+                                    </li>
                                     <li class="nav-item ">
                                         <a class="nav-link {{ $request->segment(2) == 'courses' ? 'active' : '' }}"
                                             href="{{ route('admin.courses.index') }}">

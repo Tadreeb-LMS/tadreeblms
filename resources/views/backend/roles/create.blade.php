@@ -15,7 +15,9 @@
             @endif
 
             <div class="mb-3">
-                <label for="name" class="form-label">{{ __('admin_pages.roles.role_name') }}</label>
+                <label for="name" class="form-label">{{ __('admin_pages.roles.role_name') }}
+                    <span class="required"></span>
+                </label>
                 <input type="text" name="name" id="name" class="form-control" value="{{ $role->name ?? old('name') }}" required>
             </div>
 
@@ -40,23 +42,13 @@
                         </div>
 
                         @foreach($modulePermissions as $permission)
-
-                            @php
-                                $default_permission_checked = false;
-                            @endphp
-
-                            @if($module == 'backend')
-                                @php
-                                    $default_permission_checked = true;
-                                @endphp
-                            @endif
                             <div class="form-check ms-3">
                                 <input type="checkbox"
                                     name="permissions[]"
                                     class="form-check-input permission-{{ $module }}"
                                     value="{{ $permission->id }}"
                                     id="perm_{{ $permission->id }}"
-                                    @if($default_permission_checked) checked @endif
+                                    {{ isset($role) && $role->permissions->contains($permission->id) ? 'checked' : '' }}
                                    >
                                 <label class="form-check-label" for="perm_{{ $permission->id }}">
                                     {{ $permission->name }}
@@ -108,6 +100,10 @@ document.addEventListener('DOMContentLoaded', function () {
             updateGlobalState();
         });
     });
+
+    // 🔹 SYNC STATE ON LOAD
+    updateModuleState();
+    updateGlobalState();
 
     // 🔹 UPDATE MODULE STATE
     function updateModuleState() {

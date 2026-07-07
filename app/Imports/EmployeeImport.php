@@ -26,8 +26,8 @@ class EmployeeImport implements ToModel, WithHeadingRow, WithValidation
         ]);
 
         // Find department & position
-        $department = Department::where('name', $row['department'])->first();
-        $position   = Position::where('name', $row['position'])->first();
+        $department = Department::where('title', $row['department'])->first();
+        $position   = Position::where('title', $row['position'])->first();
 
         // Create employee profile
         EmployeeProfile::create([

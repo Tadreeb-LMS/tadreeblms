@@ -420,6 +420,20 @@
         });
     }
 
+    function resetLessonFileInputs($lesson) {
+        const chooseFileLabelHtml = '<i class="fa fa-upload mr-1"></i> ' + @json(__('course_pages.admin_lessons_create.choose_file'));
+
+        $lesson.find('input[type="file"]').each(function () {
+            const $freshInput = $(this).clone(false);
+            $freshInput.val('');
+            $(this).replaceWith($freshInput);
+        });
+
+        $lesson.find('.custom-file-label').each(function () {
+            $(this).html(chooseFileLabelHtml);
+        });
+    }
+
     window.videoIndex = window.videoIndex || 0;
 
     $(document).ready(function () {
@@ -502,8 +516,41 @@
         $('#btn_clicked').val(clickedButtonId);
     });
 
+
     $(document).on('submit', '#addLesson', function (e) {
         e.preventDefault();
+        let hasAttachment = false;
+
+        // Check downloadable files
+        $('input[name^="downloadable_files_"]').each(function () {
+            if (this.files.length > 0) {
+                hasAttachment = true;
+            }
+        });
+
+        // Check PDFs
+        $('input[name^="add_pdf_"]').each(function () {
+            if (this.files.length > 0) {
+                hasAttachment = true;
+            }
+        });
+
+        // Check Audio
+        $('input[name^="add_audio_"]').each(function () {
+            if (this.files.length > 0) {
+                hasAttachment = true;
+            }
+        });
+
+        // Check Lesson Videos
+        if ($('.video-item').length > 0) {
+            hasAttachment = true;
+        }
+
+        if (!hasAttachment) {
+            alert('Please add at least one content attachment to proceed.');
+            return false;
+        }
 
         function parseIniSizeToBytes(sizeText) {
             if (!sizeText) return 0;
@@ -646,6 +693,7 @@
 
         clone.find('input:not([type="checkbox"], [type="hidden"]), textarea').val('');
         clone.find('input[type="checkbox"]').prop('checked', false);
+        resetLessonFileInputs(clone);
 
         clone.find('.cke').remove();
 

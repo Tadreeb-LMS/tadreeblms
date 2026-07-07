@@ -89,12 +89,15 @@
 
         .workflow-publish-controls .form-control,
         .workflow-publish-controls .btn {
-            height: 38px;
+            min-height: 38px;
             border-radius: 6px;
         }
 
         .workflow-publish-controls .btn {
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            padding-left: 10px;
+            padding-right: 10px;
         }
 
         .review-action-stack {
@@ -179,7 +182,7 @@
                             <!-- App Name -->
                             <div class="form-group row">
                                 <label for="app_name" class="col-md-2 form-control-label">
-                                    {{ __('labels.backend.general_settings.app_name') }}
+                                    App Name
                                 </label>
                                 <div class="col-md-10">
                                     <input type="text" name="app_name" id="app_name" class="form-control"
@@ -191,10 +194,10 @@
 
                             <!-- Site Logo -->
                             <div class="form-group row">
-                                <label for="site_logo" class="col-md-2 form-control-label">{{ __('labels.backend.general_settings.site_logo') }}</label>
+                                <label for="site_logo" class="col-md-2 form-control-label">Site Logo</label>
                                 <div class="col-md-10">
                                     <label for="site_logo" class="control-label">
-                                        {{ __('labels.backend.general_settings.site_logo') . ' ' . trans('labels.backend.pages.max_file_size') }}
+                                        Site Logo (Max File Size 10MB)
                                     </label>
                                     <input type="file" name="site_logo" class="form-control">
                                     <input type="hidden" name="site_logo_max_size" value="8">
@@ -216,7 +219,7 @@
                             <!-- App URL -->
                             <div class="form-group row">
                                 <label for="app_url" class="col-md-2 form-control-label">
-                                    {{ __('labels.backend.general_settings.app_url') }}
+                                    App URL
                                 </label>
                                 <div class="col-md-10">
                                     <input type="text" name="app_url" id="app_url" class="form-control"
@@ -246,7 +249,7 @@
 
                             <div class="text-end mt-3">
     <button type="submit" class="btn btn-primary">
-        {{ __('labels.backend.general_settings.email.save_settings') }}
+        Save Settings
     </button>
 </div>
 

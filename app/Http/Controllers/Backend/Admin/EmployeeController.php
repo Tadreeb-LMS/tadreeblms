@@ -133,9 +133,9 @@ class EmployeeController extends Controller
 
 
         if (request('show_deleted') == 1) {
-            $teachers = User::query()->role('student')->where('employee_type', 'external')->onlyTrashed()->orderBy('created_at', 'desc');
+            $teachers = User::query()->role('student')->where('employee_type', 'external')->onlyTrashed()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         } else {
-            $teachers = User::query()->role('student')->where('employee_type', 'external')->orderBy('created_at', 'desc');
+            $teachers = User::query()->role('student')->where('employee_type', 'external')->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
 
         if (auth()->user()->isAdmin()) {
@@ -227,14 +227,16 @@ class EmployeeController extends Controller
                     $q->where('active', '1');
                 })
                 ->onlyTrashed()
-                ->orderBy('created_at', 'desc');
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc');
         } else {
             $teachers = User::query()->role('student')
             ->when($status == 'active', function ($q) {
                     $q->where('active', '1');
             })
-            ->orderBy('created_at', 'desc');
-        }      
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc');
+        }
 
         if (auth()->user()->isAdmin()) {
             $has_view = true;
@@ -576,10 +578,14 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        $teacher = User::where('id', $id)->first();
-        //dd($teacher);
+        $teacher = User::findOrFail($id);
+        $assignments = CourseAssignment::with('course')
+            ->where('assign_to', 'user')
+            ->where('assign_by', 1) // optional remove if not needed
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('backend.employee.show', compact('teacher'));
+        return view('backend.employee.show', compact('teacher', 'assignments'));
     }
 
     /**
@@ -719,6 +725,7 @@ class EmployeeController extends Controller
 
     public function enrolled_get_data(Request $request, $course_id, $show_deleted = 0, $search_type = null)
     {
+        \Log::info("HIT ENROLLED_GET_DATA: " . $course_id);
         //dd($show_deleted);
         $has_view = false;
         $has_delete = false;
@@ -1203,9 +1210,9 @@ class EmployeeController extends Controller
 
 
         if (request('show_deleted') == 1) {
-            $teachers = User::query()->role('student')->where('employee_type', 'external')->onlyTrashed()->orderBy('created_at', 'desc');
+            $teachers = User::query()->role('student')->where('employee_type', 'external')->onlyTrashed()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         } else {
-            $teachers = User::query()->role('student')->where('employee_type', 'external')->orderBy('created_at', 'desc');
+            $teachers = User::query()->role('student')->where('employee_type', 'external')->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
 
 

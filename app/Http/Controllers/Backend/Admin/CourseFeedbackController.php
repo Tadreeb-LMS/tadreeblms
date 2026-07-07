@@ -79,6 +79,7 @@ class CourseFeedbackController extends Controller
                         ';
                     })
                     ->rawColumns(['actions', 'add_question'])
+                    ->rawColumns(['actions'])
                     ->make(true);
         }
 
@@ -106,16 +107,6 @@ class CourseFeedbackController extends Controller
         return redirect()
             ->route('admin.course-feedback-questions.index')
             ->with('success', 'Questions added successfully!');
-    }
-
-    public function assignedQuestions($courseId)
-    {
-        return CourseFeedback::where('course_id', $courseId)
-            ->pluck('feedback_question_id')
-            ->map(function ($questionId) {
-                return (int) $questionId;
-            })
-            ->values();
     }
 
     public function assignedQuestions($course_id)

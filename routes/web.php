@@ -23,6 +23,13 @@ use App\Http\Controllers\Backend\Admin\TestQuestionController;
 use App\Http\Controllers\Frontend\Auth\LoginController;
 use App\Ldap\LdapUser;
 use LdapRecord\Container;
+use App\Http\Controllers\Backend\Admin\DepartmentController as AdminDepartmentController;
+
+Route::get(
+    'user/department/template/download',
+    [AdminDepartmentController::class, 'downloadTemplate']
+)->name('admin.department.template.download');
+
 Route::get('/admin/course-assignment', [AssessmentController::class,'index'])
 ->name('admin.course.assign');
 Route::get('admin/asmnt_0_withcourse', [AssessmentAccountsController::class, 'createWithCourse']);
@@ -208,6 +215,7 @@ Route::get('department/{id}', [DepartmentController::class, 'show'])->name('depa
 //============Course Routes=================//
 Route::get('courses', ['uses' => 'CoursesController@all', 'as' => 'courses.all']);
 Route::get('cme-courses', ['uses' => 'CoursesController@allCme', 'as' => 'courses.allCme']);
+Route::post('course/{slug}/attendance', ['uses' => 'CoursesController@recordLiveSessionAttendance', 'as' => 'courses.attendance'])->middleware(['subscribed', 'auth']);
 Route::get('course/{slug}', ['uses' => 'CoursesController@show', 'as' => 'courses.show'])->middleware(['subscribed', 'auth']);
 Route::get('course-preview/{slug}', 'CoursesController@coursePreview')->name('coursePreview')->middleware('subscribed');
 
@@ -359,8 +367,11 @@ Route::group(['prefix' => 'subscription'], function () {
     Route::post('subscribe', 'SubscriptionController@courseSubscribed')->name('subscription.course_subscribe');
 });
 
-Route::get('subscriptions', [SubscriptionController::class, 'show_list'])->name('user.subscriptions');
-Route::get('get-subscription-data', [SubscriptionController::class, 'getData'])->name('user.subscriptions.getdata');
+Route::middleware('auth')->group(function () {
+    Route::get('subscriptions', [SubscriptionController::class, 'show_list'])->name('user.subscriptions');
+    Route::get('get-subscription-data', [SubscriptionController::class, 'getData'])->name('user.subscriptions.getdata');
+    Route::post('subscriptions/{subscription}/restore', [SubscriptionController::class, 'restore'])->name('user.subscriptions.restore');
+});
 
 // wishlist
 Route::post('add-to-wishlist', 'Backend\WishlistController@store')->name('add-to-wishlist');

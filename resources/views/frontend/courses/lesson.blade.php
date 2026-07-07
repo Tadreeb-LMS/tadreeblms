@@ -20,7 +20,8 @@
 
         .course-timeline-list {
             max-height: 300px;
-            overflow: scroll;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .options-list li {
@@ -301,11 +302,15 @@
                             </div>
                             <hr />
                             @if (!is_null($test_result))
-                                <div class="alert alert-info">@lang('labels.frontend.course.your_test_score')
-                                    : {{ $test_result->test_result }}
+                                <div class="alert alert-info">
+                                    Raw score: {{ $test_result->test_result }}
                                     <br>
-                                    @lang('labels.frontend.course.your_score') : {{ number_format($percentage, 2) }}% <br>
-                                    @lang('labels.frontend.course.your_result') : {{ $test_pass }}
+                                    Percentage score: {{ is_numeric($percentage) ? number_format((float) $percentage, 2) . '%' : 'Not available' }} <br>
+                                    Result: {{ $test_pass }}
+                                    @if(!is_numeric($percentage))
+                                        <br>
+                                        <small>This quiz result was recorded, but no questions are currently available to calculate a percentage.</small>
+                                    @endif
                                 </div>
                                 @if (config('retest'))
                                     <form action="{{ route('lessons.retest', [$test_result->test->slug]) }}" method="post">
@@ -585,6 +590,8 @@
                                     {{ __('course_pages.course_detail.quiz_status') }}
                                     @if($lesson_quiz_pass === 'Pass')
                                         <span class="ml-2 text-success font-weight-bold">{{ __('course_pages.course_detail.quiz_passed') }}</span>
+                                    @elseif($lesson_quiz_pass === 'Pending Evaluation')
+                                        <span class="ml-2 text-warning font-weight-bold">{{ __('lesson_quiz_pages.pending_review') }}</span>
                                     @elseif($lesson_quiz_pass === 'Failed')
                                         <span class="ml-2 text-danger font-weight-bold">{{ __('course_pages.course_detail.quiz_not_passed') }}</span>
                                     @endif
@@ -666,6 +673,12 @@
                             @if ($nextTasks['open_assesment'])
                                 <a class="btn btn-success btn-sm text-white mb-3 font-weight-bold"
                                     href="{{ htmlspecialchars_decode($assessment_link) }}">Complete this lesson first to unlock</a>
+                            @endif
+
+                            @if(!empty($nextTasks['pending_assessment_evaluation']))
+                                <div class="alert alert-warning mb-3">
+                                    Your assessment is pending evaluation. A teacher or admin must review your short answer before the result and certificate status can be finalized.
+                                </div>
                             @endif
 
                             @if ($nextTasks['reattempt_assesment'])
@@ -801,6 +814,10 @@
                     lessonVideoPlayers.push(playerInstance);
                 }
 
+                if (window.registerExclusiveLessonMediaPlayer) {
+                    window.registerExclusiveLessonMediaPlayer(playerInstance);
+                }
+
                 return playerInstance;
             }
 
@@ -835,6 +852,73 @@
             window.addEventListener('pagehide', pauseLessonVideos);
             window.addEventListener('beforeunload', pauseLessonVideos);
 
+           
+            @if (!$lesson->isCompleted())
+            var lessonVideoCompletionThreshold = 90; // percent of each video watched
+            var trackedLessonVideos = [];
+            var lessonCompletionSubmitted = false;
+
+            function markLessonCompleteWhenAllVideosWatched() {
+                if (lessonCompletionSubmitted) {
+                    return;
+                }
+                if (!trackedLessonVideos.length || !trackedLessonVideos.every(function(state) { return state.completed; })) {
+                    return;
+                }
+
+                lessonCompletionSubmitted = true;
+                $.ajax({
+                    url: "{{ route('update.course.progress') }}",
+                    method: "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        'model_id': parseInt("{{ $lesson->id }}"),
+                        'model_type': "{{ addslashes(get_class($lesson)) }}",
+                    },
+                    success: function() {
+                        // Reload so the completion indicator and quiz section appear.
+                        window.location.reload();
+                    }
+                });
+            }
+
+            function trackLessonVideoPlayer(playerInstance) {
+                var state = {
+                    completed: false,
+                    lastTime: 0,
+                    watchedSeconds: 0
+                };
+                trackedLessonVideos.push(state);
+
+                playerInstance.on('timeupdate', function() {
+                    var videoDuration = playerInstance.duration;
+                    var currentTime = playerInstance.currentTime;
+
+                    if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
+                        return;
+                    }
+
+                    // Count only continuous playback and ignore large skips.
+                    if (currentTime >= state.lastTime && (currentTime - state.lastTime) <= 1) {
+                        state.watchedSeconds += (currentTime - state.lastTime);
+                    }
+                    state.lastTime = currentTime;
+
+                    if (!state.completed && ((state.watchedSeconds / videoDuration) * 100) >= lessonVideoCompletionThreshold) {
+                        state.completed = true;
+                        markLessonCompleteWhenAllVideosWatched();
+                    }
+                });
+
+                playerInstance.on('ended', function() {
+                    if (!state.completed) {
+                        state.completed = true;
+                        markLessonCompleteWhenAllVideosWatched();
+                    }
+                });
+            }
+            @endif
+
             document.querySelectorAll('.js-player, .lesson-video-player').forEach(function(playerElement) {
                 var plyrInstance = registerLessonVideoPlayer(new Plyr(playerElement, {
                     youtube: {
@@ -845,6 +929,11 @@
                 if (playerElement.id === 'player') {
                     player = plyrInstance;
                 }
+                @if (!$lesson->isCompleted())
+                else if (playerElement.classList.contains('lesson-video-player')) {
+                    trackLessonVideoPlayer(plyrInstance);
+                }
+                @endif
         });
 
         @if ($lesson->mediaPDF)

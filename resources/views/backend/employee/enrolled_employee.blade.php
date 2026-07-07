@@ -419,6 +419,7 @@
                     url:route,
                 },
                 columns: [
+                        @can('category_delete')
                         @if(request('show_deleted') != 1)
                     {
                         "data": function (data) {
@@ -426,6 +427,7 @@
                         }, "orderable": false, "searchable": false, "name": "id"
                     },
                         @endif
+                        @endcan
                     //{data: "DT_RowIndex", name: 'DT_RowIndex', searchable: false, orderable:false},
                     {data: "trainee_type", name: 'trainee_type'},
                     {data: "email", name: 'email'},
@@ -438,12 +440,14 @@
                     {data: "percentage", name: "percentage"},
                     //{data: "actions", name: 'actions'}
                 ],
+                @can('category_delete')
                 @if(request('show_deleted') != 1)
                 columnDefs: [
                     {"width": "5%", "targets": 0},
                     {"className": "text-center", "targets": [0]}
                 ],
                 @endif
+                @endcan
 
                 createdRow: function (row, data, dataIndex) {
                     $(row).attr('data-entry-id', data.id);

@@ -8,6 +8,7 @@ use App\Models\FeedbackQuestion;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Models\TestQuestionOption;
+use App\Models\TestsResult;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -51,7 +52,10 @@ class TestQuestionController extends Controller
 
     public function create(Request $request, $course_id = null, $temp_id = null)
     {
-        $course_id = $course_id ?? $request->course_id;
+        $course_id = $request->input('course_id')
+            ?? $course_id
+            ?? optional(Test::find($request->test_id))->course_id
+            ?? optional(Test::find($request->input('test_id')))->course_id;
         $temp_id = $temp_id ?? $request->uuid; 
         $legacy_test_id = (int) $request->input('test_id');
         $selected_test = $legacy_test_id > 0 ? Test::find($legacy_test_id) : null;
@@ -67,13 +71,25 @@ class TestQuestionController extends Controller
         }
 
         $lessons = $course_id
-            ? Lesson::where('course_id', $course_id)
-                ->where('published', 1)
+            ? Lesson::query()
+                ->where('course_id', $course_id)
+                ->where(function ($q) {
+                     $q->where('published', 1)
+                        ->orWhereNull('published'); // fallback for old data
+                })
+                ->withCount([
+                    'questions as questions_count' => function ($query) {
+                        $query->whereNull('deleted_at');
+                    }
+                ])
                 ->orderBy('position')
                 ->orderBy('id')
-                ->get(['id', 'title'])
-            : collect();
-
+                ->get([
+                    'id',
+                    'title',
+                    'course_id'
+                ])
+            : collect([])->values();
         $lesson_id_preselect = $request->input('lesson_id');
         $lock_lesson_selection = $request->filled('lesson_id');
 
@@ -133,21 +149,9 @@ class TestQuestionController extends Controller
     }
 
     $marks = (int) $marksInput;
+    $questionType = (int) $request->question_type;
 
-        $question_id = DB::table('test_questions')->insertGetId([
-            'temp_id' => $request->temp_id ?? null,
-            'test_id' => $request->test_id,
-            'question_type' => $request->question_type,
-            'question_text' => $request->question,
-            'solution' => $request->solution,
-            'marks' => $request->score,
-            'comment' => $request->comment,
-            'option_json' => $request->question_type != 3 ? $request->options : NULL,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
-
-    if ($request->question_type == 1) {
+    if ($questionType == 1) {
         $options = isset($request->options) ? json_decode($request->options) : [];
         if (isset($request->options) && count($options) == 0) {
             return response()->json([
@@ -156,7 +160,7 @@ class TestQuestionController extends Controller
                 'errors' => 'Please provide the options',
             ], 422);
         }
-    } elseif ($request->question_type == 2) {
+    } elseif ($questionType == 2) {
         $options = isset($request->options) ? json_decode($request->options) : [];
         if (isset($request->options) && count($options) == 0) {
             return response()->json([
@@ -175,13 +179,12 @@ class TestQuestionController extends Controller
         }
     }
 
-    $status = $this->checkOptionValidation($options);
-    // if (!$status) {
-    //     return response()->json([
-    //         'success' => false,
-    //         'message' => 'At least one option must be selected.',
-    //     ], 422);
-    // }
+    if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'At least one option must be selected.',
+        ], 422);
+    }
 
     if ($request->options) {
         $decodedOptions = json_decode($request->options);
@@ -286,45 +289,47 @@ class TestQuestionController extends Controller
         'temp_id'       => $request->temp_id ?? null,
         'test_id'       => $resolved_test_id,
         'lesson_id'     => $lesson_id ?? null,
-        'question_type' => $request->question_type,
+        'question_type' => $questionType,
         'question_text' => $request->question,
         'solution'      => $request->solution,
         'marks'         => $marks, // use canonical column from feature branch
         'comment'       => $request->comment,
-        'option_json'   => $request->question_type != 3 ? $request->options : null,
+        'option_json'   => $questionType != 3 ? $request->options : null,
         'created_at'    => date('Y-m-d H:i:s'),
         'updated_at'    => date('Y-m-d H:i:s'),
     ]);
 
-    foreach ($options as $key => $value) {
-        DB::table('test_question_options')->insert([
-            'temp_id'     => $request->temp_id ?? null,
-            'question_id' => $question_id,
-            'option_text' => $value[0],
-            'is_right'    => $value[1],
-        ]);
-    }
-
-    if ($request->action_btn == 'save_and_add_more') {
-        if ($legacy_test_id > 0 && !$lesson_id) {
-            $params = ['test_id=' . $legacy_test_id];
-            if ($course_id) {
-                $params[] = 'course_id=' . $course_id;
-            }
-            if (!empty($request->temp_id)) {
-                $params[] = 'uuid=' . urlencode($request->temp_id);
-            }
-            if ($lesson_id) {
-                $params[] = 'lesson_id=' . $lesson_id;
-            }
-            $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
-        } else {
-            $redirect_url = route('admin.test_questions.create', [$course_id, $request->temp_id]);
-            if ($lesson_id) {
-                $redirect_url .= '?lesson_id=' . $lesson_id;
-            }
+    if ($questionType != 3) {
+        foreach ($options as $key => $value) {
+            DB::table('test_question_options')->insert([
+                'temp_id'     => $request->temp_id ?? null,
+                'question_id' => $question_id,
+                'option_text' => $value[0],
+                'is_right'    => $value[1],
+            ]);
         }
     }
+
+if ($request->action_btn == 'save_and_add_more') {
+
+    $params = [
+        'course_id=' . $course_id,
+    ];
+
+    if ($lesson_id !== null) {
+        $params[] = 'lesson_id=' . ($lesson_id ?? 0);
+    }
+
+    if (!empty($request->temp_id)) {
+        $params[] = 'uuid=' . urlencode($request->temp_id);
+    }
+
+    if ($legacy_test_id > 0) {
+        $params[] = 'test_id=' . $legacy_test_id;
+    }
+
+    $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
+} 
 
     Course::where('id', $course_id)->update([
         'current_step' => 'question-added'
@@ -383,18 +388,31 @@ class TestQuestionController extends Controller
             $tests = DB::table('tests')->where('deleted_at', '=', NULL)->get();
         }
         $question = DB::table('test_questions')->where('id', $id)->where('is_deleted', 0)->first();
+        if ($question && (int) $question->question_type !== 3) {
+            $optionRows = TestQuestionOption::where('question_id', $question->id)
+                ->orderBy('id')
+                ->get(['option_text', 'is_right']);
+
+            if ($optionRows->isNotEmpty()) {
+                $question->option_json = $optionRows
+                    ->map(function ($option) {
+                        return [
+                            $option->option_text,
+                            (int) $option->is_right,
+                        ];
+                    })
+                    ->values()
+                    ->toJson();
+            }
+        }
         return view('backend.test_questions.edit', compact('question', 'tests'));
     }
 
     public function update(Request $request)
     {
+        $marksInput = $request->input('marks', $request->input('score'));
 
-        return json_encode(array(
-            'code' => 200,
-            'message' => 'Question Updated is not option'
-        ));
-        
-        if (empty($request->marks) || $request->marks <= 0) {
+        if ($marksInput === null || $marksInput === '' || !is_numeric($marksInput) || (int) $marksInput <= 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please provide valid marks for the question',
@@ -402,7 +420,11 @@ class TestQuestionController extends Controller
             ], 422);
         }
 
-        if($request->question_type ==1) {
+        $marks = (int) $marksInput;
+        $questionType = (int) $request->question_type;
+        $options = [];
+
+        if($questionType == 1) {
             $options = isset($request->options) ? json_decode($request->options) : [];
             if(isset($request->options) && count($options) == 0) {
                 return response()->json([
@@ -411,7 +433,7 @@ class TestQuestionController extends Controller
                     'errors' => "Please provide the options",
                 ], 422);
             }
-        } else if($request->question_type ==2) {
+        } else if($questionType == 2) {
 
             $options = isset($request->options) ? json_decode($request->options) : [];
             if(isset($request->options) && count($options) == 0) {
@@ -431,8 +453,7 @@ class TestQuestionController extends Controller
             }
         }
 
-        $status = $this->checkOptionValidation($options);
-        if(!$status ) {
+        if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
             return response()->json([
                 'success' => false,
                 'message' => 'At least one option must be selected.',
@@ -440,7 +461,14 @@ class TestQuestionController extends Controller
         }
         
 
-        $question_id =  DB::table('test_questions')->where('id', $request->id)->where('is_deleted', 0)->first();
+        $question =  DB::table('test_questions')->where('id', $request->id)->where('is_deleted', 0)->first();
+
+        if (!$question) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Question not found.',
+            ], 404);
+        }
 
         if ($request->options) {
             $options = json_decode($request->options) ?? [];
@@ -449,24 +477,25 @@ class TestQuestionController extends Controller
 
         DB::table('test_questions')->where('id', $request->id)->where('is_deleted', 0)->update([
             'test_id' => $request->test_id,
-            'question_type' => $request->question_type,
+            'question_type' => $questionType,
             'question_text' => $request->question,
             'solution' => $request->solution,
-            'marks' => $request->score,
+            'marks' => $marks,
             'comment' => $request->comment,
-            'option_json' => $request->question_type != 3 ? $request->options : NULL
+            'option_json' => $questionType != 3 ? $request->options : NULL
         ]);
 
-        TestQuestionOption::where('question_id', $question_id->id)->delete();
+        TestQuestionOption::where('question_id', $question->id)->delete();
         
-        foreach ($options as $key => $value) {
+        if ($questionType != 3) {
+            foreach ($options as $key => $value) {
 
             
-            TestQuestionOption::insert([
-                'question_id' => $question_id->id,
-                'option_text' => $value[0],
-                'is_right' => $value[1],
-            ]);
+                TestQuestionOption::insert([
+                    'question_id' => $question->id,
+                    'option_text' => $value[0],
+                    'is_right' => $value[1],
+                ]);
             
 
             /*
@@ -475,13 +504,16 @@ class TestQuestionController extends Controller
                 ['question_id' => $question_id->id, 'option_text' =>$value[0], 'is_right' =>  $value[1]]
             );
             */
+            }
         }
 
         
 
-        return json_encode(array(
+        session()->flash('flash_success', 'Question updated successfully.');
+
+        return response()->json(array(
             'code' => 200,
-            'message' => 'Question Updated'
+            'message' => 'Question updated successfully.'
         ));
     }
 
@@ -556,5 +588,185 @@ class TestQuestionController extends Controller
             $view = view('backend/feedback_question_setup/short_answer', compact('feedbackQuestion'));
             echo $view;
         }
+    }
+
+    public function lessonQuizShortAnswers(Request $request)
+    {
+        $status = $request->input('status') === 'reviewed' ? 'reviewed' : 'pending';
+
+        $answers = DB::table('lesson_quiz_answers')
+            ->join('test_questions', 'test_questions.id', '=', 'lesson_quiz_answers.question_id')
+            ->join('tests_results', 'tests_results.id', '=', 'lesson_quiz_answers.tests_result_id')
+            ->leftJoin('tests', 'tests.id', '=', 'tests_results.test_id')
+            ->leftJoin('lessons', 'lessons.id', '=', 'tests.lesson_id')
+            ->leftJoin('courses', 'courses.id', '=', 'tests.course_id')
+            ->leftJoin('users', 'users.id', '=', 'lesson_quiz_answers.user_id')
+            ->where('test_questions.question_type', 3)
+            ->when(!$this->currentUserCanReviewAllCourses(), function ($query) {
+                $query->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('course_user')
+                        ->whereColumn('course_user.course_id', 'tests.course_id')
+                        ->where('course_user.user_id', auth()->id());
+                });
+            })
+            ->when($status === 'reviewed', function ($query) {
+                $query->whereNotNull('lesson_quiz_answers.is_correct');
+            }, function ($query) {
+                $query->whereNull('lesson_quiz_answers.is_correct');
+            })
+            ->select(
+                'lesson_quiz_answers.*',
+                'test_questions.question_text',
+                'test_questions.solution',
+                'tests_results.test_result',
+                'tests_results.test_id',
+                'lessons.title as lesson_title',
+                'courses.title as course_title',
+                'users.first_name',
+                'users.last_name',
+                'users.email'
+            )
+            ->orderBy('lesson_quiz_answers.created_at', 'desc')
+            ->paginate(25);
+
+        $assessmentAnswers = DB::table('assignment_questions')
+            ->join('test_questions', 'test_questions.id', '=', 'assignment_questions.question_id')
+            ->leftJoin('assignments', 'assignments.id', '=', 'assignment_questions.assignment_id')
+            ->leftJoin('courses', 'courses.id', '=', 'assignments.course_id')
+            ->leftJoin('users', 'users.id', '=', 'assignment_questions.assessment_account_id')
+            ->where('test_questions.question_type', 3)
+            ->when(!$this->currentUserCanReviewAllCourses(), function ($query) {
+                $query->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('course_user')
+                        ->whereColumn('course_user.course_id', 'assignments.course_id')
+                        ->where('course_user.user_id', auth()->id());
+                });
+            })
+            ->when($status === 'reviewed', function ($query) {
+                $query->whereIn('assignment_questions.is_correct', [1, 2]);
+            }, function ($query) {
+                $query->where('assignment_questions.is_correct', 0);
+            })
+            ->select(
+                'assignment_questions.*',
+                'test_questions.question_text',
+                'test_questions.solution',
+                'test_questions.marks as question_marks',
+                'courses.title as course_title',
+                'assignments.course_id',
+                'users.first_name',
+                'users.last_name',
+                'users.email'
+            )
+            ->orderBy('assignment_questions.id', 'desc')
+            ->paginate(25, ['*'], 'assessment_page');
+
+        return view('backend.test_questions.lesson-quiz-short-answers', compact('answers', 'assessmentAnswers'));
+    }
+
+    public function reviewLessonQuizShortAnswer(Request $request, $id)
+    {
+        $request->validate([
+            'is_correct' => 'required|in:0,1',
+        ]);
+
+        $answer = DB::table('lesson_quiz_answers')->where('id', $id)->first();
+
+        if (!$answer) {
+            return back()->withFlashDanger('Short answer submission not found.');
+        }
+
+        if (!$this->canCurrentUserReviewLessonQuizAnswer((int) $id)) {
+            abort(403);
+        }
+
+        DB::table('lesson_quiz_answers')
+            ->where('id', $id)
+            ->update([
+                'is_correct' => (int) $request->input('is_correct'),
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        $score = DB::table('lesson_quiz_answers')
+            ->where('tests_result_id', $answer->tests_result_id)
+            ->where('is_correct', 1)
+            ->count();
+
+        TestsResult::where('id', $answer->tests_result_id)->update([
+            'test_result' => $score,
+        ]);
+
+        return back()->withFlashSuccess('Short answer review saved.');
+    }
+
+    public function reviewAssessmentShortAnswer(Request $request, $id)
+    {
+        $request->validate([
+            'is_correct' => 'required|in:1,2',
+        ]);
+
+        $answer = DB::table('assignment_questions')->where('id', $id)->first();
+
+        if (!$answer) {
+            return back()->withFlashDanger('Short answer submission not found.');
+        }
+
+        if (!$this->canCurrentUserReviewAssessmentAnswer((int) $id)) {
+            abort(403);
+        }
+
+        $testQuestion = DB::table('test_questions')->where('id', $answer->question_id)->first();
+
+        DB::table('assignment_questions')
+            ->where('id', $id)
+            ->update([
+                'is_correct' => (int) $request->input('is_correct'),
+                'marks' => (int) $request->input('is_correct') === 1 ? ($testQuestion->marks ?? 0) : 0,
+            ]);
+
+        $assignment = DB::table('assignments')->where('id', $answer->assignment_id)->first();
+        if ($assignment && $assignment->course_id && $answer->assessment_account_id) {
+            \CustomHelper::updateUserProgress($answer->assessment_account_id, $assignment->course_id);
+        }
+
+        return back()->withFlashSuccess('Short answer review saved.');
+    }
+
+    private function currentUserCanReviewAllCourses(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    private function canCurrentUserReviewLessonQuizAnswer(int $answerId): bool
+    {
+        if ($this->currentUserCanReviewAllCourses()) {
+            return true;
+        }
+
+        return DB::table('lesson_quiz_answers')
+            ->join('tests_results', 'tests_results.id', '=', 'lesson_quiz_answers.tests_result_id')
+            ->join('tests', 'tests.id', '=', 'tests_results.test_id')
+            ->join('course_user', 'course_user.course_id', '=', 'tests.course_id')
+            ->where('lesson_quiz_answers.id', $answerId)
+            ->where('course_user.user_id', auth()->id())
+            ->exists();
+    }
+
+    private function canCurrentUserReviewAssessmentAnswer(int $answerId): bool
+    {
+        if ($this->currentUserCanReviewAllCourses()) {
+            return true;
+        }
+
+        return DB::table('assignment_questions')
+            ->join('assignments', 'assignments.id', '=', 'assignment_questions.assignment_id')
+            ->join('course_user', 'course_user.course_id', '=', 'assignments.course_id')
+            ->where('assignment_questions.id', $answerId)
+            ->where('course_user.user_id', auth()->id())
+            ->exists();
     }
 }
