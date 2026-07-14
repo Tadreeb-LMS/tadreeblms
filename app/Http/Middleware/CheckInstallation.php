@@ -9,14 +9,8 @@ class CheckInstallation
 {
     public function handle(Request $request, Closure $next)
     {
-        
-        // If installer not completed
-        if (!file_exists(base_path('.env')) || env('APP_INSTALLED', false) === false || env('APP_INSTALLED', false) === 'false') {
-
-            // Allow access to installer only
-            if (!$request->is('install') && !$request->is('install/*')) {
-                return redirect('/install');
-            }
+        if (!file_exists(base_path('.env')) || in_array(env('APP_INSTALLED'), [false, 'false'], true)) {
+            abort(503, 'Application not installed. Run: php artisan app:install');
         }
 
         return $next($request);

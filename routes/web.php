@@ -8,7 +8,6 @@ use App\Http\Controllers\Backend\AssessmentController;
 use App\Http\Controllers\Frontend\Auth\RegisterController;
 use App\Http\Controllers\CalenderController;
 use App\Http\Controllers\CoursesController;
-use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\UserCourseRequestController;
 use App\Http\Controllers\MediaStreamController;
 use App\Jobs\SendEmailJob;

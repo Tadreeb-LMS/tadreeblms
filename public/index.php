@@ -1,12 +1,5 @@
 <?php
 
-$installedFlag = __DIR__ . '/../installed';
-
-if (!file_exists($installedFlag)) {
-    header("Location: install.php");
-    exit;
-}
-
 define('LARAVEL_START', microtime(true));
 
 
