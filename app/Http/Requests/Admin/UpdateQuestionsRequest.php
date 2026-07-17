@@ -23,9 +23,18 @@ class UpdateQuestionsRequest extends FormRequest
     public function rules()
     {
         return [
-            
             'question' => 'required',
-            'score' => 'max:2147483647|required',
+            'score' => ['required', 'integer', 'min:1', 'max:100'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'score.required' => 'Marks is required.',
+            'score.max' => 'Marks cannot exceed 100.',
+            'score.min' => 'Marks must be at least 1.',
+            'score.integer' => 'Marks must be a valid number.',
         ];
     }
 }

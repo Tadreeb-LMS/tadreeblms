@@ -24,14 +24,15 @@ class StoreQuestionsRequest extends FormRequest
     {
         return [
             'question' => 'required',
-            'score' => ['required', 'integer', 'min:1', 'max:999'],        ];
+            'score' => ['required', 'integer', 'min:1', 'max:100'],
+        ];
     }
 
-    public function messages()      
+    public function messages()
     {
         return [
             'score.required' => 'Marks is required.',
-            'score.max' => 'Marks cannot exceed 999.',
+            'score.max' => 'Marks cannot exceed 100.',
             'score.min' => 'Marks must be at least 1.',
             'score.integer' => 'Marks must be a valid number.',
         ];

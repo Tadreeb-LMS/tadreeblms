@@ -159,7 +159,7 @@
                         required
                         value="{{ $question->score ?? $question->marks ?? '' }}"
                         min="1"
-                        max="999"
+                        max="100"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
                     />
                 </div>
@@ -337,6 +337,12 @@
 
     function sendData(data) {
         var data = dataCollection();
+
+        if (parseInt(data.score, 10) < 1 || parseInt(data.score, 10) > 100) {
+            alert('Marks must be between 1 and 100.');
+            return;
+        }
+
         data['_token'] = "{{ csrf_token() }}";
         data['id'] = $('#edit_id').val();
         $.ajax({

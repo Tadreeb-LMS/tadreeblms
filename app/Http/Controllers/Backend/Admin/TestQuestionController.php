@@ -149,6 +149,15 @@ class TestQuestionController extends Controller
     }
 
     $marks = (int) $marksInput;
+
+    if ($marks < 1 || $marks > 100) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Marks must be between 1 and 100.',
+            'errors' => 'Marks must be between 1 and 100.',
+        ], 422);
+    }
+
     $questionType = (int) $request->question_type;
 
     if ($questionType == 1) {
@@ -421,6 +430,14 @@ if ($request->action_btn == 'save_and_add_more') {
         }
 
         $marks = (int) $marksInput;
+
+        if ($marks > 100) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Marks must be between 1 and 100.',
+                'errors' => 'Marks must be between 1 and 100.',
+            ], 422);
+        }
         $questionType = (int) $request->question_type;
         $options = [];
 

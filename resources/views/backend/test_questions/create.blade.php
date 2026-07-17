@@ -495,7 +495,7 @@
                         id="score"
                         placeholder="Enter Marks"
                         min="1"
-                        max="999"
+                        max="100"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
                         required />
                 </div>
@@ -779,6 +779,11 @@
             return;
         }
 
+        if (parseInt(data.score, 10) < 1 || parseInt(data.score, 10) > 100) {
+            alert('Marks must be between 1 and 100.');
+            return;
+        }
+
         // Get form context
         const assessmentType = document.getElementById('assessment_type_select');
         const courseId = document.getElementById('course_id').value;
@@ -838,11 +843,7 @@
                 if (xhr.status === 422) {
                     let res = xhr.responseJSON;
                     // Show the error message
-                    if (res.errors && res.errors.score) {
-                        alert(res.errors.score[0]); // 🔥 shows: Marks cannot exceed 999
-                    } else {
-                        alert(res.message);
-                    }
+                    alert(res.errors || res.message);
                     console.log('Validation errors:', res.errors);
                 } else {
                     alert('Request failed. Please reload and try again.');

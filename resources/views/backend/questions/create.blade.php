@@ -46,7 +46,7 @@
             <div class="row">
                 <div class="col-12 form-group">
                     {!! Form::label('score', trans('labels.backend.questions.fields.score').'*', ['class' => 'control-label']) !!}
-                    {!! Form::number('score', old('score', 1), ['class' => 'form-control', 'placeholder' => '', 'required' => '']) !!}
+                    {!! Form::number('score', old('score', 1), ['class' => 'form-control', 'placeholder' => '', 'required' => '', 'min' => 1, 'max' => 100]) !!}
                     <p class="help-block"></p>
                     @if($errors->has('score'))
                         <p class="help-block">

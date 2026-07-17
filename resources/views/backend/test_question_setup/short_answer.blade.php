@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-12 child">
         <label>Marks <span style="color:red">*</span></label>
-        <input type="number" class="form-control" name="marks" id="marks" placeholder="Enter Marks" required oninvalid="this.setCustomValidity('Marks is required')" oninput="this.setCustomValidity('')"/>
+        <input type="number" class="form-control" name="marks" id="marks" placeholder="Enter Marks" min="1" max="100" required oninvalid="this.setCustomValidity('Marks is required')" oninput="this.setCustomValidity('')"/>
     </div>
 </div>
 <div class="row">
