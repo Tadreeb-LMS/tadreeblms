@@ -331,11 +331,26 @@ if ($request->action_btn == 'save_and_add_more') {
     $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
 } 
 
+    // Capture the course's wizard state BEFORE it gets overwritten below.
+    // This is the only reliable signal to tell apart two flows that hit this
+    // same store() action with an identical request shape (course_id set,
+    // temp_id blank, action_btn=Next):
+    //   1) The multi-step Create Course wizard (Course -> Lesson -> Questions
+    //      -> Feedback), where current_step is still 'course-added' or
+    //      'lesson-added' at this point.
+    //   2) An ad-hoc question added to an already-existing course via the
+    //      standalone Tests Management / Question Bank screens, where
+    //      current_step is already past that (e.g. 'question-added',
+    //      'feedback-added') or null for legacy courses.
+    // Only flow (1) should auto-advance into the Feedback wizard step.
+    $courseWizardStep = Course::where('id', $course_id)->value('current_step');
+    $isCourseCreationWizard = in_array($courseWizardStep, ['course-added', 'lesson-added'], true);
+
     Course::where('id', $course_id)->update([
         'current_step' => 'question-added'
     ]);
 
-    if (isset($request->temp_id) && $request->action_btn == 'Next') {
+    if ($isCourseCreationWizard && $request->action_btn == 'Next') {
         if ($course_id) {
             $has_feeback = FeedbackQuestion::query()
                 ->where('course_id', $course_id)
