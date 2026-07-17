@@ -183,8 +183,9 @@ class LessonsController extends Controller
         $courses     = Course::has('category')->get()->pluck('title', 'id')->prepend('Please select', '');
         $courses_all = null;
         $temp_id     = bin2hex(random_bytes(8));
+        $isWizard = $request->has('course_id') || $request->has('temp_id');
 
-        return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id'));
+        return view('backend.lessons.create', compact('courses', 'courses_all', 'temp_id' ,'isWizard'));
     }
 
     public function checkCourse(Request $request)

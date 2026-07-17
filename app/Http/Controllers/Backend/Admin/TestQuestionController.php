@@ -112,6 +112,8 @@ class TestQuestionController extends Controller
                 : false;
         }
 
+        $isWizard = $request->boolean('isWizard');
+
         return view('backend.test_questions.create', compact(
             'course_id',
             'temp_id',
@@ -121,7 +123,8 @@ class TestQuestionController extends Controller
             'last_lesson_id',
             'selected_lesson_preselect',
             'is_last_lesson_preselect',
-            'legacy_test_id'
+            'legacy_test_id',
+            'isWizard'
         ));
     }
 
@@ -326,6 +329,9 @@ if ($request->action_btn == 'save_and_add_more') {
 
     if ($legacy_test_id > 0) {
         $params[] = 'test_id=' . $legacy_test_id;
+    }
+    if ($request->has('isWizard')) {
+        $params[] = 'isWizard=1';
     }
 
     $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);

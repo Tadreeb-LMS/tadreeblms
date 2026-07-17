@@ -518,21 +518,39 @@
      <button type="button" class="frm_submit add-btn" id="save_and_add_more" value="save_and_add_more">Save & Add More</button>
 
      <span class="text-right pull-right">
-        <button
-            type="button"
-            class="frm_submit cancel-btn"
-            id="save_as_draft"
-            value="Save As Draft">
-            Save As Draft
-        </button>
+        @if($isWizard)
+                            <div class="d-flex align-items-center">
+                                <button type="submit"
+                                    class="btn cancel-btn frm_submit mr-2"
+                                    id="doneBtn">
+                                    Save As Draft
+                                </button>
 
-        <button
-            type="button"
-            class="frm_submit add-btn"
-            id="save"
-            value="Next">
-            Next
-        </button>
+                                <button type="submit"
+                                    class="btn add-btn frm_submit"
+                                    id="nextBtn">
+                                    Next
+                                </button>
+                            </div>
+                            @else
+                                <div class="d-flex align-items-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary mr-2 cancel-btn"
+                                        onclick="window.location='{{ route('admin.test_questions.index') }}'">
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        class="btn add-btn frm_submit"
+                                        id="saveBtn">
+                                        Save
+                                    </button>
+
+                                    <span class="loading ml-3"></span>
+                                </div>
+                        @endif
 </span>
     </div>
 
