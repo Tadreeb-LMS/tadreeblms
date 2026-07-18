@@ -807,9 +807,19 @@ class EmployeeController extends Controller
 
                 return ($q->status == 1) ? '<span class="pill-publish">Enabled</span>' : '<span class="pill-unpublish">Disabled</span>';
             })
-            ->addColumn('course_completed', function ($q) use ($course_id, $request) {
+            ->addColumn('course_completed', function ($q) use ($course_id) {
 
-                return CustomHelper::is_course_completed_status($q->user_id, $course_id);
+                $progress = CustomHelper::progress($course_id, $q->user_id);
+
+                if ($progress <= 0) {
+                    return '<span class="pill-unpublish">Not Started</span>';
+                }
+
+                if ($progress < 100) {
+                    return '<span class="pill-warning">In Progress</span>';
+                }
+
+                return '<span class="pill-publish">Completed</span>';
             })
             ->addColumn('feedback', function ($q)  use ($course_id, $request) {
 
@@ -839,14 +849,11 @@ class EmployeeController extends Controller
                     return '--';
                 }
             })
-            ->addColumn('percentage', function ($q) use ($course_id, $request) {
+            ->addColumn('percentage', function ($q) use ($course_id) {
 
-                $is_course_started = CustomHelper::is_course_completed($q->user_id, $course_id);
-                if ($is_course_started) {
-                    return '100%';
-                } else {
-                    return '--';
-                }
+                $progress = CustomHelper::progress($course_id, $q->user_id);
+
+                return $progress . '%';
             })
             ->addColumn('enrolled_date', function ($q) {
                 return ($q->created_at) ? $q->created_at : '-';
@@ -1086,9 +1093,19 @@ class EmployeeController extends Controller
                 //  dd($q);
                 return ($q->active == 1) ? '<span class="pill-published">Enabled</span>' : '<span class="pill-unpublished">Disabled</span>';
             })
-            ->addColumn('course_completed', function ($q) use ($course_id, $request) {
+            ->addColumn('course_completed', function ($q) use ($course_id) {
 
-                return CustomHelper::is_course_completed_status($q->id, $course_id);
+                $progress = CustomHelper::progress($course_id, $q->user_id);
+
+                if ($progress <= 0) {
+                    return '<span class="pill-unpublish">Not Started</span>';
+                }
+
+                if ($progress < 100) {
+                    return '<span class="pill-warning">In Progress</span>';
+                }
+
+                return '<span class="pill-publish">Completed</span>';
             })
             ->addColumn('lesson_quiz', function ($q) use ($course_id) {
                 $summary = CustomHelper::getLessonQuizSummary($course_id, $q->id);
