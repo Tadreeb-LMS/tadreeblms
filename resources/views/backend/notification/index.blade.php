@@ -117,6 +117,14 @@
     .ck-editor__editable {
         height: 150px !important;
     }
+
+    .is-invalid{
+        border:1px solid #dc3545 !important;
+    }
+
+    .text-danger{
+        font-size:13px;
+    }
 </style>
 @endpush
 
@@ -213,14 +221,16 @@
                     <div class="form-group row mt-2">
                         <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">{{ __('admin_pages.email_notifications.subject') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
-                            <input type="text" name="subject" class="form-control" placeholder="{{ __('admin_pages.email_notifications.subject_placeholder') }}">
+                            <input type="text" id="subject" name="subject" class="form-control" placeholder="{{ __('admin_pages.email_notifications.subject_placeholder') }}">
+                            <small class="text-danger subject-error"></small>
                         </div>
                     </div>
 
                     <div class="form-group row mt-2">
                         <label for="emailContent" class="col-lg-3 col-md-12 col-sm-12 form-control-label required">{{ __('admin_pages.email_notifications.register_button') }}</label>
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
-                            <input type="text" name="register_button" class="form-control" placeholder="{{ __('admin_pages.email_notifications.register_button_placeholder') }}">
+                            <input type="text" id="register_button" name="register_button" class="form-control" placeholder="{{ __('admin_pages.email_notifications.register_button_placeholder') }}">
+                            <small class="text-danger register-button-error"></small>
                         </div>
                     </div>
 
@@ -229,6 +239,7 @@
                         <div class="col-lg-9 col-md-12 col-sm-12 mb-3 or_optional">
                             <textarea class="form-control" id="emailContent" name="email_content"
                                 placeholder="{{ __('admin_pages.email_notifications.email_content_placeholder') }}"></textarea>
+                                <small class="text-danger email-content-error"></small>
                         </div>
                     </div>
 
@@ -294,21 +305,91 @@
         // Client-side validation: block submission and show inline message
         // when the "Select Users" mode is active but no user is selected.
         $('form.ajax').on('submit', function(e) {
+
+            let valid = true;
+
+            $('.users-error').remove();
+            $('.subject-error').text('');
+            $('.register-button-error').text('');
+            $('.email-content-error').text('');
+
+            $('#subject,#register_button,#emailContent').removeClass('is-invalid');
+
+            // Existing recipient validation
             var mode = $('input[name="recipient_mode"]:checked').val();
+
             if (mode === 'users') {
+
                 var selectedUsers = $('[name="users[]"]').val() || [];
+
                 var $group = $('.recipient-source-group[data-recipient-mode="users"]');
-                $group.find('.users-error').remove();
 
                 if (selectedUsers.length === 0) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
+
                     $group.find('.custom-select-wrapper').append(
-                        '<span class="text-danger w-100 users-error">{{ __('admin_pages.email_notifications.messages.no_users_selected') }}</span>'
+                        '<span class="text-danger w-100 users-error">{{ __("admin_pages.email_notifications.messages.no_users_selected") }}</span>'
                     );
-                    return false;
+
+                    valid = false;
                 }
             }
+
+            // Subject validation
+            if ($('#subject').val().trim() === '') {
+
+                $('#subject').addClass('is-invalid');
+
+                $('.subject-error').text('Subject is required.');
+
+                valid = false;
+            }
+
+            // Register Button validation
+            if ($('#register_button').val().trim() === '') {
+
+                $('#register_button').addClass('is-invalid');
+
+                $('.register-button-error').text('Register Button is required.');
+
+                valid = false;
+            }
+
+            // CKEditor validation
+
+            let editor = $('#emailContent').data('editor');
+
+            let content = editor ? editor.getData().trim() : $('#emailContent').val().trim();
+
+            if (content === '') {
+
+                $('#emailContent').addClass('is-invalid');
+
+                $('.email-content-error').text('Email Content is required.');
+
+                valid = false;
+            }
+
+            if (!valid) {
+
+                e.preventDefault();
+
+                e.stopImmediatePropagation();
+
+                return false;
+            }
+
+        });
+
+        // Remove Subject validation when typing
+        $('#subject').on('input', function () {
+            $(this).removeClass('is-invalid');
+            $('.subject-error').text('');
+        });
+
+        // Remove Register Button validation when typing
+        $('#register_button').on('input', function () {
+            $(this).removeClass('is-invalid');
+            $('.register-button-error').text('');
         });
 
         // Remove the validation message once the user makes a selection
@@ -322,6 +403,12 @@
             .create($('#emailContent')[0])
             .then(editor => {
                 $('#emailContent').data('editor', editor);
+                editor.model.document.on('change:data', function () {
+                    if (editor.getData().trim() !== '') {
+                        $('#emailContent').removeClass('is-invalid');
+                        $('.email-content-error').text('');
+                    }
+                });
             })
             .catch(error => {
                 console.error('There was a problem initializing the editor.', error);

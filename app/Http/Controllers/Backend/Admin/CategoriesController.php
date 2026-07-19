@@ -48,9 +48,9 @@ class CategoriesController extends Controller
                 return abort(401);
             }
             $categories = Category::query()->onlyTrashed()
-                ->orderBy('created_at', 'desc');
+                ->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         } else {
-            $categories = Category::query()->orderBy('created_at', 'desc');
+            $categories = Category::query()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
 
         if (auth()->user()->can('category_view')) {
