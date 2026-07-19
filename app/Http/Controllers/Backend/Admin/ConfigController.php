@@ -45,8 +45,11 @@ class ConfigController extends Controller
 
         $logo_data = Config::where('key', '=', 'site_logo')->first();
 
-        $footer_data = json_decode($footer_data->value);
-        $sections = json_decode($sections->value);
+        $footer_data = $footer_data ? json_decode($footer_data->value) : null;
+        $sections = $sections ? json_decode($sections->value) : [];
+        if (!$sections) {
+            $sections = [];
+        }
         $app_locales = Locale::get();
         $api_clients = OauthClient::paginate(10);
         $sourcePackage = null;
