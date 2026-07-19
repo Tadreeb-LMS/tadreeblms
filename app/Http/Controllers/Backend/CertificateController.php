@@ -251,8 +251,17 @@ class CertificateController extends Controller
                 ->addIndexColumn()
                 ->addColumn('link', function ($row) {
                     $url = route('admin.certificates.generate', ['course_id' => $row->id, 'user_id' => auth()->id(), 'download' => 1]);
-                    return "<a class=\"btn btn-success\"
-                            href=\"$url\"> " . trans('labels.backend.certificates.fields.download-certificate') .   " </a>";
+                    return '
+                        <a href="'.$url.'"
+                        class="certificate-download-link"
+                        title="Download Certificate"
+                        aria-label="Download Certificate">
+
+                        <i class="fa fa-download"></i>
+
+                            '.trans('labels.backend.certificates.fields.download-certificate').'
+
+                        </a>';
                 })
                 ->rawColumns(['link'])
                 ->make();
