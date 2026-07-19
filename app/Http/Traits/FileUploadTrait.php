@@ -5,7 +5,7 @@ namespace App\Http\Traits;
 use App\Models\Media;
 use CustomHelper;
 use Illuminate\Http\Request;
-use Intervention\Image\Facades\Image;
+use App\Helpers\ImageShim as Image;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -91,14 +91,14 @@ trait FileUploadTrait
                     $filename = time() . '-' . Str::slug($name) . '.' . $extension;
 
                     if ($request->has($key . '_max_width') && $request->has($key . '_max_height')) {
-                        $image = \Image::make($file);
+                        $image = Image::make($file);
 
                         if (!file_exists(public_path('site-upload/thumb'))) {
                             mkdir(public_path('site-upload/thumb'), 0777, true);
                         }
 
                         // Save thumbnail
-                        \Image::make($file)->resize(50, 50)->save(public_path('site-upload/thumb') . '/' . $filename);
+                        Image::make($file)->resize(50, 50)->save(public_path('site-upload/thumb') . '/' . $filename);
 
                         // Resize if needed
                         $width = $image->width();

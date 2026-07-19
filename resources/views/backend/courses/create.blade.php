@@ -295,7 +295,7 @@
                                 <input type="hidden" name="include_in_kpi" value="0">
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="include_in_kpi"
-                                        name="include_in_kpi" value="1" {{ old('include_in_kpi', 1) ? 'checked' : '' }}>
+                                        name="include_in_kpi" value="1" {{ old('include_in_kpi', 0) ? 'checked' : '' }}>
                                     <label class="custom-control-label" for="include_in_kpi">Include this course in KPI
                                         calculations</label>
                                 </div>
@@ -869,7 +869,7 @@
             });
 
             $(".js-example-placeholder-single").select2({
-                placeholder: "Select Teacher",
+                placeholder: "Select Category",
                 allowClear: false
             });
 
