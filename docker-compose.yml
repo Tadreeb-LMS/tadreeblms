@@ -1,0 +1,43 @@
+services:
+  db:
+    container_name: tadreeblms_db
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    container_name: tadreeblms_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    volumes:
+      - laravel_storage:/var/www/html/storage
+      - laravel_cache:/var/www/html/bootstrap/cache
+    networks:
+      - appnet
+
+networks:
+  appnet:
+
+volumes:
+  mysql_data:
+  laravel_storage:
+  laravel_cache:
