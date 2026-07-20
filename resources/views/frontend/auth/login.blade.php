@@ -247,8 +247,8 @@
                                    name="remember"
                                    id="remember"
                                    value="1"
-                                   checked>
-                            <label class="form-check-label" for="remember">
+                                    {{ old('remember') ? 'checked' : '' }}>
+                                   <label class="form-check-label" for="remember">
                                 @lang('labels.frontend.auth.remember_me')
                             </label>
                         </div>
