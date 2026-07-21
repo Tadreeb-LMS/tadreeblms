@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redirect;
-use Intervention\Image\Facades\Image;
+use App\Helpers\ImageShim as Image;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Str;
 
@@ -220,7 +220,7 @@ class BlogController extends Controller
         
         $request = $this->saveFiles($request);
         $blog->user_id = auth()->user()->id;
-        $blog->image = $request->featured_image;
+        $blog->image = $request->featured_image ?? $request->image;
         $blog->meta_title = $request->meta_title;
         $blog->meta_description = $request->meta_description;
         $blog->meta_keywords = $request->meta_keywords;
@@ -348,9 +348,9 @@ class BlogController extends Controller
         //-
         $blog->content = $dom->saveHTML();
 
-        if($request->featured_image != ""){
+        if($request->featured_image != "" || $request->image != ""){
             $request = $this->saveFiles($request);
-            $blog->image = $request->featured_image;
+            $blog->image = $request->featured_image ?? $request->image;
         }
         $blog->meta_title = $request->meta_title;
         $blog->meta_description = $request->meta_description;

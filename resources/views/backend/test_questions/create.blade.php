@@ -490,14 +490,21 @@
              <div class="col-12 col-md-2">
                     <label>Marks <span style="color:red">*</span></label>
                     <input type="number"
-                        class="form-control"
+                        class="form-control @error('score') is-invalid @enderror"
                         name="score"
                         id="score"
                         placeholder="Enter Marks"
                         min="1"
-                        max="999"
+                        max="100"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
                         required />
+
+                        @error('score')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    
                 </div>
 
                 <div class="col-12 col-md-5 notextarea">
@@ -518,21 +525,39 @@
      <button type="button" class="frm_submit add-btn" id="save_and_add_more" value="save_and_add_more">Save & Add More</button>
 
      <span class="text-right pull-right">
-        <button
-            type="button"
-            class="frm_submit cancel-btn"
-            id="save_as_draft"
-            value="Save As Draft">
-            Save As Draft
-        </button>
+        @if($isWizard)
+                            <div class="d-flex align-items-center">
+                                <button type="submit"
+                                    class="btn cancel-btn frm_submit mr-2"
+                                    id="doneBtn">
+                                    Save As Draft
+                                </button>
 
-        <button
-            type="button"
-            class="frm_submit add-btn"
-            id="save"
-            value="Next">
-            Next
-        </button>
+                                <button type="submit"
+                                    class="btn add-btn frm_submit"
+                                    id="nextBtn">
+                                    Next
+                                </button>
+                            </div>
+                            @else
+                                <div class="d-flex align-items-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary mr-2 cancel-btn"
+                                        onclick="window.location='{{ route('admin.test_questions.index') }}'">
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        class="btn add-btn frm_submit"
+                                        id="saveBtn">
+                                        Save
+                                    </button>
+
+                                    <span class="loading ml-3"></span>
+                                </div>
+                        @endif
 </span>
     </div>
 
@@ -779,6 +804,11 @@
             return;
         }
 
+        if (parseInt(data.score) > 100) {
+            alert('Marks cannot exceed 100.');
+            return;
+        }
+
         // Get form context
         const assessmentType = document.getElementById('assessment_type_select');
         const courseId = document.getElementById('course_id').value;
@@ -838,10 +868,16 @@
                 if (xhr.status === 422) {
                     let res = xhr.responseJSON;
                     // Show the error message
-                    if (res.errors && res.errors.score) {
-                        alert(res.errors.score[0]); // 🔥 shows: Marks cannot exceed 999
-                    } else {
-                        alert(res.message);
+                    if (res.errors) {
+                        if (res.errors.score) {
+                            alert(res.errors.score[0]);
+                        }
+                        else if (res.errors.marks) {
+                            alert(res.errors.marks[0]);
+                        }
+                        else {
+                            alert(res.message);
+                        }
                     }
                     console.log('Validation errors:', res.errors);
                 } else {
