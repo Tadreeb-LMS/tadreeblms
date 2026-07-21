@@ -1013,30 +1013,49 @@ class EmployeeController extends Controller
 
     public function enrolled_get_data_internal(Request $request, $course_id, $show_deleted = 0, $search_type = null)
     {
-        // dd($course_id);
         $has_view = false;
         $has_delete = false;
         $has_edit = false;
-        $teachers = "";
 
-        //dd($request->all());
         $search_type = $request->search_type ? $request->search_type : null;
 
-        $teachers = SubscribeCourse::with('student');
+        // Query the enrollment pivot (SubscribeCourse) for this specific course,
+        // restricted to internal student trainees.
+        //
+        // Fixes for issue #882:
+        //  - The previous implementation ignored $course_id entirely and returned
+        //    every internal user in the system.
+        //  - It also built a SubscribeCourse query and then immediately overwrote
+        //    $teachers with an unrelated User::whereHas(...) query, throwing away
+        //    the enrollment filter and the search_type filter.
+        //  - The where('employee_type', 'internal') clause was applied inside
+        //    whereHas('roles', ...), i.e. against the roles table where the
+        //    employee_type column does not exist. It now filters the related
+        //    student model where the column actually lives.
+        //  - The orderBy inside the whereHas subquery was a no-op (MySQL ignores
+        //    ORDER BY inside EXISTS subqueries). The outer builder had no
+        //    ordering at all, so the result set came back in undefined order.
+        $teachers = SubscribeCourse::with(['student', 'course'])
+            ->where('course_id', $course_id)
+            ->whereHas('student', function ($q) {
+                $q->whereHas('roles', function ($r) {
+                    $r->where('name', 'student');
+                })->where('employee_type', 'internal');
+            });
 
         if (!empty($search_type)) {
-            $teachers = $teachers->whereHas('student', function ($teachers) use ($search_type) {
-                $teachers->where('employee_type', $search_type);
+            $teachers = $teachers->whereHas('student', function ($q) use ($search_type) {
+                $q->where('employee_type', $search_type);
             });
         }
 
-
-        // dd(auth()->user()->id);
-        $teachers =  \App\Models\Auth\User::whereHas('roles', function ($q) {
-            $user_id = auth()->user()->id;
-            $q->where('role_id', 3)->where('employee_type', 'internal')->groupBy('id')
-                ->orderBy('created_at', 'desc');
-        })->get();
+        // Deterministic order for stable server-side pagination. Tiebreaker by
+        // primary key per project convention established in #802 / #879 / #881
+        // — without it, MySQL LIMIT/OFFSET can return overlapping pages when
+        // multiple enrollments share the same created_at.
+        $teachers = $teachers
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc');
 
         if (auth()->user()->isAdmin()) {
             $has_view = true;
@@ -1048,95 +1067,78 @@ class EmployeeController extends Controller
             ->addIndexColumn()
             ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $course_id, $request) {
                 $view = "";
-                $edit = "";
-                $delete = "";
                 if ($request->show_deleted == 1) {
-                    return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.employee', 'label' => 'id', 'value' => $q->id]);
-                }
-
-                if ($has_view) {
+                    return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.employee', 'label' => 'id', 'value' => $q->user_id]);
                 }
 
                 if ($has_edit) {
-
-                    $edit =  view('backend.datatable.action-edit')
-                        ->with(['route' => route('admin.employee.edit', ['id' => $q->id])])
+                    $view .= view('backend.datatable.action-edit')
+                        ->with(['route' => route('admin.employee.edit', ['id' => $q->user_id])])
                         ->render();
-                    $view .= $edit;
                 }
 
                 if ($has_delete) {
-
-                    $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.employee.destroy', ['id' => $q->id])])
+                    $view .= view('backend.datatable.action-delete')
+                        ->with(['route' => route('admin.employee.destroy', ['id' => $q->user_id])])
                         ->render();
-                    $view .= $delete;
                 }
+
                 return $view;
             })
             ->addColumn('email', function ($q) {
-                // dd($q->email);
-                return $q->email;
+                return optional($q->student)->email;
             })
             ->addColumn('cousre_name', function ($q) {
-                // dd($q);
-                return $q->title;
+                // Column key intentionally preserves the 'cousre_name' typo — the
+                // frontend datatable in resources/views/backend/employee/internal_report.blade.php
+                // consumes this exact key. Renaming here without touching the view
+                // would break the datatable rendering.
+                return optional($q->course)->title;
             })
             ->addColumn('status', function ($q) {
-                //  dd($q);
-                return ($q->active == 1) ? '<span class="pill-published">Enabled</span>' : '<span class="pill-unpublished">Disabled</span>';
+                $active = optional($q->student)->active;
+                return ($active == 1) ? '<span class="pill-published">Enabled</span>' : '<span class="pill-unpublished">Disabled</span>';
             })
-            ->addColumn('course_completed', function ($q) use ($course_id, $request) {
-
-                return CustomHelper::is_course_completed_status($q->id, $course_id);
+            ->addColumn('course_completed', function ($q) use ($course_id) {
+                return CustomHelper::is_course_completed_status($q->user_id, $course_id);
             })
             ->addColumn('lesson_quiz', function ($q) use ($course_id) {
-                $summary = CustomHelper::getLessonQuizSummary($course_id, $q->id);
+                $summary = CustomHelper::getLessonQuizSummary($course_id, $q->user_id);
                 return $summary['total'] > 0 ? ($summary['passed'] . '/' . $summary['total']) : '-';
             })
             ->addColumn('lesson_quiz_status', function ($q) use ($course_id) {
-                $summary = CustomHelper::getLessonQuizSummary($course_id, $q->id);
+                $summary = CustomHelper::getLessonQuizSummary($course_id, $q->user_id);
                 return $summary['status'];
             })
-            ->addColumn('feedback', function ($q)  use ($course_id, $request) {
-
-                return CustomHelper::is_user_course_has_feedback($q->id, $course_id) ?  '<a class="btn btn-info mb-1" href="' . route('admin.employee.course_detail', [$course_id, $q->id]) . '">Veiw FeedBack</a>'  : '--';
+            ->addColumn('feedback', function ($q) use ($course_id) {
+                return CustomHelper::is_user_course_has_feedback($q->user_id, $course_id)
+                    ? '<a class="btn btn-info mb-1" href="' . route('admin.employee.course_detail', [$course_id, $q->user_id]) . '">Veiw FeedBack</a>'
+                    : '--';
             })
-            ->addColumn('issue_certificate', function ($q) use ($course_id, $request) {
-
-                $has_certificate = CustomHelper::is_user_course_has_issed_certificate($q->id, $course_id);
+            ->addColumn('issue_certificate', function ($q) use ($course_id) {
+                $has_certificate = CustomHelper::is_user_course_has_issed_certificate($q->user_id, $course_id);
                 if ($has_certificate) {
-                    $view_certificate_actions = '<a target="_blank" class="badge badge-success" href="' . asset('storage/certificates/' . $has_certificate->certificate_url) . '">View Certificate</a>';
-                } else {
-                    $is_completed = CustomHelper::is_course_completed($q->id, $course_id);
-                    if ($is_completed) {
-                        $view_certificate_actions = '<a class="badge badge-info" href="' . route('certificates.generate', [$course_id, $q->id]) . '">Issue Certificate</a>';
-                    } else {
-                        $view_certificate_actions = '--';
-                    }
+                    return '<a target="_blank" class="badge badge-success" href="' . asset('storage/certificates/' . $has_certificate->certificate_url) . '">View Certificate</a>';
                 }
-                return $view_certificate_actions;
+                $is_completed = CustomHelper::is_course_completed($q->user_id, $course_id);
+                if ($is_completed) {
+                    return '<a class="badge badge-info" href="' . route('certificates.generate', [$course_id, $q->user_id]) . '">Issue Certificate</a>';
+                }
+                return '--';
             })
-            ->addColumn('track_employee', function ($q) use ($course_id, $request) {
-
-                $is_course_started = CustomHelper::is_course_completed($q->id, $course_id);
+            ->addColumn('track_employee', function ($q) use ($course_id) {
+                $is_course_started = CustomHelper::is_course_completed($q->user_id, $course_id);
                 if ($is_course_started) {
-                    return '<a target="_blank" class="badge badge-info" href="' . route('admin.employee.course_detail', [$course_id, $q->id]) . '"><span class="badge badge-info">Track Progress</span></a>';
-                } else {
-                    return '--';
+                    return '<a target="_blank" class="badge badge-info" href="' . route('admin.employee.course_detail', [$course_id, $q->user_id]) . '"><span class="badge badge-info">Track Progress</span></a>';
                 }
+                return '--';
             })
-            ->addColumn('percentage', function ($q) use ($course_id, $request) {
-
-                $is_course_started = CustomHelper::is_course_completed($q->id, $course_id);
-                if ($is_course_started) {
-                    return '100%';
-                } else {
-                    return '--';
-                }
+            ->addColumn('percentage', function ($q) use ($course_id) {
+                $is_course_started = CustomHelper::is_course_completed($q->user_id, $course_id);
+                return $is_course_started ? '100%' : '--';
             })
             ->addColumn('enrolled_date', function ($q) {
-                return ($q->created_at) ? $q->created_at : '-';
+                return $q->created_at ? $q->created_at : '-';
             })
             ->rawColumns(['actions', 'feedback', 'issue_certificate', 'course_completed', 'email', 'cousre_name', 'image', 'status', 'track_employee', 'enrolled_date'])
             ->make();
