@@ -79,3 +79,11 @@ We appreciate contributions in:
 
 👉 Full list of contributors:  
 https://github.com/Tadreeb-LMS/tadreeblms/graphs/contributors
+
+## Setup
+
+Copy the example environment file and adjust values:
+
+```bash
+cp .env.example .env
+```
