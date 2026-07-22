@@ -334,7 +334,6 @@
 
 @include('backend.includes.partials.course-steps', ['step' => 3, 'course_id' => $course_id, 'course' => $course ?? null ])
 
-
  <div class="pb-3 d-flex justify-content-between align-items-center addcourseheader">
        <h4>
            @lang('labels.backend.questions.create')
@@ -509,56 +508,65 @@
 
         </div>
         </div>
+        <div class="btmbtns">
+            <div class="row">
+                <div class="col-12 mt-5 buttons">
 
+                    @if ($isWizard || $course_id)
+                        
+                        <button
+                            type="button"
+                            class="frm_submit add-btn"
+                            id="save_and_add_more"
+                            value="save_and_add_more">
+                            Save & Add More
+                        </button>
 
-     <div class="btmbtns">
-        <div class="row">
-    <div class="col-12 mt-5 buttons">
+                        <span class="text-right pull-right">
 
-     <button type="button" class="frm_submit add-btn" id="save_and_add_more" value="save_and_add_more">Save & Add More</button>
+                            <button
+                                type="button"
+                                class="frm_submit cancel-btn"
+                                id="save_as_draft"
+                                value="Save As Draft">
+                                Save As Draft
+                            </button>
 
-     <span class="text-right pull-right">
-        @if($isWizard)
-                            <div class="d-flex align-items-center">
-                                <button type="submit"
-                                    class="btn cancel-btn frm_submit mr-2"
-                                    id="doneBtn">
-                                    Save As Draft
-                                </button>
+                            <button
+                                type="button"
+                                class="frm_submit add-btn"
+                                id="save"
+                                value="Next">
+                                Next
+                            </button>
 
-                                <button type="submit"
-                                    class="btn add-btn frm_submit"
-                                    id="nextBtn">
-                                    Next
-                                </button>
-                            </div>
-                            @else
-                                <div class="d-flex align-items-center">
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary mr-2 cancel-btn"
-                                        onclick="window.location='{{ route('admin.test_questions.index') }}'">
-                                        Cancel
-                                    </button>
+                        </span>
 
-                                    <button
-                                        type="submit"
-                                        class="btn add-btn frm_submit"
-                                        id="saveBtn">
-                                        Save
-                                    </button>
+                    @else
 
-                                    <span class="loading ml-3"></span>
-                                </div>
-                        @endif
-</span>
-    </div>
+                        <span class="text-right pull-right">
 
-</div>
-</div>
+                            <button
+                                type="button"
+                                class="frm_submit add-btn"
+                                id="save"
+                                value="Save">
+                                Save
+                            </button>
 
+                            <a
+                                href="{{ url()->previous() }}"
+                                class="btn cancel-btn">
+                                Cancel
+                            </a>
 
+                        </span>
 
+                    @endif
+
+                </div>
+            </div>
+        </div>   
 </form>
 <script type="text/javascript">
 

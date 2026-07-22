@@ -184,8 +184,8 @@ class TestQuestionController extends Controller
 
     if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
         return response()->json([
-            'success' => false,
-            'message' => 'At least one option must be selected.',
+            'code' => 422,
+            'message' => 'Please select at least one correct answer.',
         ], 422);
     }
 
@@ -341,7 +341,7 @@ if ($request->action_btn == 'save_and_add_more') {
         'current_step' => 'question-added'
     ]);
 
-    if (isset($request->temp_id) && $request->action_btn == 'Next') {
+    if ( $request->boolean('isWizard') && $request->action_btn === 'Next') {        
         if ($course_id) {
             $has_feeback = FeedbackQuestion::query()
                 ->where('course_id', $course_id)
@@ -461,8 +461,8 @@ if ($request->action_btn == 'save_and_add_more') {
 
         if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
             return response()->json([
-                'success' => false,
-                'message' => 'At least one option must be selected.',
+                'code' => 422,
+                'message' => 'Please select at least one correct answer.',
             ], 422);
         }
         
