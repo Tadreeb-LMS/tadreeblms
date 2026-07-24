@@ -505,7 +505,13 @@
         }
 
         var flag = [];
-        $(document).on('click', '.mg_all_submit', function() {
+        $(document).on('click', '.mg_all_submit', function(e) {
+            e.preventDefault(); 
+            const confirmationText = "Thank you for attending this assessment. We will get back to you with the result soon.\n\nAre you sure you want to submit?";
+    
+            if (!window.confirm(confirmationText)) {
+                return false; 
+            }
 
             $('.mg_all_submit').prop('disabled', true);
 
@@ -521,18 +527,8 @@
                 success: function(response) {
                     response = JSON.parse(response);
                     if (response.status == 200) {
-
-                        //alert(response.has_feedback)
-                        //var home_url = '{{ url('/online_assessment') }}' + window.location.search;
-                        if(response.has_feedback == 1) {
-                            window.location = response.return_url;
-                        }
-
-                        if (window.confirm(response.message)) {
-                            window.location = response.return_url;
-                        } else {
-                            window.location = response.return_url;
-                        }
+                        window.alert(response.message);
+                        window.location = response.return_url;
                     }
                 },
             });
