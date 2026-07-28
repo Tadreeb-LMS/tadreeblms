@@ -172,14 +172,12 @@ class DepartmentController extends Controller
         $page->sidebar = 1;
         $page->save();
 
-        return response()->json([ 'status'=>'success' , 'clientmsg' => 'Added successfully' ]);
+        session()->flash('success', 'User Group created successfully.');
 
-        if ($page->id) {
-            return redirect()->route('admin.department.index')->withFlashSuccess(__('alerts.backend.general.created'));
-        } else {
-            return redirect()->route('admin.department.index')->withFlashDanger(__('alerts.backend.general.error'));
-
-        }
+        return response()->json([
+            'status' => 'success',
+            'redirect' => route('admin.department.index'),
+        ]);
     }
 
     /**
@@ -245,7 +243,7 @@ class DepartmentController extends Controller
         $page->sidebar = 0;
         $page->save();
 
-        return redirect()->route('admin.department.index')->withFlashSuccess(__('alerts.backend.general.updated'));
+        return redirect()->route('admin.department.index')->with('success', 'User Group updated successfully.');
 
 
     }
