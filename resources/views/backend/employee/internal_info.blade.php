@@ -278,7 +278,15 @@
             var $switch = $(this);
             var id = $switch.data('id');
 
+            // Show success message immediately
+            showEmployeeStatusMessage(
+                employeeStatusUpdatedMessage,
+                'success'
+            );
+
+            // Disable toggle while request is processing
             $switch.prop('disabled', true);
+
             $.ajax({
                 type: "POST",
                 url: "{{ route('admin.employee.status') }}",
@@ -287,17 +295,30 @@
                     id: id,
                 },
             }).done(function (response) {
-                showEmployeeStatusMessage(
-                    response.message || employeeStatusUpdatedMessage,
-                    'success'
-                );
+
+                // Update message with server response if available
+                if (response.message) {
+                    showEmployeeStatusMessage(
+                        response.message,
+                        'success'
+                    );
+                }
+
+                // Reload table after successful update
                 $('#myTable').DataTable().ajax.reload(null, false);
+
             }).fail(function (xhr) {
+
+                // Show error if backend update fails
                 var message = xhr.responseJSON && xhr.responseJSON.message
                     ? xhr.responseJSON.message
                     : employeeStatusUpdateFailedMessage;
+
                 showEmployeeStatusMessage(message, 'error');
+
+                // Reload table to restore correct status
                 $('#myTable').DataTable().ajax.reload(null, false);
+
             }).always(function () {
                 $switch.prop('disabled', false);
             });
