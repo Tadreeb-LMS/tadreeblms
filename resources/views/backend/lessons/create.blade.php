@@ -325,16 +325,40 @@
                             <button type="button" name="addmorebtn" id="addmorebtn"
                                 class="btn btn-outline-info">{{ __('course_pages.admin_lessons_create.add_more_lesson') }}</button>
                         </div>
-                        <div>
-                            <button type="submit" class="btn cancel-btn frm_submit" id="doneBtn">
-                                {{ __('course_pages.admin_lessons_create.save_as_draft') }}
-                            </button>
-                            <button type="submit" class="btn add-btn frm_submit next" id="nextBtn">
-                                Next
-                            </button>
+                          @if($isWizard)
+                            <div class="d-flex align-items-center">
+                                <button type="submit"
+                                    class="btn cancel-btn frm_submit mr-2"
+                                    id="doneBtn">
+                                    Save As Draft
+                                </button>
 
-                            <span class="loading"></span>
-                        </div>
+                                <button type="submit"
+                                    class="btn add-btn frm_submit"
+                                    id="nextBtn">
+                                    Next
+                                </button>
+                            </div>
+                            @else
+                                <div class="d-flex align-items-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary mr-2 cancel-btn"
+                                        onclick="window.location='{{ route('admin.lessons.index') }}'">
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        class="btn add-btn frm_submit"
+                                        id="saveBtn">
+                                        Save
+                                    </button>
+
+                                    <span class="loading ml-3"></span>
+                                </div>
+                        @endif
+                      
                     </div>
                 </div>
             </div>
@@ -644,6 +668,10 @@
                 if (clicked === 'doneBtn') {
                     window.location.href = redirect_url_course;
                 }
+
+                if (clicked === 'saveBtn') {
+                    window.location.href = redirect_url_course;
+                } 
             },
 
             error: function (xhr) {
