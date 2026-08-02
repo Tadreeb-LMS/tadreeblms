@@ -1,7 +1,13 @@
-@if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+@if(session()->has('flash_success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('flash_success') }}
+
+        <button type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close">
+            <span>&times;</span>
+        </button>
     </div>
 @endif
 
