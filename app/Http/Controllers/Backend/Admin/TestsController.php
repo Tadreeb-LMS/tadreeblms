@@ -227,12 +227,12 @@ class TestsController extends Controller
             'passing_score' => 80
         ]);
 
-        $redirect_url = route('admin.test_questions.create', [
-            'course_id' => $selected_course_id,
-            'uuid'      => $uniqueId,
-            'isWizard'  => 1,
-        ]);
+        $redirect_url = route('admin.test_questions.create'). '/' .$selected_course_id . '/' .$uniqueId;
 
+        if($request->test) {
+            $redirect_url .= '/true';
+        }
+        
 
         // redirect
         return redirect($redirect_url);

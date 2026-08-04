@@ -334,6 +334,7 @@
 
 @include('backend.includes.partials.course-steps', ['step' => 3, 'course_id' => $course_id, 'course' => $course ?? null ])
 
+
  <div class="pb-3 d-flex justify-content-between align-items-center addcourseheader">
        <h4>
            @lang('labels.backend.questions.create')
@@ -515,65 +516,38 @@
 
         </div>
         </div>
-        <div class="btmbtns">
-            <div class="row">
-                <div class="col-12 mt-5 buttons">
 
-                    @if ($isWizard || $course_id)
-                        
-                        <button
-                            type="button"
-                            class="frm_submit add-btn"
-                            id="save_and_add_more"
-                            value="save_and_add_more">
-                            Save & Add More
-                        </button>
 
-                        <span class="text-right pull-right">
+     <div class="btmbtns">
+        <div class="row">
+    <div class="col-12 mt-5 buttons">
 
-                            <button
-                                type="button"
-                                class="frm_submit cancel-btn"
-                                id="save_as_draft"
-                                value="Save As Draft">
-                                Save As Draft
-                            </button>
+     <button type="button" class="frm_submit add-btn" id="save_and_add_more" value="save_and_add_more">Save & Add More</button>
 
-                            <button
-                                type="button"
-                                class="frm_submit add-btn"
-                                id="save"
-                                value="Next">
-                                Next
-                            </button>
+     <span class="text-right pull-right">
+        <button
+            type="button"
+            class="frm_submit cancel-btn"
+            id="save_as_draft"
+            value="Save As Draft">
+            Save As Draft
+        </button>
 
-                        </span>
+        <button
+            type="button"
+            class="frm_submit add-btn"
+            id="save"
+            value="Next">
+            Next
+        </button>
+</span>
+    </div>
 
-                    @else
+</div>
+</div>
 
-                        <span class="text-right pull-right">
 
-                            <button
-                                type="button"
-                                class="frm_submit add-btn"
-                                id="save"
-                                value="Save">
-                                Save
-                            </button>
 
-                            <a
-                                href="{{ url()->previous() }}"
-                                class="btn cancel-btn">
-                                Cancel
-                            </a>
-
-                        </span>
-
-                    @endif
-
-                </div>
-            </div>
-        </div>   
 </form>
 <script type="text/javascript">
 

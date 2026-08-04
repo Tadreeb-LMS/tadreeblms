@@ -112,8 +112,6 @@ class TestQuestionController extends Controller
                 : false;
         }
 
-        $isWizard = $request->boolean('isWizard');
-
         return view('backend.test_questions.create', compact(
             'course_id',
             'temp_id',
@@ -123,8 +121,7 @@ class TestQuestionController extends Controller
             'last_lesson_id',
             'selected_lesson_preselect',
             'is_last_lesson_preselect',
-            'legacy_test_id',
-            'isWizard'
+            'legacy_test_id'
         ));
     }
 
@@ -193,8 +190,8 @@ class TestQuestionController extends Controller
 
     if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
         return response()->json([
-            'code' => 422,
-            'message' => 'Please select at least one correct answer.',
+            'success' => false,
+            'message' => 'At least one option must be selected.',
         ], 422);
     }
 
@@ -351,9 +348,6 @@ if ($request->action_btn == 'save_and_add_more') {
     if ($legacy_test_id > 0) {
         $params[] = 'test_id=' . $legacy_test_id;
     }
-    if ($request->has('isWizard')) {
-        $params[] = 'isWizard=1';
-    }
 
     $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
 } 
@@ -377,7 +371,7 @@ if ($request->action_btn == 'save_and_add_more') {
         'current_step' => 'question-added'
     ]);
 
-    if ( $request->boolean('isWizard') && $request->action_btn === 'Next') {        
+    if ($isCourseCreationWizard && $request->action_btn == 'Next') {
         if ($course_id) {
             $has_feeback = FeedbackQuestion::query()
                 ->where('course_id', $course_id)
@@ -506,8 +500,8 @@ if ($request->action_btn == 'save_and_add_more') {
 
         if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
             return response()->json([
-                'code' => 422,
-                'message' => 'Please select at least one correct answer.',
+                'success' => false,
+                'message' => 'At least one option must be selected.',
             ], 422);
         }
         

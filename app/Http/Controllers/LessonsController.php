@@ -61,7 +61,6 @@ class LessonsController extends Controller
         'published' => 1,
         'temp_id' => $request->uuid,
         'position' => 1,
-        'isWizard' => false,
     ]);
 
     return response()->json(['status' => 'success']);
