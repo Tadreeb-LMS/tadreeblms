@@ -74,7 +74,12 @@
             },
             {
                 data: "in_sequence",
-                name: 'in_sequence'
+                name: "in_sequence",
+                render: function (data) {
+                    return Number(data) === 1
+                        ? '<span class="badge bg-success" style="color:#fff; padding:7px;">Yes</span>'
+                        : '<span class="badge bg-red" style="color:#fff;  padding:7px;">No</span>';
+                }
             },
             {
                 data: "actions",
