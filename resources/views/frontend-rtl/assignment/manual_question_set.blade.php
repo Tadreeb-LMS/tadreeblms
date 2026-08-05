@@ -136,7 +136,14 @@
         }
 
         var flag = [];
-        $(document).on('click', '.mg_all_submit', function() {
+        $(document).on('click', '.mg_all_submit', function(e) {
+            e.preventDefault(); 
+            const confirmationText = "Thank you for attending this assessment. We will get back to you with the result soon.\n\nAre you sure you want to submit?";
+    
+            if (!window.confirm(confirmationText)) {
+                return false; 
+            }
+            $('.mg_all_submit').prop('disabled', true);
 
             // if (flag.includes(0)) {
             //     alert('Please answer all the questions');
@@ -154,11 +161,8 @@
                 success: function(response) {
                     response = JSON.parse(response);
                     if (response.status == 200) {
-                        if (window.confirm(response.message)) {
-                            window.location = home_url;
-                        } else {
-                            window.location = home_url;
-                        }
+                        window.alert(response.message);
+                        window.location = home_url;
                     }
                 },
             });

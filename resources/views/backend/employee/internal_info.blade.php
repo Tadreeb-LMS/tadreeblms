@@ -26,6 +26,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="table-responsive">
+                        <div id="employee-status-message" class="mb-3" aria-live="polite"></div>
                         <div class="d-block">
                             <ul class="list-inline">
                                 <li class="list-inline-item">
@@ -86,9 +87,10 @@
 
 @push('after-scripts')
     <script>
+        var employeeStatusUpdatedMessage = @json(__('Status updated successfully.'));
+        var employeeStatusUpdateFailedMessage = @json(__('Unable to update status. Please try again.'));
+        var employeeStatusCloseLabel = @json(__('Close'));
         $(document).ready(function() {
-
-
 
             var route = '{{ route('admin.employee.get_data') }}';
 
@@ -254,19 +256,72 @@
 
 
         });
-        $(document).on('click', '.switch-input', function(e) {
-            var id = $(this).data('id');
+
+        function showEmployeeStatusMessage(message, type) {
+
+            var alertClass = type === 'success'
+                ? 'alert-success'
+                : 'alert-danger';
+            var escapedMessage = $('<div>').text(message).html();
+
+            $('#employee-status-message').html(
+                '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
+                    escapedMessage +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="' + employeeStatusCloseLabel + '">' +
+                        '<span aria-hidden="true">&times;</span>' +
+                    '</button>' +
+                '</div>'
+            );
+        }
+
+        $(document).on('click', '.switch-input', function () {
+            var $switch = $(this);
+            var id = $switch.data('id');
+
+            // Show success message immediately
+            showEmployeeStatusMessage(
+                employeeStatusUpdatedMessage,
+                'success'
+            );
+
+            // Disable toggle while request is processing
+            $switch.prop('disabled', true);
+
             $.ajax({
                 type: "POST",
                 url: "{{ route('admin.employee.status') }}",
                 data: {
-                    _token: '{{ csrf_token() }}',
+                    _token: "{{ csrf_token() }}",
                     id: id,
                 },
-            }).done(function() {
-                var table = $('#myTable').DataTable();
-                table.ajax.reload();
+            }).done(function (response) {
+
+                // Update message with server response if available
+                if (response.message) {
+                    showEmployeeStatusMessage(
+                        response.message,
+                        'success'
+                    );
+                }
+
+                // Reload table after successful update
+                $('#myTable').DataTable().ajax.reload(null, false);
+
+            }).fail(function (xhr) {
+
+                // Show error if backend update fails
+                var message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : employeeStatusUpdateFailedMessage;
+
+                showEmployeeStatusMessage(message, 'error');
+
+                // Reload table to restore correct status
+                $('#myTable').DataTable().ajax.reload(null, false);
+
+            }).always(function () {
+                $switch.prop('disabled', false);
             });
-        })
+        });
     </script>
 @endpush
