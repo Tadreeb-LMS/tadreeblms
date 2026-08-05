@@ -103,7 +103,7 @@ class RegisterController extends Controller
                 'last_name' => 'required|max:255',
                 'email' => 'required|email|max:255',
                 'password' => 'required|min:6|confirmed',
-                'fav_lang' => 'required',
+                'fav_lang' => 'nullable',
                 'g-recaptcha-response' => (config('access.captcha.registration') ? ['required', new CaptchaRule] : ''),
             ], [
                 'g-recaptcha-response.required' => __('validation.attributes.frontend.captcha'),
@@ -114,7 +114,7 @@ class RegisterController extends Controller
                 'last_name' => 'required|max:255',
                 'email' => 'required|email|max:255|unique:users',
                 'password' => 'required|min:6|confirmed',
-                'fav_lang' => 'required',
+                'fav_lang' => 'nullable',
                 'g-recaptcha-response' => (config('access.captcha.registration') ? ['required', new CaptchaRule] : ''),
             ], [
                 'g-recaptcha-response.required' => __('validation.attributes.frontend.captcha'),
@@ -196,7 +196,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'active' => 0,
             'active_token' => $token,
-            'fav_lang' => $data['fav_lang']
+            'fav_lang' => $data['fav_lang'] ?? 'english'
         ]);
 
         $user->dob = isset($data['dob']) ? $data['dob'] : NULL;

@@ -87,6 +87,9 @@
                     }
                 },
                 iDisplayLength: 10,
+                select: {
+                    info: false
+                },
                 language: {
                     @if (app()->getLocale() == 'ar')
                     url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ar.json'

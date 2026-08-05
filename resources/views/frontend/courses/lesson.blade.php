@@ -969,18 +969,6 @@
                 current_progress = "{{ $lesson->mediaVideo->getProgress(auth()->user()->id)->progress }}";
             @endif
 
-
-
-            if (!player && document.getElementById('player')) {
-                player = new Plyr('#player', {
-                    youtube: {
-                        noCookie: true
-                    }
-                });
-
-                player = registerLessonVideoPlayer(player);
-            }
-
             if (!player2 && document.getElementById('audioPlayer')) {
                 player2 = registerLessonVideoPlayer(new Plyr('#audioPlayer'));
             }
@@ -1203,79 +1191,220 @@
         //     time(watchPoint, progress)
         // });
         let playedDuration = 0;
-        let lastRecordedTime = (typeof current_progress !== 'undefined') ? (parseInt(current_progress) || 0) : 0;
+        let lastRecordedTime = (typeof current_progress !== 'undefined')
+            ? (parseInt(current_progress) || 0)
+            : 0;
+
         let watchDuration = 0;
-        let lastCalledTime = 0;
-        var lessonAlreadyCompleted = false;
+        let lastSavedTime = 0;
+        let lastKnownCurrentTime = 0;
+        let lastKnownDuration = 0;
+        let progressSaveTimer = null;
+        let lessonAlreadyCompleted = false;
+        let progressSaveInProgress = false;
 
-        if (typeof player !== 'undefined' && player) {
-            player.on('timeupdate', () => {
-                const currentTime = player.currentTime;
-                const videoDuration = player.duration;
+        const videoProgressUrl = "{{ route('video.progress.update') }}";
+        const csrfToken = "{{ csrf_token() }}";
+        const lessonId = parseInt("{{ $lesson->id }}");
 
-                if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
-                    return;
-                }
+        function getVideoProgressData(completed = false) {
+            if (typeof player === 'undefined' || !player) {
+                return null;
+            }
 
-                const playbackRate = player.media && player.media.playbackRate ? player.media.playbackRate : 1;
-                var watchPoint = Math.floor((currentTime / videoDuration) * 100);
+            const currentTime = Number(player.currentTime);
+            const videoDuration = Number(player.duration);
 
-                // Count only continuous playback time and ignore large skips.
-                if (currentTime >= lastRecordedTime && Math.abs(currentTime - lastRecordedTime) <= 1) {
-                    watchDuration += (currentTime - lastRecordedTime) * playbackRate;
-                }
+            if (!Number.isFinite(currentTime) || !Number.isFinite(videoDuration) || videoDuration <= 0) {
+                return null;
+            }
 
-                lastRecordedTime = currentTime;
+            const videoElement = document.getElementById('player');
 
-                if (currentTime - lastCalledTime >= 2) {
-                    time(watchPoint, watchDuration, videoDuration, false);
-                    lastCalledTime = currentTime;
-                }
-            });
+            if (!videoElement) {
+                return null;
+            }
 
-            player.on('ended', () => {
-                const videoDuration = player.duration;
+            const videoContainer = videoElement.closest('.video-container');
 
-                if (!Number.isFinite(videoDuration) || videoDuration <= 0) {
-                    return;
-                }
+            if (!videoContainer) {
+                return null;
+            }
 
-                watchDuration = Math.max(watchDuration, videoDuration);
-                time(100, watchDuration, videoDuration, true);
-            });
+            const videoId = parseInt(videoContainer.dataset.id);
+
+            if (!videoId) {
+                return null;
+            }
+
+            const watchPoint = Math.min(
+                100,
+                Math.floor((currentTime / videoDuration) * 100)
+            );
+
+            return {
+                "_token": csrfToken,
+                "media_id": lessonId,
+                "vedio_id": videoId,
+                "watchPoint": completed ? 100 : watchPoint,
+                "duration": Math.floor(videoDuration),
+                "progress": Math.floor(currentTime),
+                "completed": completed ? 1 : 0
+            };
         }
 
-        function time(watchPoint, progress, videoDuration, completed) {
-            //alert("hi")
-            var id = "{{ $lesson->id }}";
-            var video = $('#player').parents('.video-container').data('id');
+        function saveVideoProgress(completed = false, useBeacon = false) {
+            const data = getVideoProgressData(completed);
+
+            if (!data) {
+                return;
+            }
+
+            const currentTime = Number(data.progress);
+
+            // Do not save the same timestamp repeatedly.
+            if (!completed && currentTime <= lastSavedTime) {
+                return;
+            }
+
+            lastSavedTime = currentTime;
+
+            // Use sendBeacon during page unload/navigation.
+            if (useBeacon && navigator.sendBeacon) {
+                const formData = new FormData();
+
+                Object.keys(data).forEach(function(key) {
+                    formData.append(key, data[key]);
+                });
+
+                navigator.sendBeacon(videoProgressUrl, formData);
+                return;
+            }
+
+            if (progressSaveInProgress) {
+                return;
+            }
+
+            progressSaveInProgress = true;
+
             $.ajax({
-                url: "{{ route('video.progress.update') }}",
+                url: videoProgressUrl,
                 method: "POST",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    'media_id': parseInt(id),
-                    'vedio_id': parseInt(video),
-                    'watchPoint': watchPoint,
-                    'duration': parseInt(videoDuration),
-                    'progress': parseInt(progress),
-                    'completed': completed ? 1 : 0
-                },
+                data: data,
                 success: function(response) {
-                    if (response.lesson_completed && !lessonAlreadyCompleted) {
+                    if (
+                        response.lesson_completed &&
+                        !lessonAlreadyCompleted
+                    ) {
                         lessonAlreadyCompleted = true;
                         window.location.reload();
                     }
                 },
+                complete: function() {
+                    progressSaveInProgress = false;
+                }
             });
         }
 
-       function pauseAllVideos() {
+        if (typeof player !== 'undefined' && player) {
+
+            player.on('ready', function() {
+                if (
+                    typeof current_progress !== 'undefined' &&
+                    parseInt(current_progress) > 0
+                ) {
+                    player.currentTime = parseInt(current_progress);
+                    lastSavedTime = parseInt(current_progress);
+                    lastKnownCurrentTime = parseInt(current_progress);
+                }
+            });
+
+            player.on('timeupdate', function() {
+
+                const currentTime = Number(player.currentTime);
+                const videoDuration = Number(player.duration);
+
+                if (
+                    !Number.isFinite(currentTime) ||
+                    !Number.isFinite(videoDuration) ||
+                    videoDuration <= 0
+                ) {
+                    return;
+                }
+
+                lastKnownCurrentTime = currentTime;
+                lastKnownDuration = videoDuration;
+
+                const playbackRate =
+                    player.media &&
+                    player.media.playbackRate
+                        ? player.media.playbackRate
+                        : 1;
+
+                // Track actual watched duration.
+                if (
+                    currentTime >= lastRecordedTime &&
+                    Math.abs(currentTime - lastRecordedTime) <= 1
+                ) {
+                    watchDuration +=
+                        (currentTime - lastRecordedTime) *
+                        playbackRate;
+                }
+
+                lastRecordedTime = currentTime;
+
+                // Save every 2 seconds of playback.
+                if (
+                    currentTime - lastSavedTime >= 2
+                ) {
+                    saveVideoProgress(false);
+                }
+            });
+
+            // Save immediately when the user pauses.
+            player.on('pause', function() {
+                saveVideoProgress(false);
+            });
+
+            // Save when the video ends.
+            player.on('ended', function() {
+
+                const videoDuration = Number(player.duration);
+
+                if (
+                    !Number.isFinite(videoDuration) ||
+                    videoDuration <= 0
+                ) {
+                    return;
+                }
+
+                watchDuration = Math.max(
+                    watchDuration,
+                    videoDuration
+                );
+
+                saveVideoProgress(true);
+            });
+        }
+
+        function saveProgressBeforeLeavingPage() {
+            if (
+                typeof player !== 'undefined' &&
+                player
+            ) {
+                saveVideoProgress(false, true);
+            }
+        }
+
+        function pauseAllVideos() {
 
             if (Array.isArray(window.lessonVideoPlayers)) {
                 window.lessonVideoPlayers.forEach(function(p) {
                     try {
-                        if (p && typeof p.pause === 'function') {
+                        if (
+                            p &&
+                            typeof p.pause === 'function'
+                        ) {
                             p.pause();
                         }
                     } catch (e) {}
@@ -1283,36 +1412,32 @@
             }
 
             try {
-                if (typeof player !== 'undefined' && player && typeof player.pause === 'function') {
+                if (
+                    typeof player !== 'undefined' &&
+                    player &&
+                    typeof player.pause === 'function'
+                ) {
                     player.pause();
                 }
             } catch (e) {}
 
             try {
-                if (typeof player2 !== 'undefined' && player2 && typeof player2.pause === 'function') {
+                if (
+                    typeof player2 !== 'undefined' &&
+                    player2 &&
+                    typeof player2.pause === 'function'
+                ) {
                     player2.pause();
                 }
             } catch (e) {}
 
-            document.querySelectorAll('video, audio').forEach(function(el) {
-                try {
-                    el.pause();
-                } catch (e) {}
-            });
-
-            document.querySelectorAll('.lesson-video-frame iframe').forEach(function(el) {
-                try {
-                    var src = el.src || '';
-
-                    if (
-                        src.includes('youtube.com') ||
-                        src.includes('youtube-nocookie.com') ||
-                        src.includes('vimeo.com')
-                    ) {
-                        el.src = src;
-                    }
-                } catch (e) {}
-            });
+            document
+                .querySelectorAll('video, audio')
+                .forEach(function(el) {
+                    try {
+                        el.pause();
+                    } catch (e) {}
+                });
         }
 
         function handleVisibilityChange() {
@@ -1329,10 +1454,31 @@
                 }, 150);
             }
 
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            window.addEventListener('blur', handleWindowBlur);
-            window.addEventListener('pagehide', pauseAllVideos);
-            window.addEventListener('beforeunload', pauseAllVideos);
+            document.addEventListener(
+                'visibilitychange',
+                function() {
+                    if (document.hidden) {
+                        saveProgressBeforeLeavingPage();
+                        pauseAllVideos();
+                    }
+                }
+            );
+
+            window.addEventListener(
+                'pagehide',
+                function() {
+                    saveProgressBeforeLeavingPage();
+                    pauseAllVideos();
+                }
+            );
+
+            window.addEventListener(
+                'beforeunload',
+                function() {
+                    saveProgressBeforeLeavingPage();
+                    pauseAllVideos();
+                }
+            );
 
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
@@ -1350,6 +1496,7 @@
                     !link.hasAttribute('download') &&
                     link.target !== '_blank'
                 ) {
+                    saveProgressBeforeLeavingPage();
                     pauseAllVideos();
                 }
             }, true);
