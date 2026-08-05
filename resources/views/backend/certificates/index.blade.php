@@ -3,7 +3,40 @@
 @section('title', __('labels.backend.certificates.title') . ' | ' . app_name())
 
 @section('content')
-
+@push('after-styles')
+<style>
+    .certificate-download-link{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        color: #000 !important;
+        padding:7px 16px;
+        border-radius:50px;
+        text-decoration:none !important;
+        font-size:13px;
+        font-weight:600;
+        transition:.25s;
+        background: rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            inset 0 1px 0 rgba(255,255,255,.5);
+    }
+    .certificate-download-link:hover,
+    .certificate-download-link:focus {
+        background-color: #0b5ed7 !important;
+        color: #fff !important;
+        text-decoration: none !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13,110,253,.3);
+    }
+    .certificate-download-link:hover i,
+    .certificate-download-link:focus i {
+        color: #fff !important;
+    }
+</style>
+@endpush
 <div class="pb-3 userheading">
     <h4 class=""> <span>  @lang('labels.backend.certificates.title')</span></h4>
 </div>

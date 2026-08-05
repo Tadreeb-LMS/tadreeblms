@@ -259,7 +259,14 @@ class CoursesController extends Controller
             }
         }
 
-        $courses = $courses->orderBy('created_at', 'desc');
+        // Add a deterministic secondary order by primary key. Without it,
+        // courses that share the same created_at value (common in seeded
+        // and bulk-imported data) can be returned in arbitrary order by
+        // MySQL with LIMIT/OFFSET, which makes server-side pagination
+        // return overlapping rows — the user sees page 1's records on
+        // every subsequent page even though the request reaches the
+        // server with the correct start offset. See issue #802.
+        $courses = $courses->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
         $courses = $courses->with('courseFeedback');
         //dd($courses->get());
@@ -340,13 +347,22 @@ class CoursesController extends Controller
     return $actions;
 })
             ->addColumn('teachers', function ($q) {
-                $teachers = "";
-                foreach ($q->teachers as $singleTeachers) {
-                    if($singleTeachers->hasRole('teacher')){
-                    $teachers .= '<span class="text-dark">' . $singleTeachers->name . ' </span>';
+                // The course_user pivot stores every facilitator attached
+                // to a course. Historically this was filtered to role='teacher'
+                // only, but when a non-administrator creates a course the
+                // store flow attaches the creator (e.g. a custom admin role)
+                // as the facilitator. Filtering by hasRole('teacher') then
+                // produced an empty column for those courses. We now show
+                // every attached user that is NOT a student, which covers
+                // teachers, administrators and custom admin roles.
+                $names = [];
+                foreach ($q->teachers as $facilitator) {
+                    if ($facilitator->hasRole('student')) {
+                        continue;
                     }
+                    $names[] = '<span class="text-dark">' . e($facilitator->name) . '</span>';
                 }
-                return $teachers;
+                return implode(' ', $names);
             })
             // ->addColumn('lessons', function ($q) {
             //     $lesson = '<a href="' . route('admin.lessons.create', ['course_id' => $q->id]) . '" class="btn btn-success mb-1"><i class="fa fa-plus-circle"></i></a>  <a href="' . route('admin.lessons.index', ['course_id' => $q->id]) . '" class="btn mb-1 btn-warning text-white"><i class="fa fa-arrow-circle-right"></a>';
@@ -592,8 +608,13 @@ class CoursesController extends Controller
             return abort(401);
         }
         $request->validate([
-             'start_date' => 'required|date',
-             'expire_at'  => 'required|date|after_or_equal:start_date',
+            'start_date' => $request->course_type === 'Online'
+                ? 'nullable|date'
+                : 'required|date',
+
+            'expire_at' => $request->course_type === 'Online'
+                ? 'nullable|date'
+                : 'required|date|after_or_equal:start_date',
              'title' => 'required|string|max:255',
              'category_id' => 'required',
              'course_type' => 'required',
