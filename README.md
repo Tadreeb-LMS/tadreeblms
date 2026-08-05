@@ -50,12 +50,7 @@ As an **open-source platform**, TadreebLMS gives organizations full control over
 For complete step-by-step instructions, please refer to our official documentation:
 👉 **[TadreebLMS Installation Guide](https://tadreeblms.com/docs/installation)**
 
-### Quick Start (Development)
-1. Clone the repository: `git clone https://github.com/Tadreeb-LMS/tadreeblms.git`
-2. Install dependencies: `composer install && npm install`
-3. Configure your `.env` file and database.
-4. Run migrations: `php artisan migrate --seed`
-5. Start the server: `php artisan serve`
+
 
 ## FAQ
 
@@ -79,3 +74,11 @@ We appreciate contributions in:
 
 👉 Full list of contributors:  
 https://github.com/Tadreeb-LMS/tadreeblms/graphs/contributors
+
+## Setup
+
+Copy the example environment file and adjust values:
+
+```bash
+cp .env.example .env
+```
