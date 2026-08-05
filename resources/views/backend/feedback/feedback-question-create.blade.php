@@ -4,6 +4,88 @@
 @section('content')
 {{-- {!! Form::open(['method' => 'POST', 'route' => ['admin.questions.store'], 'files' => true,]) !!} --}}
 
+@push('after-styles')
+<link rel="stylesheet" href="{{asset('assets/css/colors/switch.css')}}">
+<style>
+    .card{
+        border-radius:12px;
+    }
+    label{
+        font-weight:600;
+        margin-bottom:8px;
+    }
+    #option-area table{
+        margin-top:20px;
+    }
+    #option-area th{
+        background:#f8f9fa;
+        font-weight:600;
+    }
+    #option-area td{
+        vertical-align:middle;
+    }
+    .input-group .btn{
+        min-width:140px;
+    }
+    .btn-outline-danger{
+        border-radius:6px;
+    }
+    .option-delete-btn
+    {
+        width:40px;
+        height:40px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:1px solid #ff5c5c;
+        color:#ff5c5c;
+        background:#fff;
+        border-radius:8px;
+        transition:.2s;
+    }
+    .option-delete-btn:hover
+    {
+        background:#ff5c5c;
+        color:#fff;
+    }
+    .question-info-box
+    {
+        background:#f5f9ff;
+        border:1px solid #b8d4ff;
+        border-left:4px solid #3b82f6;
+        border-radius:10px;
+        padding:18px 20px;
+        min-height:90px;
+        display:flex;
+        align-items:center;
+    }
+    .info-icon
+    {
+        width:38px;
+        height:38px;
+        border-radius:50%;
+        background:#e8f2ff;
+        color:#2563eb;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-right:15px;
+        font-size:18px;
+    }
+    .info-title
+    {
+        font-weight:600;
+        color:#1f2937;
+        margin-bottom:4px;
+    }
+    .info-text
+    {
+        color:#6b7280;
+        font-size:14px;
+    }
+</style>
+@endpush
+
 <div class="pb-3 d-flex justify-content-between align-items-center">
     <h4>
         Feedback Question
@@ -11,7 +93,6 @@
 
     <div class="">
         <a href="{{ route('admin.feedback_question.index') }}" class="btn add-btn">View Feedback Questions</a>
-
     </div>
 
 </div>
@@ -35,19 +116,46 @@
                 </div>
             </div>
             @endif
-            <div class="row">
-                <div class="col-lg-12">
+            <div class="row align-items-stretch mb-4">
+                <!-- Left Side -->
 
-                    <div>Question Type</div>
+                <div class="col-lg-5">
+                    <label class="font-weight-bold">
+                        Question Type
+                        <span class="text-danger">*</span>
+                    </label>
+
                     <div class="custom-select-wrapper mt-2">
-                        <select class="form-control custom-select-box" name="question_type" id="question_type">
-                            <option value="1"> Single Choice </option>
-                            <option value="2"> Multiple Choice </option>
-                            <option value="3"> Short Answer </option>
+                        <select class="form-control custom-select-box"
+                                name="question_type"
+                                id="question_type">
+                            <option value="1">Single Choice</option>
+                            <option value="2">Multiple Choice</option>
+                            <option value="3">Short Answer</option>
                         </select>
                         <span class="custom-select-icon">
                             <i class="fa fa-chevron-down"></i>
                         </span>
+                    </div>
+                </div>
+
+                <!-- Right Side -->
+                <div class="col-lg-7">
+                    <div class="question-info-box">
+                        <div class="d-flex">
+                            <div class="info-icon">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Select the type of question you want to create.
+                                </div>
+                                <div class="info-text">
+                                    The available fields will adjust based on your selection.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -60,9 +168,35 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12 mt-3">
-                        <label>Option</label>
-                        <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
-                        <button type="button" id="add_option" class="btn btn-primary pull-right mt-2">Add Option</button>
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <label class="font-weight-bold">
+                                    Options <span class="text-danger">*</span>
+                                </label>
+
+                                <div class="input-group mt-2">
+                                    <input
+                                        type="text"
+                                        id="option"
+                                        class="form-control"
+                                        placeholder="Enter option text">
+                                    <div class="input-group-append">
+                                        <button
+                                            type="button"
+                                            id="add_option"
+                                            class="btn btn-primary">
+                                            <i class="fa fa-plus"></i>
+                                            Add Option
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div id="option-area"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-12">
                         <div id="option-area" class="pt-4"></div>
@@ -137,7 +271,6 @@
         //         }
         //     ]
         // });
-        CKEDITOR.replace('option');
         // CKEDITOR.replace('option', {
         //     toolbar: [{
         //             name: 'clipboard',
@@ -329,61 +462,58 @@
         }
 
         function showOptions(show_remove_options = true) {
-            if (show_remove_options == true) {
-                var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th>';
-                var drag_drop_question_type = $('#question_type').val();
-                option_text += '<th style="display:none">Is Right</th></tr>';
-                for (var i = 0; i < options.length; ++i) {
-                    option = options[i];
-                    option_text += '<tr>';
-                    option_text += '<td>' + option[0] + '</td>';
-                    if (parseInt($('#question_type').val()) == 1) {
-                        option_text += '<td style="display:none"><input type="radio" ';
-                    } else {
-                        option_text += '<td style="display:none"><input type="checkbox" class="cb_checkbox_mark" ';
-                    }
-                    if (option[1] === 1) {
-                        option_text += 'checked="checked"';
-                    }
-                    option_text += ' onclick="markAsCorrectOption(' + i + ')" style="display:none"></td>';
-                    option_text += '<td><a href="javascript:void(0);"  onclick="removeOptions(' + i + ')" class="btn btn-danger remove"><i class="la la-trash"></i>Remove</a>';
-                    option_text += '</tr>'
-                }
-                option_text += '</tbody></table>';
-                $('#option-area').html(option_text);
-            } else {
-                var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th></tr>';
-                for (var i = 0; i < options.length; ++i) {
-                    option = options[i];
-                    option_text += '<tr>';
-                    option_text += '<td>' + option[0] + '</td>';
-                    option_text += '<td style="display:none"><input type="radio" ';
-                    if (option[1] === 1) {
-                        option_text += 'checked="checked"';
-                    }
-                    option_text += ' onclick="markAsCorrectOption(' + i + ',false)"></td>';
-                    option_text += '</tr>'
-                }
-                option_text += '</tbody></table>';
-                document.getElementById('option-area').innerHTML = option_text;
+
+            var option_text = `
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th width="60">#</th>
+                            <th>Option Text</th>
+                            <th width="120" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (var i = 0; i < options.length; i++) {
+                option_text += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${options[i][0]}</td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="removeOptions(${i})">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
             }
+
+            option_text += `
+                    </tbody>
+                </table>
+            `;
+
+            $('#option-area').html(option_text);
             addImgClass();
         }
 
         function addOptions() {
-            var option = CKEDITOR.instances["option"].getData();
-            options_length = (options != null && options != undefined) ? options.length : 0;
-            options.push([option.trim(), 0]);
-            CKEDITOR.instances["option"].setData('');
+            var option = $('#option').val().trim();
+            if(option == '')
+                return;
+
+            options.push([option,0]);
+            $('#option').val('');
         }
 
         $(document).on('click', "#add_option", function() {
-            if (CKEDITOR.instances["option"].getData() != "") {
-                // if ((options.length + 1) <= 4) {
+            if($('#option').val().trim() != '')
+            {
                 addOptions();
-                // } else {
-                //     alert('You can use only 4 Options.');
-                // }
             }
             showOptions();
         });

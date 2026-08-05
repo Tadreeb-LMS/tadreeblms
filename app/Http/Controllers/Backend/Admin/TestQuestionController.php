@@ -149,6 +149,15 @@ class TestQuestionController extends Controller
     }
 
     $marks = (int) $marksInput;
+    if ($marks > 100) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Marks cannot exceed 100.',
+            'errors' => [
+                'score' => ['Marks cannot exceed 100.']
+            ]
+        ], 422);
+    }
     $questionType = (int) $request->question_type;
 
     if ($questionType == 1) {
@@ -241,6 +250,18 @@ class TestQuestionController extends Controller
         }
 
         $resolved_test_id = $lessonTest->id;
+        $currentMarks = DB::table('test_questions')
+            ->where('test_id', $resolved_test_id)
+            ->sum('marks');
+
+        $newTotal = $currentMarks + $marks;
+
+        if ($newTotal > 100) {
+            return response()->json([
+                'success' => false,
+                'message' => "Total marks cannot exceed 100. Current total is {$currentMarks}. You can assign a maximum of " . (100 - $currentMarks) . " marks.",
+            ], 422);
+        }
     } elseif ($legacy_test_id > 0) {
         $legacyTest = Test::find($legacy_test_id);
         if (!$legacyTest) {
@@ -331,11 +352,26 @@ if ($request->action_btn == 'save_and_add_more') {
     $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
 } 
 
+    // Capture the course's wizard state BEFORE it gets overwritten below.
+    // This is the only reliable signal to tell apart two flows that hit this
+    // same store() action with an identical request shape (course_id set,
+    // temp_id blank, action_btn=Next):
+    //   1) The multi-step Create Course wizard (Course -> Lesson -> Questions
+    //      -> Feedback), where current_step is still 'course-added' or
+    //      'lesson-added' at this point.
+    //   2) An ad-hoc question added to an already-existing course via the
+    //      standalone Tests Management / Question Bank screens, where
+    //      current_step is already past that (e.g. 'question-added',
+    //      'feedback-added') or null for legacy courses.
+    // Only flow (1) should auto-advance into the Feedback wizard step.
+    $courseWizardStep = Course::where('id', $course_id)->value('current_step');
+    $isCourseCreationWizard = in_array($courseWizardStep, ['course-added', 'lesson-added'], true);
+
     Course::where('id', $course_id)->update([
         'current_step' => 'question-added'
     ]);
 
-    if (isset($request->temp_id) && $request->action_btn == 'Next') {
+    if ($isCourseCreationWizard && $request->action_btn == 'Next') {
         if ($course_id) {
             $has_feeback = FeedbackQuestion::query()
                 ->where('course_id', $course_id)
@@ -421,6 +457,15 @@ if ($request->action_btn == 'save_and_add_more') {
         }
 
         $marks = (int) $marksInput;
+        if ($marks > 100) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Marks cannot exceed 100.',
+                'errors' => [
+                    'score' => ['Marks cannot exceed 100.']
+                ]
+            ], 422);
+        }
         $questionType = (int) $request->question_type;
         $options = [];
 
@@ -474,6 +519,26 @@ if ($request->action_btn == 'save_and_add_more') {
             $options = json_decode($request->options) ?? [];
         }
 
+        $currentQuestion = DB::table('test_questions')
+            ->where('id', $request->id)
+            ->first();
+
+        $currentTotal = DB::table('test_questions')
+            ->where('test_id', $currentQuestion->test_id)
+            ->sum('marks');
+
+        $newTotal = $currentTotal - $currentQuestion->marks + $marks;
+
+        if ($newTotal > 100) {
+            return response()->json([
+                'success' => false,
+                'message' => "Total marks cannot exceed 100. Current total is " .
+                    ($currentTotal - $currentQuestion->marks) .
+                    ". You can assign a maximum of " .
+                    (100 - ($currentTotal - $currentQuestion->marks)) .
+                    " marks.",
+            ], 422);
+        }
 
         DB::table('test_questions')->where('id', $request->id)->where('is_deleted', 0)->update([
             'test_id' => $request->test_id,
@@ -506,8 +571,6 @@ if ($request->action_btn == 'save_and_add_more') {
             */
             }
         }
-
-        
 
         session()->flash('flash_success', 'Question updated successfully.');
 
