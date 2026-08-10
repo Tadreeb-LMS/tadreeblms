@@ -73,7 +73,7 @@ class RolesController extends Controller
 
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role created successfully.');;
+            ->with('flash_success', 'Role created successfully.');;
     }
 
 
@@ -146,7 +146,8 @@ class RolesController extends Controller
 
         $role->syncPermissions($permissions);
 
-        return redirect()->route('admin.roles.index');
+        return redirect()->route('admin.roles.index')
+            ->with('flash_success', 'Role updated successfully.');
     }
 
 
