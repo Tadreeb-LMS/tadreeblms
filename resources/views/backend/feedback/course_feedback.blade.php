@@ -48,6 +48,7 @@
 
 @php
     $courseId = request()->get('course_id');
+    $isWizard = !empty($courseId);
 @endphp
 
 @if($courseId)
@@ -130,18 +131,37 @@
 <div class="mt-4">
         <div class="btmbtns mt-4">
   <div class="row">
-                         <div class="col-12 ">
-                            <div class="d-flex justify-content-between">
+                        <div class="col-12">
 
-                                <div>
-      <input class="btn  add-btn frm_submit" id="doneBtn" type="submit" value="{{ __('user_feedback.course_feedback.done') }}">
-                                </div>
-                                <div class="">
-    
-                                    <input class="btn  cancel-btn frm_submit" id="nextBtn" type="submit" value="{{ __('user_feedback.course_feedback.next') }}">
-                                </div>
-                            </div>
+                            @if($isWizard)
+                                {{-- Course Creation Wizard --}}
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <input
+                                            class="btn add-btn frm_submit"
+                                            id="doneBtn"
+                                            type="submit"
+                                            value="{{ __('user_feedback.course_feedback.done') }}">
+                                    </div>
 
+                                    <div>
+                                        <input
+                                            class="btn cancel-btn frm_submit"
+                                            id="nextBtn"
+                                            type="submit"
+                                            value="{{ __('user_feedback.course_feedback.next') }}">
+                                    </div>
+                                </div>
+                            @else
+                                {{-- Standalone Feedback Management --}}
+                                <div class="d-flex justify-content-end">
+                                    <input
+                                        class="btn add-btn frm_submit"
+                                        id="doneBtn"
+                                        type="submit"
+                                        value="{{ __('user_feedback.course_feedback.done') }}">
+                                </div>
+                            @endif
                         </div>
                         <!-- <div class="col-4">
                             {{ form_cancel(route('admin.teachers.index'), __('buttons.general.cancel')) }}
