@@ -11,7 +11,7 @@ return array(
   'pathway_assignments' => array(
     'title' => 'Affectations de parcours d\'apprentissage',
     'make_new_assignment' => 'Créer une nouvelle affectation',
-    'select_employee_by_email' => 'Sélectionner un employé par e-mail',
+    'select_employee_by_email' => 'Sélectionner un utilisateur par e-mail',
     'select_course' => 'Sélectionner le cours',
     'select' => 'Sélectionner',
     'advance_search' => 'Recherche avancée',
