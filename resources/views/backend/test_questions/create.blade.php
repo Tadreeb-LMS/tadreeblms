@@ -355,6 +355,7 @@
         <input type="hidden" id="temp_id" name="temp_id" value="{{ $temp_id }}">
         <input type="hidden" id="action_btn" name="action_btn" value="">
         <input type="hidden" id="course_id" name="course_id" value="{{ $course_id }}">
+        <input type="hidden" id="course_creation_wizard" name="course_creation_wizard" value="{{ !empty($course_creation_wizard) ? '1' : '0' }}">
         <input type="hidden" id="test_id" name="test_id" value="{{ $legacy_test_id ?? '' }}">
         <input type="hidden" name="lesson_id" id="lesson_id" value="{{ $lesson_id_preselect ?? '' }}">
         <input type="hidden" id="last_lesson_id" value="{{ $last_lesson_id ?? '' }}">
@@ -752,29 +753,64 @@
         var score = $("#score").val();
 
         return {
-            temp_id,
-            test_id,
-            lesson_id,
-            question_type,
-            question,
-            options: JSON.stringify(question_type == 3 ? [] : options),
-            solution,
-            comment,
-            score
+            temp_id: temp_id,
+            test_id: test_id,
+            lesson_id: lesson_id,
+            question_type: question_type,
+            question: question,
+            options: JSON.stringify(
+                question_type == 3 ? [] : options
+            ),
+            solution: solution,
+            comment: comment,
+            score: score,
+            course_creation_wizard:
+                $('#course_creation_wizard').val()
         };
     }
 
-    $(document).on('click', ".frm_submit", function() {
-        $('#action_btn').val($(this).val());
-        flag = 0;
-        sendData();
+    
+    $(document).ready(function () {
+
+        $('#save_and_add_more').on('click', function (e) {
+            e.preventDefault();
+
+            console.log('SAVE & ADD MORE clicked');
+
+            $('#action_btn').val('save_and_add_more');
+
+            sendData();
+        });
+
+        $('#save').on('click', function (e) {
+            e.preventDefault();
+
+            console.log('NEXT clicked');
+
+            $('#action_btn').val('Next');
+
+            sendData();
+        });
+
+        $('#save_as_draft').on('click', function (e) {
+            e.preventDefault();
+
+            console.log('SAVE AS DRAFT clicked');
+
+            $('#action_btn').val('Save As Draft');
+
+            sendData();
+        });
 
     });
 
     var question_submit_url = "{{route('admin.test_questions.store')}}";
 
-    function sendData(data) {
+    function sendData() {
+
+        console.log('sendData() started');
         var data = dataCollection();
+        console.log('Data being submitted:', data);
 
         if (!data.question || data.question.trim() === '') {
             alert('Question field is required.');
@@ -791,80 +827,97 @@
             return;
         }
 
-        // Get form context
-        const assessmentType = document.getElementById('assessment_type_select');
-        const courseId = document.getElementById('course_id').value;
-        const lessonId = document.getElementById('lesson_id').value;
-        const lessonSelect = document.getElementById('lesson_id_select');
-        const testId = document.getElementById('test_id').value;
+        const courseId = $('#course_id').val();
+        const lessonId = $('#lesson_id').val();
+        const testId = $('#test_id').val();
+        const actionBtn = $('#action_btn').val();
+
+        console.log('courseId:', courseId);
+        console.log('lessonId:', lessonId);
+        console.log('testId:', testId);
+        console.log('action:', actionBtn);
 
         if (!courseId && !testId) {
             alert('Please select a course from the Questions section before creating questions.');
             return;
         }
 
-        if (assessmentType) {
-            // STANDALONE MODE: Assessment type is required
-            if (!assessmentType.value) {
-                alert('Please select assessment type (Lesson Quiz or Final Assessment).');
-                return;
-            }
-            // If lesson quiz in standalone, lesson must be selected
-            if (assessmentType.value === 'lesson' && !lessonId) {
-                alert('Please select a lesson for this quiz question.');
-                return;
-            }
-        }
-
         data['_token'] = "{{ csrf_token() }}";
-        data['action_btn'] = $('#action_btn').val();
-        data['course_id'] = $('#course_id').val();
-        const redirect = "{{ request()->redirect }}";
+        data['action_btn'] = actionBtn;
+        data['course_id'] = courseId;
+        data['course_creation_wizard'] = $('#course_creation_wizard').val();
+
+        console.log('Sending AJAX request:', data);
+
         $.ajax({
-            url: question_submit_url,
-            type: 'post',
+            url: "{{ route('admin.test_questions.store') }}",
+            type: 'POST',
             data: data,
-            success: function(response) {
+            beforeSend: function () {
+                console.log('AJAX request started');
+                $('#save_and_add_more, #save, #save_as_draft')
+                    .prop('disabled', true);
+            },
+
+            success: function (response) {
+                console.log('AJAX success response:', response);
                 let payload = response;
                 if (typeof response === 'string') {
                     try {
                         payload = JSON.parse(response);
                     } catch (e) {
-                        alert('Unexpected server response. Please reload and try again.');
+                        console.error('Invalid JSON response:', response);
+                        alert(
+                            'Server returned an invalid response. ' +
+                            'Please check Laravel logs.'
+                        );
                         return;
                     }
                 }
 
                 if (payload.code == 200) {
-                    // if (data['action_btn'] == 'save_and_add_more') {
-                    //     window.location.replace(response.redirect_url);
-                    // }else{
-                    //     window.location.replace(redirect);
-                    // }
-                    window.location.replace(payload.redirect_url);
+                    console.log(
+                        'Redirecting to:',
+                        payload.redirect_url
+                    );
+                    if (payload.redirect_url) {
+                        window.location.href = payload.redirect_url;
+                    } else {
+                        alert('Question saved, but redirect URL is missing.');
+                    }
                 } else {
-                    alert(payload.message || 'Unable to save the question.');
+                    console.error('Server returned error:', payload);
+                    alert(
+                        payload.message ||
+                        'Unable to save the question.'
+                    );
                 }
             },
-            error: function (xhr) {
-                if (xhr.status === 422) {
-                    let res = xhr.responseJSON;
-                    // Show the error message
-                    if (res.errors) {
-                        if (res.errors.score) {
-                            alert(res.errors.score[0]);
-                        }
-                        else if (res.errors.marks) {
-                            alert(res.errors.marks[0]);
-                        }
-                        else {
-                            alert(res.message);
-                        }
+
+            error: function (xhr, status, error) {
+                console.error('AJAX ERROR');
+                console.error('HTTP Status:', xhr.status);
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
+
+                let message = 'Request failed. Please try again.';
+                if (xhr.responseJSON) {
+                    if (xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
                     }
-                    console.log('Validation errors:', res.errors);
-                } else {
-                    alert('Request failed. Please reload and try again.');
+                    if (xhr.responseJSON.errors) {
+                        console.error(
+                            'Validation errors:',
+                            xhr.responseJSON.errors
+                        );
+                    }
                 }
+                alert(message);
+            },
+            complete: function () {
+                $('#save_and_add_more, #save, #save_as_draft')
+                    .prop('disabled', false);
             }
         });
     }

@@ -821,24 +821,25 @@ class EmployeeController extends Controller
 
                 return '<span class="pill-publish">Completed</span>';
             })
-            ->addColumn('feedback', function ($q)  use ($course_id, $request) {
+            ->addColumn('feedback', function ($q) use ($course_id) {
 
-                return CustomHelper::is_user_course_has_feedback($q->user_id, $course_id) ?  '<a class="btn btn-info mb-1" href="' . route('admin.employee.course_detail', [$course_id, $q->user_id]) . '">Veiw FeedBack</a>'  : '--';
+                $feedbackSubmitted = \DB::table('user_feedback')
+                    ->where('user_id', $q->user_id)
+                    ->where('course_id', $course_id)
+                    ->exists();
+
+                return $feedbackSubmitted
+                    ? '<span class="pill-publish">Yes</span>'
+                    : '<span class="pill-unpublish">No</span>';
             })
-            ->addColumn('issue_certificate', function ($q) use ($course_id, $request) {
+            ->addColumn('issue_certificate', function ($q) use ($course_id) {
+                $certificateIssued = UserCourseDetail::where('user_id', $q->user_id)
+                    ->where('course_id', $course_id)
+                    ->value('issue_certificate');
 
-                $has_certificate = CustomHelper::is_user_course_has_issed_certificate($q->user_id, $course_id);
-                if ($has_certificate) {
-                    $view_certificate_actions = '<a target="_blank" class="badge badge-success" href="' . asset('storage/certificates/' . $has_certificate->certificate_url) . '">View Certificate</a>';
-                } else {
-                    $is_completed = CustomHelper::is_course_completed($q->user_id, $course_id);
-                    if ($is_completed) {
-                        $view_certificate_actions = '<a class="badge badge-info" href="' . route('certificates.generate', [$course_id, $q->user_id]) . '">Issue Certificate</a>';
-                    } else {
-                        $view_certificate_actions = '--';
-                    }
-                }
-                return $view_certificate_actions;
+                return strtolower((string) $certificateIssued) === 'yes'
+                    ? '<span class="pill-publish">Issued</span>'
+                    : '<span class="pill-unpublish">Not Issued</span>';
             })
             ->addColumn('track_employee', function ($q) use ($course_id, $request) {
 
@@ -1129,20 +1130,24 @@ class EmployeeController extends Controller
                 return $summary['status'];
             })
             ->addColumn('feedback', function ($q) use ($course_id) {
-                return CustomHelper::is_user_course_has_feedback($q->user_id, $course_id)
-                    ? '<a class="btn btn-info mb-1" href="' . route('admin.employee.course_detail', [$course_id, $q->user_id]) . '">Veiw FeedBack</a>'
-                    : '--';
+
+                $feedbackSubmitted = \DB::table('user_feedback')
+                    ->where('user_id', $q->user_id)
+                    ->where('course_id', $course_id)
+                    ->exists();
+
+                return $feedbackSubmitted
+                    ? '<span class="pill-publish">Yes</span>'
+                    : '<span class="pill-unpublish">No</span>';
             })
             ->addColumn('issue_certificate', function ($q) use ($course_id) {
-                $has_certificate = CustomHelper::is_user_course_has_issed_certificate($q->user_id, $course_id);
-                if ($has_certificate) {
-                    return '<a target="_blank" class="badge badge-success" href="' . asset('storage/certificates/' . $has_certificate->certificate_url) . '">View Certificate</a>';
-                }
-                $is_completed = CustomHelper::is_course_completed($q->user_id, $course_id);
-                if ($is_completed) {
-                    return '<a class="badge badge-info" href="' . route('certificates.generate', [$course_id, $q->user_id]) . '">Issue Certificate</a>';
-                }
-                return '--';
+                $certificateIssued = UserCourseDetail::where('user_id', $q->user_id)
+                    ->where('course_id', $course_id)
+                    ->value('issue_certificate');
+
+                return strtolower((string) $certificateIssued) === 'yes'
+                    ? '<span class="pill-publish">Issued</span>'
+                    : '<span class="pill-unpublish">Not Issued</span>';
             })
             ->addColumn('track_employee', function ($q) use ($course_id) {
                 $is_course_started = CustomHelper::is_course_completed($q->user_id, $course_id);

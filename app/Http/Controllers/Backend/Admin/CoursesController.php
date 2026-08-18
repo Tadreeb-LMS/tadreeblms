@@ -904,10 +904,14 @@ $teachers = [$teacherId];
                 $q->where('role_id', 3)->where('employee_type', 'internal');
             })->get()->pluck('name', 'id');
 
-            if($request->course_type == 'Online') {
-                $redirect_url = route('admin.lessons.create') . '?course_id=' . $course->id;
+            if ($request->course_type == 'Online') {
+                $redirect_url = route('admin.lessons.create') .
+                    '?course_id=' . $course->id .
+                    '&course_creation_wizard=1';
             } else {
-                $redirect_url = route('admin.test_questions.create') . '?course_id=' . $course->id;
+                $redirect_url = route('admin.test_questions.create') .
+                    '?course_id=' . $course->id .
+                    '&course_creation_wizard=1';
             }
 
             if ($request->meeting_provider && $request->course_type === 'Offline') {

@@ -57,6 +57,7 @@ class TestQuestionController extends Controller
             ?? optional(Test::find($request->test_id))->course_id
             ?? optional(Test::find($request->input('test_id')))->course_id;
         $temp_id = $temp_id ?? $request->uuid; 
+        $course_creation_wizard = $request->boolean('course_creation_wizard');
         $legacy_test_id = (int) $request->input('test_id');
         $selected_test = $legacy_test_id > 0 ? Test::find($legacy_test_id) : null;
 
@@ -121,13 +122,15 @@ class TestQuestionController extends Controller
             'last_lesson_id',
             'selected_lesson_preselect',
             'is_last_lesson_preselect',
-            'legacy_test_id'
+            'legacy_test_id',
+            'course_creation_wizard'
         ));
     }
 
     public function store(Request $request)
 {
     $options = [];
+    $isCourseCreationWizard = $request->boolean('course_creation_wizard');
 
     // Accept both "marks" and legacy "score", but normalize to marks
     $marksInput = $request->input('marks', $request->input('score'));
@@ -331,27 +334,30 @@ class TestQuestionController extends Controller
         }
     }
 
-if ($request->action_btn == 'save_and_add_more') {
+    if ($request->action_btn == 'save_and_add_more') {
 
-    $params = [
-        'course_id=' . $course_id,
-    ];
+        $params = [
+            'course_id=' . $course_id,
+        ];
 
-    if ($lesson_id !== null) {
-        $params[] = 'lesson_id=' . ($lesson_id ?? 0);
+        if ($lesson_id !== null) {
+            $params[] = 'lesson_id=' . $lesson_id;
+        }
+
+        if (!empty($request->temp_id)) {
+            $params[] = 'uuid=' . urlencode($request->temp_id);
+        }
+
+        if ($legacy_test_id > 0) {
+            $params[] = 'test_id=' . $legacy_test_id;
+        }
+
+        if ($isCourseCreationWizard) {
+            $params[] = 'course_creation_wizard=1';
+        }
+
+        $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
     }
-
-    if (!empty($request->temp_id)) {
-        $params[] = 'uuid=' . urlencode($request->temp_id);
-    }
-
-    if ($legacy_test_id > 0) {
-        $params[] = 'test_id=' . $legacy_test_id;
-    }
-
-    $redirect_url = route('admin.test_questions.create') . '?' . implode('&', $params);
-} 
-
     // Capture the course's wizard state BEFORE it gets overwritten below.
     // This is the only reliable signal to tell apart two flows that hit this
     // same store() action with an identical request shape (course_id set,
@@ -364,35 +370,22 @@ if ($request->action_btn == 'save_and_add_more') {
     //      current_step is already past that (e.g. 'question-added',
     //      'feedback-added') or null for legacy courses.
     // Only flow (1) should auto-advance into the Feedback wizard step.
-    $courseWizardStep = Course::where('id', $course_id)->value('current_step');
-    $isCourseCreationWizard = in_array($courseWizardStep, ['course-added', 'lesson-added'], true);
 
     Course::where('id', $course_id)->update([
         'current_step' => 'question-added'
     ]);
 
-    if ($isCourseCreationWizard && $request->action_btn == 'Next') {
-        if ($course_id) {
-            $has_feeback = FeedbackQuestion::query()
-                ->where('course_id', $course_id)
-                ->where('temp_id', $request->temp_id)
-                ->count();
-
-            if ($has_feeback == 0) {
-                $redirect_url = route('admin.feedback.create_course_feedback', ['course_id' => $course_id]);
-            }
-        }
+    if ($isCourseCreationWizard && $request->action_btn === 'Next' && $course_id) {
+        $redirect_url = route(
+            'admin.feedback.create_course_feedback',
+            ['course_id' => $course_id]
+        );
     }
-
     if ($request->action_btn == 'Save As Draft') {
         $redirect_url = route('admin.courses.index');
     }
 
-    if ($request->action_btn == 'Next') {
-        // Lesson quiz questions are independent from course-level assignments.
-    }
-
-    return json_encode([
+    return response()->json([
         'code' => 200,
         'message' => 'Question Inserted',
         'redirect_url' => $redirect_url ?? route('admin.test_questions.index')

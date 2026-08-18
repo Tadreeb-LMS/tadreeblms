@@ -129,13 +129,17 @@
                     <div class="col-md-12 custom-select-wrapper">
                         <select class="form-control custom-select-box select2"
                                 name="course_ids[]" multiple >
-                            <option value="" disabled {{ old('course_id') ? '' : 'selected' }}>
-                                Select One Course
-                            </option>
 
                             @foreach ($courses as $value)
                                 <option value="{{ $value->id }}"
-                                    {{ old('course_id') == $value->id ? 'selected' : '' }}>
+                                    {{
+                                        in_array(
+                                            $value->id,
+                                            old('course_ids', $selectedCourse ? [$selectedCourse] : [])
+                                        )
+                                            ? 'selected'
+                                            : ''
+                                    }}>
                                     {{ $value->title }}
                                 </option>
                             @endforeach
