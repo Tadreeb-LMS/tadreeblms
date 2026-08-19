@@ -11,7 +11,7 @@ return array(
   'pathway_assignments' => array(
     'title' => 'تعيينات مسارات التعلم',
     'make_new_assignment' => 'إنشاء تعيين جديد',
-    'select_employee_by_email' => 'اختر الموظف عبر البريد الإلكتروني',
+    'select_employee_by_email' => 'اختر المستخدم عبر البريد الإلكتروني',
     'select_course' => 'اختر الدورة',
     'select' => 'اختر',
     'advance_search' => 'بحث متقدم',

@@ -436,8 +436,9 @@ public function courseAssignment(Request $request)
                             ->pluck('name', 'id');
 
         $departments = Department::all();
+        $selectedCourse = $request->course_id;
         
-        return view('backend.assessment_accounts.create_assignment_course', compact('user_id', 'tests', 'teachers', 'courses', 'category', 'departments'));
+        return view('backend.assessment_accounts.create_assignment_course', compact('user_id', 'tests', 'teachers', 'courses', 'category', 'departments','selectedCourse'));
         // return view('backend.assessment_accounts.assignment_create', compact('user_id', 'tests','teachers','courses'));
     }
 
