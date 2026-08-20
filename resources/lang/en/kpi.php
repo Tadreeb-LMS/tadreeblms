@@ -95,6 +95,7 @@ return [
         'global_active' => 'Global Active',
         'override_weight' => 'Override Weight',
         'override_active' => 'Override Active',
+        'action' => 'Actions',
         'role_scope' => 'Role Scope',
         'course_scope' => 'Course Scope',
         'target_value_percent' => 'Target Value (%)',

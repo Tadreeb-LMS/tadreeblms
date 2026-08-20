@@ -81,7 +81,7 @@
             <div class="col-12">
 
                 <label class="step-title">
-                    Make a New Assignment (Step-1)
+                    1. Select Learning Pathway
                 </label>
 
                 {{-- Learning Pathway --}}
@@ -103,10 +103,8 @@
                 </div>
 
                 <label class="step-title">
-                    Make a New Assignment (Step-2)
+                    2. Assign To
                 </label>
-
-                <label class="required">Assign to...</label>
 
                 {{-- Users --}}
                 <div class="form-group row">

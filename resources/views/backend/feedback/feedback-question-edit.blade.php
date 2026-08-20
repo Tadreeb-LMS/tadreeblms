@@ -120,9 +120,17 @@
 
         function showOptions(show_remove_options = true) {
             if (show_remove_options == true) {
-                var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th>';
+                var option_text = '<table class="table table-bordered table-striped">';
+                option_text += '<thead>';
+                option_text += '<tr>';
+                option_text += '<th>Option</th>';
+                option_text += '<th style="display:none">Is Right</th>';
+                option_text += '<th>Action</th>';
+                option_text += '</tr>';
+                option_text += '</thead>';
+                option_text += '<tbody>';
+
                 var drag_drop_question_type = $('#question_type').val();
-                option_text += '<th style="display:none">Is Right</th></tr>';
                 for (var i = 0; i < options.length; ++i) {
                     option = options[i];
                     option_text += '<tr>';
@@ -140,7 +148,8 @@
                         ')" class="btn btn-danger remove"><i class="la la-trash"></i>Remove</a>';
                     option_text += '</tr>'
                 }
-                option_text += '</tbody></table>';
+                option_text += '</tbody>';
+                option_text += '</table>';
                 $('#option-area').html(option_text);
             } else {
                 var option_text = '<table class="table table-bordered table-striped"><tbody><tr><th>Option</th></tr>';

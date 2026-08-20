@@ -39,7 +39,7 @@
                             <th>@lang('kpi.labels.global_active')</th>
                             <th style="min-width:130px">@lang('kpi.labels.override_weight')</th>
                             <th style="min-width:130px">@lang('kpi.labels.override_active')</th>
-                            <th></th>
+                            <th>@lang('kpi.labels.action')</th>
                         </tr>
                     </thead>
                     <tbody>

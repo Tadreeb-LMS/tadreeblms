@@ -15,7 +15,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 0;
+        padding: 14px 0;
         border-bottom: 1px solid #f1f1f1;
         gap: 20px;
     }
@@ -29,12 +29,14 @@
         font-weight: 500;
         color: #2d3748;
         margin-bottom: 0;
+        flex: 1;
     }
 
     .toggle-group {
+        flex-shrink: 0;
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: flex-end;
         min-width: 60px;
     }
 
@@ -43,6 +45,9 @@
     }
     .card {
         margin-bottom: 20px;
+    }
+    .switch-label{
+        width: 100%;
     }
 </style>
 @endpush
@@ -69,23 +74,24 @@
         </div>
 
         <hr/>
-
-        <div class="row mt-4 mb-4">
-            <div class="col">
-                <div class="notification-setting-row">
+               <div class="notification-setting-row">
                     <label class="notification-label">
                         {{ __('labels.notifications.settings.email_notifications') }}
                     </label>
+
                     <div class="toggle-group">
                         <label class="switch switch-3d switch-primary">
-                            <input type="checkbox" class="switch-input channel-master-toggle" data-channel="email" checked>
+                            <input
+                                type="checkbox"
+                                class="switch-input channel-master-toggle"
+                                data-channel="email"
+                                checked>
+
                             <span class="switch-label"></span>
                             <span class="switch-handle"></span>
                         </label>
                     </div>
                 </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -102,34 +108,44 @@
 
         <hr/>
 
-        <div class="row mt-4 mb-4">
-            <div class="col">
-                @foreach($module['events'] as $eventKey => $event)
+               @foreach($module['events'] as $eventKey => $event)
+
                 <div class="notification-setting-row">
+
                     <label class="notification-label">
                         {{ $event['label'] }}
                     </label>
+
                     <div class="toggle-group">
-                        @php $emailChannel = $event['channels']['email'] ?? null; @endphp
+
+                        @php
+                            $emailChannel = $event['channels']['email'] ?? null;
+                        @endphp
+
                         @if($emailChannel)
-                            <label class="switch switch-3d switch-primary">
-                                <input type="checkbox"
-                                    class="switch-input notification-toggle"
-                                    data-module="{{ $moduleKey }}"
-                                    data-event="{{ $eventKey }}"
-                                    data-channel="email"
-                                    {{ $emailChannel['enabled'] ? 'checked' : '' }}
-                                >
-                                <span class="switch-label"></span>
-                                <span class="switch-handle"></span>
-                            </label>
+
+                        <label class="switch switch-3d switch-primary">
+
+                            <input
+                                type="checkbox"
+                                class="switch-input notification-toggle"
+                                data-module="{{ $moduleKey }}"
+                                data-event="{{ $eventKey }}"
+                                data-channel="email"
+                                {{ $emailChannel['enabled'] ? 'checked' : '' }}>
+
+                            <span class="switch-label"></span>
+                            <span class="switch-handle"></span>
+
+                        </label>
+
                         @endif
+
                     </div>
 
                 </div>
+
                 @endforeach
-            </div>
-        </div>
     </div>
 </div>
 @endforeach
