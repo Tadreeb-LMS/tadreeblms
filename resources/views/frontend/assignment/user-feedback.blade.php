@@ -207,7 +207,8 @@
                         if (window.confirm(response.message)) {
                             window.location = response.url;
                         } else {
-                            window.location = response.url;
+                            $('.feedback_submit').prop('disabled', false);
+                            return false;
                         }
                     }
                 },

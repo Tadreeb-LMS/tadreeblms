@@ -11,7 +11,7 @@ return array(
   'pathway_assignments' => array(
     'title' => 'Learning Pathway Assignments',
     'make_new_assignment' => 'Make New Assignment',
-    'select_employee_by_email' => 'Select Employee By Email',
+    'select_employee_by_email' => 'Select User By Email',
     'select_course' => 'Select Course',
     'select' => 'Select',
     'advance_search' => 'Advance Search',

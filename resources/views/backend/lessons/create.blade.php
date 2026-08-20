@@ -340,6 +340,7 @@
             </div>
 
             <input type="hidden" id="add_question_url" value="{{ route('admin.test_questions.create') }}">
+            <input type="hidden" id="course_creation_wizard" value="{{ request()->boolean('course_creation_wizard') ? '1' : '0' }}">
             <input type="hidden" id="ass_index" value="{{ url('user/assignments/create?assis_new') }} ">
             <input type="hidden" id="lesson_index" value="{{ route('admin.lessons.index') }}">
             <input type="hidden" id="temp_id" name="temp_id" value="{{ $temp_id }}">
@@ -638,7 +639,16 @@
                 let clicked = $('#btn_clicked').val();
 
                 if (clicked === 'nextBtn') {
-                    window.location.href = redirect_question_url + "/" + course_id + "/" + res.temp_id;
+                    let wizardFlag = $('#course_creation_wizard').val();
+
+                    let questionUrl =
+                        redirect_question_url + "/" + course_id + "/" + res.temp_id;
+
+                    if (wizardFlag === '1') {
+                        questionUrl += "?course_creation_wizard=1";
+                    }
+
+                    window.location.href = questionUrl;
                 }
 
                 if (clicked === 'doneBtn') {

@@ -11,7 +11,7 @@ return array(
   'pathway_assignments' => array(
     'title' => 'Asignaciones de rutas de aprendizaje',
     'make_new_assignment' => 'Crear nueva asignacion',
-    'select_employee_by_email' => 'Seleccionar empleado por correo',
+    'select_employee_by_email' => 'Seleccionar usuario por correo',
     'select_course' => 'Seleccionar curso',
     'select' => 'Seleccionar',
     'advance_search' => 'Busqueda avanzada',
