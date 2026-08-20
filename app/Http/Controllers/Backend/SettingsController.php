@@ -14,7 +14,13 @@ class SettingsController extends Controller
         $request->validate([
             'app_name'   => 'required|string|max:255',
             'app_url'    => 'required|url',
-            'site_logo'  => 'nullable|image|max:10240',
+            'site_logo' => [
+                'nullable',
+                'file',
+                'max:10240',
+                'mimes:jpg,jpeg,png,gif,webp,svg',
+                'mimetypes:image/jpeg,image/png,image/gif,image/webp,image/svg+xml',
+            ],
             // PAYMENT SETTINGS
             'app__currency' => 'required',
 
@@ -22,13 +28,28 @@ class SettingsController extends Controller
 
             'services__stripe__secret' => 'required_if:services__stripe__active,1',
 
-        ], [
+        ], 
+        [
+            'site_logo.file' =>
+                'The site logo must be a valid file.',
+
+            'site_logo.mimes' =>
+                'Only image files (JPG, JPEG, PNG, GIF, WEBP, or SVG) are allowed.',
+
+            'site_logo.mimetypes' =>
+                'Only image files (JPG, JPEG, PNG, GIF, WEBP, or SVG) are allowed.',
+
+            'site_logo.max' =>
+                'The site logo may not be larger than 10 MB.',
 
             'app__currency.required' =>
-            'Currency field is required.',
+                'Currency field is required.',
 
-            'services__stripe__key.required_if' =>  'Stripe publishable key is required when Stripe is enabled.',
-            'services__stripe__secret.required_if' => 'Stripe secret key is required when Stripe is enabled.',
+            'services__stripe__key.required_if' =>
+                'Stripe publishable key is required when Stripe is enabled.',
+
+            'services__stripe__secret.required_if' =>
+                'Stripe secret key is required when Stripe is enabled.',
         ]);
 
         // Save Text Settings
@@ -65,8 +86,7 @@ class SettingsController extends Controller
         // Handle Logo Upload
         if ($request->hasFile('site_logo')) {
 
-            $logoPath = $request->file('site_logo')
-                                ->store('settings', 'public');
+            $logoPath = $request->file('site_logo')->store('settings', 'public');
 
             Setting::updateOrCreate(
                 ['key' => 'site_logo'],
