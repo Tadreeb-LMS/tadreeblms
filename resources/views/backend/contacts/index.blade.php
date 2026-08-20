@@ -49,16 +49,19 @@
     <script>
 
         $(document).ready(function () {
-            var route = '{{route('admin.contact_requests.get_data')}}';
+
+            var route = '{{ route('admin.contact_requests.get_data') }}';
 
             $('#myTable').DataTable({
                 processing: true,
                 serverSide: true,
                 iDisplayLength: 10,
                 retrieve: true,
-                 dom: "<'table-controls'lf>" +
-                     "<'table-responsive't>" +
-                     "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
+
+                dom: "<'table-controls'lf>" +
+                    "<'table-responsive't>" +
+                    "<'d-flex justify-content-between align-items-center mt-3'ip><'actions'>",
+
                 buttons: [
                     {
                         extend: 'csv',
@@ -74,40 +77,67 @@
                     },
                     'colvis'
                 ],
-                ajax: route,
-                columns: [
 
-             
+                ajax: route,
+
+                columns: [
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'email',
+                        name: 'email'
+                    },
+                    {
+                        data: 'message',
+                        name: 'message'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    }
                 ],
+
                 @if(request('show_deleted') != 1)
                 columnDefs: [
-                    {"width": "5%", "targets": 0},
-                    {"width": "15%", "targets": 5},
-                    {"className": "text-center", "targets": [0]}
+                    {
+                        "className": "text-center",
+                        "targets": [0]
+                    }
                 ],
                 @endif
 
                 createdRow: function (row, data, dataIndex) {
                     $(row).attr('data-entry-id', data.id);
                 },
-                initComplete: function () {
-                   let $searchInput = $('#myTable_filter input[type="search"]');
-    $searchInput
-        .addClass('custom-search')
-        .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
-        .after('<i class="fa fa-search search-icon"></i>');
 
-    $('#myTable_length select').addClass('form-select form-select-sm custom-entries');
+                initComplete: function () {
+
+                    let $searchInput = $('#myTable_filter input[type="search"]');
+
+                    $searchInput
+                        .addClass('custom-search')
+                        .wrap('<div class="search-wrapper position-relative d-inline-block"></div>')
+                        .after('<i class="fa fa-search search-icon"></i>');
+
+                    $('#myTable_length select')
+                        .addClass('form-select form-select-sm custom-entries');
                 },
 
-                language:{
-                    url : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
-                    buttons :{
-                        colvis : '{{trans("datatable.colvis")}}',
-                        pdf : '{{trans("datatable.pdf")}}',
-                        csv : '{{trans("datatable.csv")}}',
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
+
+                    emptyTable: "No contact requests found",
+                    zeroRecords: "No contact requests found",
+
+                    buttons: {
+                        colvis: '{{ trans("datatable.colvis") }}',
+                        pdf: '{{ trans("datatable.pdf") }}',
+                        csv: '{{ trans("datatable.csv") }}',
                     },
-                    search:"",
+
+                    search: "",
                 }
             });
 
