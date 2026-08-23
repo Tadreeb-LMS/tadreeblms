@@ -276,10 +276,18 @@ window.addEventListener('load', function () {
                     type: 'GET',
                     cache: false,
                     data: function (d) {
-                        d.status = $('#filter_status').val();
-                        d.teacher_id = $('#filter_teacher').val() || initialTeacherId;
-                        d.cat_id = $('#filter_category').val() || initialCatId;
-                        if (initialShowDeleted == '1') {
+                        d.status = $('#filter_status').val() || '';
+                        d.teacher_id = $('#filter_teacher').val() || '';
+                        d.cat_id = $('#filter_category').val() || '';
+
+                        console.log('COURSE DATATABLE REQUEST:', {
+                            search: d.search ? d.search.value : '',
+                            status: d.status,
+                            teacher_id: d.teacher_id,
+                            cat_id: d.cat_id
+                        });
+
+                        if (initialShowDeleted === '1') {
                             d.show_deleted = 1;
                         }
                     }
@@ -323,7 +331,9 @@ window.addEventListener('load', function () {
                     },
                     {
                         data: "category",
-                        name: 'category'
+                        name: 'category',
+                        searchable: false,
+                        orderable: false
                     },
                     {
     data: "price",
@@ -335,21 +345,29 @@ window.addEventListener('load', function () {
                         // {data: "id", name: 'id'},
                         {
                             data: "teachers",
-                            name: 'teachers'
+                            name: 'teachers',
+                            searchable: false,
+                            orderable: false
                         },
                     @endcan
                     {
                         data: "total_students_enrolled",
-                        name: "total_students_enrolled"
+                        name: "total_students_enrolled",
+                        searchable: false,
+                        orderable: false
                     },
                     {   
                         data:"duration",
-                        name:"duration"
+                        name:"duration",
+                        searchable: false,
+                        orderable: false
 
                     },
                     {
                         data: "status",
-                        name: "status"
+                        name: "status",
+                        searchable: false,
+                        orderable: false
                     },
                     {
     data: "start_date",
@@ -361,26 +379,38 @@ window.addEventListener('load', function () {
 },
                     {
                         data: "qr_code",
-                        name: "qr_code"
+                        name: "qr_code",
+                        searchable: false,
+                        orderable: false
                     },
                    
                     {
                         data: "lessons",
-                        name: "lessons"
+                        name: "lessons",
+                        searchable: false,
+                        orderable: false
                     },
                     {
                         data: "tests",
-                        name: "tests"
+                        name: "tests",
+                        searchable: false,
+                        orderable: false
                     },
                     {   data: "assignment", 
-                        name: "assignment"
+                        name: "assignment",
+                        searchable: false,
+                        orderable: false
                     },
                     {   data: "feedback", 
-                        name: "feedback"
+                        name: "feedback",
+                        searchable: false,
+                        orderable: false
                     },
                     {
                         data: "actions",
-                        name: "actions"
+                        name: "actions",
+                        searchable: false,
+                        orderable: false
                     }
                 ],
                 @can('course_delete')
@@ -407,7 +437,10 @@ window.addEventListener('load', function () {
                 },
   
                 drawCallback: function () {
-                    addDeleteForms();
+                    // Re-bind delete confirmation handlers after DataTables redraw.
+                    if (typeof addDeleteForms === 'function') {
+                        addDeleteForms();
+                    }
                 },
                 createdRow: function(row, data, dataIndex) {
                     $(row).attr('data-entry-id', data.id);
@@ -425,15 +458,27 @@ window.addEventListener('load', function () {
                 }
             }); 
            
-            $('#btn_filter').click(function(){
-                $('#myTable').DataTable().ajax.reload();
+            $('#btn_filter').on('click', function (e) {
+                e.preventDefault();
+
+                var table = $('#myTable').DataTable();
+
+                table.ajax.reload(null, true);
             });
 
-            $('#btn_reset').click(function(){
+            $('#btn_reset').on('click', function (e) {
+                e.preventDefault();
+
                 $('#filter_status').val('');
                 $('#filter_teacher').val('');
                 $('#filter_category').val('');
-                $('#myTable').DataTable().ajax.reload();
+
+                var table = $('#myTable').DataTable();
+
+                // Clear global DataTables search as well.
+                table.search('');
+
+                table.ajax.reload(null, true);
             });
         });
 
