@@ -347,14 +347,14 @@
                                     </li>
                                 @endcan
 
-                                @can('course_invitation_access')
+                                <!-- @can('course_invitation_access')
                                     <li class="nav-item ">
                                         <a class="nav-link {{ $request->segment(2) == 'course-invitation-list' ? 'active' : '' }}"
                                             href="{{ route('admin.assessment_accounts.course-invitation-list') }}">
                                             <span class="title">@lang('menus.backend.sidebar.invitations')</span>
                                         </a>
                                     </li>
-                                @endcan
+                                @endcan -->
 
                                 @if (in_array(Session::get('setvaluesession'), [3]))
                                     <li class="nav-item ">
