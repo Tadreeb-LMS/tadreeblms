@@ -446,7 +446,7 @@ Route::post('questions_mass_destroy', ['uses' => 'Admin\QuestionsController@mass
 Route::post('questions_restore/{id}', ['uses' => 'Admin\QuestionsController@restore', 'as' => 'questions.restore']);
 Route::delete('questions_perma_del/{id}', ['uses' => 'Admin\QuestionsController@perma_del', 'as' => 'questions.perma_del']);
 
-Route::any('test_questions/upload_ck_image', 'Admin\TestQuestionController@upload_ck_image')->name('upload_ck_image');
+Route::post('test_questions/upload_ck_image', 'Admin\TestQuestionController@upload_ck_image')->name('upload_ck_image');
 
 //Route::post('upload_ck_image', 'Admin\TestQuestionController@upload_ck_image')->name('admin.upload_ck_image');
 Route::get('test_questions', 'Admin\TestQuestionController@index')->name('test_questions.index');
