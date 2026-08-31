@@ -19,7 +19,9 @@ README.md
 /storage/framework/views/*
 
 .phpunit.result.cache
-composer.lock
+# composer.lock SHOULD be committed for reproducible, auditable builds and
+# so that `composer audit` can flag vulnerable locked dependencies.
+# It was previously ignored — keep it tracked going forward.
 
 # Ignore all storage except public assets
 storage/*
