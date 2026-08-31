@@ -92,7 +92,8 @@ class TestQuestionController extends Controller
                 ])
             : collect([])->values();
         $lesson_id_preselect = $request->input('lesson_id');
-        $lock_lesson_selection = $request->filled('lesson_id');
+        $lock_lesson_selection = $request->boolean('lock_lesson_selection')
+            && $request->filled('lesson_id');
 
         if (!$lesson_id_preselect && $selected_test && $selected_test->lesson_id) {
             $lesson_id_preselect = (int) $selected_test->lesson_id;
