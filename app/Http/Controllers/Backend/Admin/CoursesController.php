@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend\Admin;
 
+use App\Services\Courses\CourseScheduleService;
 
 use App\Exports\CoursesExport;
 use App\Models\Auth\User;
@@ -10,7 +11,6 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\CourseTimeline;
 use App\Models\Media;
-use function foo\func;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -22,7 +22,6 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\CustomHelper;
 use App\Models\{Assignment, courseAssignment, CourseAssignmentToUser, CourseFeedback, CourseModuleWeightage, Department, LiveSession};
 use App\Models\Stripe\SubscribeCourse;
-use App\Jobs\SendEmailJob;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -36,6 +35,14 @@ use Illuminate\Validation\ValidationException;
 class CoursesController extends Controller
 {
     use FileUploadTrait;
+
+
+    private CourseScheduleService $courseScheduleService;
+
+    public function __construct(CourseScheduleService $courseScheduleService)
+    {
+        $this->courseScheduleService = $courseScheduleService;
+    }
 
     /**
      * Display a listing of Course.
@@ -590,7 +597,15 @@ class CoursesController extends Controller
 
         $selected_category = request('cat_id');
 
-        return view('backend.courses.create', compact('internalStudents', 'externalStudents', 'teachers', 'categories', 'departments', 'enabledMeetingProviders', 'selected_category'));
+        return view('backend.courses.create', compact(
+            'internalStudents',
+            'externalStudents',
+            'teachers',
+            'categories',
+            'departments',
+            'enabledMeetingProviders',
+            'selected_category'
+        ));
     }
 
     /**
@@ -626,12 +641,13 @@ class CoursesController extends Controller
 
         $this->validateMeetingProvider($request);
 
-        if ($request->course_type === 'Offline') {
-            $teacherId = \Auth::user()->isAdmin()
-                ? $request->input('teacher_id')
-                : \Auth::user()->id;
-            $teachers = array_filter([$teacherId]);
+        $teacherId = \Auth::user()->isAdmin()
+            ? $request->input('teacher_id')
+            : \Auth::user()->id;
 
+        $teachers = array_filter([$teacherId]);
+
+        if ($request->course_type === 'Offline') {
             $this->validateLiveCourseTrainerSchedule($request, $teachers);
         }
         DB::beginTransaction();
@@ -864,15 +880,10 @@ $course->price = $request->course_payment_type === 'Paid' ? $request->price : nu
                 'last_module' => $last_module,
             ]);
 
-            //dd("jj");
+            if (!empty($teachers)) {
+                $course->teachers()->sync($teachers);
+            }
 
-$teacherId = \Auth::user()->isAdmin()
-    ? $request->input('teacher_id')
-    : \Auth::user()->id;
-
-$teachers = [$teacherId];
-
-            $course->teachers()->sync($teachers);
 
             $internalStudents = (array) $request->input('internalStudents', []);
             $externalStudents = (array) $request->input('externalStudents', []);
@@ -923,7 +934,7 @@ $teachers = [$teacherId];
                     }
                     $course->save();
 
-                    $failedCount = $this->generateLiveSessions($course, $request);
+                    $failedCount = $this->courseScheduleService->generateLiveSessions($course, $request);
 
                     if ($failedCount > 0) {
                         \Session::flash('flash_danger', "Course saved, but {$failedCount} session(s) failed to create meeting links. Please check your {$request->meeting_provider} credentials in External Apps settings. You can regenerate missing links from the course edit page.");
@@ -931,16 +942,19 @@ $teachers = [$teacherId];
 
                     // Send meeting invites to students for courses with sessions
                     if ($course->liveSessions()->whereNotNull('meeting_link')->count() > 0) {
-                        $this->sendMeetingInviteToStudents($course, $students);
+                        $this->courseScheduleService->sendMeetingInviteToStudents($course, $students);
                     }
                 } else {
                     // Original single-meeting flow
-                    $meetingData = $this->createMeetingViaModule(
-                        $request->meeting_provider, $request, $course
+                    $meetingData = $this->courseScheduleService->createMeetingViaModule(
+                        $request->meeting_provider,
+                        $request,
+                        $course
                     );
+
                     if ($meetingData) {
                         $course->fill($meetingData)->save();
-                        $this->sendMeetingInviteToStudents($course, $students);
+                        $this->courseScheduleService->sendMeetingInviteToStudents($course, $students);
                     } else {
                         \Session::flash('flash_danger', 'Course saved successfully, but the meeting provider ('.$request->meeting_provider.') failed to create the meeting. Please verify that your credentials are correct and have the required scopes (e.g. meeting:write:admin for Zoom).');
                     }
@@ -972,7 +986,7 @@ $teachers = [$teacherId];
 
             return response()->json(['status' => 'success', 'temp_id' => $uniqueId, 'course_id' => $course->id, 'redirect_url' =>  $redirect_url, 'clientmsg' => 'Added successfully']);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
            DB::rollBack();
            return response()->json(['status' => 'error', 'clientmsg' => $e->getMessage()]);
@@ -1035,6 +1049,7 @@ $teachers = [$teacherId];
         if (!Gate::allows('course_edit')) {
             return abort(401);
         }
+
         $course = Course::findOrFail($id);
 
         $this->validateMeetingProvider($request);
@@ -1103,8 +1118,6 @@ $teachers = [$teacherId];
                     ->withFlashDanger($message);
             }
         }
-
-
 
         $storage = config('filesystems.default');
         if( $storage == 'local') {
@@ -1200,12 +1213,18 @@ $teachers = [$teacherId];
         
         $course->update($request->all());
 
-        $course->teachers()->sync($teachers);
+        if (!empty($teachers)) {
+            $course->teachers()->sync($teachers);
+        }
 
         if (\Auth::user()->isAdmin() && ($request->has('internalStudents') || $request->has('externalStudents'))) {
-            $internalStudents = (array)$request->input('internalStudents', []);
-            $externalStudents = (array)$request->input('externalStudents', []);
-            $students = array_values(array_unique(array_filter(array_merge($internalStudents, $externalStudents))));
+            $internalStudents = (array) $request->input('internalStudents', []);
+            $externalStudents = (array) $request->input('externalStudents', []);
+
+            $students = array_values(array_unique(array_filter(array_merge(
+                $internalStudents,
+                $externalStudents
+            ))));
 
             $course->students()->sync($students);
 
@@ -1227,6 +1246,7 @@ $teachers = [$teacherId];
         }
         
         $course->is_online = $request->course_type ?? 'Online';
+        $course->save();
 
         // Handle live session scheduling on update
         if ($request->course_type === 'Offline' && $request->schedule_type && in_array($request->schedule_type, ['daily', 'weekly', 'custom'])) {
@@ -1242,7 +1262,7 @@ $teachers = [$teacherId];
             }
             $course->save();
 
-            $failedCount = $this->generateLiveSessions($course, $request);
+            $failedCount = $this->courseScheduleService->generateLiveSessions($course, $request);
 
             if ($failedCount > 0) {
                 \Session::flash('flash_danger', "Course updated, but {$failedCount} session(s) failed to create meeting links. Please check your {$request->meeting_provider} credentials in External Apps settings. You can regenerate missing links using the button below.");
@@ -1782,9 +1802,8 @@ $teachers = [$teacherId];
     private function buildRequestedLiveSessions(Course $course, Request $request): array
     {
         $scheduleType = $request->schedule_type;
-
-        $startDateValue = $request->start_date ?? $course->getRawOriginal('start_date');
-        $endDateValue = $request->expire_at ?? $course->getRawOriginal('expire_at');
+        $startDateValue = $request->start_date ?? $course->getRawOriginal('start_date') ?? ($course->getAttributes()['start_date'] ?? null);
+        $endDateValue = $request->expire_at ?? $course->getRawOriginal('expire_at') ?? ($course->getAttributes()['expire_at'] ?? null);
 
         $startDate = \Carbon\Carbon::parse($startDateValue);
         $endDate = \Carbon\Carbon::parse($endDateValue);
@@ -1830,9 +1849,14 @@ $teachers = [$teacherId];
             $durations = $request->custom_durations ?? [];
 
             foreach ($dates as $i => $date) {
-                if (!$date || !isset($times[$i])) continue;
+                if (!$date || !isset($times[$i])) {
+                    continue;
+                }
+
                 $sessionDate = \Carbon\Carbon::parse($date);
-                if ($sessionDate->lt($startDate) || $sessionDate->gt($endDate)) continue;
+                if ($sessionDate->lt($startDate) || $sessionDate->gt($endDate)) {
+                    continue;
+                }
 
                 $sessions[] = [
                     'date' => $date,
@@ -2144,7 +2168,6 @@ $teachers = [$teacherId];
         foreach ($sessions as $session) {
             $sessionDateTime = $session['date'] . ' ' . $session['time'] . ':00';
 
-            // Create meeting via provider for each session
             $meetingLink = null;
             $meetingId = null;
             $hostUrl = null;
@@ -2161,11 +2184,13 @@ $teachers = [$teacherId];
             } else {
                 try {
                     $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
+
                     if ($meetingData) {
                         $meetingLink = $meetingData['meeting_join_url'] ?? null;
                         $meetingId = $meetingData['meeting_id'] ?? null;
                         $hostUrl = $meetingData['meeting_host_url'] ?? null;
                     }
+
                     if (!$meetingLink) {
                         $failedCount++;
                     }
@@ -2192,7 +2217,6 @@ $teachers = [$teacherId];
             $lastSessionDate = $session['date'];
         }
 
-        // Update course with last session date
         if ($lastSessionDate) {
             $course->last_session_date = $lastSessionDate;
             $course->save();
@@ -2200,7 +2224,6 @@ $teachers = [$teacherId];
 
         return $failedCount;
     }
-
     /**
      * Regenerate meeting links for sessions that have null meeting_link.
      */
@@ -2215,76 +2238,22 @@ $teachers = [$teacherId];
         ]);
 
         $course = Course::findOrFail($courseId);
-        $sessions = $course->liveSessions()->whereNull('meeting_link')->get();
 
-        if ($sessions->isEmpty()) {
+        $result = $this->courseScheduleService->regenerateMissingMeetingLinks($course);
+
+        if (!$result['has_missing_sessions']) {
             return back()->withFlashSuccess('All sessions already have meeting links.');
         }
 
-        $timezone = $course->meeting_timezone ?? 'Asia/Riyadh';
-        $manualMeetingLink = $request->filled('session_meeting_link') ? $request->session_meeting_link : null;
-        $successCount = 0;
-        $failedCount = 0;
-
-        foreach ($sessions as $session) {
-            $provider = $session->meeting_provider ?: LiveSession::normalizeMeetingProvider($course->meeting_provider);
-
-            if ($manualMeetingLink) {
-                $session->update([
-                    'meeting_link' => $manualMeetingLink,
-                    'meeting_provider' => $provider,
-                ]);
-                $successCount++;
-                continue;
-            }
-
-            if (!$provider || !$this->canCreateMeetingsForProvider($provider)) {
-                return back()->withFlashDanger('Enter a manual meeting link before regenerating, or configure an active meeting provider integration.');
-            }
-
-            $timeFormatted = \Carbon\Carbon::parse($session->session_time)->format('H:i:s');
-            $sessionDateTime = $session->session_date->format('Y-m-d') . ' ' . $timeFormatted;
-
-            $meetingRequest = new Request();
-            $meetingRequest->merge([
-                'meeting_start_at' => $sessionDateTime,
-                'meeting_duration' => $session->duration,
-                'meeting_timezone' => $timezone,
-            ]);
-
-            try {
-                if (!$provider) {
-                    $failedCount++;
-                    continue;
-                }
-
-                $meetingData = $this->createMeetingViaModule($provider, $meetingRequest, $course);
-                if ($meetingData && $meetingData['meeting_join_url']) {
-                    $session->update([
-                        'meeting_link' => $meetingData['meeting_join_url'],
-                        'meeting_id' => $meetingData['meeting_id'] ?? null,
-                        'host_url' => $meetingData['meeting_host_url'] ?? null,
-                        'meeting_provider' => $provider,
-                    ]);
-                    $successCount++;
-                } else {
-                    $failedCount++;
-                }
-            } catch (\Throwable $e) {
-                \Log::warning("Failed to regenerate meeting for session {$session->id}: " . $e->getMessage());
-                $failedCount++;
-            }
+        if ($result['failed_count'] > 0) {
+            return back()->withFlashDanger(
+                "Regenerated {$result['success_count']} meeting link(s), but {$result['failed_count']} failed. Please check your {$result['provider']} credentials in External Apps settings."
+            );
         }
 
-        if ($successCount === 0 && $failedCount > 0) {
-            return back()->withFlashDanger("Failed to regenerate any meeting links ({$failedCount} failed). Please check your {$provider} credentials in External Apps settings.");
-        }
-
-        if ($failedCount > 0) {
-            return back()->withFlashDanger("Regenerated {$successCount} meeting link(s), but {$failedCount} failed. Please check your meeting provider credentials in External Apps settings.");
-        }
-
-        return back()->withFlashSuccess("Successfully regenerated {$successCount} meeting link(s).");
+        return back()->withFlashSuccess(
+            "Successfully regenerated {$result['success_count']} meeting link(s)."
+        );
     }
 
     private function createMeetingViaModule(?string $provider, Request $request, Course $course): ?array
