@@ -128,8 +128,11 @@ class DashboardController extends Controller
                     ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
                     ->where('cu.user_id', $teacherId);
             })
+            ->whereNull('s.revoked_at')
+            ->where('s.status', '!=', \App\Models\Certificate::STATUS_REISSUED)
             ->whereNull('u.deleted_at')
             ->where('u.active', 1)
+            ->distinct()
             ->count('s.id');
 
         // --- Course completion ---
@@ -300,8 +303,11 @@ class DashboardController extends Controller
                         ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
                         ->where('cu.user_id', $teacherId);
                 })
+                ->whereNull('s.revoked_at')
+                ->where('s.status', '!=', \App\Models\Certificate::STATUS_REISSUED)
                 ->whereNull('u.deleted_at')
                 ->where('u.active', 1)
+                ->distinct()
                 ->count('s.id');
 
             // --- Course Completion stats ---

@@ -96,6 +96,7 @@
                                     <th>@lang('Course Category')</th>
                                     <th>@lang('Assign. By')</th>
                                     <th>@lang('Assign. Date')</th>
+                                    <th>@lang('Completion %')</th>
                                     <th>@lang('Assign. to User Group')</th>
                                     <th>@lang('Assign. to Specific User')</th>
                                     <th>@lang('Due Date')</th>
@@ -262,7 +263,12 @@
                         data: 'assign_date',
                         name: 'assign_date',
                         orderable: false,
-
+                    },
+                    {
+                        data: 'completion_percentage',
+                        name: 'completion_percentage',
+                        orderable: true,
+                        searchable: false,
                     },
                     {
                         data: 'deprt_title',

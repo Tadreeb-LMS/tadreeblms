@@ -806,12 +806,64 @@
 
     var question_submit_url = "{{route('admin.test_questions.store')}}";
 
+    function validateQuestionOptions(data) {
+        const questionType = parseInt(data.question_type);
+
+        // Short answer does not use options.
+        if (questionType === 3) {
+            return true;
+        }
+
+        let questionOptions = [];
+
+        try {
+            questionOptions = JSON.parse(data.options || '[]');
+        } catch (error) {
+            alert('Invalid question options.');
+            return false;
+        }
+
+        if (!Array.isArray(questionOptions)) {
+            alert('Invalid question options.');
+            return false;
+        }
+
+        // Single Choice validation
+        if (questionType === 1) {
+            if (questionOptions.length < 2) {
+                alert(
+                    'Single choice questions must contain at least 2 options.'
+                );
+                return false;
+            }
+
+            const correctOptionCount = questionOptions.filter(function (option) {
+                return (
+                    Array.isArray(option) &&
+                    parseInt(option[1]) === 1
+                );
+            }).length;
+
+            if (correctOptionCount !== 1) {
+                alert(
+                    'Single choice questions must have exactly one correct option.'
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
     function sendData() {
 
         console.log('sendData() started');
         var data = dataCollection();
         console.log('Data being submitted:', data);
 
+        if (!validateQuestionOptions(data)) {
+            return;
+        }
+        
         if (!data.question || data.question.trim() === '') {
             alert('Question field is required.');
             return;
