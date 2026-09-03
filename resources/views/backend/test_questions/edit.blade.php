@@ -314,18 +314,18 @@
         flag = 0;
         if (CKEDITOR.instances["question"].getData() != "" && $('#score').val() != "" && ($('#test_id').val() || $('#course_id').val())) {
             if ($('#question_type').val() == 1) {
-                if ($('input:radio:checked').length > 0) {
-                    sendData();
-                } else {
-                    alert('Please Select The Right Answer.');
+                if (options.length < 2) {
+                    alert(
+                        'Single choice questions must contain at least 2 options.'
+                    );
+                    return;
                 }
-            } else if ($('#question_type').val() == 2) {
-                if ($('input:checkbox:checked').length > 0) {
-                    sendData();
-                } else {
-                    alert('Please Select at least one right Answer.');
+                if ($('input:radio:checked').length !== 1) {
+                    alert(
+                        'Single choice questions must have exactly one correct option.'
+                    );
+                    return;
                 }
-            } else {
                 sendData();
             }
         } else {

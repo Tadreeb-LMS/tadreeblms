@@ -127,19 +127,27 @@
                     <label class="col-md-12 form-control-label">Select Course</label>
 
                     <div class="col-md-12 custom-select-wrapper">
-                        <select class="form-control custom-select-box select2"
-                                name="course_ids[]" multiple >
+                        @php
+                            $selectedCourses = old('course_ids');
 
+                            if ($selectedCourses === null) {
+                                $selectedCourses = $selectedCourse ? [$selectedCourse] : [];
+                            }
+
+                            $selectedCourses = array_filter((array) $selectedCourses);
+                        @endphp
+
+                        <select
+                            class="form-control custom-select-box select2"
+                            name="course_ids[]"
+                            multiple
+                            data-placeholder="Select One Course"
+                        >
                             @foreach ($courses as $value)
-                                <option value="{{ $value->id }}"
-                                    {{
-                                        in_array(
-                                            $value->id,
-                                            old('course_ids', $selectedCourse ? [$selectedCourse] : [])
-                                        )
-                                            ? 'selected'
-                                            : ''
-                                    }}>
+                                <option
+                                    value="{{ $value->id }}"
+                                    {{ in_array($value->id, $selectedCourses) ? 'selected' : '' }}
+                                >
                                     {{ $value->title }}
                                 </option>
                             @endforeach
