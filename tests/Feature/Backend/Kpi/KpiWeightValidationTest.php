@@ -207,4 +207,204 @@ class KpiWeightValidationTest extends TestCase
             'type' => 'completion',
         ]);
     }
+
+    #[Test]
+public function it_rejects_store_when_selected_category_already_has_complete_active_configuration()
+{
+    config()->set('kpi.total_weight_validation.target', 100);
+    config()->set('kpi.total_weight_validation.tolerance', 0.01);
+
+    $admin = $this->loginAsAdmin();
+
+    $categoryA = Category::query()->create([
+        'name' => 'Category A',
+        'slug' => 'category-a',
+        'status' => 1,
+    ]);
+
+    $categoryB = Category::query()->create([
+        'name' => 'Category B',
+        'slug' => 'category-b',
+        'status' => 1,
+    ]);
+
+    $existingKpiOne = Kpi::query()->create([
+        'name' => 'Existing KPI One',
+        'code' => 'EXISTING_KPI_ONE',
+        'type' => 'completion',
+        'description' => 'Existing KPI one.',
+        'weight' => 60,
+        'is_active' => true,
+        'created_by' => $admin->id,
+        'updated_by' => $admin->id,
+    ]);
+
+    $existingKpiTwo = Kpi::query()->create([
+        'name' => 'Existing KPI Two',
+        'code' => 'EXISTING_KPI_TWO',
+        'type' => 'score',
+        'description' => 'Existing KPI two.',
+        'weight' => 40,
+        'is_active' => true,
+        'created_by' => $admin->id,
+        'updated_by' => $admin->id,
+    ]);
+
+    $existingKpiOne->categories()->sync([$categoryA->id]);
+    $existingKpiTwo->categories()->sync([$categoryA->id]);
+
+    $response = $this->post(
+        route('admin.kpis.store'),
+        [
+            'name' => 'Duplicate KPI',
+            'code' => 'DUPLICATE_KPI',
+            'type' => 'completion',
+            'description' => 'Should not be created.',
+            'weight' => 20,
+            'category_ids' => [
+                $categoryB->id,
+                $categoryA->id,
+            ],
+            'course_ids' => [],
+        ]
+    );
+
+    $response->assertSessionHasErrors('category_ids');
+
+    $this->assertDatabaseMissing('kpis', [
+        'code' => 'DUPLICATE_KPI',
+    ]);
+}
+#[Test]
+public function it_allows_store_when_selected_category_has_less_than_complete_active_configuration()
+{
+    $admin = $this->loginAsAdmin();
+
+    $category = Category::query()->create([
+        'name' => 'Incomplete Category',
+        'slug' => 'incomplete-category',
+        'status' => 1,
+    ]);
+
+    $existingKpi = Kpi::query()->create([
+        'name' => 'Existing KPI',
+        'code' => 'INCOMPLETE_EXISTING_KPI',
+        'type' => 'completion',
+        'description' => 'Existing KPI.',
+        'weight' => 60,
+        'is_active' => true,
+        'created_by' => $admin->id,
+        'updated_by' => $admin->id,
+    ]);
+
+    $existingKpi->categories()->sync([$category->id]);
+
+    $response = $this->post(
+        route('admin.kpis.store'),
+        [
+            'name' => 'Additional KPI',
+            'code' => 'ADDITIONAL_KPI',
+            'type' => 'score',
+            'description' => 'Additional KPI.',
+            'weight' => 20,
+            'category_ids' => [$category->id],
+            'course_ids' => [],
+        ]
+    );
+
+    $response->assertRedirect(route('admin.kpis.index'));
+
+    $this->assertDatabaseHas('kpis', [
+        'code' => 'ADDITIONAL_KPI',
+    ]);
+}
+#[Test]
+public function it_allows_editing_an_existing_complete_category_configuration()
+{
+    $admin = $this->loginAsAdmin();
+
+    $category = Category::query()->create([
+        'name' => 'Editable Category',
+        'slug' => 'editable-category',
+        'status' => 1,
+    ]);
+
+    $kpi = Kpi::query()->create([
+        'name' => 'Complete KPI',
+        'code' => 'COMPLETE_KPI',
+        'type' => 'completion',
+        'description' => 'Complete KPI.',
+        'weight' => 100,
+        'is_active' => true,
+        'created_by' => $admin->id,
+        'updated_by' => $admin->id,
+    ]);
+
+    $kpi->categories()->sync([$category->id]);
+
+    $response = $this->put(
+        route('admin.kpis.update', $kpi->id),
+        [
+            'name' => 'Updated Complete KPI',
+            'code' => 'COMPLETE_KPI',
+            'type' => 'completion',
+            'description' => 'Updated description.',
+            'weight' => 100,
+            'category_ids' => [$category->id],
+            'course_ids' => [],
+        ]
+    );
+
+    $response->assertRedirect(route('admin.kpis.index'));
+
+    $this->assertDatabaseHas('kpis', [
+        'id' => $kpi->id,
+        'name' => 'Updated Complete KPI',
+        'weight' => 100,
+    ]);
+}
+#[Test]
+public function it_ignores_inactive_kpis_when_checking_category_configuration()
+{
+    $admin = $this->loginAsAdmin();
+
+    $category = Category::query()->create([
+        'name' => 'Inactive Category',
+        'slug' => 'inactive-category',
+        'status' => 1,
+    ]);
+
+    $inactiveKpi = Kpi::query()->create([
+        'name' => 'Inactive KPI',
+        'code' => 'INACTIVE_KPI',
+        'type' => 'completion',
+        'description' => 'Inactive KPI.',
+        'weight' => 100,
+        'is_active' => false,
+        'created_by' => $admin->id,
+        'updated_by' => $admin->id,
+    ]);
+
+    $inactiveKpi->categories()->sync([$category->id]);
+
+    $response = $this->post(
+        route('admin.kpis.store'),
+        [
+            'name' => 'New Active KPI',
+            'code' => 'NEW_ACTIVE_KPI',
+            'type' => 'score',
+            'description' => 'New active KPI.',
+            'weight' => 50,
+            'category_ids' => [$category->id],
+            'course_ids' => [],
+        ]
+    );
+
+    $response->assertRedirect(route('admin.kpis.index'));
+
+    $this->assertDatabaseHas('kpis', [
+        'code' => 'NEW_ACTIVE_KPI',
+        'is_active' => true,
+    ]);
+}
 }
