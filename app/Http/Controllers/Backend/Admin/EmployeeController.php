@@ -1509,10 +1509,6 @@ class EmployeeController extends Controller
             $due_date = $request->due_date ?? null;
             $dept_id = $request->dept_id ?? null;
 
-            if (empty($dept_id) && empty($user_id) && empty($course_id) && empty($assign_from_date) && empty($assign_to_date) && empty($due_date) ) {
-                return DataTables::of(collect())->make(true); // return empty set
-            }
-
             $subscribeCourse = SubscribeCourse::with('user', 'user.employee', 'student', 'course')
                 ->whereHas('user', function ($query) use ($user_id, $dept_id) {
                     if (!empty($user_id)) {

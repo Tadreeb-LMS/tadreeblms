@@ -1326,16 +1326,23 @@ public function courseAssignment(Request $request)
             $course_id = $request->course_id ?? null;
 
             $assessments = CourseAssignmentToUser::query()
-                            ->with('course','assignment','user')
-                            ->where('by_pathway','0')
-                            ->when(!empty($course_id), function ($q) use ($course_id) {
-                                $q->where('course_id', $course_id);
-                            })
-                            ->when(!empty($user_id), function ($q) use ($user_id) {
-                                $q->where('user_id', $user_id);
-                            })
-                            ->orderBy('id', 'Desc');
-            
+                ->select(
+                    'course_assignment_users.*',
+                    DB::raw('COALESCE(subscribe_courses.assignment_progress, 0) as completion_percentage')
+                )
+                ->leftJoin('subscribe_courses', function ($join) {
+                    $join->on('subscribe_courses.course_id', '=', 'course_assignment_users.course_id')
+                        ->on('subscribe_courses.user_id', '=', 'course_assignment_users.user_id');
+                })
+                ->with('course', 'assignment', 'user')
+                ->where('course_assignment_users.by_pathway', '0')
+                ->when(!empty($course_id), function ($q) use ($course_id) {
+                    $q->where('course_assignment_users.course_id', $course_id);
+                })
+                ->when(!empty($user_id), function ($q) use ($user_id) {
+                    $q->where('course_assignment_users.user_id', $user_id);
+                })
+                ->orderBy('course_assignment_users.id', 'Desc');
 
             return DataTables::of($assessments)
                 ->addColumn('course_title', function ($row) {
@@ -1366,6 +1373,9 @@ public function courseAssignment(Request $request)
                 })
                 ->addColumn('assign_by', function ($row) {
                     return @$row->assignment->assignedBy->full_name;
+                })
+                ->addColumn('completion_percentage', function ($row) {
+                    return (int) $row->completion_percentage . '%';
                 })
                 ->addColumn('deprt_title', function ($row) {
                     return '';
