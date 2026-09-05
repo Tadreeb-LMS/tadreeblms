@@ -92,7 +92,8 @@ class TestQuestionController extends Controller
                 ])
             : collect([])->values();
         $lesson_id_preselect = $request->input('lesson_id');
-        $lock_lesson_selection = $request->filled('lesson_id');
+        $lock_lesson_selection = $request->boolean('lock_lesson_selection')
+            && $request->filled('lesson_id');
 
         if (!$lesson_id_preselect && $selected_test && $selected_test->lesson_id) {
             $lesson_id_preselect = (int) $selected_test->lesson_id;
@@ -161,46 +162,94 @@ class TestQuestionController extends Controller
             ]
         ], 422);
     }
+
     $questionType = (int) $request->question_type;
 
-    if ($questionType == 1) {
-        $options = isset($request->options) ? json_decode($request->options) : [];
-        if (isset($request->options) && count($options) == 0) {
+    if (in_array($questionType, [1, 2], true)) {
+        $decodedOptions = json_decode(
+            $request->input('options', '[]'),
+            true
+        );
+
+        $options = is_array($decodedOptions) ? $decodedOptions : [];
+
+        if (count($options) === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please provide the options',
-                'errors' => 'Please provide the options',
+                'message' => 'Please provide the options.',
+                'errors' => [
+                    'options' => ['Please provide the options.']
+                ],
             ], 422);
         }
-    } elseif ($questionType == 2) {
-        $options = isset($request->options) ? json_decode($request->options) : [];
-        if (isset($request->options) && count($options) == 0) {
+
+        /* Single Choice: */
+        if ($questionType === 1) {
+            if (count($options) < 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Single choice questions must contain at least 2 options.',
+                    'errors' => [
+                        'options' => [
+                            'Single choice questions must contain at least 2 options.'
+                        ]
+                    ],
+                ], 422);
+            }
+
+            $correctOptionCount = 0;
+
+            foreach ($options as $option) {
+                if (
+                    is_array($option) &&
+                    isset($option[1]) &&
+                    (int) $option[1] === 1
+                ) {
+                    $correctOptionCount++;
+                }
+            }
+
+            if ($correctOptionCount !== 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Single choice questions must have exactly one correct option.',
+                    'errors' => [
+                        'options' => [
+                            'Single choice questions must have exactly one correct option.'
+                        ]
+                    ],
+                ], 422);
+            }
+        }
+
+        /*  Multiple Choice:  */
+        if (
+            $questionType === 2 &&
+            !$this->checkOptionValidation($options)
+        ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please provide the options',
-                'errors' => 'Please provide the options',
+                'message' => 'At least one option must be selected.',
+                'errors' => [
+                    'options' => [
+                        'At least one option must be selected.'
+                    ]
+                ],
             ], 422);
         }
-    } else { // 3 short answer
+    } else {
+        // Short answer
+        $options = [];
+
         if (empty($request->solution)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please provide the answer',
-                'errors' => 'Please provide the answer',
+                'message' => 'Please provide the answer.',
+                'errors' => [
+                    'solution' => ['Please provide the answer.']
+                ],
             ], 422);
         }
-    }
-
-    if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'At least one option must be selected.',
-        ], 422);
-    }
-
-    if ($request->options) {
-        $decodedOptions = json_decode($request->options);
-        $options = is_array($decodedOptions) ? $decodedOptions : [];
     }
 
     // Legacy compatibility: test_id may be present, but explicit lesson selection must win.
@@ -462,35 +511,87 @@ class TestQuestionController extends Controller
         $questionType = (int) $request->question_type;
         $options = [];
 
-        if($questionType == 1) {
-            $options = isset($request->options) ? json_decode($request->options) : [];
-            if(isset($request->options) && count($options) == 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please provide the options',
-                    'errors' => "Please provide the options",
-                ], 422);
-            }
-        } else if($questionType == 2) {
+        if (in_array($questionType, [1, 2], true)) {
+            $decodedOptions = json_decode(
+                $request->input('options', '[]'),
+                true
+            );
 
-            $options = isset($request->options) ? json_decode($request->options) : [];
-            if(isset($request->options) && count($options) == 0) {
+            $options = is_array($decodedOptions) ? $decodedOptions : [];
+
+            if (count($options) === 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please provide the options',
-                    'errors' => "Please provide the options",
+                    'message' => 'Please provide the options.',
+                    'errors' => [
+                        'options' => ['Please provide the options.']
+                    ],
                 ], 422);
             }
-        } else { // 3 short answer
-            if(empty($request->solution)) {
+
+            if ($questionType === 1) {
+                if (count($options) < 2) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Single choice questions must contain at least 2 options.',
+                        'errors' => [
+                            'options' => [
+                                'Single choice questions must contain at least 2 options.'
+                            ]
+                        ],
+                    ], 422);
+                }
+
+                $correctOptionCount = 0;
+
+                foreach ($options as $option) {
+                    if (
+                        is_array($option) &&
+                        isset($option[1]) &&
+                        (int) $option[1] === 1
+                    ) {
+                        $correctOptionCount++;
+                    }
+                }
+
+                if ($correctOptionCount !== 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Single choice questions must have exactly one correct option.',
+                        'errors' => [
+                            'options' => [
+                                'Single choice questions must have exactly one correct option.'
+                            ]
+                        ],
+                    ], 422);
+                }
+            }
+
+            if (
+                $questionType === 2 &&
+                !$this->checkOptionValidation($options)
+            ) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please provide the answer',
-                    'errors' => "Please provide the answer",
+                    'message' => 'At least one option must be selected.',
+                    'errors' => [
+                        'options' => [
+                            'At least one option must be selected.'
+                        ]
+                    ],
+                ], 422);
+            }
+        } else {
+            if (empty($request->solution)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please provide the answer.',
+                    'errors' => [
+                        'solution' => ['Please provide the answer.']
+                    ],
                 ], 422);
             }
         }
-
         if (in_array($questionType, [1, 2], true) && !$this->checkOptionValidation($options)) {
             return response()->json([
                 'success' => false,
@@ -506,10 +607,6 @@ class TestQuestionController extends Controller
                 'success' => false,
                 'message' => 'Question not found.',
             ], 404);
-        }
-
-        if ($request->options) {
-            $options = json_decode($request->options) ?? [];
         }
 
         $currentQuestion = DB::table('test_questions')
@@ -576,17 +673,17 @@ class TestQuestionController extends Controller
 
     protected function checkOptionValidation($options)
     {
-        //dd($options);
-        $hasAtLeastOneSelected = false;
         foreach ($options as $option) {
-            if (is_array($option) && isset($option[1]) && $option[1] == 1) {
-                $hasAtLeastOneSelected = true;
-                break;
+            if (
+                is_array($option) &&
+                isset($option[1]) &&
+                (int) $option[1] === 1
+            ) {
+                return true;
             }
         }
-        
-        return $hasAtLeastOneSelected;
-        
+
+        return false;
     }
 
     private function scopeQuestionsToAssignedCoursesForNonAdmins($query): void

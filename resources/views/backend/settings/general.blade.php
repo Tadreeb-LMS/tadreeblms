@@ -199,7 +199,12 @@
                                     <label for="site_logo" class="control-label">
                                         Site Logo (Max File Size 10MB)
                                     </label>
-                                    <input type="file" name="site_logo" class="form-control">
+                                    <input type="file" name="site_logo" id="site_logo" class="form-control @error('site_logo') is-invalid @enderror" accept=".jpg,.jpeg,.png,.gif,.webp,.svg">
+                                    @error('site_logo')
+                                        <span class="invalid-feedback d-block">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
                                     <input type="hidden" name="site_logo_max_size" value="8">
                                     <input type="hidden" name="site_logo_max_width" value="4000">
                                     <input type="hidden" name="site_logo_max_height" value="4000">
@@ -1209,23 +1214,28 @@
 
             //========== Preview image function on upload =============//
             var previewImage = function(input, block) {
-                var fileTypes = ['jpg', 'jpeg', 'png', 'gif'];
-                var extension = input.files[0].name.split('.').pop().toLowerCase();
-                var isSuccess = fileTypes.indexOf(extension) > -1;
-
-                if (isSuccess) {
+                if (!input.files || !input.files.length) {
+                    return;
+                }
+                var file = input.files[0];
+                var fileTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+                var extension = file.name.split('.').pop().toLowerCase();
+                if (fileTypes.indexOf(extension) === -1) {
+                    alert('Only image files (JPG, JPEG, PNG, GIF, WEBP, or SVG) are allowed.');
+                    input.value = '';
+                    return false;
+                }
+                if (block) {
                     var reader = new FileReader();
 
                     reader.onload = function(e) {
                         $(block).find('img').attr('src', e.target.result);
                     };
-                    reader.readAsDataURL(input.files[0]);
-                } else {
-                    alert('Please input valid file!');
+                    reader.readAsDataURL(file);
                 }
-
+                return true;
             };
-            $(document).on('change', 'input[type="file"]', function() {
+            $(document).on('change', '#site_logo', function() {
                 previewImage(this, $(this).data('preview'));
             });
 
