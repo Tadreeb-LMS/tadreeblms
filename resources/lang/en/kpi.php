@@ -324,6 +324,8 @@ return [
         'template_no_active_items' => 'Template has no active items.',
         'template_duplicate_codes' => 'Template contains duplicate KPI codes.',
         'template_total_weight_positive' => 'Total weight must be greater than 0.',
+        'category_configuration_complete' =>
+        'Category ":category" already has an active KPI configuration with :weight% total weight. Duplicate KPI configuration is not allowed.',
     ],
     'warnings' => [
         'extreme_weight' => 'Warning: :name has weight :weight, which is above the extreme configuration threshold (:threshold).',

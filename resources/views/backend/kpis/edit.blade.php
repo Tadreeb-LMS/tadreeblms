@@ -90,6 +90,11 @@
                             @endforeach
                         </select>
                         <small class="form-text text-muted">@lang('kpi.help.category_scope_edit')</small>
+                        <div
+                            id="kpi-category-warning"
+                            class="alert alert-danger mt-2"
+                            style="display: none;"
+                        ></div>
                     </div>
 
                     <div class="col-12 form-group">
@@ -114,7 +119,7 @@
                 </div>
 
                 <div class="text-right">
-                    <button type="submit" class="add-btn">@lang('kpi.actions.update_kpi')</button>
+                    <button type="submit" class="add-btn" id="kpi-submit-button">@lang('kpi.actions.update_kpi')</button>
                 </div>
             </form>
 
@@ -188,4 +193,79 @@
             updateWeightSummary();
         })();
     </script>
+    <script>
+        (function () {
+            var categorySelect = document.getElementById('category_ids');
+            var warningEl = document.getElementById('kpi-category-warning');
+            var submitButton = document.getElementById('kpi-submit-button');
+
+            if (!categorySelect || !warningEl || !submitButton) {
+                return;
+            }
+
+            var categoryWeights = @json($categoryActiveWeights);
+            var categoryNames = @json($categories->pluck('name', 'id'));
+
+            var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+
+            var conflictThreshold = Math.max(
+                0,
+                validationTarget - validationTolerance
+            );
+
+            function checkCategoryConflicts() {
+                var conflicts = [];
+
+                Array.from(categorySelect.selectedOptions).forEach(function (option) {
+                    var categoryId = String(option.value);
+
+                    var weight = parseFloat(
+                        categoryWeights[categoryId] || 0
+                    );
+
+                    if (weight >= conflictThreshold) {
+                        conflicts.push(
+                            (categoryNames[categoryId] || option.text.trim()) +
+                            ' (' +
+                            weight.toFixed(2) +
+                            '%)'
+                        );
+                    }
+                });
+
+                if (conflicts.length === 0) {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    submitButton.disabled = false;
+                    return true;
+                }
+
+                warningEl.textContent =
+                    'The following category already has a complete KPI ' +
+                    'configuration and cannot be used for another active KPI ' +
+                    'configuration: ' +
+                    conflicts.join(', ') +
+                    '.';
+
+                warningEl.style.display = 'block';
+                submitButton.disabled = true;
+
+                return false;
+            }
+
+            $('#category_ids').on(
+                'change',
+                checkCategoryConflicts
+            );
+
+            categorySelect.form.addEventListener('submit', function (event) {
+                if (!checkCategoryConflicts()) {
+                    event.preventDefault();
+                }
+            });
+
+            checkCategoryConflicts();
+        })();
+        </script>
 @endsection

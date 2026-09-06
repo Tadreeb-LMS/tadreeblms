@@ -6,6 +6,7 @@ use App\Models\Kpi;
 use App\Services\Kpi\KpiTypeCatalog;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Services\Kpi\KpiCategoryConfigurationService;
 
 class UpdateKpiRequest extends FormRequest
 {
@@ -50,6 +51,36 @@ class UpdateKpiRequest extends FormRequest
 
     public function withValidator($validator)
     {
+        $categoryIds = collect($this->input('category_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $kpiId = $this->route('kpi');
+
+        if ($kpiId instanceof Kpi) {
+            $kpiId = $kpiId->id;
+        }
+
+        if (!empty($categoryIds)) {
+            $conflicts = app(KpiCategoryConfigurationService::class)
+                ->conflictingCategories(
+                    $categoryIds,
+                    (int) $kpiId
+                );
+
+            foreach ($conflicts as $category) {
+                $validator->errors()->add(
+                    'category_ids',
+                    __('kpi.validation.category_configuration_complete', [
+                        'category' => $category['name'],
+                        'weight' => number_format($category['weight'], 2),
+                    ])
+                );
+            }
+        }
         $validator->after(function ($validator) {
             $kpiId = $this->route('kpi');
             if (!$kpiId) {

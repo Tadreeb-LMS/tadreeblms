@@ -15,14 +15,18 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Services\Kpi\KpiCategoryConfigurationService;
+use Illuminate\Support\Facades\DB;
 
 class KpiController extends Controller
 {
     protected $snapshotService;
+    protected $categoryConfigurationService;
 
-    public function __construct(KpiSnapshotService $snapshotService)
+    public function __construct(KpiSnapshotService $snapshotService,KpiCategoryConfigurationService $categoryConfigurationService)
     {
         $this->snapshotService = $snapshotService;
+        $this->categoryConfigurationService = $categoryConfigurationService;
     }
 
     public function index(Request $request)
@@ -190,6 +194,12 @@ class KpiController extends Controller
         if (!Gate::allows('kpi_create')) {
             return abort(401);
         }
+        $categories = Category::query()
+            ->orderBy('name')
+            ->select('id', 'name')
+            ->get();
+        $categoryActiveWeights = $this->categoryConfigurationService
+            ->activeWeightsByCategory();
 
         $kpiTypes = $this->getSupportedKpiTypes();
         $maxWeight = config('kpi.max_weight', 100);
@@ -200,7 +210,7 @@ class KpiController extends Controller
         $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $courses = Course::query()->orderBy('title')->select('id', 'title', 'course_code')->get();
 
-        return view('backend.kpis.create', compact('kpiTypes', 'maxWeight', 'defaultWeight', 'categories', 'courses', 'activeTotalWeight', 'extremeWeightThreshold', 'totalWeightValidation'));
+        return view('backend.kpis.create', compact('kpiTypes', 'maxWeight', 'defaultWeight', 'categories', 'courses', 'activeTotalWeight', 'extremeWeightThreshold', 'totalWeightValidation','categoryActiveWeights'));
     }
 
     public function store(StoreKpiRequest $request)
@@ -209,44 +219,79 @@ class KpiController extends Controller
             return abort(401);
         }
 
-        $kpi = Kpi::create([
-            'name' => $request->name,
-            'code' => strtoupper(trim($request->code)),
-            'type' => $request->type,
-            'description' => $request->description,
-            'weight' => $request->weight,
-            'is_active' => true,
-            'created_by' => \Auth::id(),
-            'updated_by' => \Auth::id(),
-        ]);
+        $categoryIds = collect($request->input('category_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
 
-        $kpi->categories()->sync($request->input('category_ids', []));
-        $kpi->courses()->sync($request->input('course_ids', []));
+        return DB::transaction(function () use ($request, $categoryIds) {
 
-        $created = Kpi::query()->where('code', strtoupper(trim($request->code)))->first();
-        if ($created) {
-            $created->statusHistories()->create([
-                'action' => 'created',
-                'previous_is_active' => null,
-                'new_is_active' => true,
-                'changed_by' => \Auth::id(),
-                'meta' => [
-                    'type' => $created->type,
-                    'weight' => $created->weight,
-                    'category_ids' => $created->categories()->pluck('categories.id')->toArray(),
-                    'course_ids' => $created->courses()->pluck('courses.id')->toArray(),
-                ],
+            /*
+            * Lock selected categories first.
+            *
+            * This prevents two concurrent requests from both seeing
+            * the same category as available and creating duplicates.
+            */
+            $this->categoryConfigurationService
+                ->lockCategories($categoryIds);
+
+            /*
+            * Re-check after acquiring the locks.
+            */
+            $this->categoryConfigurationService
+                ->assertNoConflictingCategories($categoryIds);
+
+            $kpi = Kpi::create([
+                'name' => $request->name,
+                'code' => strtoupper(trim($request->code)),
+                'type' => $request->type,
+                'description' => $request->description,
+                'weight' => $request->weight,
+                'is_active' => true,
+                'created_by' => \Auth::id(),
+                'updated_by' => \Auth::id(),
             ]);
-        }
 
-        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess(__('kpi.messages.created'));
+            $kpi->categories()->sync($categoryIds);
 
-        $warnings = $this->buildPostSaveWeightWarnings($kpi);
-        if (!empty($warnings)) {
-            $redirect->with('flash_warning', implode(' ', $warnings));
-        }
+            $kpi->courses()->sync(
+                $request->input('course_ids', [])
+            );
+                
+            $kpi->statusHistories()->create([
+                    'action' => 'created',
+                    'previous_is_active' => null,
+                    'new_is_active' => true,
+                    'changed_by' => \Auth::id(),
+                    'meta' => [
+                        'type' => $kpi->type,
+                        'weight' => $kpi->weight,
+                        'category_ids' => $kpi->categories()
+                            ->pluck('categories.id')
+                            ->toArray(),
+                        'course_ids' => $kpi->courses()
+                            ->pluck('courses.id')
+                            ->toArray(),
+                    ],
+                ]);
+                $redirect = redirect()
+                    ->route('admin.kpis.index')
+                    ->withFlashSuccess(__('kpi.messages.created'));
 
-        return $redirect;
+                $warnings = $this->buildPostSaveWeightWarnings($kpi);
+
+                if (!empty($warnings)) {
+                    $redirect->with(
+                        'flash_warning',
+                        implode(' ', $warnings)
+                    );
+                }
+
+
+            return $redirect;
+        });
     }
 
     public function edit($kpi)
@@ -254,6 +299,8 @@ class KpiController extends Controller
         if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
+        $categoryActiveWeights = $this->categoryConfigurationService
+            ->activeWeightsByCategory([], (int) $kpi->id);
 
         $kpi = Kpi::with('courses', 'categories')->findOrFail($kpi);
 
@@ -265,7 +312,7 @@ class KpiController extends Controller
         $categories = Category::query()->orderBy('name')->select('id', 'name')->get();
         $courses = Course::query()->orderBy('title')->select('id', 'title', 'course_code')->get();
 
-        return view('backend.kpis.edit', compact('kpi', 'kpiTypes', 'maxWeight', 'categories', 'courses', 'activeTotalWeight', 'extremeWeightThreshold', 'totalWeightValidation'));
+        return view('backend.kpis.edit', compact('kpi', 'kpiTypes', 'maxWeight', 'categories', 'courses', 'activeTotalWeight', 'extremeWeightThreshold', 'totalWeightValidation','categoryActiveWeights'));
     }
 
     public function update(UpdateKpiRequest $request, $kpi)
@@ -275,46 +322,90 @@ class KpiController extends Controller
         }
 
         $kpiModel = Kpi::findOrFail($kpi);
-        $oldType = $kpiModel->type;
-        $oldWeight = $kpiModel->weight;
 
-        $kpiModel->name = $request->name;
-        $kpiModel->code = strtoupper(trim($request->code));
-        $kpiModel->type = $request->type;
-        $kpiModel->description = $request->description;
-        $kpiModel->weight = $request->weight;
-        $kpiModel->updated_by = \Auth::id();
-        $kpiModel->save();
-        $kpiModel->categories()->sync($request->input('category_ids', []));
-        $kpiModel->courses()->sync($request->input('course_ids', []));
+        $categoryIds = collect($request->input('category_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
 
-        $typeChanged = $oldType !== $kpiModel->type;
-        $weightChanged = (float) $oldWeight !== (float) $kpiModel->weight;
-        if ($typeChanged || $weightChanged) {
-            $kpiModel->statusHistories()->create([
-                'action' => 'updated',
-                'previous_is_active' => $kpiModel->is_active,
-                'new_is_active' => $kpiModel->is_active,
-                'changed_by' => \Auth::id(),
-                'meta' => [
-                    'old_type' => $oldType,
-                    'new_type' => $kpiModel->type,
-                    'old_weight' => $oldWeight,
-                    'new_weight' => $kpiModel->weight,
-                    'category_ids' => $kpiModel->categories()->pluck('categories.id')->toArray(),
-                    'course_ids' => $kpiModel->courses()->pluck('courses.id')->toArray(),
-                ],
-            ]);
-        }
+        return DB::transaction(function () use (
+            $request,
+            $kpiModel,
+            $categoryIds
+        ) {
 
-        $redirect = redirect()->route('admin.kpis.index')->withFlashSuccess(__('kpi.messages.updated'));
+            $this->categoryConfigurationService
+                ->lockCategories($categoryIds);
 
-        $warnings = $this->buildPostSaveWeightWarnings($kpiModel);
-        if (!empty($warnings)) {
-            $redirect->with('flash_warning', implode(' ', $warnings));
-        }
+            /*
+            * Re-check while category rows are locked.
+            * Exclude the KPI currently being edited.
+            */
+            $this->categoryConfigurationService
+                ->assertNoConflictingCategories(
+                    $categoryIds,
+                    $kpiModel->id
+                );
 
-        return $redirect;
+            $oldType = $kpiModel->type;
+            $oldWeight = $kpiModel->weight;
+
+            $kpiModel->name = $request->name;
+            $kpiModel->code = strtoupper(trim($request->code));
+            $kpiModel->type = $request->type;
+            $kpiModel->description = $request->description;
+            $kpiModel->weight = $request->weight;
+            $kpiModel->updated_by = \Auth::id();
+            $kpiModel->save();
+
+            $kpiModel->categories()->sync($categoryIds);
+
+            $kpiModel->courses()->sync(
+                $request->input('course_ids', [])
+            );
+
+            $typeChanged = $oldType !== $kpiModel->type;
+            $weightChanged =
+                (float) $oldWeight !== (float) $kpiModel->weight;
+
+            if ($typeChanged || $weightChanged) {
+                $kpiModel->statusHistories()->create([
+                    'action' => 'updated',
+                    'previous_is_active' => $kpiModel->is_active,
+                    'new_is_active' => $kpiModel->is_active,
+                    'changed_by' => \Auth::id(),
+                    'meta' => [
+                        'old_type' => $oldType,
+                        'new_type' => $kpiModel->type,
+                        'old_weight' => $oldWeight,
+                        'new_weight' => $kpiModel->weight,
+                        'category_ids' => $kpiModel->categories()
+                            ->pluck('categories.id')
+                            ->toArray(),
+                        'course_ids' => $kpiModel->courses()
+                            ->pluck('courses.id')
+                            ->toArray(),
+                    ],
+                ]);
+            }
+
+            $redirect = redirect()
+                ->route('admin.kpis.index')
+                ->withFlashSuccess(__('kpi.messages.updated'));
+
+            $warnings = $this->buildPostSaveWeightWarnings($kpiModel);
+
+            if (!empty($warnings)) {
+                $redirect->with(
+                    'flash_warning',
+                    implode(' ', $warnings)
+                );
+            }
+
+            return $redirect;
+        });
     }
 
     public function toggleStatus($kpi)

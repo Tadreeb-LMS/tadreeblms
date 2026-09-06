@@ -6,6 +6,7 @@ use App\Models\Kpi;
 use App\Services\Kpi\KpiTypeCatalog;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Services\Kpi\KpiCategoryConfigurationService;
 
 class StoreKpiRequest extends FormRequest
 {
@@ -44,16 +45,58 @@ class StoreKpiRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            $categoryIds = collect($this->input('category_ids', []))
+                ->map(fn ($id) => (int) $id)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($categoryIds)) {
+                $conflicts = app(KpiCategoryConfigurationService::class)
+                    ->conflictingCategories($categoryIds);
+
+                foreach ($conflicts as $category) {
+                    $validator->errors()->add(
+                        'category_ids',
+                        __('kpi.validation.category_configuration_complete', [
+                            'category' => $category['name'],
+                            'weight' => number_format($category['weight'], 2),
+                        ])
+                    );
+                }
+            }
+
+            /*
+            * Existing global active-weight validation.
+            */
             if (!config('kpi.total_weight_validation.enabled', false)) {
                 return;
             }
 
-            $proposedWeight = max(0.0, (float) $this->input('weight', 0));
-            $currentActiveTotal = (float) Kpi::query()->where('is_active', true)->sum('weight');
+            $proposedWeight = max(
+                0.0,
+                (float) $this->input('weight', 0)
+            );
+
+            $currentActiveTotal = (float) Kpi::query()
+                ->where('is_active', true)
+                ->sum('weight');
+
             $projectedTotal = $currentActiveTotal + $proposedWeight;
 
-            $target = (float) config('kpi.total_weight_validation.target', 100);
-            $tolerance = max(0.0, (float) config('kpi.total_weight_validation.tolerance', 0.01));
+            $target = (float) config(
+                'kpi.total_weight_validation.target',
+                100
+            );
+
+            $tolerance = max(
+                0.0,
+                (float) config(
+                    'kpi.total_weight_validation.tolerance',
+                    0.01
+                )
+            );
 
             if (abs($projectedTotal - $target) > $tolerance) {
                 $validator->errors()->add(
@@ -67,7 +110,7 @@ class StoreKpiRequest extends FormRequest
             }
         });
     }
-
+    
     public function messages()
     {
         return [
