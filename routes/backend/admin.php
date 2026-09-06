@@ -58,6 +58,10 @@ Route::group(['middleware' => 'permission:trainer_access'], function () {
 
     //===== Teachers Routes =====//
     Route::resource('teachers', 'Admin\TeachersController');
+    Route::post(
+        'teachers/quick-store',
+        ['uses' => 'Admin\\TeachersController@quickStore', 'as' => 'teachers.quick_store']
+    );
     Route::get('get-teachers-data', ['uses' => 'Admin\TeachersController@getData', 'as' => 'teachers.get_data']);
     Route::post('teachers_mass_destroy', ['uses' => 'Admin\TeachersController@massDestroy', 'as' => 'teachers.mass_destroy']);
     Route::post('teachers_restore/{id}', ['uses' => 'Admin\TeachersController@restore', 'as' => 'teachers.restore']);
@@ -373,6 +377,10 @@ Route::post('dashboard-status', ['uses' => 'DashboardController@getDashboardStat
 
 //===== Categories Routes =====//
 Route::resource('categories', 'Admin\CategoriesController');
+Route::post(
+    'categories/quick-store',
+    ['uses' => 'Admin\\CategoriesController@quickStore', 'as' => 'categories.quick_store']
+);
 Route::get('get-categories-data', ['uses' => 'Admin\CategoriesController@getData', 'as' => 'categories.get_data']);
 Route::post('categories_mass_destroy', ['uses' => 'Admin\CategoriesController@massDestroy', 'as' => 'categories.mass_destroy']);
 Route::post('categories_restore/{id}', ['uses' => 'Admin\CategoriesController@restore', 'as' => 'categories.restore']);
