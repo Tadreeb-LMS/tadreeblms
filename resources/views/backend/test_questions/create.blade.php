@@ -66,7 +66,7 @@
         padding: 16px;
         margin-bottom: 14px;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 12px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
@@ -108,6 +108,9 @@
 
     .option-item .option-content {
         flex-grow: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
         font-size: 0.95rem;
         color: #2d3748;
         line-height: 1.5;
@@ -124,6 +127,8 @@
         display: flex;
         gap: 6px;
         align-items: center;
+        min-height: 40px;
+        flex-shrink: 0;
     }
 
     .option-item .option-actions .btn {
@@ -143,11 +148,13 @@
         align-items: center;
         justify-content: center;
         min-width: 45px;
+        min-height: 40px;
         padding: 0 8px;
         border-radius: 6px;
         cursor: pointer;
         transition: all 0.2s;
         user-select: none;
+        flex-shrink: 0;
     }
 
     .option-item .correct-indicator input {
