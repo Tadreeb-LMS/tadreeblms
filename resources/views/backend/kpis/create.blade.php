@@ -123,9 +123,12 @@
                         >
                         <small class="form-text text-muted">{{ __('kpi.help.weight_range', ['max' => $maxWeight]) }}</small>
                         <div class="mt-2 small text-muted">
-                            @lang('kpi.messages.current_active_total') <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
+                            <!-- @lang('kpi.messages.current_active_total') <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
                             <br>
-                            @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
+                            @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong> -->
+                            <div id="kpi-category-weight-summary">
+                                Select one or more categories to view category-specific totals.
+                            </div>
                         </div>
                         <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
                     </div>
@@ -170,6 +173,100 @@
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <script>
+        (function () {
+            var weightInput = document.getElementById('weight');
+            var categorySelect = document.getElementById('category_ids');
+            var summaryEl = document.getElementById(
+                'kpi-category-weight-summary'
+            );
+            var warningEl = document.getElementById('kpi-weight-warning');
+            if (
+                !weightInput ||
+                !categorySelect ||
+                !summaryEl ||
+                !warningEl
+            ) {
+                return;
+            }
+
+            var categoryWeights = @json($categoryActiveWeights);
+            var categoryNames = @json($categories->pluck('name', 'id'));
+            var validationTarget =
+                {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance =
+                {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+            function getWeight() {
+                var weight = parseFloat(weightInput.value);
+                return isNaN(weight) || weight < 0 ? 0 : weight;
+            }
+            function updateWeightSummary() {
+                var selectedOptions =
+                    Array.from(categorySelect.selectedOptions);
+                var weight = getWeight();
+                if (selectedOptions.length === 0) {
+                    summaryEl.textContent =
+                        'Select one or more categories to view category-specific totals.';
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    return;
+                }
+                var html = '';
+                var warnings = [];
+                selectedOptions.forEach(function (option) {
+                    var categoryId = String(option.value);
+                    var current =
+                        parseFloat(categoryWeights[categoryId] || 0);
+                    var projected = current + weight;
+                    html +=
+                        '<div>' +
+                        '<strong>' +
+                        (categoryNames[categoryId] || option.text.trim()) +
+                        '</strong>: ' +
+                        'Current active total: ' +
+                        current.toFixed(2) +
+                        '% | Projected active total: ' +
+                        projected.toFixed(2) +
+                        '%' +
+                        '</div>';
+                    if (
+                        projected >
+                        validationTarget + validationTolerance
+                    ) {
+                        warnings.push(
+                            (categoryNames[categoryId] || option.text.trim()) +
+                            ' would exceed ' +
+                            validationTarget.toFixed(2) +
+                            '%'
+                        );
+                    }
+                });
+                summaryEl.innerHTML = html;
+                if (warnings.length > 0) {
+                    warningEl.style.display = 'block';
+                    warningEl.textContent = warnings.join('. ');
+                } else {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                }
+            }
+            weightInput.addEventListener(
+                'input',
+                updateWeightSummary
+            );
+            categorySelect.addEventListener(
+                'change',
+                updateWeightSummary
+            );
+            if (window.jQuery) {
+                $('#category_ids').on(
+                    'change',
+                    updateWeightSummary
+                );
+            }
+            updateWeightSummary();
+        })();
+    </script>
     <script>
 
     $(document).ready(function(){

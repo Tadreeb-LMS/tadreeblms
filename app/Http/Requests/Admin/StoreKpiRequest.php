@@ -45,6 +45,10 @@ class StoreKpiRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
             $categoryIds = collect($this->input('category_ids', []))
                 ->map(fn ($id) => (int) $id)
                 ->filter()
@@ -107,6 +111,23 @@ class StoreKpiRequest extends FormRequest
                         'target' => number_format($target, 2),
                     ])
                 );
+            }
+
+            try {
+                app(KpiCategoryConfigurationService::class)
+                    ->validateProjectedWeights(
+                        $categoryIds,
+                        $proposedWeight
+                    );
+            } catch (\Illuminate\Validation\ValidationException $exception) {
+                foreach ($exception->errors() as $field => $messages) {
+                    foreach ($messages as $message) {
+                        $validator->errors()->add(
+                            $field,
+                            $message
+                        );
+                    }
+                }
             }
         });
     }

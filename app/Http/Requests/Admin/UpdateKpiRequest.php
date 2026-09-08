@@ -51,6 +51,15 @@ class UpdateKpiRequest extends FormRequest
 
     public function withValidator($validator)
     {
+        $validator->after(function ($validator) {
+        $kpiId = $this->route('kpi');
+
+        $kpi = Kpi::query()->find($kpiId);
+
+        if (!$kpi || !$kpi->is_active) {
+            return;
+        }
+
         $categoryIds = collect($this->input('category_ids', []))
             ->map(fn ($id) => (int) $id)
             ->filter()
@@ -121,6 +130,8 @@ class UpdateKpiRequest extends FormRequest
                     ])
                 );
             }
+        });
+
         });
     }
 
