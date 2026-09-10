@@ -13,6 +13,13 @@ class KpiCategoryConfigurationService
         array $categoryIds = [],
         ?int $excludeKpiId = null
     ): array {
+        $categoryIds = collect($categoryIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
         $query = Kpi::query()
             ->where('is_active', true)
             ->with('categories:id');
@@ -31,11 +38,10 @@ class KpiCategoryConfigurationService
 
         foreach ($query->get() as $kpi) {
             foreach ($kpi->categories as $category) {
-                if (!empty($categoryIds) && !in_array((int) $category->id, $categoryIds, true)) {
+                $categoryId = (int) $category->id;
+                if (!empty($categoryIds) && !in_array($categoryId, $categoryIds, true)) {
                     continue;
                 }
-
-                $categoryId = (int) $category->id;
 
                 $weights[$categoryId] = ($weights[$categoryId] ?? 0)
                     + (float) $kpi->weight;
@@ -44,6 +50,74 @@ class KpiCategoryConfigurationService
 
         return $weights;
     }
+
+    public function projectedWeightsByCategory(
+        array $categoryIds,
+        float $proposedWeight,
+        ?int $excludeKpiId = null
+    ): array {
+        $categoryIds = collect($categoryIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $currentWeights = $this->activeWeightsByCategory(
+            $categoryIds,
+            $excludeKpiId
+        );
+
+        $projectedWeights = [];
+
+        foreach ($categoryIds as $categoryId) {
+            $current = (float) ($currentWeights[$categoryId] ?? 0);
+
+            $projectedWeights[$categoryId] =
+                $current + $proposedWeight;
+        }
+
+        return $projectedWeights;
+    }
+
+        public function validateProjectedWeights(
+        array $categoryIds,
+        float $proposedWeight,
+        ?int $excludeKpiId = null
+    ): void {
+        $target = (float) config(
+            'kpi.total_weight_validation.target',
+            100
+        );
+
+        $tolerance = max(
+            0.0,
+            (float) config(
+                'kpi.total_weight_validation.tolerance',
+                0.01
+            )
+        );
+
+        $projectedWeights = $this->projectedWeightsByCategory(
+            $categoryIds,
+            $proposedWeight,
+            $excludeKpiId
+        );
+
+        foreach ($projectedWeights as $categoryId => $total) {
+            if ($total > ($target + $tolerance)) {
+                throw ValidationException::withMessages([
+                    'weight' => [
+                        "The projected KPI weightage for category #{$categoryId} "
+                        . "would be " . number_format($total, 2)
+                        . "%, which exceeds the allowed "
+                        . number_format($target, 2) . "%."
+                    ],
+                ]);
+            }
+        }
+    }
+
 
     public function conflictingCategories(
         array $categoryIds,
