@@ -127,11 +127,11 @@
 
                 {{-- Department --}}
                 <div class="row">
-                    <label class="col-md-12 form-control-label">@lang('Select Department')</label>
+                    <label class="col-md-12 form-control-label">@lang('Select User Group')</label>
                     <div class="col-md-12">
                         <div class="custom-select-wrapper position-relative">
                             <select name="department_id" class="form-control select2">
-                                <option value="" selected disabled>@lang('Select Department')</option>
+                                <option value="" selected disabled>@lang('Select User Group')</option>
                                 @foreach ($departments as $row)
                                     <option value="{{ $row->id }}" {{ old('department_id') == $row->id ? 'selected' : '' }}>
                                         {{ $row->title }}
