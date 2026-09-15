@@ -1,6 +1,88 @@
 @extends('backend.layouts.app')
 
 @section('title', __('kpi.titles.edit') . ' | ' . app_name())
+@push('after-styles')
+<style>
+    .main {
+        min-width: 0;
+    }
+    .main .container-fluid {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .card {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .card-body {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .row {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .form-group {
+        min-width: 0;
+    }
+    .main .dashboardbox .form-control,
+    .main .dashboardbox textarea,
+    .main .dashboardbox select {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-container {
+        width: 100% !important;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-selection {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-selection--multiple {
+        min-height: 42px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .select2-selection__choice {
+        max-width: calc(100% - 10px);
+        box-sizing: border-box;
+    }
+    .select2-search__field {
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox label,
+    .main .dashboardbox small,
+    .main .dashboardbox li,
+    .main .dashboardbox strong {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    @media screen and (max-width: 768px) {
+        .main .container-fluid {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+        .main .dashboardbox {
+            width: 100%;
+        }
+        .main .dashboardbox .row {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+    }
+</style>
+@endpush
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">

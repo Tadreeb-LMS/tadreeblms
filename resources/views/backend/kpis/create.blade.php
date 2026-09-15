@@ -5,23 +5,72 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <style>
-    .select2-container{
-        width:100%!important;
+    .main {
+        min-width: 0;
     }
-    .select2-selection--multiple{
-        min-height:42px!important;
-        border:1px solid #ced4da!important;
-        border-radius:4px!important;
+    .main .container-fluid {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
     }
-    .select2-selection__choice{
+    .main .dashboardbox {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .card {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .card-body {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .row {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .form-group {
+        min-width: 0;
+    }
+    .main .dashboardbox .form-control,
+    .main .dashboardbox textarea,
+    .main .dashboardbox select {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-container {
+        width: 100% !important;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-container--default {
+        max-width: 100%;
+    }
+    .main .dashboardbox .select2-selection {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-selection--multiple {
+        min-height: 42px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 4px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .select2-selection__choice {
         position: relative !important;
-        background:#0d6efd!important;
-        color:#fff!important;
-        border:none!important;
-        padding:4px 23px 4px 10px!important;
+        background: #0d6efd !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 4px 23px 4px 10px !important;
+        max-width: calc(100% - 10px);
+        box-sizing: border-box;
     }
-    .select2-search__field{
-        width:100%!important;
+    .select2-search__field {
+        max-width: 100% !important;
+        box-sizing: border-box;
     }
     .select2-selection--multiple .select2-selection__choice__remove {
         position: absolute !important;
@@ -34,6 +83,27 @@
         font-size: 14px;
         font-weight: bold;
         border: none !important;
+    }
+    .main .dashboardbox label,
+    .main .dashboardbox small,
+    .main .dashboardbox li,
+    .main .dashboardbox strong {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    @media screen and (max-width: 768px) {
+        .main .container-fluid {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+        .main .dashboardbox {
+            width: 100%;
+        }
+        .main .dashboardbox .row {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
     }
 </style>
 @endpush
