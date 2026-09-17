@@ -19,6 +19,7 @@ use DB;
 use App\Services\LicenseService;
 use App\Models\Department;
 use App\Models\EmployeeProfile;
+use Illuminate\Validation\Rule;
 
 class TeachersController extends Controller
 {
@@ -44,6 +45,63 @@ class TeachersController extends Controller
         $licenseData = $this->getLicenseWarningData();
 
         return view('backend.teachers.index', $licenseData);
+    }
+
+    /**
+     * Quickly create a trainer from the Create Course modal.
+     */
+    public function quickStore(Request $request)
+    {
+        $data = $request->validate([
+            'first_name' => ['required', 'string', 'max:191'],
+            'last_name' => ['required', 'string', 'max:191'],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->where(function ($query) {
+                    $query->whereNull('deleted_at');
+                }),
+            ],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'bio' => ['nullable', 'string'],
+            'password' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed',
+            ],
+        ]);
+        $teacher = DB::transaction(function () use ($data) {
+            $teacher = User::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'password' => $data['password'],
+                'gender' => 'other',
+                'active' => 1,
+                'confirmed' => 1,
+                'account_status' => 'active',
+                'is_deleted' => 0,
+            ]);
+            $teacher->assignRole('teacher');
+            TeacherProfile::create([
+                'user_id' => $teacher->id,
+                'description' => $data['bio'] ?? null,
+            ]);
+            return $teacher;
+        });
+        $this->licenseService->onUserCreated();
+        return response()->json([
+            'success' => true,
+            'message' => 'Trainer created successfully.',
+            'teacher' => [
+                'id' => $teacher->id,
+                'text' => trim(
+                    $teacher->first_name . ' ' . $teacher->last_name
+                ),
+            ],
+        ], 201);
     }
 
     /**

@@ -212,7 +212,7 @@
                                     <div>{{ __('course_pages.admin_create.teachers') }}</div>
                                     <div class="custom-select-wrapper mt-2">
 
-                                        <select name="teacher_id"
+                                        <select name="teacher_id" id="course_teacher_id"
                                             class="form-control custom-select-box select2 js-example-placeholder-single">
                                             @foreach($teachers as $id => $teacher)
                                                 <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
@@ -229,8 +229,13 @@
                                         OR
                                     </span></div>
                                 <div class="col-md-3 col-12 d-flex form-group flex-column">
-                                    <a target="_blank" class="btn btn-primary mt-auto"
-                                        href="{{ url('user/teachers/create?teacher') }}">{{ trans('labels.backend.courses.add_teachers') }}</a>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary mt-auto"
+                                        data-toggle="modal"
+                                        data-target="#addTrainerModal">
+                                        {{ trans('labels.backend.courses.add_teachers') }}
+                                    </button>
                                 </div>
                             </div>
 
@@ -264,7 +269,7 @@
                             <div class="col-md-8 col-12 form-group">
                                 <div>{{ __('course_pages.admin_create.category') }}</div>
                                 <div class="custom-select-wrapper mt-2">
-                                    <select name="category_id"
+                                    <select name="category_id" id="course_category_id"
                                         class="form-control custom-select-box select2 js-example-placeholder-single"
                                         required>
                                         <option value="">{{ __('course_pages.admin_create.select_category') }}</option>
@@ -285,8 +290,14 @@
                                 </span>
                             </div>
                             <div class="col-md-3 col-12 d-flex form-group flex-column">
-                                <a target="_blank" class="btn btn-primary mt-auto"
-                                    href="{{ route('admin.categories.create') . '?create' }}">{{ trans('labels.backend.courses.add_categories') }}</a>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary mt-auto"
+                                    data-toggle="modal"
+                                    data-target="#addCategoryModal">
+                                    {{ trans('labels.backend.courses.add_categories') }}
+                                </button>
+
                             </div>
                         </div>
 
@@ -785,6 +796,159 @@
     </div>
 
 </form>
+<!-- Add Trainer Modal -->
+<div class="modal fade" id="addTrainerModal" tabindex="-1" role="dialog"
+    aria-labelledby="addTrainerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form
+                id="quickTrainerForm"
+                method="POST"
+                action="{{ route('admin.teachers.quick_store') }}">
+
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTrainerModalLabel">
+                        Add Trainer
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="trainerErrors"></div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>First Name <span class="text-danger">*</span></label>
+                            <input
+                                type="text"
+                                name="first_name"
+                                class="form-control"
+                                required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Last Name <span class="text-danger">*</span></label>
+                            <input
+                                type="text"
+                                name="last_name"
+                                class="form-control"
+                                required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Email <span class="text-danger">*</span></label>
+                            <input
+                                type="email"
+                                name="email"
+                                class="form-control"
+                                required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Phone</label>
+                            <input
+                                type="text"
+                                name="phone"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Password <span class="text-danger">*</span></label>
+                            <input
+                                type="password"
+                                name="password"
+                                class="form-control"
+                                required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>
+                                Confirm Password
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="password"
+                                name="password_confirmation"
+                                class="form-control"
+                                required>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>Bio</label>
+                            <textarea
+                                name="bio"
+                                class="form-control"
+                                rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="saveTrainerButton">
+                        Save Trainer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" role="dialog"
+    aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form
+                id="quickCategoryForm"
+                method="POST"
+                action="{{ route('admin.categories.quick_store') }}">
+
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">
+                        Add Category
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="categoryErrors"></div>
+                    <div class="form-group">
+                        <label>
+                            Category Name
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="name"
+                            class="form-control"
+                            required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="saveCategoryButton">
+                        Save Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop
 
 @push('after-scripts')
@@ -1408,4 +1572,222 @@
             }
         });
     </script>
+<script>
+$(function () {
+
+    /*
+    | Add Trainer
+    */
+    $('#quickTrainerForm').on('submit', function (e) {
+        e.preventDefault();
+        var form = this;
+        var $form = $(form);
+        var $button = $('#saveTrainerButton');
+        var $errors = $('#trainerErrors');
+        $errors.html('');
+        $button
+            .prop('disabled', true)
+            .text('Saving...');
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function (response) {
+                console.log('Trainer created:', response);
+                if (!response.success || !response.teacher) {
+                    $errors.html(
+                        '<div class="alert alert-danger">' +
+                        'Trainer could not be created.' +
+                        '</div>'
+                    );
+                    return;
+                }
+                var teacherId = response.teacher.id;
+                var teacherText = response.teacher.text;
+                var $teacherSelect = $('#course_teacher_id');
+
+                /*
+                | Add trainer to dropdown
+                */
+                var $existing = $teacherSelect.find(
+                    'option[value="' + teacherId + '"]'
+                );
+                if ($existing.length === 0) {
+                    var option = new Option(
+                        teacherText,
+                        teacherId,
+                        true,
+                        true
+                    );
+                    $teacherSelect.append(option);
+                } else {
+                    $existing
+                        .text(teacherText)
+                        .prop('selected', true);
+                }
+                /*
+                | Refresh Select2
+                */
+                $teacherSelect
+                    .val(String(teacherId))
+                    .trigger('change');
+                /*
+                | Reset modal
+                */
+                form.reset();
+                $('#addTrainerModal').modal('hide');
+                if (typeof toastr !== 'undefined') {
+                    toastr.success(
+                        response.message || 'Trainer created successfully.'
+                    );
+                }
+            },
+            error: function (xhr) {
+                console.log('Trainer error:', xhr);
+                console.log('Trainer response:', xhr.responseText);
+                var html = '';
+                if (xhr.status === 422 && xhr.responseJSON) {
+                    $.each(
+                        xhr.responseJSON.errors || {},
+                        function (field, messages) {
+                            $.each(messages, function (index, message) {
+                                html +=
+                                    '<div class="alert alert-danger">' +
+                                    message +
+                                    '</div>';
+                            });
+                        }
+                    );
+                } else if (
+                    xhr.responseJSON &&
+                    xhr.responseJSON.message
+                ) {
+                    html =
+                        '<div class="alert alert-danger">' +
+                        xhr.responseJSON.message +
+                        '</div>';
+                } else {
+                    html =
+                        '<div class="alert alert-danger">' +
+                        'Unable to create trainer. Please check the server logs.' +
+                        '</div>';
+                }
+                $errors.html(html);
+            },
+            complete: function () {
+                $button
+                    .prop('disabled', false)
+                    .text('Save Trainer');
+            }
+        });
+    });
+    /*
+    | Add Category
+    */
+    $('#quickCategoryForm').on('submit', function (e) {
+        e.preventDefault();
+        var form = this;
+        var $form = $(form);
+        var $button = $('#saveCategoryButton');
+        var $errors = $('#categoryErrors');
+        $errors.html('');
+        $button
+            .prop('disabled', true)
+            .text('Saving...');
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function (response) {
+                console.log('Category created:', response);
+                if (!response.success || !response.category) {
+                    $errors.html(
+                        '<div class="alert alert-danger">' +
+                        'Category could not be created.' +
+                        '</div>'
+                    );
+                    return;
+                }
+                var categoryId = response.category.id;
+                var categoryText = response.category.text;
+                var $categorySelect = $('#course_category_id');
+                /*
+                | Add category to dropdown
+                */
+                var $existing = $categorySelect.find(
+                    'option[value="' + categoryId + '"]'
+                );
+                if ($existing.length === 0) {
+                    var option = new Option(
+                        categoryText,
+                        categoryId,
+                        true,
+                        true
+                    );
+                    $categorySelect.append(option);
+                } else {
+                    $existing
+                        .text(categoryText)
+                        .prop('selected', true);
+                }
+                /*
+                | Refresh Select2
+                */
+                $categorySelect
+                    .val(String(categoryId))
+                    .trigger('change');
+                /*
+                | Reset modal
+                */
+                form.reset();
+                $('#addCategoryModal').modal('hide');
+                if (typeof toastr !== 'undefined') {
+                    toastr.success(
+                        response.message || 'Category created successfully.'
+                    );
+                }
+            },
+            error: function (xhr) {
+                console.log('Category error:', xhr);
+                console.log('Category response:', xhr.responseText);
+                var html = '';
+                if (xhr.status === 422 && xhr.responseJSON) {
+                    $.each(
+                        xhr.responseJSON.errors || {},
+                        function (field, messages) {
+                            $.each(messages, function (index, message) {
+                                html +=
+                                    '<div class="alert alert-danger">' +
+                                    message +
+                                    '</div>';
+                            });
+                        }
+                    );
+                } else if (
+                    xhr.responseJSON &&
+                    xhr.responseJSON.message
+                ) {
+                    html =
+                        '<div class="alert alert-danger">' +
+                        xhr.responseJSON.message +
+                        '</div>';
+                } else {
+                    html =
+                        '<div class="alert alert-danger">' +
+                        'Unable to create category. Please check the server logs.' +
+                        '</div>';
+                }
+                $errors.html(html);
+            },
+            complete: function () {
+                $button
+                    .prop('disabled', false)
+                    .text('Save Category');
+            }
+        });
+    });
+});
+</script>
 @endpush
