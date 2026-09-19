@@ -1,6 +1,88 @@
 @extends('backend.layouts.app')
 
 @section('title', __('kpi.titles.edit') . ' | ' . app_name())
+@push('after-styles')
+<style>
+    .main {
+        min-width: 0;
+    }
+    .main .container-fluid {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .card {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .card-body {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .row {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .form-group {
+        min-width: 0;
+    }
+    .main .dashboardbox .form-control,
+    .main .dashboardbox textarea,
+    .main .dashboardbox select {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-container {
+        width: 100% !important;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-selection {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-selection--multiple {
+        min-height: 42px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .select2-selection__choice {
+        max-width: calc(100% - 10px);
+        box-sizing: border-box;
+    }
+    .select2-search__field {
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox label,
+    .main .dashboardbox small,
+    .main .dashboardbox li,
+    .main .dashboardbox strong {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    @media screen and (max-width: 768px) {
+        .main .container-fluid {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+        .main .dashboardbox {
+            width: 100%;
+        }
+        .main .dashboardbox .row {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+    }
+</style>
+@endpush
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center pb-3">
@@ -90,6 +172,11 @@
                             @endforeach
                         </select>
                         <small class="form-text text-muted">@lang('kpi.help.category_scope_edit')</small>
+                        <div
+                            id="kpi-category-warning"
+                            class="alert alert-danger mt-2"
+                            style="display: none;"
+                        ></div>
                     </div>
 
                     <div class="col-12 form-group">
@@ -114,7 +201,7 @@
                 </div>
 
                 <div class="text-right">
-                    <button type="submit" class="add-btn">@lang('kpi.actions.update_kpi')</button>
+                    <button type="submit" class="add-btn" id="kpi-submit-button">@lang('kpi.actions.update_kpi')</button>
                 </div>
             </form>
 
@@ -188,4 +275,79 @@
             updateWeightSummary();
         })();
     </script>
+    <script>
+        (function () {
+            var categorySelect = document.getElementById('category_ids');
+            var warningEl = document.getElementById('kpi-category-warning');
+            var submitButton = document.getElementById('kpi-submit-button');
+
+            if (!categorySelect || !warningEl || !submitButton) {
+                return;
+            }
+
+            var categoryWeights = @json($categoryActiveWeights);
+            var categoryNames = @json($categories->pluck('name', 'id'));
+
+            var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+
+            var conflictThreshold = Math.max(
+                0,
+                validationTarget - validationTolerance
+            );
+
+            function checkCategoryConflicts() {
+                var conflicts = [];
+
+                Array.from(categorySelect.selectedOptions).forEach(function (option) {
+                    var categoryId = String(option.value);
+
+                    var weight = parseFloat(
+                        categoryWeights[categoryId] || 0
+                    );
+
+                    if (weight >= conflictThreshold) {
+                        conflicts.push(
+                            (categoryNames[categoryId] || option.text.trim()) +
+                            ' (' +
+                            weight.toFixed(2) +
+                            '%)'
+                        );
+                    }
+                });
+
+                if (conflicts.length === 0) {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    submitButton.disabled = false;
+                    return true;
+                }
+
+                warningEl.textContent =
+                    'The following category already has a complete KPI ' +
+                    'configuration and cannot be used for another active KPI ' +
+                    'configuration: ' +
+                    conflicts.join(', ') +
+                    '.';
+
+                warningEl.style.display = 'block';
+                submitButton.disabled = true;
+
+                return false;
+            }
+
+            $('#category_ids').on(
+                'change',
+                checkCategoryConflicts
+            );
+
+            categorySelect.form.addEventListener('submit', function (event) {
+                if (!checkCategoryConflicts()) {
+                    event.preventDefault();
+                }
+            });
+
+            checkCategoryConflicts();
+        })();
+        </script>
 @endsection
