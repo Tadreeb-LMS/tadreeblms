@@ -9,7 +9,15 @@
         .test-form {
             color: #333333;
         }
-
+        .sidebar-instruction-btn {
+            display: block;
+            width: 100%;
+            height: auto;
+            white-space: normal !important;
+            overflow-wrap: anywhere;
+            word-break: normal;
+            line-height: 1.4;
+        }
         .course-details-category ul li {
             width: 100%;
         }
@@ -635,34 +643,34 @@
                             <p id="nextButton" aria-live="polite">
                                 @if(!empty($effective_next_lesson) && empty($nextTasks['open_assesment']) && empty($nextTasks['reattempt_assesment']))
                                     @if(!empty($requires_lesson_quiz_pass_for_next) && empty($can_access_next_lesson))
-                                        <a class="btn btn-sm bg-danger font-weight-bold text-white"
+                                        <a class="btn btn-sm bg-danger font-weight-bold text-white sidebar-instruction-btn"
                                            href="javascript:void(0)">
                                             {{ __('course_pages.course_detail.complete_pass_quiz_unlock_next') }}
                                         </a>
                                         @if($lesson->isCompleted() && !empty($lesson_quiz_url))
-                                            <a class="btn btn-sm btn-info font-weight-bold text-white mt-2"
+                                            <a class="btn btn-sm btn-info font-weight-bold text-white mt-2 sidebar-instruction-btn"
                                                href="{{ $lesson_quiz_url }}">
                                                 {{ __('course_pages.course_detail.complete_and_pass_quiz') }}
                                             </a>
                                         @elseif(!$lesson->isCompleted())
-                                            <a class="btn btn-block btn-warning font-weight-bold text-white mt-2" href="javascript:void(0)">
+                                            <a class="btn btn-block btn-warning font-weight-bold text-white mt-2 sidebar-instruction-btn" href="javascript:void(0)">
                                                 {{ __('course_pages.course_detail.unlock_lesson') }}
                                             </a>
                                         @endif
                                     @else
                                         @if((int)config('lesson_timer') == 1 && $lesson->isCompleted() )
-                                            <a id="lessonNextBtn" class="btn btn-block gradient-bg font-weight-bold text-white"
+                                            <a id="lessonNextBtn" class="btn btn-block gradient-bg font-weight-bold text-white sidebar-instruction-btn"
                                                href="{{ route('lessons.show', [$lesson->course->id, $effective_next_lesson->slug]) }}">
                                                 <i class='fa fa-angle-double-right'></i>@lang('labels.frontend.course.next') </a>
                                         @else
-                                            <a id="lessonNextBtn" class="btn btn-block gradient-bg font-weight-bold text-white"
+                                            <a id="lessonNextBtn" class="btn btn-block gradient-bg font-weight-bold text-white sidebar-instruction-btn"
                                                href="{{ route('lessons.show', [$lesson->course->id, $effective_next_lesson->slug]) }}">
                                                 <i class='fa fa-angle-double-right'></i>@lang('labels.frontend.course.next') </a>
 
                                         @endif
                                     @endif
                                 @elseif($lesson->isCompleted() && !empty($lesson_quiz_url))
-                                    <a class="btn btn-sm btn-info font-weight-bold text-white"
+                                    <a class="btn btn-sm btn-info font-weight-bold text-white sidebar-instruction-btn"
                                        href="{{ $lesson_quiz_url }}">
                                         {{ __('course_pages.course_detail.complete_and_pass_quiz') }}
                                     </a>
@@ -671,7 +679,7 @@
                             </p>
                                     
                             @if ($nextTasks['open_assesment'])
-                                <a class="btn btn-success btn-sm text-white mb-3 font-weight-bold"
+                                <a class="btn btn-success btn-sm text-white mb-3 font-weight-bold sidebar-instruction-btn"
                                     href="{{ htmlspecialchars_decode($assessment_link) }}">Complete this lesson first to unlock</a>
                             @endif
 
