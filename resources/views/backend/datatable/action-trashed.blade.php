@@ -47,12 +47,29 @@ td .btn-theme:active {
         </button>
     </form>
 
-    <form action="{{ route($route_label.'.perma_del', [$label => $value]) }}" method="POST">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn-theme">
-            <i class="fa fa-trash"></i>
-        </button>
-    </form>
+    <a
+        href="{{ route($route_label.'.perma_del', [$label => $value]) }}"
+        data-method="delete"
+        data-trans-button-cancel="{{ __('buttons.general.cancel') }}"
+        data-trans-button-confirm="Permanently Delete"
+        data-trans-title="⚠️ Permanently Delete Course?"
+        data-trans-html="This action will permanently delete this course and its associated data. This action cannot be undone."        
+        title="Permanently Delete"
+        class="btn-theme"
+        style="cursor:pointer;"
+        onclick="event.preventDefault(); $(this).find('form').submit();"
+    >
+        <form
+            action="{{ route($route_label.'.perma_del', [$label => $value]) }}"
+            method="POST"
+            name="delete_item"
+            style="display:none"
+        >
+            @csrf
+            @method('DELETE')
+        </form>
+
+        <i class="fa fa-trash"></i>
+    </a>
 
 </div>

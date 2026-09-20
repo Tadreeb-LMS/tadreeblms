@@ -68,9 +68,10 @@ $(function () {
         const cancel = (link.attr('data-trans-button-cancel')) ? link.attr('data-trans-button-cancel') : 'Cancel';
         const confirm = (link.attr('data-trans-button-confirm')) ? link.attr('data-trans-button-confirm') : 'Yes, delete';
         const title = (link.attr('data-trans-title')) ? link.attr('data-trans-title') : 'Are you sure you want to delete this item?';
-
+        const html = (link.attr('data-trans-html')) ? link.attr('data-trans-html') : '';
         fireConfirm({
             title: title,
+            html : html ,
             showCancelButton: true,
             confirmButtonText: confirm,
             cancelButtonText: cancel,
