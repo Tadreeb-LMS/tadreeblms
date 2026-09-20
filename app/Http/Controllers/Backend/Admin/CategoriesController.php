@@ -179,6 +179,40 @@ class CategoriesController extends Controller
 
 
     /**
+     * Quickly create a category from the Create Course modal.
+    */
+    public function quickStore(Request $request)
+    {
+        if (!Gate::allows('category_create')) {
+            return abort(401);
+        }
+        $data = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:191',
+            ],
+        ]);
+        $slug = Str::slug($data['name']);
+        $category = Category::firstOrCreate(
+            [
+                'slug' => $slug,
+            ],
+            [
+                'name' => $data['name'],
+            ]
+        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Category created successfully.',
+            'category' => [
+                'id' => $category->id,
+                'text' => $category->name,
+            ],
+        ], 201);
+    }
+    
+    /**
      * Show the form for editing Category.
      *
      * @param  int $id

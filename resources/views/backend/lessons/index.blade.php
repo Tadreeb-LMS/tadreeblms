@@ -199,16 +199,18 @@
                 ],
                 ajax: ajaxRoute,
                 columns: [
-                    @if(request('show_deleted') != 1)
-                        {
-                            data: function (data) {
-                                return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
+                    @can('lesson_delete')
+                        @if(request('show_deleted') != 1)
+                            {
+                                data: function (data) {
+                                    return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
+                                },
+                                orderable: false,
+                                searchable: false,
+                                name: 'lessons.id',
                             },
-                            orderable: false,
-                            searchable: false,
-                            name: 'lessons.id',
-                        },
-                    @endif
+                        @endif
+                    @endcan
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false, orderable: false },
                     { data: 'title', name: 'lessons.title' },
                     { data: 'course', name: 'course.title', defaultContent: "{{ __('labels.general.not_available') }}" },
@@ -219,12 +221,14 @@
                     { data: 'published', name: 'lessons.published' },
                     { data: 'actions', name: 'actions', searchable: false, orderable: false },
                 ],
-                @if(request('show_deleted') != 1)
-                    columnDefs: [
-                        { width: '5%', targets: 0 },
-                        { className: 'text-center', targets: [0] },
-                    ],
-                @endif
+                @can('lesson_delete')
+                    @if(request('show_deleted') != 1)
+                        columnDefs: [
+                            { width: '5%', targets: 0 },
+                            { className: 'text-center', targets: [0] },
+                        ],
+                    @endif
+                @endcan
                 initComplete: function () {
                     let $searchInput = $('#myTable_filter input[type="search"]');
                     $searchInput

@@ -5,23 +5,72 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <style>
-    .select2-container{
-        width:100%!important;
+    .main {
+        min-width: 0;
     }
-    .select2-selection--multiple{
-        min-height:42px!important;
-        border:1px solid #ced4da!important;
-        border-radius:4px!important;
+    .main .container-fluid {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
     }
-    .select2-selection__choice{
+    .main .dashboardbox {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .card {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .card-body {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .row {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .main .dashboardbox .form-group {
+        min-width: 0;
+    }
+    .main .dashboardbox .form-control,
+    .main .dashboardbox textarea,
+    .main .dashboardbox select {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-container {
+        width: 100% !important;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-container--default {
+        max-width: 100%;
+    }
+    .main .dashboardbox .select2-selection {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .main .dashboardbox .select2-selection--multiple {
+        min-height: 42px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 4px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .select2-selection__choice {
         position: relative !important;
-        background:#0d6efd!important;
-        color:#fff!important;
-        border:none!important;
-        padding:4px 23px 4px 10px!important;
+        background: #0d6efd !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 4px 23px 4px 10px !important;
+        max-width: calc(100% - 10px);
+        box-sizing: border-box;
     }
-    .select2-search__field{
-        width:100%!important;
+    .select2-search__field {
+        max-width: 100% !important;
+        box-sizing: border-box;
     }
     .select2-selection--multiple .select2-selection__choice__remove {
         position: absolute !important;
@@ -34,6 +83,27 @@
         font-size: 14px;
         font-weight: bold;
         border: none !important;
+    }
+    .main .dashboardbox label,
+    .main .dashboardbox small,
+    .main .dashboardbox li,
+    .main .dashboardbox strong {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    @media screen and (max-width: 768px) {
+        .main .container-fluid {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+        .main .dashboardbox {
+            width: 100%;
+        }
+        .main .dashboardbox .row {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
     }
 </style>
 @endpush
@@ -100,6 +170,12 @@
                             @endforeach
                         </select>
                         <small class="form-text text-muted">@lang('kpi.help.category_scope')</small>
+                        <div
+                            id="kpi-category-warning"
+                            class="alert alert-danger mt-2"
+                            style="display: none;"
+                        >
+                        </div>
                     </div>
 
                     <div class="col-md-6 form-group">
@@ -117,9 +193,12 @@
                         >
                         <small class="form-text text-muted">{{ __('kpi.help.weight_range', ['max' => $maxWeight]) }}</small>
                         <div class="mt-2 small text-muted">
-                            @lang('kpi.messages.current_active_total') <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
+                            <!-- @lang('kpi.messages.current_active_total') <strong id="kpi-current-active-total">{{ number_format($activeTotalWeight, 2) }}</strong>
                             <br>
-                            @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong>
+                            @lang('kpi.messages.projected_active_total') <strong id="kpi-projected-active-total">{{ number_format($activeTotalWeight + (float) old('weight', $defaultWeight), 2) }}</strong> -->
+                            <div id="kpi-category-weight-summary">
+                                Select one or more categories to view category-specific totals.
+                            </div>
                         </div>
                         <div id="kpi-weight-warning" class="small text-warning mt-1" style="display: none;"></div>
                     </div>
@@ -143,7 +222,7 @@
                 </div>
 
                 <div class="text-right">
-                    <button type="submit" class="add-btn">@lang('kpi.actions.save_kpi')</button>
+                    <button type="submit" class="add-btn" id="kpi-submit-button">@lang('kpi.actions.save_kpi')</button>
                 </div>
             </form>
 
@@ -164,6 +243,100 @@
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <script>
+        (function () {
+            var weightInput = document.getElementById('weight');
+            var categorySelect = document.getElementById('category_ids');
+            var summaryEl = document.getElementById(
+                'kpi-category-weight-summary'
+            );
+            var warningEl = document.getElementById('kpi-weight-warning');
+            if (
+                !weightInput ||
+                !categorySelect ||
+                !summaryEl ||
+                !warningEl
+            ) {
+                return;
+            }
+
+            var categoryWeights = @json($categoryActiveWeights);
+            var categoryNames = @json($categories->pluck('name', 'id'));
+            var validationTarget =
+                {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance =
+                {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+            function getWeight() {
+                var weight = parseFloat(weightInput.value);
+                return isNaN(weight) || weight < 0 ? 0 : weight;
+            }
+            function updateWeightSummary() {
+                var selectedOptions =
+                    Array.from(categorySelect.selectedOptions);
+                var weight = getWeight();
+                if (selectedOptions.length === 0) {
+                    summaryEl.textContent =
+                        'Select one or more categories to view category-specific totals.';
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    return;
+                }
+                var html = '';
+                var warnings = [];
+                selectedOptions.forEach(function (option) {
+                    var categoryId = String(option.value);
+                    var current =
+                        parseFloat(categoryWeights[categoryId] || 0);
+                    var projected = current + weight;
+                    html +=
+                        '<div>' +
+                        '<strong>' +
+                        (categoryNames[categoryId] || option.text.trim()) +
+                        '</strong>: ' +
+                        'Current active total: ' +
+                        current.toFixed(2) +
+                        '% | Projected active total: ' +
+                        projected.toFixed(2) +
+                        '%' +
+                        '</div>';
+                    if (
+                        projected >
+                        validationTarget + validationTolerance
+                    ) {
+                        warnings.push(
+                            (categoryNames[categoryId] || option.text.trim()) +
+                            ' would exceed ' +
+                            validationTarget.toFixed(2) +
+                            '%'
+                        );
+                    }
+                });
+                summaryEl.innerHTML = html;
+                if (warnings.length > 0) {
+                    warningEl.style.display = 'block';
+                    warningEl.textContent = warnings.join('. ');
+                } else {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                }
+            }
+            weightInput.addEventListener(
+                'input',
+                updateWeightSummary
+            );
+            categorySelect.addEventListener(
+                'change',
+                updateWeightSummary
+            );
+            if (window.jQuery) {
+                $('#category_ids').on(
+                    'change',
+                    updateWeightSummary
+                );
+            }
+            updateWeightSummary();
+        })();
+    </script>
     <script>
 
     $(document).ready(function(){
@@ -260,6 +433,88 @@
     })();
 
     </script>
+    <script>
+        (function () {
+            var categorySelect = document.getElementById('category_ids');
+            var warningEl = document.getElementById('kpi-category-warning');
+            var submitButton = document.getElementById('kpi-submit-button');
 
+            if (!categorySelect || !warningEl || !submitButton) {
+                return;
+            }
+
+            var categoryWeights = @json($categoryActiveWeights);
+            var categoryNames = @json($categories->pluck('name', 'id'));
+
+            var validationTarget = {{ (float) ($totalWeightValidation['target'] ?? 100) }};
+            var validationTolerance = {{ (float) ($totalWeightValidation['tolerance'] ?? 0.01) }};
+            var conflictThreshold = Math.max(
+                0,
+                validationTarget - validationTolerance
+            );
+
+            function checkCategoryConflicts() {
+                var selectedOptions = Array.from(
+                    categorySelect.selectedOptions
+                );
+
+                var conflicts = [];
+
+                selectedOptions.forEach(function (option) {
+                    var categoryId = String(option.value);
+                    var weight = parseFloat(
+                        categoryWeights[categoryId] || 0
+                    );
+
+                    if (weight >= conflictThreshold) {
+                        conflicts.push(
+                            (categoryNames[categoryId] || option.text.trim()) +
+                            ' (' +
+                            weight.toFixed(2) +
+                            '%)'
+                        );
+                    }
+                });
+
+                if (conflicts.length === 0) {
+                    warningEl.style.display = 'none';
+                    warningEl.textContent = '';
+                    submitButton.disabled = false;
+
+                    return true;
+                }
+
+                warningEl.textContent =
+                    'The following category already has a complete KPI ' +
+                    'configuration and cannot be used for another active KPI ' +
+                    'configuration: ' +
+                    conflicts.join(', ') +
+                    '.';
+
+                warningEl.style.display = 'block';
+                submitButton.disabled = true;
+
+                return false;
+            }
+
+            categorySelect.addEventListener(
+                'change',
+                checkCategoryConflicts
+            );
+
+            $('#category_ids').on(
+                'change',
+                checkCategoryConflicts
+            );
+
+            categorySelect.form.addEventListener('submit', function (event) {
+                if (!checkCategoryConflicts()) {
+                    event.preventDefault();
+                }
+            });
+
+            checkCategoryConflicts();
+        })();
+    </script>
 @endpush
 @endsection
