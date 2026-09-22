@@ -148,7 +148,7 @@ if (file_exists($installedFlag)) {
 
 
 
-                <small><a href="http://44.251.231.158/lang/ar" class="dropdown-item">Arabic</a></small>
+                <small><a href="/lang/ar" class="dropdown-item">Arabic</a></small>
             </div> -->
         </div>
 
