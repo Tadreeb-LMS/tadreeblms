@@ -514,15 +514,6 @@
                         @enderror
                     
                 </div>
-
-                <div class="col-12 col-md-5 notextarea">
-                    <label>Comment</label>
-                    <textarea class="form-control textarea-col editor" rows="3" name="comment" id="comment" data-collapsible-toolbar="1"></textarea>
-
-
-
-
-        </div>
         </div>
 
 
