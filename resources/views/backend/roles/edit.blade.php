@@ -28,7 +28,7 @@
 
                 <div class="permission-blocks row">
                 @foreach($permissions as $module => $modulePermissions)
-                    <div class="mb-2 border p-2 rounded">
+                    <div class="mb-2 border p-2 rounded permission-module">
                         <strong>{{ ucfirst(str_replace('_', ' ', $module)) }}</strong>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input select-all" data-module="{{ $module }}" id="select_all_{{ $module }}">
@@ -74,18 +74,42 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+    // Find a module's permissions through its group container. Building a
+    // class selector from the module name breaks for names with spaces
+    // (e.g. "view backend"), which match no checkbox at all.
+    function modulePermissions(selectAllCheckbox) {
+        return selectAllCheckbox.closest('.permission-module')
+            .querySelectorAll('input[name="permissions[]"][type="checkbox"]');
+    }
+
+    // Reflect the children in the module's "Select All" checkbox: checked only
+    // when every permission of that module is checked.
+    function syncModuleCheckbox(selectAllCheckbox) {
+        const permissions = [...modulePermissions(selectAllCheckbox)];
+        selectAllCheckbox.checked = permissions.length > 0 && permissions.every(cb => cb.checked);
+    }
+
+    document.querySelectorAll('.select-all').forEach(function (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function () {
-
-            //alert('hi'); // THIS WILL NOW SHOW ✅
-
-            const module = this.dataset.module;
-            const permissions = document.querySelectorAll(
-                'input.permission-' + module
-            );
-
-            permissions.forEach(cb => cb.checked = this.checked);
+            // Disabled permissions (the always-on "backend" module) are
+            // submitted through hidden inputs and must stay checked.
+            modulePermissions(selectAllCheckbox).forEach(function (cb) {
+                if (!cb.disabled) {
+                    cb.checked = selectAllCheckbox.checked;
+                }
+            });
+            syncModuleCheckbox(selectAllCheckbox);
         });
+
+        modulePermissions(selectAllCheckbox).forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                syncModuleCheckbox(selectAllCheckbox);
+            });
+        });
+
+        // Initial state: a role that already has every permission of a
+        // module should open with that module's "Select All" checked.
+        syncModuleCheckbox(selectAllCheckbox);
     });
 
 });
