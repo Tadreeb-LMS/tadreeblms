@@ -40,7 +40,7 @@
             <div class="cb_question_setup mt-2">
                 <div class="row">
                     <div class="col-12 mb-3 child">
-                        <label>Question</label>
+                        <label>Question <span class="text-danger">*</span></label>
                         <textarea class="form-control editor" rows="3" name="question" id="question" required="required"></textarea>
                     </div>
                 </div>
