@@ -388,6 +388,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'user'], function () {
 
     Route::post('lessons', [\App\Http\Controllers\Backend\Admin\LessonsController::class, 'store'])
         ->name('admin.lessons.store');
+
+    Route::post(
+        'lessons/videos/chunk',
+        [\App\Http\Controllers\Backend\Admin\LessonsController::class, 'uploadVideoChunk']
+    )->name('admin.lessons.video.chunk');
     
     Route::get('calender', [CalenderController::class, 'show_list'])->name('user.calender');
     Route::post('add-event', [CalenderController::class, 'add_event'])->name('user.add-event');
