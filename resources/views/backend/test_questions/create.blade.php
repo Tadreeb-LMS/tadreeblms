@@ -22,6 +22,43 @@
         padding: 20px 0;
     }
 
+    .question-builder-layout {
+        align-items: flex-start;
+    }
+
+    .question-builder-left-column,
+    .question-builder-right-column {
+        min-width: 0;
+    }
+
+    .question-builder-left-column .row {
+        align-items: flex-start;
+    }
+
+    .question-builder-left-column .form-control,
+    .question-builder-right-column .form-control {
+        width: 100%;
+    }
+
+    .question-builder-right-column .addoptiontable {
+        width: 100%;
+    }
+
+    @media (max-width: 767.98px) {
+        .question-builder-layout {
+            align-items: stretch;
+        }
+
+        .question-builder-left-column,
+        .question-builder-right-column {
+            width: 100%;
+        }
+
+        .question-builder-left-column .row {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+    }
 
     .card-header {
         background-color: #fff !important;
@@ -463,59 +500,88 @@
                 </div>
             </div>
         </div>
-        {{-- /question-type-row --}}
 
 
-        <div class="row">
-          <div class="col-12 col-md-6 mt-3 notextarea">
-                <label>Question <span style="color:red">*</span></label>
-                <textarea class="form-control editor" rows="3" name="question" id="question" required="required" data-collapsible-toolbar="1" oninvalid="this.setCustomValidity('Question is required')" oninput="this.setCustomValidity('')"></textarea>
-            </div>
-
-                <div class="col-12 col-md-6" id="question-options-column">
-                     <div class="mt-3 notextarea">
-                    <label><i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>{{ __('labels.backend.questions.options') }}</label>
-                    <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
-                    <div class="addoptbtn mt-3">
-                        <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
-                            <i class="fa fa-plus-circle mr-2"></i>{{ __('labels.backend.questions.add_option') }}
-                        </button>
+            <div class="row question-builder-layout">
+                <div class="col-12 col-md-6 question-builder-left-column">
+                    <div class="mt-3 notextarea">
+                        <label>Question <span style="color:red">*</span></label>
+                        <textarea
+                            class="form-control editor"
+                            rows="3"
+                            name="question"
+                            id="question"
+                            required="required"
+                            data-collapsible-toolbar="1"
+                            oninvalid="this.setCustomValidity('Question is required')"
+                            oninput="this.setCustomValidity('')"
+                        ></textarea>
                     </div>
-              <div class="addoptiontable mt-4">
-                    <div id="option-area" class=""></div>
-                </div>
-               </div>
-            </div>
-</div>
-
-
-            <div class="row">
-                 <div class="col-12 col-md-5 notextarea">
-                    <label>Solution</label>
-                    <textarea class="form-control textarea-col editor" rows="3" name="solution" id="solution" data-collapsible-toolbar="1"></textarea>
-                </div>
-
-             <div class="col-12 col-md-2">
-                    <label>Marks <span style="color:red">*</span></label>
-                    <input type="number"
-                        class="form-control @error('score') is-invalid @enderror"
-                        name="score"
-                        id="score"
-                        placeholder="Enter Marks"
-                        min="1"
-                        max="100"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
-                        required />
-
-                        @error('score')
-                        <div class="invalid-feedback">
-                            {{ $message }}
+                    <div class="row mt-4">
+                        <div class="col-12 col-md-8 notextarea">
+                            <label>Solution</label>
+                            <textarea
+                                class="form-control textarea-col editor"
+                                rows="3"
+                                name="solution"
+                                id="solution"
+                                data-collapsible-toolbar="1"
+                            ></textarea>
                         </div>
-                        @enderror
-                    
+                        <div class="col-12 col-md-4">
+                            <label>Marks <span style="color:red">*</span></label>
+                            <input
+                                type="number"
+                                class="form-control @error('score') is-invalid @enderror"
+                                name="score"
+                                id="score"
+                                placeholder="Enter Marks"
+                                min="1"
+                                max="100"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,3);"
+                                required
+                            />
+                            @error('score')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
-        </div>
+                <div class="col-12 col-md-6 question-builder-right-column" id="question-options-column">
 
+                    <div class="mt-3 notextarea">
+                        <label>
+                            <i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>
+                            {{ __('labels.backend.questions.options') }}
+                        </label>
+                        <textarea
+                            class="form-control editor"
+                            rows="3"
+                            name="option"
+                            id="option"
+                            required="required"
+                            data-collapsible-toolbar="1"
+                            placeholder="{{ __('labels.backend.questions.option_placeholder') }}"
+                        ></textarea>
+                        <div class="addoptbtn mt-3">
+                            <button
+                                type="button"
+                                id="add_option"
+                                class="btn btn-primary btn-lg w-100"
+                                style="font-weight: 600; padding: 12px;"
+                            >
+                                <i class="fa fa-plus-circle mr-2"></i>
+                                {{ __('labels.backend.questions.add_option') }}
+                            </button>
+                        </div>
+                        <div class="addoptiontable mt-4">
+                            <div id="option-area" class=""></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
      <div class="btmbtns">
         <div class="row">
