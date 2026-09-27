@@ -34,7 +34,7 @@
 
                 <div class="permission-blocks row">
                 @foreach($permissions as $module => $modulePermissions)
-                    <div class="mb-2 border p-2 rounded">
+                    <div class="mb-2 border p-2 rounded permission-module">
                         <strong>{{ ucfirst(str_replace('_', ' ', $module)) }}</strong>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input select-all" data-module="{{ $module }}" id="select_all_{{ $module }}">
@@ -74,6 +74,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const moduleCheckboxes = document.querySelectorAll('.select-all');
     const permissionCheckboxes = document.querySelectorAll('input[name="permissions[]"]');
 
+    // Find a module's permissions through its group container; a class
+    // selector built from the module name breaks for names with spaces.
+    function modulePermissions(moduleCheckbox) {
+        return moduleCheckbox.closest('.permission-module')
+            .querySelectorAll('input[name="permissions[]"]');
+    }
+
     // 🔹 GLOBAL SELECT ALL
     globalCheckbox.addEventListener('change', function () {
         const checked = this.checked;
@@ -85,8 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 🔹 MODULE SELECT ALL
     moduleCheckboxes.forEach(function (moduleCheckbox) {
         moduleCheckbox.addEventListener('change', function () {
-            const module = this.dataset.module;
-            const permissions = document.querySelectorAll('.permission-' + module);
+            const permissions = modulePermissions(this);
 
             permissions.forEach(p => p.checked = this.checked);
             updateGlobalState();
@@ -108,8 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 🔹 UPDATE MODULE STATE
     function updateModuleState() {
         moduleCheckboxes.forEach(moduleCheckbox => {
-            const module = moduleCheckbox.dataset.module;
-            const permissions = document.querySelectorAll('.permission-' + module);
+            const permissions = modulePermissions(moduleCheckbox);
 
             moduleCheckbox.checked = [...permissions].every(p => p.checked);
         });

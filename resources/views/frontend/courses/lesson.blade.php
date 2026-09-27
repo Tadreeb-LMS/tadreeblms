@@ -280,12 +280,6 @@
         <div class="container ">
             <div class="row main-content">
                 <div class="col-md-9">
-                    @if (session()->has('success'))
-                        <div class="alert alert-dismissable alert-success fade show">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            {{ session('success') }}
-                        </div>
-                    @endif
                     @include('includes.partials.messages')
 
                     <div class="course-details-item border-bottom-0 mb-0">

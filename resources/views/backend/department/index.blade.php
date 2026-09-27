@@ -49,7 +49,13 @@
                 <div class="col-6 mb-2">
                     <h6>@lang('Import User Groups')</h6>
 
+                    @if ($errors->has('file'))
+                        <div class="alert alert-danger mt-2">
+                            {{ $errors->first('file') }}
+                        </div>
+                    @endif
                     <form method="POST"
+                          id="userGroupImportForm"
                           action="{{ route('admin.department.add.import') }}"
                           enctype="multipart/form-data">
 
@@ -62,6 +68,7 @@
                                        name="file"
                                        id="importFile"
                                        class="custom-file-input"
+                                        accept=".xlsx,.xls"
                                        required>
 
                                 <label for="importFile" class="custom-file-label">
@@ -248,12 +255,74 @@ initComplete: function () {
 
     </script>
     <script>
-    document.querySelectorAll('.custom-file-input').forEach(function(input) {
-        input.addEventListener('change', function(e) {
-            const label = input.nextElementSibling;
-            const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Choose a file';
-            label.innerHTML = '<i class="fa fa-upload mr-1"></i> ' + fileName;
+        document.querySelectorAll('.custom-file-input').forEach(function(input) {
+            input.addEventListener('change', function(e) {
+                const label = input.nextElementSibling;
+
+                if (!e.target.files.length) {
+                    label.innerHTML = '<i class="fa fa-upload mr-1"></i> Choose a file';
+                    return;
+                }
+
+                const file = e.target.files[0];
+                const fileName = file.name.toLowerCase();
+
+                const allowedExtensions = ['.xlsx', '.xls'];
+
+                const isValidExtension = allowedExtensions.some(function(extension) {
+                    return fileName.endsWith(extension);
+                });
+
+                if (!isValidExtension) {
+                    alert('Invalid file format. Please upload a supported User Group import file.');
+
+                    input.value = '';
+                    label.innerHTML = '<i class="fa fa-upload mr-1"></i> Choose a file';
+
+                    return;
+                }
+
+                label.innerHTML =
+                    '<i class="fa fa-upload mr-1"></i> ' + file.name;
+            });
         });
-    });
-</script>
+
+        document.getElementById('userGroupImportForm')?.addEventListener('submit', function(event) {
+            const input = document.getElementById('importFile');
+            const button = document.getElementById('userGroupImportButton');
+
+            if (!input || !input.files.length) {
+                return;
+            }
+
+            const fileName = input.files[0].name.toLowerCase();
+            const allowedExtensions = ['.xlsx', '.xls'];
+
+            const isValidExtension = allowedExtensions.some(function(extension) {
+                return fileName.endsWith(extension);
+            });
+
+            if (!isValidExtension) {
+                event.preventDefault();
+
+                alert('Invalid file format. Please upload a supported User Group import file.');
+
+                input.value = '';
+
+                const label = input.nextElementSibling;
+                label.innerHTML = '<i class="fa fa-upload mr-1"></i> Choose a file';
+
+                return;
+            }
+
+            /*
+            * Prevent accidental repeated submissions while the import is processing.
+            */
+            if (button) {
+                button.disabled = true;
+                button.innerHTML =
+                    '<i class="fa fa-spinner fa-spin mr-1"></i> Importing...';
+            }
+        });
+    </script>
 @endpush

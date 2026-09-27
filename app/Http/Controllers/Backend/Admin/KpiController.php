@@ -299,10 +299,14 @@ class KpiController extends Controller
         if (!Gate::allows('kpi_edit')) {
             return abort(401);
         }
+        // $kpi is the raw route parameter (an id string), not a model: load the
+        // model first, then use its id. Reading ->id on the string triggered an
+        // "Attempt to read property" ErrorException, which App\Exceptions\Handler
+        // turns into a 404, so the Edit action always showed Page Not Found.
+        $kpi = Kpi::with('courses', 'categories')->findOrFail($kpi);
+
         $categoryActiveWeights = $this->categoryConfigurationService
             ->activeWeightsByCategory([], (int) $kpi->id);
-
-        $kpi = Kpi::with('courses', 'categories')->findOrFail($kpi);
 
         $kpiTypes = $this->getSupportedKpiTypes();
         $maxWeight = config('kpi.max_weight', 100);
