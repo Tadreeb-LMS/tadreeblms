@@ -474,7 +474,7 @@
 
                 <div class="col-12 col-md-6" id="question-options-column">
                      <div class="mt-3 notextarea">
-                    <label><i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>{{ __('labels.backend.questions.options') }}</label>
+                    <label>{{ __('labels.backend.questions.options') }} <span style="color:red">*</span></label>
                     <textarea class="form-control editor" rows="3" name="option" id="option" required="required" data-collapsible-toolbar="1" placeholder="{{ __('labels.backend.questions.option_placeholder') }}"></textarea>
                     <div class="addoptbtn mt-3">
                         <button type="button" id="add_option" class="btn btn-primary btn-lg w-100" style="font-weight: 600; padding: 12px;">
