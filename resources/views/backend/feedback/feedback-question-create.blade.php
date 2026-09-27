@@ -567,7 +567,16 @@
                     if (response.code == 200) {
 
                         //window.location.replace("{{ URL::to('user/feedback-questions')}}/" + response.course_id);
-                        window.location.replace("{{ URL::to('user/course-feedback-create')}}?course_id={{(isset($course->id) ? $course->id:0)}}");
+                        @if(isset($course->id))
+                        // Opened from a course context (e.g. assessment flow): continue
+                        // to map the new question to that course.
+                        window.location.replace("{{ URL::to('user/course-feedback-create')}}?course_id={{ $course->id }}");
+                        @else
+                        // Opened standalone from Feedback > Questions: there is no course
+                        // to map to, so return to the Feedback Questions list instead of
+                        // landing on an empty "select a course" course-mapping page.
+                        window.location.replace("{{ route('admin.feedback_question.index') }}");
+                        @endif
                     } else {
                         alert(response.message);
                     }
