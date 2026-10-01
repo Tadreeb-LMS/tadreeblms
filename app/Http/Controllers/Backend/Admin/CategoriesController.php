@@ -65,53 +65,76 @@ class CategoriesController extends Controller
 
         return DataTables::of($categories)
             ->addIndexColumn()
-           ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-    if ($request->show_deleted == 1) {
-        return view('backend.datatable.action-trashed')
-            ->with(['route_label' => 'admin.categories', 'label' => 'id', 'value' => $q->id]);
-    }
+            ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
+                if ($request->show_deleted == 1) {
+                    return view('backend.datatable.action-trashed')
+                        ->with([
+                            'route_label' => 'admin.categories',
+                            'label' => 'id',
+                            'value' => $q->id
+                        ]);
+                }
 
-    $allow_delete = false;
-    if ($has_delete) {
-        $data = $q->courses->count() + $q->blogs->count();
-        if ($data == 0) {
-            $allow_delete = true;
-        }
-    }
+                $allow_delete = false;
 
-    // Start dropdown
-    $actions = '<div class="action-pill">';
+                if ($has_delete) {
+                    $data = $q->courses->count() + $q->blogs->count();
 
-    // Optional: View button (uncomment if needed)
-    // if ($has_view) {
-    //     $actions .= '<a class="dropdown-item" href="' . route('admin.categories.show', ['category' => $q->id]) . '">
-    //                     <i class="fa fa-eye mr-2"></i> View
-    //                 </a>';
-    // }
+                    if ($data == 0) {
+                        $allow_delete = true;
+                    }
+                }
 
-    if ($has_edit) {
-        $actions .= '<a title="Edit" class="" href="' . route('admin.categories.edit', ['category' => $q->id]) . '">
+                // Start actions
+                $actions = '<div class="action-pill">';
+
+                if ($has_edit) {
+                    $actions .= '<a title="Edit" class="" href="' .
+                        route('admin.categories.edit', ['category' => $q->id]) .
+                        '">
                         <i class="fa fa-edit" aria-hidden="true"></i>
                     </a>';
-    }
+                }
 
-    if ($has_delete) {
-        $actions .= view('backend.datatable.action-delete')
-            ->with([
-                'route' => route('admin.categories.destroy', ['category' => $q->id]),
-                'allow_delete' => $allow_delete
-            ])->render();
-    }
+                if ($has_delete) {
+                    if ($allow_delete) {
+                        // Normal delete action
+                        $actions .= view('backend.datatable.action-delete')
+                            ->with([
+                                'route' => route('admin.categories.destroy', ['category' => $q->id]),
+                                'allow_delete' => true
+                            ])
+                            ->render();
+                    } else {
+                        // Category cannot be deleted because it has dependencies
+                        if ($q->courses->count() > 0) {
+                            $deleteMessage = 'This category cannot be deleted because it is assigned to one or more courses. Please reassign or remove the associated courses before deleting this category.';
+                        } else {
+                            $deleteMessage = 'This category cannot be deleted because it is associated with other records.';
+                        }
 
-    // Link to courses (as a regular item in dropdown)
-    $actions .= '<a title="Courses" class="" href="' . route('admin.courses.index', ['cat_id' => $q->id]) . '">
-                     <i class="fa fa-address-book" aria-hidden="true"></i> 
+                
+                        $actions .= '<a title="Delete"
+                            href="javascript:void(0);"
+                            class="delete_warning"
+                            data-delete-message="' . e($deleteMessage) . '"
+                            style="cursor:pointer;">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>';
+                    }
+                }
+
+                // Link to courses
+                $actions .= '<a title="Courses" class="" href="' .
+                    route('admin.courses.index', ['cat_id' => $q->id]) .
+                    '">
+                    <i class="fa fa-address-book" aria-hidden="true"></i>
                 </a>';
 
-    $actions .= '</div>';
+                $actions .= '</div>';
 
-    return $actions;
-})
+                return $actions;
+            })
             // ->editColumn('icon', function ($q) {
             //     if ($q->icon != "") {
             //         return '<i style="font-size:40px;" class="'.$q->icon.'"></i>';
@@ -284,10 +307,20 @@ class CategoriesController extends Controller
         if (!Gate::allows('category_delete')) {
             return abort(401);
         }
+
         $category = Category::findOrFail($id);
+
+        if ($this->categoryHasDependencies($category)) {
+            return redirect()
+                ->route('admin.categories.index')
+                ->withFlashDanger($this->categoryDeleteBlockedMessage());
+        }
+
         $category->delete();
 
-        return redirect()->route('admin.categories.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
+        return redirect()
+            ->route('admin.categories.index')
+            ->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
 
     /**
@@ -300,13 +333,24 @@ class CategoriesController extends Controller
         if (!Gate::allows('category_delete')) {
             return abort(401);
         }
+
         if ($request->input('ids')) {
             $entries = Category::whereIn('id', $request->input('ids'))->get();
 
             foreach ($entries as $entry) {
+                if ($this->categoryHasDependencies($entry)) {
+                    return redirect()
+                        ->route('admin.categories.index')
+                        ->withFlashDanger($this->categoryDeleteBlockedMessage());
+                }
+
                 $entry->delete();
             }
         }
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
 
 
@@ -342,5 +386,14 @@ class CategoriesController extends Controller
         $category->forceDelete();
 
         return redirect()->route('admin.categories.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
+    }
+    private function categoryHasDependencies(Category $category): bool
+    {
+        return $category->courses()->exists() || $category->blogs()->exists();
+    }
+
+    private function categoryDeleteBlockedMessage(): string
+    {
+        return 'This category cannot be deleted because it is assigned to one or more courses. Please reassign or remove the associated courses before deleting this category.';
     }
 }
