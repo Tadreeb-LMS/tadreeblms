@@ -443,18 +443,40 @@ class TestQuestionController extends Controller
 
     public function upload_ck_image(Request $request): JsonResponse
     {
-        if ($request->hasFile('upload')) {
-            $originName = $request->file('upload')->getClientOriginalName();
-            $fileName = pathinfo($originName, PATHINFO_FILENAME);
-            $extension = $request->file('upload')->getClientOriginalExtension();
-            $fileName = $fileName . '_' . time() . '.' . $extension;
+        // Only accept image uploads, validated by both extension and real MIME type,
+        // and store them under a safe, non-executable name.
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 
-            $request->file('upload')->move(public_path('assets/img/ckeditor'), $fileName);
+        $request->validate([
+            'upload' => ['required', 'file', 'mimes:' . implode(',', $allowedExtensions), 'max:5120'],
+        ]);
 
-            $url = asset('assets/img/ckeditor/' . $fileName);
+        $file = $request->file('upload');
 
-            return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
+        // Verify the actual MIME type, not just the client-provided one.
+        $realMime = $file->getMimeType();
+        if (!in_array($realMime, $allowedMimes, true)) {
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => 'Unsupported image type.'],
+            ], 422);
         }
+
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => 'Unsupported image extension.'],
+            ], 422);
+        }
+
+        $fileName = 'ck_' . time() . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
+        $file->move(public_path('assets/img/ckeditor'), $fileName);
+
+        $url = asset('assets/img/ckeditor/' . $fileName);
+
+        return response()->json(['fileName' => $fileName, 'uploaded' => 1, 'url' => $url]);
     }
 
     public function edit(Request $request, $id)

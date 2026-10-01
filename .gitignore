@@ -14,6 +14,18 @@ README.md
 .env.*
 !.env.example
 
+# --------------------------
+# Secrets / runtime config — never commit
+# --------------------------
+*.pem
+*.key
+*.crt
+*.ldif
+public/db_config.json
+public/phpinfo.php
+public/install_error.log
+storage/app/installer/
+
 /storage/framework/sessions/*
 /storage/framework/cache/*
 /storage/framework/views/*

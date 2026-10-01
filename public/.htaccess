@@ -1,5 +1,6 @@
-# Block sensitive installer and configuration files from web access
-<FilesMatch "^(db_config\.json|phpinfo\.php)">
+# Block sensitive installer, configuration and diagnostic files from web access.
+# Defense-in-depth: these files must never be reachable even if they are recreated.
+<FilesMatch "^(install|install-b|install_ajax)\.php$|^(db_config|composer)\.json$|^(install_error)\.(log|json)$|^(phpinfo|info)\.php$|^(composer)\.(phar)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
