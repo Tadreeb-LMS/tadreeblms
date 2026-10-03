@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-12 mt-2">
-        <label>Question</label>
+        <label>Question <span class="text-danger">*</span></label>
         <textarea class="form-control editor" rows="3" name="question" id="question" required="required">{{ @$feedbackQuestion->question }}</textarea>
     </div>
 </div>

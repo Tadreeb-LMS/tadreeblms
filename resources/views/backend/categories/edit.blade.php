@@ -49,7 +49,7 @@
                 <!-- Submit button -->
                 <div class="col-lg-3 col-md-3 form-group text-center mt-4">
                     <button type="submit" class="add-btn">
-                        @lang('strings.backend.general.app_save')
+                        @lang('strings.backend.general.app_update')
                     </button>
                 </div>
 

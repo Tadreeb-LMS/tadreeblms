@@ -146,9 +146,15 @@ public function getExpiryDateAttribute($input)
     }
 }
 
+public function isExpired(): bool
+{
+    return !empty($this->expire_at)
+        && Carbon::parse($this->expire_at)->lt(Carbon::today());
+}
+
 public function getStatusLabelAttribute()
 {
-    if ($this->expire_at && Carbon::parse($this->expire_at)->isPast()) {
+    if ($this->isExpired()) {
         return 'expired';
     }
 

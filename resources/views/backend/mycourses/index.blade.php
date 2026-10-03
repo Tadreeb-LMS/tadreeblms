@@ -78,18 +78,82 @@
         pointer-events: none;
     }
 
-     .lock-image {
+    /* Expired course card */
+    .expired-course {
+        background: #f1f3f5;
+        border: 1px solid #d5d9de !important;
+        overflow: hidden;
+        opacity: 0.82;
+        cursor: not-allowed;
+    }
+
+    .expired-course .best-course-pic {
+        filter: grayscale(0.4);
+        opacity: 0.75;
+    }
+
+    .expired-course .user-clist {
+        background: #f1f3f5;
+    }
+
+    .expired-course .course-head {
+        color: #6c757d !important;
+        cursor: not-allowed;
+        text-decoration: none;
+    }
+
+    .expired-course .course-category,
+    .expired-course .course-category a,
+    .expired-course .course-author,
+    .expired-course .duedate {
+        color: #7b8188 !important;
+    }
+
+    .expired-course .progress {
+        background-color: #c7ccd1;
+    }
+
+    .expired-course .progress-bar {
+        background: #9da3a9 !important;
+    }
+
+    .expired-course .course-expired-badge {
+        position: absolute;
+        top: 22px;
+        left: 25px;
+        z-index: 10;
+
+        background: #dc3545;
+        color: #fff;
+
+        padding: 6px 12px;
+        border-radius: 20px;
+
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    /* Remove hover animation from expired courses */
+    .expired-course:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    .lock-image {
         position: absolute;
         top: 110px;
         left: 50%;
         transform: translate(-50%, 0);
         z-index: 1;
         width: 100px; 
-    background: #ffffff;
-    border-radius: 20px;
-    height: 100px;
-    object-fit: contain;
-    padding: 17px;
+        background: #ffffff;
+        border-radius: 20px;
+        height: 100px;
+        object-fit: contain;
+        padding: 17px;
     }
 
     
@@ -299,12 +363,21 @@ $local_lang = App::getLocale() ?? 'en';
                             $cat_name = $category_details->name;
                         }
                         ?>
+                        @php
+                            $isExpired = $item->course->isExpired();
+                        @endphp
                         <div class="col-md-4 col-lg-4 col-sm-6 col-xs-12 ">
 
-                            <div class="user-course-card position-relative border"> 
+                            <div class="user-course-card position-relative border @if($isExpired) expired-course @endif">
+                                @if ($isExpired)
+                                    <span class="course-expired-badge">
+                                        @lang('course_pages.admin_index.expired')
+                                    </span>
+                                    @endif
                                 <div class="best-course-pic position-relative overflow-hidden"
                                     @if ($item->course->course_image != '') style="background-image: url({{  $item->course->course_image }}); border-radius: 5px;" @endif>
 
+                                    
                                     @if ($item->trending == 1)
                                     <div class="trend-badge-2 text-center text-uppercase">
                                         <i class="fas fa-bolt"></i>
@@ -323,17 +396,25 @@ $local_lang = App::getLocale() ?? 'en';
                                 <div class="user-clist">
                                     <div class="course-title mb20 headline relative-position">
                                         <h5>
-                                            <a
-                                                class="course-head"
-                                                href="{{ route('courses.show', [$item->course->slug]) }}">
-
-                                                {{
-                                                                            $local_lang == 'ar' 
-                                                                            ? $item->course->arabic_title ??  $item->course->title
-                                                                            : $item->course->title
-                                                                        }}
-
-                                            </a>
+                                            @if ($isExpired)
+                                                <span class="course-head">
+                                                    {{
+                                                        $local_lang == 'ar'
+                                                        ? $item->course->arabic_title ?? $item->course->title
+                                                        : $item->course->title
+                                                    }}
+                                                </span>
+                                            @else
+                                                <a
+                                                    class="course-head"
+                                                    href="{{ route('courses.show', [$item->course->slug]) }}">
+                                                    {{
+                                                        $local_lang == 'ar'
+                                                        ? $item->course->arabic_title ?? $item->course->title
+                                                        : $item->course->title
+                                                    }}
+                                                </a>
+                                            @endif
                                         </h5>
                                     </div>
                                     <span class="course-category coursetag">

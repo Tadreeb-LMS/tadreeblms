@@ -130,7 +130,7 @@
         <!-- Start of Header section
         ============================================= -->
         <nav class="navbar navbar-expand-lg navbar-light">
-           
+            <div class="container">
                 <div class="navbar-header float-left">
                     <a class="navbar-brand text-uppercase" href="{{ url('/') }}">
                         @if( isset($site_logo->value) )
@@ -272,7 +272,7 @@
                     @endif
                     
                 </ul>
-               
+                </div>
             </div>
         </nav>
 

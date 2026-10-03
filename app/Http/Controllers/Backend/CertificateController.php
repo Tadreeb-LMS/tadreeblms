@@ -123,14 +123,14 @@ class CertificateController extends Controller
                 $viewUrl = route('admin.certificates.manage.show', $row->id);
                 $reissueUrl = route('admin.certificates.manage.reissue', $row->id);
 
-                $viewAction = '<a href="' . $viewUrl . '" class="btn btn-sm btn-primary mr-1">' . trans('labels.backend.certificates.view') . '</a>';
+                $viewAction = '<a href="' . $viewUrl . '" class="btn btn-sm add-btn mr-1">' . trans('labels.backend.certificates.view') . '</a>';
                 $reissueAction = '';
 
                 if ($this->hasCertificatePermission('certificate_reissue')) {
                     $reissueAction = '<form method="POST" action="' . $reissueUrl . '" class="d-inline-block">'
                         . csrf_field()
                         . '<input type="hidden" name="notes" value="Reissued from certificate module">'
-                        . '<button type="submit" class="btn btn-sm btn-warning" onclick="return confirm(\'' . trans('labels.backend.certificates.confirm_reissue') . '\')">' . trans('labels.backend.certificates.reissue') . '</button>'
+                        . '<button type="submit" class="btn btn-sm cancel-btn" onclick="return confirm(\'' . trans('labels.backend.certificates.confirm_reissue') . '\')">' . trans('labels.backend.certificates.reissue') . '</button>'
                         . '</form>';
                 }
 

@@ -318,6 +318,12 @@ class CoursesController extends Controller
             return redirect('request-course/' . $course->slug);
         }
 
+        if ($user->hasRole('student') && $course->isExpired()) {
+            return redirect()
+                ->route('user.mycourses')
+                ->withFlashDanger(__('course_pages.expired') . '.');
+        }
+
         $countries = DB::table('master_countries')->get();
         $continue_course = NULL;
 
@@ -1320,6 +1326,13 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
     public function recordLiveSessionAttendance(Request $request, $slug)
     {
         $course = Course::withoutGlobalScope('filter')->where('slug', $slug)->firstOrFail();
+
+        if (Auth::user()->hasRole('student') && $course->isExpired()) {
+            return response()->json([
+                'message' => __('course_pages.expired'),
+            ], 403);
+        }
+        
         $userId = Auth::id();
         $subscribeData = SubscribeCourse::where('user_id', $userId)
             ->where('course_id', $course->id)
