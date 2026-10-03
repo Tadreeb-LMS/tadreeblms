@@ -537,6 +537,16 @@ class LessonsController extends Controller
 
     public function show($course_id, $lesson_slug = null)
     {
+        $course = Course::withoutGlobalScope('filter')->find($course_id);
+        if (
+            auth()->user()->hasRole('student')
+            && $course
+            && $course->isExpired()
+        ) {
+            return redirect()
+                ->route('user.mycourses')
+                ->withFlashDanger(__('course_pages.expired') . '.');
+        }
         //dd("hi");
         $test_result = "";
         $completed_lessons = "";
@@ -931,6 +941,16 @@ class LessonsController extends Controller
      */
     public function showLessonQuiz($course_id, $lesson_slug)
     {
+        $course = Course::withoutGlobalScope('filter')->find($course_id);
+        if (
+            auth()->user()->hasRole('student')
+            && $course
+            && $course->isExpired()
+        ) {
+            return redirect()
+                ->route('user.mycourses')
+                ->withFlashDanger(__('course_pages.expired') . '.');
+        }
         $logged_in_user_id = auth()->id();
         $normalized_slug = is_string($lesson_slug)
             ? trim(rawurldecode($lesson_slug))

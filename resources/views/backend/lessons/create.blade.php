@@ -265,7 +265,22 @@
                                         <div class="video-file mt-2 d-none">
                                             <label>{{ __('course_pages.admin_lessons_create.upload_file') }}</label>
                                             <input type="file" name="videos[INDEX][file]"
-                                                class="form-control video-file-input" disabled>
+                                                class="form-control video-file-input" accept="video/*" disabled>
+                                            <input type="hidden"
+                                                name="videos[INDEX][uploaded_file_path]"
+                                                class="video-uploaded-path">
+                                            <div class="video-upload-progress d-none mt-2">
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar"
+                                                        role="progressbar"
+                                                        style="width: 0%;">
+                                                    </div>
+                                                </div>
+
+                                                <small class="video-upload-status text-muted">
+                                                    Uploading video...
+                                                </small>
+                                            </div>
                                         </div>
 
                                         <label class="mt-2">
@@ -397,12 +412,28 @@
 
         if (type === 'upload') {
             $fileBox.removeClass('d-none');
-            $fileInput.prop('required', true).prop('disabled', false);
+            const uploadedPath =
+                $videoItem
+                    .find('.video-uploaded-path')
+                    .val();
+
+            if (uploadedPath) {
+                $fileInput
+                    .prop('required', false)
+                    .prop('disabled', true);
+            } else {
+                $fileInput
+                    .prop('required', true)
+                    .prop('disabled', false);
+            }
+
             $urlInput.val('');
         } else if (type === 'youtube' || type === 'vimeo' || type === 'embed') {
             $urlBox.removeClass('d-none');
             $urlInput.prop('required', true).prop('disabled', false);
-            $fileInput.val('');
+            $fileInput.val('').prop('required', false).prop('disabled', true);
+            $videoItem.find('.video-uploaded-path').val('');
+            $videoItem.find('.video-upload-progress').addClass('d-none');
         }
     }
 
@@ -517,8 +548,302 @@
         $('#btn_clicked').val(clickedButtonId);
     });
 
+    const LESSON_VIDEO_CHUNK_SIZE = 1024 * 1024; // 1 MB
+    const LESSON_VIDEO_UPLOAD_RETRIES = 3;
 
-    $(document).on('submit', '#addLesson', function (e) {
+    function generateUploadId() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+        }
+
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+            /[xy]/g,
+            function (c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x'
+                    ? r
+                    : (r & 0x3 | 0x8);
+
+                return v.toString(16);
+            }
+        );
+    }
+
+    function updateVideoUploadProgress($videoItem, percentage, message) {
+        const $progress = $videoItem.find('.video-upload-progress');
+        const $bar = $progress.find('.progress-bar');
+        const $status = $progress.find('.video-upload-status');
+
+        $progress.removeClass('d-none');
+
+        $bar.css('width', percentage + '%');
+        $bar.attr('aria-valuenow', percentage);
+
+        if (message) {
+            $status.text(message);
+        }
+    }
+
+    function uploadVideoChunk(
+        $videoItem,
+        file,
+        uploadId,
+        chunkIndex,
+        totalChunks
+    ) {
+        return new Promise(function (resolve, reject) {
+            let attempt = 0;
+
+            function sendChunk() {
+                attempt++;
+
+                const start =
+                    chunkIndex * LESSON_VIDEO_CHUNK_SIZE;
+
+                const end = Math.min(
+                    start + LESSON_VIDEO_CHUNK_SIZE,
+                    file.size
+                );
+
+                const chunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('_token','{{ csrf_token() }}');
+                formData.append('upload_id', uploadId);
+                formData.append('chunk_index', chunkIndex);
+                formData.append('total_chunks', totalChunks);
+                formData.append('total_size', file.size);
+                formData.append('file_name', file.name);
+                formData.append('file', chunk, file.name);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('admin.lessons.video.chunk') }}',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    timeout: 0,
+
+                    xhr: function () {
+                        const xhr = $.ajaxSettings.xhr();
+
+                        if (xhr.upload) {
+                            xhr.upload.addEventListener(
+                                'progress',
+                                function (event) {
+                                    if (!event.lengthComputable) {
+                                        return;
+                                    }
+
+                                    const chunkProgress =
+                                        event.loaded / event.total;
+
+                                    const percentage =
+                                        (
+                                            (chunkIndex + chunkProgress) /
+                                            totalChunks
+                                        ) * 100;
+
+                                    updateVideoUploadProgress(
+                                        $videoItem,
+                                        percentage,
+                                        'Uploading video... ' +
+                                        Math.floor(percentage) +
+                                        '%'
+                                    );
+                                }
+                            );
+                        }
+
+                        return xhr;
+                    }
+                })
+                .done(function (response) {
+                    resolve(response);
+                })
+                .fail(function (xhr) {
+                    if (attempt < LESSON_VIDEO_UPLOAD_RETRIES) {
+                        updateVideoUploadProgress(
+                            $videoItem,
+                            (
+                                chunkIndex /
+                                totalChunks
+                            ) * 100,
+                            'Retrying video upload...'
+                        );
+
+                        setTimeout(
+                            sendChunk,
+                            500 * attempt
+                        );
+
+                        return;
+                    }
+
+                    let message =
+                        'Video upload failed. Please try again.';
+
+                    if (
+                        xhr.responseJSON &&
+                        xhr.responseJSON.clientmsg
+                    ) {
+                        message =
+                            xhr.responseJSON.clientmsg;
+                    }else if (xhr.status === 419) {
+                        message =
+                            'Session expired or CSRF token mismatch. Please refresh the page and try again.';
+                    } else if (xhr.status === 401 || xhr.status === 403) {
+                        message =
+                            'You are not authorized to upload this video.';
+                    } else if (xhr.status === 413) {
+                        message =
+                            'The video chunk is too large for the server configuration.';
+                    } else if (xhr.status === 422) {
+                        message =
+                            'Invalid video upload data. Please check the selected file.';
+                    } else if (xhr.status >= 500) {
+                        message =
+                            'Server error occurred while uploading the video.';
+                    }
+
+                    reject(new Error(message));
+                });
+            }
+
+            sendChunk();
+        });
+    }
+
+    async function uploadLessonVideo($videoItem, file) {
+        const uploadId = generateUploadId();
+
+        const totalChunks = Math.ceil(
+            file.size / LESSON_VIDEO_CHUNK_SIZE
+        );
+
+        updateVideoUploadProgress(
+            $videoItem,
+            0,
+            'Preparing video upload...'
+        );
+
+        for (
+            let chunkIndex = 0;
+            chunkIndex < totalChunks;
+            chunkIndex++
+        ) {
+            const response = await uploadVideoChunk(
+                $videoItem,
+                file,
+                uploadId,
+                chunkIndex,
+                totalChunks
+            );
+
+            if (!response || response.status !== 'success') {
+                throw new Error(
+                    response && response.clientmsg
+                        ? response.clientmsg
+                        : 'Video upload failed.'
+                );
+            }
+
+            if (response.completed) {
+                const $uploadedPath =
+                    $videoItem.find('.video-uploaded-path');
+
+                $uploadedPath.val(
+                    response.uploaded_file_path
+                );
+
+                /*
+                * Important:
+                * prevent the original large file from being
+                * included again in the final lesson request.
+                */
+                $videoItem.find('.video-file-input')
+                    .prop('disabled', true)
+                    .prop('required', false);
+
+                updateVideoUploadProgress(
+                    $videoItem,
+                    100,
+                    'Video uploaded successfully.'
+                );
+
+                return;
+            }
+        }
+
+        throw new Error(
+            'Video upload did not complete.'
+        );
+    }
+
+    async function uploadAllLessonVideos() {
+        const videoItems = $('.video-item');
+
+        for (
+            let index = 0;
+            index < videoItems.length;
+            index++
+        ) {
+            const $videoItem =
+                $(videoItems[index]);
+
+            const type =
+                (
+                    $videoItem
+                        .find('.video-type')
+                        .val() || ''
+                ).toLowerCase();
+
+            if (type !== 'upload') {
+                continue;
+            }
+
+            const uploadedPath =
+                $videoItem
+                    .find('.video-uploaded-path')
+                    .val();
+
+            /*
+            * Already uploaded.
+            */
+            if (uploadedPath) {
+                continue;
+            }
+
+            const fileInput =
+                $videoItem
+                    .find('.video-file-input')[0];
+
+            if (
+                !fileInput ||
+                !fileInput.files ||
+                !fileInput.files.length
+            ) {
+                continue;
+            }
+
+            const file = fileInput.files[0];
+
+            updateVideoUploadProgress(
+                $videoItem,
+                0,
+                'Uploading video ' +
+                (index + 1) +
+                '...'
+            );
+
+            await uploadLessonVideo(
+                $videoItem,
+                file
+            );
+        }
+    }
+    $(document).on('submit', '#addLesson', async function (e) {
         e.preventDefault();
         let hasAttachment = false;
 
@@ -553,54 +878,29 @@
             return false;
         }
 
-        function parseIniSizeToBytes(sizeText) {
-            if (!sizeText) return 0;
-            const value = String(sizeText).trim();
-            const unit = value.slice(-1).toUpperCase();
-            const num = parseFloat(value);
+        $('.loading').text(
+            'Uploading lesson videos, please wait...'
+        );
 
-            if (isNaN(num)) return 0;
-            if (unit === 'G') return Math.round(num * 1024 * 1024 * 1024);
-            if (unit === 'M') return Math.round(num * 1024 * 1024);
-            if (unit === 'K') return Math.round(num * 1024);
-            return Math.round(num);
-        }
-
-        const phpPostMax = parseIniSizeToBytes('{{ ini_get('post_max_size') }}');
-        const phpUploadMax = parseIniSizeToBytes('{{ ini_get('upload_max_filesize') }}');
-
-        let totalBytes = 0;
-        let singleTooLarge = false;
-
-        $('#addLesson input[type="file"]').each(function () {
-            if (!this.files || !this.files.length) {
-                return;
-            }
-
-            for (let idx = 0; idx < this.files.length; idx++) {
-                const f = this.files[idx];
-                totalBytes += f.size;
-
-                if (phpUploadMax > 0 && f.size > phpUploadMax) {
-                    singleTooLarge = true;
-                }
-            }
-        });
-
-        if (singleTooLarge) {
-            const maxMb = Math.floor(phpUploadMax / (1024 * 1024));
-            alert('One file exceeds upload_max_filesize (' + maxMb + 'MB). Please reduce file size or increase PHP limits.');
-            return;
-        }
-
-        if (phpPostMax > 0 && totalBytes > phpPostMax) {
-            const maxMb = Math.floor(phpPostMax / (1024 * 1024));
-            alert('Total upload exceeds post_max_size (' + maxMb + 'MB). Please reduce files or increase PHP limits.');
-            return;
-        }
-
-        $('.loading').text('{{ __('course_pages.admin_lessons_create.processing_please_wait') }}');
         $('#nextBtn,#doneBtn').prop('disabled', true);
+
+        try {
+            await uploadAllLessonVideos();
+        } catch (error) {
+            $('.loading').text('');
+
+            $('#nextBtn,#doneBtn').prop(
+                'disabled',
+                false
+            );
+
+            alert(
+                error.message ||
+                'Video upload failed. Please try again.'
+            );
+
+            return false;
+        }
 
         var form = $('#addLesson')[0];
         var data = new FormData(form);
@@ -721,8 +1021,11 @@
         clone.find('.video-file').addClass('d-none');
         clone.find('.video-url-input').val('').prop('required', false).prop('disabled', true);
         clone.find('.video-file-input').val('').prop('required', false).prop('disabled', true);
+        clone.find('.video-uploaded-path').val('');
+        clone.find('.video-upload-progress').addClass('d-none');
+        clone.find('.video-upload-progress .progress-bar').css('width', '0%');
+        clone.find('.video-upload-status').text('Uploading video...');
         clone.find('.video-type').val('upload');
-
         clone.find('.remove_less_slug').show();
 
         $(".mo_create").append(clone);
