@@ -132,7 +132,7 @@
         <!-- Start of Header section
         ============================================= -->
         <nav class="navbar navbar-expand-lg navbar-light">
-            
+            <div class="container">
                 <div class="navbar-header float-left">
                     <a class="navbar-brand text-uppercase" href="{{ url('/') }}">
                          <img src="{{ asset('assets/img/logo.png') }}" alt="logo">
@@ -286,6 +286,7 @@
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form> -->
+            </div>
             </div>
         </nav>
 
