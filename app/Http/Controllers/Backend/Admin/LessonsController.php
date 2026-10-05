@@ -28,6 +28,7 @@ use Yajra\DataTables\Facades\DataTables;
 class LessonsController extends Controller
 {
     use FileUploadTrait;
+    private const LESSON_VIDEO_CHUNK_SIZE = 1048576; // 1 MB
 
     public function index(Request $request)
     {
@@ -198,6 +199,255 @@ class LessonsController extends Controller
             'expire_at'    => $course->expire_at,
         ]);
     }
+    
+    public function uploadVideoChunk(Request $request)
+    {
+        if (!Gate::allows('lesson_create')) {
+            return abort(401);
+        }
+
+        $data = $request->validate([
+            'upload_id' => 'required|uuid',
+            'chunk_index' => 'required|integer|min:0',
+            'total_chunks' => 'required|integer|min:1',
+            'total_size' => 'required|integer|min:1',
+            'file_name' => 'required|string|max:255',
+            'file' => 'required|file|max:2048',
+        ]);
+
+        $allowedExtensions = [
+            'mp4',
+            'mov',
+            'avi',
+            'webm',
+            'm4v',
+            'mkv',
+        ];
+
+        $extension = strtolower(
+            pathinfo($data['file_name'], PATHINFO_EXTENSION)
+        );
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'Unsupported video format.',
+            ], 422);
+        }
+
+        $expectedChunks = (int) ceil(
+            $data['total_size'] / self::LESSON_VIDEO_CHUNK_SIZE
+        );
+
+        if ((int) $data['total_chunks'] !== $expectedChunks) {
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'Invalid video chunk information.',
+            ], 422);
+        }
+
+        if ((int) $data['chunk_index'] >= (int) $data['total_chunks']) {
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'Invalid video chunk index.',
+            ], 422);
+        }
+
+        $userId = auth()->id();
+
+        $chunkDirectory =
+            'lesson_video_chunks/' .
+            $userId .
+            '/' .
+            $data['upload_id'];
+
+        $assembledPath =
+            'lesson_video_uploads/' .
+            $userId .
+            '/' .
+            $data['upload_id'] .
+            '.' .
+            $extension;
+
+        $localDisk = Storage::disk('local');
+
+        /*
+         * If the final file already exists, this is most likely a retry
+         * of the last chunk after a lost response.
+         */
+        if ($localDisk->exists($assembledPath)) {
+            return response()->json([
+                'status' => 'success',
+                'completed' => true,
+                'uploaded_file_path' => $assembledPath,
+            ]);
+        }
+
+        $localDisk->makeDirectory($chunkDirectory);
+
+        /*
+         * Store each chunk independently.
+         */
+        $request->file('file')->storeAs(
+            $chunkDirectory,
+            $data['chunk_index'] . '.part',
+            'local'
+        );
+
+        /*
+         * Do not assemble until every chunk has arrived.
+         */
+        if ((int) $data['chunk_index'] < ((int) $data['total_chunks'] - 1)) {
+            return response()->json([
+                'status' => 'success',
+                'completed' => false,
+                'chunk_index' => (int) $data['chunk_index'],
+            ]);
+        }
+
+        /*
+         * Verify that all chunks exist before assembling.
+         */
+        for ($index = 0; $index < (int) $data['total_chunks']; $index++) {
+            $chunkPath = $chunkDirectory . '/' . $index . '.part';
+
+            if (!$localDisk->exists($chunkPath)) {
+                return response()->json([
+                    'status' => 'error',
+                    'clientmsg' => 'Some video chunks are missing. Please retry the upload.',
+                ], 409);
+            }
+        }
+
+        $localDisk->makeDirectory(
+            dirname($assembledPath)
+        );
+
+        $destinationPath = $localDisk->path($assembledPath);
+
+        $destination = fopen($destinationPath, 'wb');
+
+        if ($destination === false) {
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'Unable to create the uploaded video.',
+            ], 500);
+        }
+
+        try {
+            for ($index = 0; $index < (int) $data['total_chunks']; $index++) {
+                $chunkPath = $chunkDirectory . '/' . $index . '.part';
+                $chunkAbsolutePath = $localDisk->path($chunkPath);
+
+                $source = fopen($chunkAbsolutePath, 'rb');
+
+                if ($source === false) {
+                    throw new Exception(
+                        'Unable to read video chunk ' . $index
+                    );
+                }
+
+                stream_copy_to_stream($source, $destination);
+
+                fclose($source);
+            }
+
+            fclose($destination);
+
+            $actualSize = $localDisk->size($assembledPath);
+
+            if ((int) $actualSize !== (int) $data['total_size']) {
+                $localDisk->delete($assembledPath);
+
+                throw new Exception(
+                    'Uploaded video size does not match the original file size.'
+                );
+            }
+
+            /*
+             * Chunks are no longer required after successful assembly.
+             */
+            $localDisk->deleteDirectory($chunkDirectory);
+
+            return response()->json([
+                'status' => 'success',
+                'completed' => true,
+                'uploaded_file_path' => $assembledPath,
+            ]);
+        } catch (Exception $e) {
+            if (is_resource($destination)) {
+                fclose($destination);
+            }
+
+            Log::error('Lesson video chunk assembly failed: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'clientmsg' => 'Video upload failed. Please try again.',
+            ], 500);
+        }
+    }
+
+    private function finalizeChunkedVideo(string $uploadedPath): string
+    {
+        $userPrefix = 'lesson_video_uploads/' . auth()->id() . '/';
+
+        if (!Str::startsWith($uploadedPath, $userPrefix)) {
+            throw new Exception('Invalid uploaded video path.');
+        }
+
+        $localDisk = Storage::disk('local');
+
+        if (!$localDisk->exists($uploadedPath)) {
+            throw new Exception('Uploaded video was not found.');
+        }
+
+        $extension = strtolower(
+            pathinfo($uploadedPath, PATHINFO_EXTENSION)
+        );
+
+        $allowedExtensions = [
+            'mp4',
+            'mov',
+            'avi',
+            'webm',
+            'm4v',
+            'mkv',
+        ];
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            throw new Exception('Unsupported video format.');
+        }
+
+        $finalPath =
+            'lesson_videos/' .
+            Str::uuid() .
+            '.' .
+            $extension;
+
+        $stream = $localDisk->readStream($uploadedPath);
+
+        if ($stream === false) {
+            throw new Exception('Unable to read uploaded video.');
+        }
+
+        $stored = Storage::disk('public')->writeStream(
+            $finalPath,
+            $stream
+        );
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        if ($stored === false) {
+            throw new Exception('Unable to store uploaded video.');
+        }
+
+        $localDisk->delete($uploadedPath);
+
+        return $finalPath;
+    }
 
     public function store(StoreLessonsRequest $request)
     {
@@ -256,6 +506,7 @@ class LessonsController extends Controller
             ], 422);
         }
 
+        $chunkedVideoPaths = [];
 
         DB::beginTransaction();
 
@@ -328,7 +579,12 @@ class LessonsController extends Controller
                         }
 
                         $filePath = null;
-                        if ($request->hasFile("videos.$vIdx.file")) {
+                        if (!empty($video['uploaded_file_path'])) {
+                            $filePath = $this->finalizeChunkedVideo(
+                                $video['uploaded_file_path']
+                            );
+                            $chunkedVideoPaths[] = $filePath;
+                        } elseif ($request->hasFile("videos.$vIdx.file")) {
                             $filePath = $request->file("videos.$vIdx.file")
                                 ->store('lesson_videos', 'public');
                         }
@@ -439,6 +695,9 @@ class LessonsController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+            foreach ($chunkedVideoPaths as $chunkedVideoPath) {
+                Storage::disk('public')->delete($chunkedVideoPath);
+            }
             Log::error('Lesson save failed: ' . $e->getMessage());
 
             return response()->json(['status' => 'error', 'clientmsg' => 'Error: ' . $e->getMessage()], 500);
