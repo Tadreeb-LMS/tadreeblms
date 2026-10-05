@@ -202,7 +202,22 @@ class ConfigController extends Controller
 
         //dd($requests);
 
-        return back()->withFlashSuccess(__('alerts.backend.general.updated'));
+        $activeTab = $request->input('active_tab', 'general');
+        $allowedTabs = [
+            'general',
+            'layout',
+            'email',
+            'payment_settings',
+            'language_settings',
+        ];
+
+        if (!in_array($activeTab, $allowedTabs, true)) {
+            $activeTab = 'general';
+        }
+
+        return redirect()
+            ->route('admin.general-settings', ['tab' => $activeTab])
+            ->withFlashSuccess(__('alerts.backend.general.updated'));
     }
 
     public function downloadLanguageLibrary($locale)
