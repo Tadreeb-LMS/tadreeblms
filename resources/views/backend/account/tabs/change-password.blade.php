@@ -1,4 +1,4 @@
-{{ html()->form('PATCH', route('admin.account.post',$user->email))->class('form-horizontal')->open() }}
+{{ html()->form('PATCH', route('admin.auth.user.change-password.post', ['user' => $user->id]))->class('form-horizontal')->open() }}
 
 @if(!Route::is('admin.auth.user.change-password', $user) && Route::is('admin.account'))
 <div class="row">
