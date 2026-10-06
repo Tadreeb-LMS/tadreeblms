@@ -5,27 +5,49 @@
     {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> --}}
     <style>
         .select2-container .select2-search--inline .select2-search__field {
-    box-sizing: border-box;
-    border: none;
-    font-size: 100%;
-    margin-top: 5px;
-    padding-left: 8px;
-}
-
-.select2-container--default .select2-selection--multiple:focus {
-    outline: none !important;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
-    border-color: #007bff !important;
-}
-.select2-container--default.select2-container--focus .select2-selection--multiple {
-     outline: none !important;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
-    border-color: #007bff !important;
-}
-.select2-container--default .select2-selection--multiple{
-    border: 1px solid #ccc !important;
-}
-
+            box-sizing: border-box;
+            border: none;
+            font-size: 100%;
+            margin-top: 5px;
+            padding-left: 8px;
+        }
+        .select2-container--default .select2-selection--multiple:focus {
+            outline: none !important;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
+            border-color: #007bff !important;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            outline: none !important;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
+            border-color: #007bff !important;
+        }
+        .select2-container--default .select2-selection--multiple{
+            border: 1px solid #ccc !important;
+        }
+        #pathwayCourses .pathway-course-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: grab;
+        }
+        #pathwayCourses .pathway-course-title {
+            flex: 1;
+        }
+        #pathwayCourses .pathway-course-remove {
+            border: 0;
+            background: transparent;
+            color: #dc3545;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        #pathwayCourses .pathway-course-remove:hover {
+            color: #a71d2a;
+        }
     </style>
 @endpush
 @section('content')
@@ -129,18 +151,30 @@
         });
 
         $('[name="course_id"]').on('select2:select', function(e) {
-            const selectedData = e.params.data; // The selected item data
+            const selectedData = e.params.data;
 
             if (!$('#pathwayCourses-placeholder').hasClass('d-none')) {
                 $('#pathwayCourses-placeholder').addClass('d-none');
             }
 
             const newItem = $('<div></div>')
-                .addClass('list-group-item')
-                .text(selectedData.text) // Display the text
-                .attr('data-value', selectedData.id); // Store the value for later removal
+                .addClass('list-group-item pathway-course-item')
+                .attr('data-value', selectedData.id);
 
-            // Append the item to the sortable container
+            $('<span></span>')
+                .addClass('pathway-course-title')
+                .text(selectedData.text)
+                .appendTo(newItem);
+
+            $('<button></button>')
+                .attr({
+                    type: 'button',
+                    class: 'pathway-course-remove',
+                    'aria-label': 'Remove ' + selectedData.text
+                })
+                .html('&times;')
+                .appendTo(newItem);
+
             $('#pathwayCourses').append(newItem);
 
             setCoursePositionFormData();
@@ -148,9 +182,39 @@
 
         $('[name="course_id"]').on('select2:unselect', function(e) {
             const removed = e.params.data;
-            $(`#pathwayCourses .list-group-item[data-value="${removed.id}"]`).remove();
 
-            if ($('#pathwayCourses .list-group-item').length == 1) {
+            $(`#pathwayCourses .pathway-course-item[data-value="${removed.id}"]`).remove();
+
+            if ($('#pathwayCourses .pathway-course-item').length === 0) {
+                $('#pathwayCourses-placeholder').removeClass('d-none');
+            }
+
+            setCoursePositionFormData();
+        });
+
+        $('#pathwayCourses').on('pointerdown', '.pathway-course-remove', function(e) {
+            e.stopPropagation();
+        });
+
+        $('#pathwayCourses').on('click', '.pathway-course-remove', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $item = $(this).closest('.pathway-course-item');
+            const courseId = String($item.attr('data-value'));
+            const $courseSelect = $('[name="course_id"]');
+
+            const selectedValues = $courseSelect.val() || [];
+
+            const updatedValues = selectedValues.filter(function(value) {
+                return String(value) !== courseId;
+            });
+
+            $courseSelect.val(updatedValues).trigger('change');
+
+            $item.remove();
+
+            if ($('#pathwayCourses .pathway-course-item').length === 0) {
                 $('#pathwayCourses-placeholder').removeClass('d-none');
             }
 
@@ -159,12 +223,13 @@
 
         function setCoursePositionFormData() {
             const order = [];
-            $('#pathwayCourses .list-group-item:not(#pathwayCourses-placeholder)').each(function() {
-                const value = $(this).attr('data-value'); // Get the data-value attribute
+
+            $('#pathwayCourses .pathway-course-item').each(function() {
+                const value = $(this).attr('data-value');
                 order.push(value);
             });
-            
-            $('[name="course_with_order"]').val(JSON.stringify(order))
+
+            $('[name="course_with_order"]').val(JSON.stringify(order));
         }
     </script>
 @endpush
