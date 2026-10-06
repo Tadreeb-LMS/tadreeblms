@@ -129,7 +129,7 @@
 @section('content')
     <form method="POST" action="{{ route('admin.general-settings') }}" id="general-settings-form" class="form-horizontal" enctype="multipart/form-data">
     @csrf
-    <input type="hidden" name="active_tab" id="active_tab" value="general">
+    <input type="hidden" name="active_tab" id="active_tab" value="{{ request('tab', old('active_tab', 'general')) }}">
 
     <div class="card">
         <div class="card-body">
@@ -145,7 +145,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <ul class="nav main-nav-tabs nav-tabs">
-                        <li class="nav-item"><a data-toggle="tab" class="nav-link active " href="#general">
+                        <li class="nav-item"><a data-toggle="tab" class="nav-link " href="#general">
                                 {{ __('labels.backend.general_settings.title') }}
                             </a>
                         </li>
@@ -1048,6 +1048,51 @@
 
 @push('after-scripts')
     <script src="{{ asset('plugins/bootstrap-iconpicker/js/bootstrap-iconpicker.bundle.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            const activeTabInput = $('#active_tab');
+            const requestedTab = @json(request('tab', 'general'));
+
+            const validTabs = [
+                'general',
+                'layout',
+                'email',
+                'payment_settings',
+                'language_settings'
+            ];
+
+            const activeTab = validTabs.includes(requestedTab)
+                ? requestedTab
+                : 'general';
+
+            function activateTab(tab) {
+                const tabLink = $('.main-nav-tabs a[href="#' + tab + '"]');
+
+                if (tabLink.length) {
+                    tabLink.tab('show');
+                }
+            }
+
+            activateTab(activeTab);
+
+            $('.main-nav-tabs a[data-toggle="tab"]').on('shown.bs.tab', function (event) {
+                const target = $(event.target).attr('href');
+
+                if (target) {
+                    activeTabInput.val(target.replace('#', ''));
+                }
+            });
+
+            $('#general-settings-form').on('submit', function () {
+                const visibleTab = $('.main-nav-tabs .nav-link.active').attr('href');
+
+                if (visibleTab) {
+                    activeTabInput.val(visibleTab.replace('#', ''));
+                }
+            });
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
 
