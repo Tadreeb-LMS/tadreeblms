@@ -113,7 +113,17 @@ class PathwayAssignmentController extends Controller
     public function create()
     {
         $pathways = LearningPathway::select('id', 'title')->get();
-        $teachers = User::query()->role('student')->whereIn('employee_type', ['internal'])->groupBy('email')->orderBy('created_at', 'desc')->active()->get()->pluck('name', 'id');
+        $teachers = User::query()
+        ->role('student')
+        ->where('active', 1)
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique('email')
+        ->mapWithKeys(function ($user) {
+            return [
+                $user->id => $user->name . ' (' . $user->email . ')',
+            ];
+        });
         $departments = Department::select('id', 'title')->get();
 
         return view('backend.pathway-assignment.create', compact('pathways', 'teachers', 'departments'));
