@@ -2,6 +2,8 @@
 
 @section('title', __('kpi.titles.edit') . ' | ' . app_name())
 @push('after-styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
     .main {
         min-width: 0;
@@ -43,14 +45,50 @@
         max-width: 100%;
         box-sizing: border-box;
     }
+
+    .main .dashboardbox .select2-container--default {
+        max-width: 100%;
+    }
+
     .main .dashboardbox .select2-selection {
         max-width: 100%;
         box-sizing: border-box;
     }
+
     .main .dashboardbox .select2-selection--multiple {
         min-height: 42px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 4px !important;
         width: 100%;
         box-sizing: border-box;
+    }
+
+    .select2-selection__choice {
+        position: relative !important;
+        background: #0d6efd !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 4px 23px 4px 10px !important;
+        max-width: calc(100% - 10px);
+        box-sizing: border-box;
+    }
+
+    .select2-search__field {
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .select2-selection--multiple .select2-selection__choice__remove {
+        position: absolute !important;
+        right: 4px !important;
+        top: 50%;
+        transform: translateY(20%);
+        left: auto !important;
+        margin: 0 !important;
+        color: #fff !important;
+        font-size: 14px;
+        font-weight: bold;
+        border: none !important;
     }
     .select2-selection__choice {
         max-width: calc(100% - 10px);
@@ -215,6 +253,29 @@
             </div>
         </div>
     </div>
+@push('after-scripts')
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('#category_ids').select2({
+            placeholder: "Select Categories",
+            allowClear: true,
+            width: '100%'
+        });
+
+        $('#course_ids').select2({
+            placeholder: "Select Courses",
+            allowClear: true,
+            width: '100%'
+        });
+
+    });
+</script>
 
     <script>
         (function () {
@@ -350,4 +411,5 @@
             checkCategoryConflicts();
         })();
         </script>
+        @endpush
 @endsection
