@@ -207,38 +207,62 @@
             <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 col-12 form-group frmbm10">
-                            <div class="row">
-                                <div class="col-md-8 col-12 form-group">
+                            @if (Auth::user()->hasRole('teacher'))
+                                <div class="col-md-8 col-12 form-group px-0">
                                     <div>{{ __('course_pages.admin_create.teachers') }}</div>
-                                    <div class="custom-select-wrapper mt-2">
+                                    <input
+                                        type="hidden"
+                                        name="teacher_id"
+                                        value="{{ Auth::id() }}"
+                                    >
+                                    <input
+                                        type="text"
+                                        class="form-control mt-2"
+                                        value="{{ Auth::user()->name }}"
+                                        readonly
+                                    >
+                                </div>
+                            @else
+                                <div class="row">
+                                    <div class="col-md-8 col-12 form-group">
+                                        <div>{{ __('course_pages.admin_create.teachers') }}</div>
+                                        <div class="custom-select-wrapper mt-2">
+                                            <select
+                                                name="teacher_id"
+                                                id="course_teacher_id"
+                                                class="form-control custom-select-box select2 js-example-placeholder-single"
+                                            >
+                                                @foreach($teachers as $id => $teacher)
+                                                    <option
+                                                        value="{{ $id }}"
+                                                        @if(old('teacher_id') == $id) selected @endif
+                                                    >
+                                                        {{ $teacher }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
 
-                                        <select name="teacher_id" id="course_teacher_id"
-                                            class="form-control custom-select-box select2 js-example-placeholder-single">
-                                            @foreach($teachers as $id => $teacher)
-                                                <option value="{{ $id }}" @if(old('teacher_id') == $id) selected @endif>
-                                                    {{ $teacher }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <span class="custom-select-icon">
-                                            <i class="fa fa-chevron-down"></i>
+                                            <span class="custom-select-icon">
+                                                <i class="fa fa-chevron-down"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 col-12 d-flex form-group flex-column">
+                                        <span class="ortext">
+                                            OR
                                         </span>
                                     </div>
-                                </div>
-                                <div class="col-md-1 col-12 d-flex form-group flex-column"><span class="ortext">
-                                        OR
-                                    </span></div>
-                                <div class="col-md-3 col-12 d-flex form-group flex-column">
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary mt-auto"
-                                        data-toggle="modal"
-                                        data-target="#addTrainerModal">
-                                        {{ trans('labels.backend.courses.add_teachers') }}
-                                    </button>
-                                </div>
-                            </div>
-
+                                    <div class="col-md-3 col-12 d-flex form-group flex-column">
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary mt-auto"
+                                            data-toggle="modal"
+                                            data-target="#addTrainerModal"
+                                        >
+                                            {{ trans('labels.backend.courses.add_teachers') }}
+                                        </button>
+                                    </div>
+                            @endif
                         @if (Auth::user()->isAdmin())
                             {{-- <div class="row">
                                 <div class="col-10 form-group">
