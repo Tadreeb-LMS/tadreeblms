@@ -130,7 +130,7 @@ class CoursesController extends Controller
                     $view .= $edit;
                 }
 
-                if ($has_delete) {
+                if ($has_delete && $q->published != 1) {
                     $delete = view('backend.datatable.action-delete')
                         ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
                         ->render();
@@ -323,7 +323,7 @@ class CoursesController extends Controller
             ->render();
     }
 
-    if ($has_delete) {
+    if ($has_delete && $q->published != 1) {
         $actions .= view('backend.datatable.action-delete')
             ->with(['route' => route('admin.courses.destroy', ['course' => $q->id])])
             ->render();
