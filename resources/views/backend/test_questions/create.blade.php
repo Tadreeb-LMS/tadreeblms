@@ -553,8 +553,7 @@
 
                     <div class="mt-3 notextarea">
                         <label>
-                            <i class="fa fa-check-square-o mr-2" style="color: #4e73df;"></i>
-                            {{ __('labels.backend.questions.options') }}
+                            {{ __('labels.backend.questions.options') }} <span style="color:red">*</span>
                         </label>
                         <textarea
                             class="form-control editor"
