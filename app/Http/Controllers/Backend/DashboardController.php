@@ -39,6 +39,10 @@ class DashboardController extends Controller
     public function buildDashboardCache(int $cache_duration = 30, $user = null)
     {
         $userId = $user ? $user->id : (auth()->id() ?? 'system');
+        if ($user && $user->hasRole('student')) {
+            return $this->dashboardQuery($user);
+        }
+
         $cacheKey = "{$userId}_dashboard_stats";
         $cachePath = storage_path('framework/cache/data');
 
@@ -57,8 +61,14 @@ class DashboardController extends Controller
     public function dashboardQuery($user = null)
     {
         $teacherId = null;
+        $studentId = null;
+
         if ($user && $user->hasRole('teacher')) {
             $teacherId = $user->id;
+        }
+
+        if ($user && $user->hasRole('student')) {
+            $studentId = $user->id;
         }
 
         // --- Basic collections ---
@@ -127,6 +137,9 @@ class DashboardController extends Controller
                     ->join('courses as c', 'sc.course_id', '=', 'c.id')
                     ->join('course_user as cu', 'c.id', '=', 'cu.course_id')
                     ->where('cu.user_id', $teacherId);
+            })
+            ->when($studentId, function ($query) use ($studentId) {
+                $query->where('s.user_id', $studentId);
             })
             ->whereNull('s.revoked_at')
             ->where('s.status', '!=', \App\Models\Certificate::STATUS_REISSUED)
@@ -244,8 +257,14 @@ class DashboardController extends Controller
         // Use authenticated admin ID if available (optional per-admin cache)
         $userId = $user ? $user->id : (auth()->id() ?? 'system');
         $teacherId = null;
+        $studentId = null;
+
         if ($user && $user->hasRole('teacher')) {
             $teacherId = $user->id;
+        }
+
+        if ($user && $user->hasRole('student')) {
+            $studentId = $user->id;
         }
 
         $cacheKey = "{$userId}_dashboard_stats";
@@ -618,13 +637,11 @@ class DashboardController extends Controller
 
                             $totalScore = 0;
                             $totalAssessmentsTaken = 0;
-                            $total_certificate_issued = 0;
 
                             $subscriptions = SubscribeCourse::where('user_id', $userId)
                                 ->whereHas('course.courseAssignments')
-                                ->select('assesment_taken', 'assignment_score', 'grant_certificate')
+                                ->select('assesment_taken', 'assignment_score')
                                 ->get();
-
                             $totalAssessments = $subscriptions->count();
 
                             foreach ($subscriptions as $subscription) {
@@ -632,10 +649,6 @@ class DashboardController extends Controller
                                     $totalAssessmentsTaken++;
                                     $score = (float) rtrim($subscription->assignment_score, '%');
                                     $totalScore += $score;
-                                }
-
-                                if ($subscription->grant_certificate) {
-                                    $total_certificate_issued++;
                                 }
                             }
 
@@ -651,21 +664,19 @@ class DashboardController extends Controller
                                 'not_completed' => $notCompletedAssessments,
                                 'avg_score' => $av_completed_score,
                                 'total' => $totalAssessments,
-                                'total_certificate_issued' => $total_certificate_issued,
                             ];
                         }
                     );
                 } catch (\Throwable $e) {
 
                     // Fallback: If cache fails, run the same calculation WITHOUT cache
-                    $subscriptions = SubscribeCourse::where('user_id', $userId)
-                        ->whereHas('course.courseAssignments')
-                        ->select('assesment_taken', 'assignment_score', 'grant_certificate')
-                        ->get();
-
                     $totalScore = 0;
                     $totalAssessmentsTaken = 0;
-                    $total_certificate_issued = 0;
+
+                    $subscriptions = SubscribeCourse::where('user_id', $userId)
+                        ->whereHas('course.courseAssignments')
+                        ->select('assesment_taken', 'assignment_score')
+                        ->get();
 
                     $totalAssessments = $subscriptions->count();
 
@@ -674,10 +685,6 @@ class DashboardController extends Controller
                             $totalAssessmentsTaken++;
                             $score = (float) rtrim($subscription->assignment_score, '%');
                             $totalScore += $score;
-                        }
-
-                        if ($subscription->grant_certificate) {
-                            $total_certificate_issued++;
                         }
                     }
 
@@ -693,15 +700,23 @@ class DashboardController extends Controller
                         'not_completed' => $notCompletedAssessments,
                         'avg_score' => $av_completed_score,
                         'total' => $totalAssessments,
-                        'total_certificate_issued' => $total_certificate_issued,
                     ];
                 }
 
                 $completed_assesment     = $assessmentStats['completed'];
                 $not_completed_assesment  = $assessmentStats['not_completed'];
-                $av_completed_score       = $assessmentStats['avg_score'];
-                $totalAssessments         = $assessmentStats['total'];
-                $total_certificate_issued = $assessmentStats['total_certificate_issued'];
+                $total_certificate_issued = DB::table('certificates as s')
+                    ->join('users as u', 's.user_id', '=', 'u.id')
+                    ->where('s.user_id', $userId)
+                    ->whereNull('s.revoked_at')
+                    ->where('s.status', '!=', \App\Models\Certificate::STATUS_REISSUED)
+                    ->whereNull('u.deleted_at')
+                    ->where('u.active', 1)
+                    ->distinct()
+                    ->count('s.id');
+
+                $av_completed_score = $assessmentStats['avg_score'];
+                $totalAssessments = $assessmentStats['total'];
 
             } else {
                 $userId = auth()->user()->id;
