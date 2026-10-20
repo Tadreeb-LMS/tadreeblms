@@ -65,7 +65,7 @@
             </div>
         </div>
         <div class="col-12 text-right">
-            <button class="btn add-btn mb-4 form-group" id="save" type="button">{{ trans('strings.backend.general.app_save') }}</button>
+            <button class="btn add-btn mb-4 form-group" id="save" type="button">{{ trans('strings.backend.general.app_update') }}</button>
         </div>
     </div>
 

@@ -202,23 +202,24 @@
             @endif
             @endcan
 
+            $(document).on('click', '.delete_warning', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
 
-            $(document).on('click', '.delete_warning', function () {
-                const link = $(this);
-                const cancel = (link.attr('data-trans-button-cancel')) ? link.attr('data-trans-button-cancel') : 'Cancel';
+                const message = $(this).attr('data-delete-message');
 
-                const title = (link.attr('data-trans-title')) ? link.attr('data-trans-title') : "{{ trans('labels.backend.categories.not_allowed') }}";
+                if (window.Swal && typeof window.Swal.fire === 'function') {
+                    window.Swal.fire({
+                        title: message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert(message);
+                }
 
-                swal({
-                    title: title,
-                    icon: 'error',
-                    showCancelButton: true,
-                    cancelButtonText: cancel,
-                    type: 'info'
-                })
+                return false;
             });
-
-
         });
     </script>
 @endpush

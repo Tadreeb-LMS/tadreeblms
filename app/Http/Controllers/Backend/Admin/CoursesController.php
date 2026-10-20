@@ -619,7 +619,18 @@ class CoursesController extends Controller
              'category_id' => 'required',
              'course_type' => 'required',
              'course_payment_type' => 'required',
-             'teacher_id' => 'required|exists:users,id',
+             'teacher_id' => [
+                'required',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    if (
+                        \Auth::user()->hasRole('teacher') &&
+                        (int) $value !== (int) \Auth::id()
+                    ) {
+                        $fail('Trainers can only assign courses to themselves.');
+                    }
+                },
+             ],
              'final_assessment_max_attempts' => 'nullable|integer|min:1|max:999',
              'price' => $request->course_payment_type === 'Paid' ? 'required|numeric|min:1' : 'nullable|numeric'
         ]);
