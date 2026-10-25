@@ -2,6 +2,36 @@
 @section('title', __('Edit Learning Pathway') . ' | ' . app_name())
 @push('after-styles')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" rel="stylesheet" />
+
+    <style>
+        #pathwayCourses .pathway-course-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: grab;
+        }
+
+        #pathwayCourses .pathway-course-title {
+            flex: 1;
+        }
+
+        #pathwayCourses .pathway-course-remove {
+            border: 0;
+            background: transparent;
+            color: #dc3545;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        #pathwayCourses .pathway-course-remove:hover {
+            color: #a71d2a;
+        }
+    </style>
 @endpush
 @php 
     $oldCourseIds = $lp->learningPathwayCoursesOrdered->pluck('course_id')->toArray();
@@ -56,7 +86,18 @@
                                 here
                             </div>
                             @foreach ($lp->learningPathwayCoursesOrdered as $lpc)
-                                <div class="list-group-item" data-value="{{ $lpc->course_id }}">{{ $lpc->course->title }}
+                                <div class="list-group-item pathway-course-item" data-value="{{ $lpc->course_id }}">
+                                    <span class="pathway-course-title">
+                                        {{ $lpc->course->title }}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="pathway-course-remove"
+                                        aria-label="Remove {{ $lpc->course->title }}"
+                                    >
+                                        &times;
+                                    </button>
                                 </div>
                             @endforeach
                         </div>
@@ -99,29 +140,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js"></script>
     <script src="/js/helpers/form-submit.js"></script>
     <script>
-        $('[id="course_id"]').val({{ json_encode($lp->learningPathwayCoursesOrdered->pluck('course_id')->toArray()) }}).trigger('change');
-        $('[name="user_ids[]"]').val({{ json_encode($lp->learningPathwayUsers->pluck('user_id')->toArray()) }}).trigger('change');
-        
-        new Sortable(pathwayCourses, {
-            animation: 150,
-            onEnd: function(evt) {
-                setCoursePositionFormData();
-            }
-        });
-
         $('[id="course_id"]').on('select2:select', function(e) {
-            const selectedData = e.params.data; // The selected item data
+            const selectedData = e.params.data;
 
             if (!$('#pathwayCourses-placeholder').hasClass('d-none')) {
                 $('#pathwayCourses-placeholder').addClass('d-none');
             }
 
             const newItem = $('<div></div>')
-                .addClass('list-group-item')
-                .text(selectedData.text) // Display the text
-                .attr('data-value', selectedData.id); // Store the value for later removal
+                .addClass('list-group-item pathway-course-item')
+                .attr('data-value', selectedData.id);
 
-            // Append the item to the sortable container
+            $('<span></span>')
+                .addClass('pathway-course-title')
+                .text(selectedData.text)
+                .appendTo(newItem);
+
+            $('<button></button>')
+                .attr({
+                    type: 'button',
+                    class: 'pathway-course-remove',
+                    'aria-label': 'Remove ' + selectedData.text
+                })
+                .html('&times;')
+                .appendTo(newItem);
+
             $('#pathwayCourses').append(newItem);
 
             setCoursePositionFormData();
@@ -129,9 +172,39 @@
 
         $('[id="course_id"]').on('select2:unselect', function(e) {
             const removed = e.params.data;
-            $(`#pathwayCourses .list-group-item[data-value="${removed.id}"]`).remove();
 
-            if ($('#pathwayCourses .list-group-item').length == 1) {
+            $(`#pathwayCourses .pathway-course-item[data-value="${removed.id}"]`).remove();
+
+            if ($('#pathwayCourses .pathway-course-item').length === 0) {
+                $('#pathwayCourses-placeholder').removeClass('d-none');
+            }
+
+            setCoursePositionFormData();
+        });
+
+        $('#pathwayCourses').on('pointerdown', '.pathway-course-remove', function(e) {
+            e.stopPropagation();
+        });
+
+        $('#pathwayCourses').on('click', '.pathway-course-remove', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $item = $(this).closest('.pathway-course-item');
+            const courseId = String($item.attr('data-value'));
+            const $courseSelect = $('[id="course_id"]');
+
+            const selectedValues = $courseSelect.val() || [];
+
+            const updatedValues = selectedValues.filter(function(value) {
+                return String(value) !== courseId;
+            });
+
+            $courseSelect.val(updatedValues).trigger('change');
+
+            $item.remove();
+
+            if ($('#pathwayCourses .pathway-course-item').length === 0) {
                 $('#pathwayCourses-placeholder').removeClass('d-none');
             }
 
@@ -140,11 +213,13 @@
 
         function setCoursePositionFormData() {
             const order = [];
-            $('#pathwayCourses .list-group-item:not(#pathwayCourses-placeholder)').each(function() {
-                const value = $(this).attr('data-value'); // Get the data-value attribute
+
+            $('#pathwayCourses .pathway-course-item').each(function() {
+                const value = $(this).attr('data-value');
                 order.push(value);
-            });            
-            $('[name="course_with_order"]').val(JSON.stringify(order))
+            });
+
+            $('[name="course_with_order"]').val(JSON.stringify(order));
         }
     </script>
 
