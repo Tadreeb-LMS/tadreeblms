@@ -252,8 +252,11 @@
                                             <select
                                                 name="teacher_id"
                                                 id="course_teacher_id"
-                                                class="form-control custom-select-box select2 js-example-placeholder-single"
+                                                class="form-control custom-select-box select2 js-example-placeholder-trainer"
+                                                required
                                             >
+                                                <option value="">Select Trainer</option>
+
                                                 @foreach($teachers as $id => $teacher)
                                                     <option
                                                         value="{{ $id }}"
@@ -1083,7 +1086,10 @@
                 placeholder: "Select Category",
                 allowClear: false
             });
-
+            $(".js-example-placeholder-trainer").select2({
+                placeholder: "Select Trainer",
+                allowClear: false
+            });
             $(".js-example-internal-student-placeholder-multiple").select2({
                 placeholder: "{{ trans('labels.backend.courses.select_internal_students') }}",
             });
