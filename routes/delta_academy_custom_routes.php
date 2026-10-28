@@ -29,6 +29,16 @@ Route::group(['prefix'=>'attendance','as'=>'attendance.'],function(){
 
 Route::get('certificates/generate', [CoursesController::class,'generateCertificate'])->name('certificates.generate');
 
+/*
+ * The attendance list is linked from the lessons table, which trainers can open
+ * as well. Course-level access is scoped inside AttendenceController.
+ */
+Route::group(['middleware' => 'role:administrator|teacher'], function () {
+    Route::get('/attendance-list/{course_id}/{lesson_id}', [AttendenceController::class,'attendance_list'])->name('attendance.attendance.list');
+
+    Route::get('/attendance-get-data/{course_id}/{lesson_id}', [AttendenceController::class,'get_data'])->name('attendance.attendance.get_data');
+});
+
 Route::group(['middleware' => 'role:administrator'], function () {
 
  Route::get('employee', [EmployeeController::class, 'index'])->name('employee.index');
@@ -40,10 +50,6 @@ Route::group(['middleware' => 'role:administrator'], function () {
         ->name('employee.import');
 
     Route::get('certificates/generate/{course_id}/{user_id}', [EmployeeController::class,'generateCertificate'])->name('certificates.generate');
-
-    Route::get('/attendance-list/{course_id}/{lesson_id}', [AttendenceController::class,'attendance_list'])->name('attendance.attendance.list');
-    
-    Route::get('/attendance-get-data/{course_id}/{lesson_id}', [AttendenceController::class,'get_data'])->name('attendance.attendance.get_data');
 
 
     //======= External Courses =======/
