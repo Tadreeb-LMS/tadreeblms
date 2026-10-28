@@ -318,6 +318,11 @@ class CoursesController extends Controller
             return redirect('request-course/' . $course->slug);
         }
 
+        // unpublished courses are not accessible to students, only admins and teachers can open them
+        if (!$course || (!$course->published && !$user->isAdmin() && !$user->hasRole('teacher'))) {
+            abort(404);
+        }
+
         if ($user->hasRole('student') && $course->isExpired()) {
             return redirect()
                 ->route('user.mycourses')
@@ -735,7 +740,12 @@ if ($this->isLiveCourse($course) && $subscribe_data && $subscribe_data->due_date
             ));
         }
 
-        $course = Course::withoutGlobalScope('filter')->where('slug', $course_slug)->with('publishedLessons')->first();
+        // only admins reach the preview of an unpublished course; everyone else sees published courses only
+        $course = Course::withoutGlobalScope('filter')->where('published', 1)->where('slug', $course_slug)->with('publishedLessons')->first();
+
+        if (!$course) {
+            abort(404);
+        }
 
         $countries = DB::table('master_countries')->get();
         $continue_course = NULL;
