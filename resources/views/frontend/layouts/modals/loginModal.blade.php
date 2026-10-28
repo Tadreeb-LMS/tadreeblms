@@ -107,7 +107,7 @@
     });
 </script>
 @if(!auth()->check())
-
+@if(!request()->routeIs('frontend.auth.login'))
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -190,8 +190,7 @@
         </div>
     </div>
 </div>
-
-
+@endif
     <div class="modal fade" id="myRegisterModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
