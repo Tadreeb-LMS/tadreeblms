@@ -94,8 +94,34 @@ class AttendenceController extends Controller
         return abort(404);
     }
 
+    /**
+     * Attendance records are course scoped: administrators may read every
+     * course, trainers only the courses assigned to them. Anything else is
+     * rejected with a 403 instead of being redirected to the landing page.
+     *
+     * @param  int|string  $course_id
+     */
+    private function authorizeAttendanceAccess($course_id)
+    {
+        $user = auth()->user();
+
+        if ($user && $user->isAdmin()) {
+            return;
+        }
+
+        if ($user
+            && $user->hasRole('teacher')
+            && $user->courses()->where('courses.id', (int) $course_id)->exists()) {
+            return;
+        }
+
+        abort(403);
+    }
+
     public function attendance_list(Request $request,$course_id,$lesson_id)
     {
+       $this->authorizeAttendanceAccess($course_id);
+
        return view('backend.attendance_student.index',['course_id'=>$course_id,'lesson_id' =>$lesson_id]);
     }
 
@@ -106,7 +132,12 @@ class AttendenceController extends Controller
         $has_delete = false;
         $has_edit = false;
         $lessons = "";
-        $lessons = AttendanceStudent::with('lesson','course','user')->where('lesson_id',$lesson_id);
+
+        $this->authorizeAttendanceAccess($course_id);
+
+        $lessons = AttendanceStudent::with('lesson','course','user')
+            ->where('course_id',$course_id)
+            ->where('lesson_id',$lesson_id);
         return DataTables::of($lessons)
             ->addIndexColumn()
             // ->addColumn('actions', function ($q) {

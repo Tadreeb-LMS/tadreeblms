@@ -9,7 +9,7 @@
             <h3 class="page-title d-inline">Attendance List</h3>
         </div>
         <div class="card-body">
-            @if(request('course_id') != "" || request('show_deleted') != "")
+            @if($course_id && $lesson_id)
                 <div class="table-responsive">
 
                     <table id="myTable"
@@ -51,7 +51,7 @@
             
             
 
-            @if(request('course_id') != "" || request('show_deleted') != "")
+            @if($course_id && $lesson_id)
 
             $('#myTable').DataTable({
                 processing: true,
