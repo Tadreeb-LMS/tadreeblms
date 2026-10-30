@@ -456,6 +456,29 @@ $(document).on('click', '.js-delete-question', function (e) {
     });
 
 });
+</script>
+<script>
+    $(document).ready(function () {
 
+        const successMessage = sessionStorage.getItem(
+            'feedback_question_success'
+        );
+
+        if (successMessage) {
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: successMessage,
+                timer: 2500,
+                showConfirmButton: false
+            });
+
+            sessionStorage.removeItem(
+                'feedback_question_success'
+            );
+        }
+
+    });
 </script>
 @endpush
