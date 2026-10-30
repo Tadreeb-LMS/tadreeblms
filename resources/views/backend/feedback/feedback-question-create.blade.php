@@ -429,6 +429,8 @@
     </script>
     @stop
     @push('after-scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <script type="text/javascript">
         var options = [];
         var flag = 0;
@@ -555,6 +557,33 @@
 
         var question_submit_url = "{{route('admin.feedback.feedback-question-multiple-store')}}";
 
+        function showSuccessMessage(message) {
+            var notification = $('<div></div>')
+                .text(message)
+                .css({
+                    'position': 'fixed',
+                    'top': '20px',
+                    'right': '20px',
+                    'z-index': '99999',
+                    'background-color': '#28a745',
+                    'color': '#ffffff',
+                    'padding': '14px 20px',
+                    'border-radius': '6px',
+                    'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    'font-size': '14px',
+                    'font-weight': '600',
+                    'min-width': '280px',
+                    'text-align': 'left'
+                });
+
+            $('body').append(notification);
+
+            setTimeout(function() {
+                notification.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 1200);
+        }
         function sendData(data) {
             var data = dataCollection();
             data['_token'] = "{{ csrf_token() }}";
@@ -562,25 +591,39 @@
                 url: question_submit_url,
                 type: 'post',
                 data: data,
+
                 success: function(response) {
                     response = JSON.parse(response);
-                    if (response.code == 200) {
 
-                        //window.location.replace("{{ URL::to('user/feedback-questions')}}/" + response.course_id);
+                    if (response.code == 200) {
+                        sessionStorage.setItem(
+                            'feedback_question_success',
+                            'Feedback question created successfully.'
+                        );
+
                         @if(isset($course->id))
-                        // Opened from a course context (e.g. assessment flow): continue
-                        // to map the new question to that course.
-                        window.location.replace("{{ URL::to('user/course-feedback-create')}}?course_id={{ $course->id }}");
+                            window.location.replace(
+                                "{{ URL::to('user/course-feedback-create')}}?course_id={{ $course->id }}"
+                            );
                         @else
-                        // Opened standalone from Feedback > Questions: there is no course
-                        // to map to, so return to the Feedback Questions list instead of
-                        // landing on an empty "select a course" course-mapping page.
-                        window.location.replace("{{ route('admin.feedback_question.index') }}");
+                            window.location.replace(
+                                "{{ route('admin.feedback_question.index') }}"
+                            );
                         @endif
-                    } else {
-                        alert(response.message);
+                    }else {
+
+                        alert(
+                            response.message ||
+                            'Unable to create feedback question.'
+                        );
                     }
                 },
+
+                error: function() {
+                    alert(
+                        'Unable to create feedback question. Please try again.'
+                    );
+                }
             });
         }
 
