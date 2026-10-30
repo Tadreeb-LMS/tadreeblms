@@ -19,6 +19,7 @@ return array(
     'loading' => 'Chargement...',
   ),
   'feedback_questions' => array(
+    'created_successfully' => 'Question de commentaire créée avec succès.',
     'title' => 'Questions de commentaires du cours',
     'course' => 'Cours',
     'id' => 'Id',
