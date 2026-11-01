@@ -736,21 +736,22 @@
 
                 success: function(response) {
                     if (response.code == 200) {
-
-                        @if(isset($course->id))
-
+                        Swal.fire({
+                            icon: 'success',
+                            text: @json(__('user_feedback.feedback_questions.created_successfully')),
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(function() {
+                            @if(isset($course->id))
                             window.location.replace(
                                 "{{ URL::to('user/course-feedback-create') }}?course_id={{ $course->id }}"
                             );
-
-                        @else
-
+                            @else
                             window.location.replace(
                                 "{{ route('admin.feedback_question.index') }}"
                             );
-
-                        @endif
-
+                            @endif
+                        });
                     } else {
                         alert(
                             response.message ||
