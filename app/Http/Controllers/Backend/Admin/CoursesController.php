@@ -1499,24 +1499,36 @@ $teachers = [$teacherId];
      * @param  Request
      */
     public function publish($id)
-{
-    if (!Gate::allows('course_edit')) {
-        return abort(401);
+    {
+        if (!Gate::allows('course_edit')) {
+            return abort(401);
+        }
+
+        $course = Course::findOrFail($id);
+
+        // Prevent unpublishing when active students are enrolled.
+        if ($course->published == 1) {
+            $activeEnrollmentCount = SubscribeCourse::where('course_id', $course->id)
+                ->where('status', 1)
+                ->count();
+
+            if ($activeEnrollmentCount > 0) {
+                return back()->withFlashDanger(
+                    "This course cannot be unpublished because {$activeEnrollmentCount} active student(s) are enrolled. Please review the enrollments before changing the course status."
+                );
+            }
+
+            $course->published = -1; // Unpublish
+        } else {
+            $course->published = 1; // Publish
+        }
+
+        $course->save();
+
+        return back()->withFlashSuccess(
+            trans('alerts.backend.general.updated')
+        );
     }
-
-    $course = Course::findOrFail($id);
-
-    // Toggle logic
-    if ($course->published == 1) {
-        $course->published = -1; // Unpublish
-    } else {
-        $course->published = 1; // Publish (works for draft & unpublished)
-    }
-
-    $course->save();
-
-    return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
-}
 
     public function course_detail($course_id, $employee_id)
     {

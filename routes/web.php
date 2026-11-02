@@ -119,7 +119,7 @@ Route::get('reset-demo', function () {
 //===================================================================//
 
 
-require_once "delta_academy_custom_routes.php";
+require "delta_academy_custom_routes.php";
 
 
 Route::get('/certificate-verification', [\App\Http\Controllers\CertificateVerificationController::class, 'verify'])->name('frontend.certificates.getVerificationForm');

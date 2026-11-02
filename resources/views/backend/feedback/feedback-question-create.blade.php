@@ -83,6 +83,15 @@
         color:#6b7280;
         font-size:14px;
     }
+    .feedback-validation-error {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .feedback-validation-invalid {
+        border-color: #dc3545 !important;
+    }
 </style>
 @endpush
 
@@ -435,6 +444,146 @@
         var options = [];
         var flag = 0;
 
+        function getFeedbackFieldValue(fieldId) {
+            if (
+                typeof CKEDITOR !== 'undefined' &&
+                CKEDITOR.instances[fieldId]
+            ) {
+                return CKEDITOR.instances[fieldId].getData() || '';
+            }
+
+            return $('#' + fieldId).val() || '';
+        }
+
+        function getPlainText(value) {
+            var text = $('<div>').html(value || '').text();
+
+            text = text.replace(/\u00a0/g, ' ');
+
+            return $.trim(text);
+        }
+
+        function clearValidationErrors() {
+            $('#question-validation-error').remove();
+            $('#options-validation-error').remove();
+
+            $('#question').removeClass('feedback-validation-invalid');
+            $('#option').removeClass('feedback-validation-invalid');
+        }
+
+        function showValidationError(field, message) {
+            var errorId = field === 'question'
+                ? 'question-validation-error'
+                : 'options-validation-error';
+
+            $('#' + errorId).remove();
+
+            var errorHtml =
+                '<div id="' + errorId + '" class="feedback-validation-error" role="alert">' +
+                $('<div>').text(message).html() +
+                '</div>';
+
+            if (field === 'question') {
+                $('#question').after(errorHtml);
+                $('#question').addClass('feedback-validation-invalid');
+            } else {
+                $('#option').addClass('feedback-validation-invalid');
+
+                if ($('#option-area').length) {
+                    $('#option-area').last().after(errorHtml);
+                } else {
+                    $('#option').after(errorHtml);
+                }
+            }
+        }
+
+        function focusFeedbackField(field) {
+            if (field === 'question') {
+                if (
+                    typeof CKEDITOR !== 'undefined' &&
+                    CKEDITOR.instances['question']
+                ) {
+                    CKEDITOR.instances['question'].focus();
+                } else {
+                    $('#question').focus();
+                }
+
+                return;
+            }
+
+            $('#option').focus();
+        }
+
+        function validateFeedbackQuestion() {
+            clearValidationErrors();
+
+            var firstInvalidField = null;
+
+            var question = getFeedbackFieldValue('question');
+            var questionText = getPlainText(question);
+
+            if (questionText === '') {
+                showValidationError(
+                    'question',
+                    'The question field is required.'
+                );
+
+                firstInvalidField = 'question';
+            }
+
+            var questionType = parseInt($('#question_type').val(), 10);
+
+            if (
+                (questionType === 1 || questionType === 2) &&
+                (!Array.isArray(options) || options.length === 0)
+            ) {
+                showValidationError(
+                    'options',
+                    'At least one option is required.'
+                );
+
+                if (!firstInvalidField) {
+                    firstInvalidField = 'options';
+                }
+            }
+
+            if (firstInvalidField) {
+                focusFeedbackField(firstInvalidField);
+                return false;
+            }
+
+            return true;
+        }
+
+        function renderServerValidationErrors(errors) {
+            clearValidationErrors();
+
+            var firstInvalidField = null;
+
+            if (errors && errors.question && errors.question.length) {
+                showValidationError(
+                    'question',
+                    errors.question[0]
+                );
+
+                firstInvalidField = 'question';
+            }
+
+            if (errors && errors.options && errors.options.length) {
+                showValidationError(
+                    'options',
+                    errors.options[0]
+                );
+
+                if (!firstInvalidField) {
+                    firstInvalidField = 'options';
+                }
+            }
+
+            if (firstInvalidField) {
+                focusFeedbackField(firstInvalidField);
+            }
+        }
         function removeOptions(pos) {
             options.splice(pos, 1);
             showOptions();
@@ -504,20 +653,39 @@
         }
 
         function addOptions() {
-            var option = $('#option').val().trim();
-            if(option == '')
-                return;
+            var option = getFeedbackFieldValue('option');
 
-            options.push([option,0]);
-            $('#option').val('');
+            if (getPlainText(option) === '') {
+                showValidationError(
+                    'options',
+                    'At least one option is required.'
+                );
+
+                return;
+            }
+
+            options.push([
+                option.trim(),
+                0
+            ]);
+
+            if (
+                typeof CKEDITOR !== 'undefined' &&
+                CKEDITOR.instances['option']
+            ) {
+                CKEDITOR.instances['option'].setData('');
+            } else {
+                $('#option').val('');
+            }
+
+            $('#option').removeClass('feedback-validation-invalid');
+            $('#options-validation-error').remove();
+
+            showOptions();
         }
 
-        $(document).on('click', "#add_option", function() {
-            if($('#option').val().trim() != '')
-            {
-                addOptions();
-            }
-            showOptions();
+        $(document).on('click', '#add_option', function() {
+            addOptions();
         });
 
         function addImgClass() {
@@ -529,33 +697,33 @@
         function dataCollection() {
             var test_id = $("#test_id").val();
             var question_type = $("#question_type").val();
-            var question = CKEDITOR.instances["question"].getData();
+            var question = getFeedbackFieldValue('question');
             var course_id = $("#course_id").val();
 
-            var solution = CKEDITOR?.instances["solution"]?.getData();
-            // var comment = CKEDITOR.instances["comment"].getData();
-            // var marks = $("#marks").val();
+            var solution = getFeedbackFieldValue('solution');
+
             return {
-                test_id,
-                question_type,
-                course_id,
-                question,
-                options: JSON.stringify(options),
-                solution,
-                // comment,
-                // marks
-            }
+                test_id: test_id,
+                question_type: question_type,
+                course_id: course_id,
+                question: question,
+                options: JSON.stringify(options || []),
+                solution: solution
+            };
         }
 
-        $(document).on('click', "#save", function() {
+        $(document).on('click', '#save', function() {
             flag = 0;
-            if (CKEDITOR.instances["question"].getData() != "" && $('#marks').val() != "" && $('#test_id').val() != "") {
 
-                sendData();
+            if (!validateFeedbackQuestion()) {
+                return;
             }
+
+            sendData();
         });
 
-        var question_submit_url = "{{route('admin.feedback.feedback-question-multiple-store')}}";
+        var question_submit_url =
+            "{{ route('admin.feedback.feedback-question-multiple-store') }}";
 
         function showSuccessMessage(message) {
             var notification = $('<div></div>')
@@ -586,42 +754,66 @@
         }
         function sendData(data) {
             var data = dataCollection();
+
             data['_token'] = "{{ csrf_token() }}";
+
             $.ajax({
                 url: question_submit_url,
-                type: 'post',
+                type: 'POST',
                 data: data,
+                dataType: 'json',
 
                 success: function(response) {
-                    response = JSON.parse(response);
-
                     if (response.code == 200) {
-                        sessionStorage.setItem(
-                            'feedback_question_success',
-                            'Feedback question created successfully.'
-                        );
-
-                        @if(isset($course->id))
+                        Swal.fire({
+                            icon: 'success',
+                            text: @json(__('user_feedback.feedback_questions.created_successfully')),
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(function() {
+                            @if(isset($course->id))
                             window.location.replace(
-                                "{{ URL::to('user/course-feedback-create')}}?course_id={{ $course->id }}"
+                                "{{ URL::to('user/course-feedback-create') }}?course_id={{ $course->id }}"
                             );
-                        @else
+                            @else
                             window.location.replace(
                                 "{{ route('admin.feedback_question.index') }}"
                             );
-                        @endif
-                    }else {
-
+                            @endif
+                        });
+                    } else {
                         alert(
                             response.message ||
-                            'Unable to create feedback question.'
+                            'Unable to save the feedback question.'
                         );
                     }
                 },
 
-                error: function() {
+                error: function(xhr) {
+
+                    if (
+                        xhr.status === 422 &&
+                        xhr.responseJSON &&
+                        xhr.responseJSON.errors
+                    ) {
+                        renderServerValidationErrors(
+                            xhr.responseJSON.errors
+                        );
+
+                        return;
+                    }
+
+                    if (
+                        xhr.responseJSON &&
+                        xhr.responseJSON.message
+                    ) {
+                        alert(xhr.responseJSON.message);
+
+                        return;
+                    }
+
                     alert(
-                        'Unable to create feedback question. Please try again.'
+                        'Unable to save the feedback question. Please try again.'
                     );
                 }
             });
