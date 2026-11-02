@@ -438,6 +438,8 @@
     </script>
     @stop
     @push('after-scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <script type="text/javascript">
         var options = [];
         var flag = 0;
@@ -723,7 +725,34 @@
         var question_submit_url =
             "{{ route('admin.feedback.feedback-question-multiple-store') }}";
 
-        function sendData() {
+        function showSuccessMessage(message) {
+            var notification = $('<div></div>')
+                .text(message)
+                .css({
+                    'position': 'fixed',
+                    'top': '20px',
+                    'right': '20px',
+                    'z-index': '99999',
+                    'background-color': '#28a745',
+                    'color': '#ffffff',
+                    'padding': '14px 20px',
+                    'border-radius': '6px',
+                    'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    'font-size': '14px',
+                    'font-weight': '600',
+                    'min-width': '280px',
+                    'text-align': 'left'
+                });
+
+            $('body').append(notification);
+
+            setTimeout(function() {
+                notification.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 1200);
+        }
+        function sendData(data) {
             var data = dataCollection();
 
             data['_token'] = "{{ csrf_token() }}";
