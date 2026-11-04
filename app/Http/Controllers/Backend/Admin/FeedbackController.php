@@ -21,6 +21,7 @@ use App\Models\UserResponse;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
 use DB;
+use Illuminate\Support\Facades\Validator;
 
 class FeedbackController extends Controller
 {
@@ -248,37 +249,127 @@ class FeedbackController extends Controller
 
     public function feedback_questions_store(Request $request)
     {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'question_type' => ['required', 'in:1,2,3'],
+                'question' => ['required', 'string'],
+                'options' => ['nullable', 'json'],
+                'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            ],
+            [
+                'question.required' => 'The question field is required.',
+                'question_type.required' => 'The question type field is required.',
+                'options.json' => 'The options format is invalid.',
+            ]
+        );
 
-        if ($request->options) {
-            $options = json_decode($request->options);
+        $validator->after(function ($validator) use ($request) {
+            $question = (string) $request->input('question', '');
+
+            // Remove HTML/CKEditor formatting and whitespace-only content.
+            $plainQuestion = html_entity_decode(
+                strip_tags($question),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+
+            $plainQuestion = preg_replace('/\x{00A0}/u', ' ', $plainQuestion);
+            $plainQuestion = trim($plainQuestion);
+
+            if ($plainQuestion === '') {
+                $validator->errors()->add(
+                    'question',
+                    'The question field is required.'
+                );
+            }
+
+            // Options are required only for Single Choice and Multiple Choice.
+            if (in_array((int) $request->input('question_type'), [1, 2], true)) {
+                $options = json_decode(
+                    $request->input('options', '[]'),
+                    true
+                );
+
+                if (!is_array($options)) {
+                    $options = [];
+                }
+
+                $validOptions = array_filter($options, function ($option) {
+                    if (!is_array($option) || !isset($option[0])) {
+                        return false;
+                    }
+
+                    $optionText = html_entity_decode(
+                        strip_tags((string) $option[0]),
+                        ENT_QUOTES | ENT_HTML5,
+                        'UTF-8'
+                    );
+
+                    $optionText = preg_replace('/\x{00A0}/u', ' ', $optionText);
+
+                    return trim($optionText) !== '';
+                });
+
+                if (count($validOptions) === 0) {
+                    $validator->errors()->add(
+                        'options',
+                        'At least one option is required.'
+                    );
+                }
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'Please correct the highlighted fields.',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        $question_id = DB::table('feedback_questions')->insertGetId([
-            // 'test_id' => $request->test_id,
-            'question_type' => $request->question_type,
-            'question' => $request->question,
-            'solution' => $request->solution,
-            'course_id' => (!empty($request->course_id) ? $request->course_id : 0),
-            // 'marks' => $request->marks,
-            // 'comment' => $request->comment,
-            'option_json' => $request->question_type != 3 ? $request->options : NULL
-        ]);
+        $options = [];
 
-        foreach ($options as $key => $value) {
-            DB::table('feedback_option')->insert([
-                'question_id' => $question_id,
-                'option_text' => $value[0],
-                'is_right' => $value[1],
+        if ((int) $request->input('question_type') !== 3) {
+            $options = json_decode(
+                $request->input('options', '[]'),
+                true
+            ) ?: [];
+        }
+
+        $questionId = null;
+
+        DB::transaction(function () use ($request, $options, &$questionId) {
+            $questionId = DB::table('feedback_questions')->insertGetId([
+                'question_type' => $request->question_type,
+                'question' => $request->question,
+                'solution' => $request->solution,
+                'course_id' => !empty($request->course_id)
+                    ? $request->course_id
+                    : 0,
+                'option_json' => $request->question_type != 3
+                    ? $request->options
+                    : null,
             ]);
-        }
 
-        return json_encode(array(
+            if ((int) $request->input('question_type') !== 3) {
+                foreach ($options as $value) {
+                    DB::table('feedback_option')->insert([
+                        'question_id' => $questionId,
+                        'option_text' => $value[0],
+                        'is_right' => $value[1] ?? 0,
+                    ]);
+                }
+            }
+        });
+
+        return response()->json([
             'code' => 200,
-            'course_id' => (!empty($request->course_id) ? $request->course_id : 0),
-            'message' => 'Question Inserted'
-        ));
-
-        return view('backend.feedback.feedback-question-create');
+            'course_id' => !empty($request->course_id)
+                ? $request->course_id
+                : 0,
+            'message' => 'Question Inserted',
+        ]);
     }
 
     public function feedbackQuestionUpdate(Request $request)

@@ -222,49 +222,40 @@ class CertificateController extends Controller
     public function getCertificates(Request $request)
     {
         if ($request->ajax()) {
+            $userId = auth()->id();
+            $certificates = Certificate::query()
+                ->with('course:id,title')
+                ->where('user_id', $userId)
+                ->whereNull('revoked_at')
+                ->where('status', '!=', Certificate::STATUS_REISSUED)
+                ->latest('created_at');
 
-            $course_for_certificate = [];
-            $user_id = auth()->user()->id ?? null;
-            if($user_id) {
-                $subscribe_courses = SubscribeCourse::query()
-                                    ->with(['course','course.lessons','course.publishedLessons'])
-                                    ->where('user_id', '=', $user_id)
-                                    ->where('is_completed', '=', 1)
-                                    ->whereHas('course')
-                                    ->groupBy('course_id')
-                                    ->get();
-                foreach ($subscribe_courses as $key => $subscribe_course) {
-                    $courseAllowsCertificate = (bool) ($subscribe_course->course->grant_certificate ?? false);
-                    $subscriptionAllowsCertificate = (bool) ($subscribe_course->grant_certificate ?? false);
-
-                    // Support both schema variants:
-                    // 1) courses.grant_certificate (legacy)
-                    // 2) subscribe_courses.grant_certificate (current in this workspace)
-                    if ($courseAllowsCertificate || $subscriptionAllowsCertificate) {
-                        $course_for_certificate[] = $subscribe_course->course_id;
-                    }
-                }
-            }
-
-            $courses = Course::query()->whereIn('id', $course_for_certificate);
-            return DataTables::of($courses)
+            return DataTables::of($certificates)
                 ->addIndexColumn()
+
+                ->addColumn('title', function ($row) {
+                    return optional($row->course)->title ?? '-';
+                })
+
                 ->addColumn('link', function ($row) {
-                    $url = route('admin.certificates.generate', ['course_id' => $row->id, 'user_id' => auth()->id(), 'download' => 1]);
+                    $url = route('admin.certificates.generate', [
+                        'course_id' => $row->course_id,
+                        'user_id' => auth()->id(),
+                        'download' => 1,
+                    ]);
+
                     return '
-                        <a href="'.$url.'"
+                        <a href="' . $url . '"
                         class="certificate-download-link"
                         title="Download Certificate"
                         aria-label="Download Certificate">
-
-                        <i class="fa fa-download"></i>
-
-                            '.trans('labels.backend.certificates.fields.download-certificate').'
-
+                            <i class="fa fa-download"></i>
+                            ' . trans('labels.backend.certificates.fields.download-certificate') . '
                         </a>';
                 })
+
                 ->rawColumns(['link'])
-                ->make();
+                ->make(true);
         }
 
         return view('backend.certificates.index');

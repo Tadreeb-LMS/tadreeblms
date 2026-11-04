@@ -176,7 +176,7 @@
                                       <th>{{ __('user_feedback.feedback_answers.user_name') }}</th>
                                       <th>{{ __('user_feedback.feedback_answers.course_name') }}</th>
                                       <th>{{ __('user_feedback.feedback_answers.submitted_on') }}</th>
-                                      <th>{{ __('user_feedback.feedback_answers.detail') }}</th>
+                                      <th>{{ __('user_feedback.feedback_questions.actions') }}</th>
                                   </tr>
                               </thead>
                               <tbody>
