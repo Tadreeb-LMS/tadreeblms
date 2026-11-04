@@ -19,6 +19,7 @@ return array(
     'loading' => 'Cargando...',
   ),
   'feedback_questions' => array(
+    'created_successfully' => 'Pregunta de feedback creada correctamente.',
     'title' => 'Preguntas de feedback del curso',
     'course' => 'Curso',
     'id' => 'Id',

@@ -431,6 +431,9 @@ class User extends Authenticatable
         if($courseStatus == 'NotStarted') {
             $course_status = 0;
         }
+        if($courseStatus == 'Expired') {
+            $course_status = 3;
+        }
 
 
         //dd($course_status);
@@ -455,19 +458,37 @@ class User extends Authenticatable
                 });
             })
             ->when(!empty($courseStatus), function ($q) use ($course_status) {
-
-                if ($course_status == 2) {
-                    $q->where('grant_certificate', '1');
-                    $q->where('assignment_progress', '100');
+                if ($course_status == 3) {
+                    // Expired courses take precedence over progress status.
+                    $q->whereHas('course', function ($query) {
+                        $query->whereNotNull('expire_at')
+                            ->whereDate('expire_at', '<', Carbon::today());
+                    });
+                } elseif ($course_status == 2) {
+                    // Completed courses must still be active.
+                    $q->where('grant_certificate', '1')
+                        ->where('assignment_progress', '100')
+                        ->whereHas('course', function ($query) {
+                            $query->whereNull('expire_at')
+                                ->orWhereDate('expire_at', '>=', Carbon::today());
+                        });
                 } elseif ($course_status == 1) {
-                    $q->whereBetween('assignment_progress', [1, 99]); // strictly in-progress
+                    // Expired courses must not appear under In Progress.
+                    $q->whereBetween('assignment_progress', [1, 99])
+                        ->whereHas('course', function ($query) {
+                            $query->whereNull('expire_at')
+                                ->orWhereDate('expire_at', '>=', Carbon::today());
+                        });
                 } else {
+                    // Not Started courses must also be active.
                     $q->where(function ($query) {
                         $query->where('assignment_progress', 0)
                             ->orWhereNull('assignment_progress');
+                    })->whereHas('course', function ($query) {
+                        $query->whereNull('expire_at')
+                            ->orWhereDate('expire_at', '>=', Carbon::today());
                     });
                 }
-                
             })
             ->when(!empty($byDueDate), function ($q) use ($byDueDate) {
 

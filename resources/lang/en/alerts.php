@@ -20,6 +20,7 @@ return array (
       'cancelled' => 'Update Cancelled.',
       'unverified' => 'Unverified Update files.',
       'backup_warning' => 'Please fill necessary details for backup',
+      'published_course_delete_warning' => 'Published courses must be moved to Draft before they can be deleted.',
       'delete_warning' => 'You can not delete course. Students are already enrolled. Unpublish the course instead',
       'delete_warning_bundle' => 'You can not delete Bundle. Students are already enrolled. Unpublish the Bundle instead',
       'teacher_delete_warning' => 'You can not delete teacher. Courses are already added. Change the status instead',
