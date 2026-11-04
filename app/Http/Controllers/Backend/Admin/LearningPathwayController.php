@@ -165,10 +165,135 @@ class LearningPathwayController extends Controller
                 'in_sequence' => $validated['in_sequence'] ?? 0
             ]);
 
-            $courses_ids = $request->course_id ?? [];
+            $courses_ids = $request->input('course_id', []);
 
-            // checking if pathway is assigned to anyone - if yes then adding new course to their list
-            $lpa_list = LearningPathwayAssignment::where('pathway_id', $learningPathway->id)->get();
+            // Get the courses currently associated with this pathway.
+            $existing_course_ids = LearningPathwayCourse::where(
+                'pathway_id',
+                $learningPathway->id
+            )->pluck('course_id')->toArray();
+
+            // Calculate additions and removals regardless of whether
+            // the pathway has any assignment records.
+            $deleted_course_ids = array_values(
+                array_diff($existing_course_ids, $courses_ids)
+            );
+
+            $new_course_ids = array_values(
+                array_diff($courses_ids, $existing_course_ids)
+            );
+
+            // Get existing pathway assignments.
+            $lpa_list = LearningPathwayAssignment::where(
+                'pathway_id',
+                $learningPathway->id
+            )->get();
+
+            foreach ($lpa_list as $lpa) {
+
+                // Decode assigned users safely.
+                $users = json_decode($lpa->assigned_to, true) ?? [];
+
+                $learning_pathway_id = $learningPathway->id;
+                $title = $lpa->title;
+                $due_date = $lpa->due_date;
+
+                foreach ($users as $user) {
+
+                    // Remove subscriptions for courses removed from the pathway.
+                    foreach ($deleted_course_ids as $course_id) {
+                        SubscribeCourse::query()
+                            ->where('user_id', $user)
+                            ->where('course_id', $course_id)
+                            ->delete();
+                    }
+
+                    UserLearningPathway::updateOrCreate([
+                        'pathway_id' => $learning_pathway_id,
+                        'user_id' => $user,
+                    ]);
+
+                    // Add newly selected courses to assigned users.
+                    foreach ($new_course_ids as $course_id) {
+
+                        SubscribeCourse::updateOrCreate(
+                            [
+                                'user_id' => $user,
+                                'course_id' => $course_id,
+                            ],
+                            [
+                                'user_id' => $user,
+                                'course_id' => $course_id,
+                                'due_date' => $due_date,
+                                'assign_date' => date('Y-m-d'),
+                                'status' => 1,
+                                'is_pathway' => true,
+                            ]
+                        );
+
+                        $ca = courseAssignment::where([
+                            'learning_pathway_assignment_id' => $lpa->id,
+                            'course_id' => $course_id,
+                        ])
+                            ->whereRaw("FIND_IN_SET(?, assign_to)", [$user])
+                            ->first();
+
+                        if ($ca) {
+                            $ca->update([
+                                'title' => $title,
+                                'due_date' => $due_date,
+                                'course_id' => $course_id,
+                                'assign_to' => implode(',', $users),
+                                'assign_by' => auth()->id(),
+                                'assign_date' => date('Y-m-d'),
+                            ]);
+                        } else {
+                            courseAssignment::create([
+                                'learning_pathway_assignment_id' => $lpa->id,
+                                'course_id' => $course_id,
+                                'title' => $title,
+                                'due_date' => $due_date,
+                                'assign_to' => implode(',', $users),
+                                'assign_by' => auth()->id(),
+                                'assign_date' => date('Y-m-d'),
+                                'is_pathway' => true,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Save the new course order.
+            $course_with_order = json_decode(
+                $request->input('course_with_order', '[]'),
+                true
+            );
+
+            if (!is_array($course_with_order)) {
+                $course_with_order = $courses_ids;
+            }
+
+            foreach ($course_with_order as $key => $value) {
+                LearningPathwayCourse::updateOrCreate(
+                    [
+                        'pathway_id' => $learningPathway->id,
+                        'course_id' => $value,
+                    ],
+                    [
+                        'position' => $key + 1,
+                    ]
+                );
+            }
+
+            // Delete removed pathway-course relationships.
+            if (!empty($deleted_course_ids)) {
+                LearningPathwayCourse::where(
+                    'pathway_id',
+                    $learningPathway->id
+                )
+                    ->whereIn('course_id', $deleted_course_ids)
+                    ->delete();
+            }
 
             if ($lpa_list) {
 
@@ -288,10 +413,15 @@ class LearningPathwayController extends Controller
                 'errors' => $e->errors(), // Returns detailed validation errors
             ], 422);
         } catch (\Exception $e) {
-            // Rollback the transaction for any other exceptions
             DB::rollBack();
 
-            // Return generic error response
+            \Log::error('Failed to update learning pathway', [
+                'learning_pathway_id' => $learningPathway->id,
+                'exception' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
             return response()->json([
                 'message' => 'Failed to update learning pathway',
             ], 500);
