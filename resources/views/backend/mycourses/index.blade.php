@@ -295,6 +295,7 @@ $local_lang = App::getLocale() ?? 'en';
                                     <option @if('InProgress' == request()->course_status) selected @endif value="InProgress">@lang('labels.backend.dashboard.in-progress')</option>
                                     <option @if('NotStarted' == request()->course_status) selected @endif value="NotStarted">@lang('labels.backend.dashboard.not-stated')</option>
                                     <option @if('Completed' == request()->course_status) selected @endif value="Completed">@lang('labels.backend.dashboard.completed')</option>
+                                    <option @if('Expired' == request()->course_status) selected @endif value="Expired">@lang('course_pages.admin_index.expired')</option>
                                 </select>
                                 <span class="custom-select-icon" style="right: 10px;">
                                             <i class="fa fa-chevron-down"></i>

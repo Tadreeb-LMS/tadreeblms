@@ -752,7 +752,10 @@ $show_dashboard_widget_tabs = auth()->user()->hasRole('administrator')
                                                     @lang('strings.backend.dashboard.Achieved-certificates')
                                                     {{-- <span id="completed_assesment"></span>
                                                     </div> --}}
-                                                <div class="certificate">  <i class="fa fa-trophy" aria-hidden="true"></i>  {{ $total_completed }}</div>
+                                                <div class="certificate">  
+                                                    <i class="fa fa-trophy" aria-hidden="true"></i>  
+                                                    {{ $total_certificate_issued  }}
+                                                </div>
                                             </div>
                                             {{-- <div class="mt-3" style="color: #344050;font-weight:bold">
                                                 <i class="fa fa-hourglass-end" aria-hidden="true"></i>
