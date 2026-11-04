@@ -6,8 +6,10 @@
 @section('content')
 <style>
     .payment-options {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 15px;
+        width: 100%;
     }
 
     .payment-card {
@@ -15,14 +17,17 @@
         padding: 15px 20px;
         border-radius: 8px;
         cursor: pointer;
-        width: 180px;
+        width: 100%;
+        min-width: 0;
+        min-height: 140px;
+        box-sizing: border-box;
         transition: 0.2s;
         display: flex;
         flex-direction: column;
     }
-
     .payment-card input {
         margin-bottom: 8px;
+        align-self: flex-start;
     }
 
     .payment-card:hover {
@@ -167,6 +172,23 @@
         margin-top: 4px;
         display: block;
     }
+    .coursesteps .card-body > .row:first-child > .col-md-6 {
+        min-width: 0;
+    }
+
+    .coursesteps .card-body .editor {
+        width: 100% !important;
+    }
+
+    .coursesteps .card-body .cke,
+    .coursesteps .card-body .cke_chrome {
+        width: 100% !important;
+    }
+    @media (max-width: 575.98px) {
+        .payment-options {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <div id="main-flow">
@@ -230,8 +252,11 @@
                                             <select
                                                 name="teacher_id"
                                                 id="course_teacher_id"
-                                                class="form-control custom-select-box select2 js-example-placeholder-single"
+                                                class="form-control custom-select-box select2 js-example-placeholder-trainer"
+                                                required
                                             >
+                                                <option value="">Select Trainer</option>
+
                                                 @foreach($teachers as $id => $teacher)
                                                     <option
                                                         value="{{ $id }}"
@@ -262,6 +287,7 @@
                                             {{ trans('labels.backend.courses.add_teachers') }}
                                         </button>
                                     </div>
+                                </div>
                             @endif
                         @if (Auth::user()->isAdmin())
                             {{-- <div class="row">
@@ -1060,7 +1086,10 @@
                 placeholder: "Select Category",
                 allowClear: false
             });
-
+            $(".js-example-placeholder-trainer").select2({
+                placeholder: "Select Trainer",
+                allowClear: false
+            });
             $(".js-example-internal-student-placeholder-multiple").select2({
                 placeholder: "{{ trans('labels.backend.courses.select_internal_students') }}",
             });

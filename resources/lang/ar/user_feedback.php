@@ -19,6 +19,7 @@ return array(
     'loading' => 'جاري التحميل...',
   ),
   'feedback_questions' => array(
+    'created_successfully' => 'تم إنشاء سؤال التقييم بنجاح.',
     'title' => 'أسئلة تقييم الدورة',
     'course' => 'دورة',
     'id' => 'المعرف',

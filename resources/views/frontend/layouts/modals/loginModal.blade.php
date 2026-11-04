@@ -108,98 +108,98 @@
     });
 </script>
 @if(!auth()->check())
+    @if(!request()->routeIs('frontend.auth.login'))
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
 
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="backgroud-style">
-                    <div class="popup-logo">
-                        <img src="{{ asset('storage/logos/' . config('logo_popup')) }}" alt="">
+                    <!-- Modal Header -->
+                    <div class="backgroud-style">
+                        <div class="popup-logo">
+                            <img src="{{ asset('storage/logos/' . config('logo_popup')) }}" alt="">
+                        </div>
+                        <div class="popup-text text-center">
+                            <h2>@lang('labels.frontend.modal.my_account')</h2>
+                            <p>{{ __('auth_pages.login.login_to_continue') }}</p>
+                        </div>
+                        <button type="button" class="close modal_close" aria-hidden="true">×</button>
                     </div>
-                    <div class="popup-text text-center">
-                        <h2>@lang('labels.frontend.modal.my_account')</h2>
-                        <p>{{ __('auth_pages.login.login_to_continue') }}</p>
-                    </div>
-                    <button type="button" class="close modal_close" aria-hidden="true">×</button>
-                </div>
 
-                <!-- Modal body -->
-                <div class="modal-body">
-                    <div class="tab-content">
-                        <div class="tab-pane container active" id="login">
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div class="tab-content">
+                            <div class="tab-pane container active" id="login">
 
-                            <span class="error-response text-danger"></span>
-                            <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
+                                <span class="error-response text-danger"></span>
+                                <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
 
-                            <form id="loginForm" class="contact_form" action="{{ route('frontend.auth.login.post') }}"
-                                method="POST" enctype="multipart/form-data">
+                                <form id="loginForm" class="contact_form" action="{{ route('frontend.auth.login.post') }}"
+                                    method="POST" enctype="multipart/form-data">
 
-                                @csrf
+                                    @csrf
 
-                                <input type="hidden" name="redirect_url" id="redirect_url">
-                                <input type="hidden" name="active_page" class="active_page"
-                                    value="{{ Route::currentRouteName() }}">
+                                    <input type="hidden" name="redirect_url" id="redirect_url">
+                                    <input type="hidden" name="active_page" class="active_page"
+                                        value="{{ Route::currentRouteName() }}">
 
-                                <div class="contact-info mb-2">
-                                    <input type="email" name="email" class="form-control mb-0" maxlength="191"
-                                        placeholder="{{ __('validation.attributes.frontend.email') }}">
-                                    <span id="login-email-error" class="text-danger"></span>
-                                </div>
-
-                                <div class="contact-info mb-2">
-                                    <input type="password" name="password" class="form-control mb-0"
-                                        placeholder="{{ __('validation.attributes.frontend.password') }}">
-                                    <span id="login-password-error" class="text-danger"></span>
-
-                                    <a class="text-info p-0 d-block text-right my-2"
-                                        href="{{ route('frontend.auth.password.reset') }}">
-                                        @lang('labels.frontend.passwords.forgot_password')
-                                    </a>
-                                </div>
-
-                                <div class="contact-info mb-2 catcha-block">
-                                    <label>{{ __('auth_pages.login.captcha') }}</label>
-                                    <div class="captcha-container">
-                                        <img id="login-captcha-image" src="" alt="Captcha" class="captcha-image" width="150"
-                                            height="50">
-                                        <button type="button" id="login-captcha-refresh" class="captcha-refresh-btn"
-                                            title="Refresh Captcha">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M21 2v6h-6"></path>
-                                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                                                <path d="M3 22v-6h6"></path>
-                                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-                                            </svg>
-                                        </button>
+                                    <div class="contact-info mb-2">
+                                        <input type="email" name="email" class="form-control mb-0" maxlength="191"
+                                            placeholder="{{ __('validation.attributes.frontend.email') }}">
+                                        <span id="login-email-error" class="text-danger"></span>
                                     </div>
-                                    <input type="text" name="captcha" class="captcha" placeholder="Enter captcha code"
-                                        required>
-                                    <span id="login-captcha-error" class="text-danger"></span>
-                                </div>
 
-                                <div class="nws-button text-center white text-capitalize">
-                                    <button type="submit">@lang('labels.frontend.modal.login_now')</button>
-                                </div>
-                            </form>
+                                    <div class="contact-info mb-2">
+                                        <input type="password" name="password" class="form-control mb-0"
+                                            placeholder="{{ __('validation.attributes.frontend.password') }}">
+                                        <span id="login-password-error" class="text-danger"></span>
 
-                            <div id="socialLinks" class="text-center"></div>
+                                        <a class="text-info p-0 d-block text-right my-2"
+                                            href="{{ route('frontend.auth.password.reset') }}">
+                                            @lang('labels.frontend.passwords.forgot_password')
+                                        </a>
+                                    </div>
 
+                                    <div class="contact-info mb-2 catcha-block">
+                                        <label>{{ __('auth_pages.login.captcha') }}</label>
+                                        <div class="captcha-container">
+                                            <img id="login-captcha-image" src="" alt="Captcha" class="captcha-image" width="150"
+                                                height="50">
+                                            <button type="button" id="login-captcha-refresh" class="captcha-refresh-btn"
+                                                title="Refresh Captcha">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 2v6h-6"></path>
+                                                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                                    <path d="M3 22v-6h6"></path>
+                                                    <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <input type="text" name="captcha" class="captcha" placeholder="Enter captcha code"
+                                            required>
+                                        <span id="login-captcha-error" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="nws-button text-center white text-capitalize">
+                                        <button type="submit">@lang('labels.frontend.modal.login_now')</button>
+                                    </div>
+                                </form>
+
+                                <div id="socialLinks" class="text-center"></div>
+
+                            </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
-    </div>
-
-
+        </div>
+    @endif
     <div class="modal fade" id="myRegisterModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
 
                 <!-- Header -->
                 <div class="modal-header1 backgroud-style">
@@ -214,129 +214,132 @@
                     <button type="button" class="close modal_close" aria-hidden="true">×</button>
                 </div>
 
-            <!-- Body -->
-            <div class="modal-body">
-                <div class="tab-content">
-                    <div class="tab-pane container active" id="register">
-                        <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
-                        <form id="registerForm" class="contact_form" method="POST" action="#">
-                            @csrf
-                           @if($default_admin_email->email == env('DEMO_EMAIL', 'demo@admin.com'))
-                            <input type="hidden" name="default_admin" value="1" />
-                            @endif
+                <!-- Body -->
+                <div class="modal-body">
+                    <div class="tab-content">
+                        <div class="tab-pane container active" id="register">
+                            <span class="success-response text-success">{{ session()->get('flash_success') }}</span>
+                            <form id="registerForm" class="contact_form" method="POST" action="#">
+                                @csrf
+                                @if($default_admin_email->email == env('DEMO_EMAIL', 'demo@admin.com'))
+                                    <input type="hidden" name="default_admin" value="1" />
+                                @endif
 
                                 <input type="hidden" name="active_page" class="active_page"
                                     value="{{ Route::currentRouteName() }}">
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="contact-info mb-2">
-                                        <input type="text" name="first_name" class="form-control mb-0"
-                                               maxlength="191"
-                                               placeholder="{{ __('validation.attributes.frontend.first_name') }}">
-                                        <span id="first-name-error" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="contact-info mb-2">
-                                        <input type="text" name="last_name" class="form-control mb-0"
-                                               maxlength="191"
-                                               placeholder="{{ __('validation.attributes.frontend.last_name') }}">
-                                        <span id="last-name-error" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="contact-info mb-2">
-                                <input type="email" name="email" class="form-control mb-0"
-                                       maxlength="191"
-                                       placeholder="{{ __('validation.attributes.frontend.email') }}">
-                                <span id="email-error" class="text-danger"></span>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="contact-info mb-2">
-                                        <input type="password" name="password" class="form-control mb-0"
-                                               placeholder="{{ __('validation.attributes.frontend.password') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="contact-info mb-2">
-                                        <input type="password" name="password_confirmation" class="form-control mb-0"
-                                               placeholder="{{ __('validation.attributes.frontend.password_confirmation') }}">
-                                        <span id="password-error" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Dynamic fields -->
-                            @if(config('registration_fields') != NULL)
-                                @php
-                                    $fields = json_decode(config('registration_fields'));
-                                    $inputs = ['text','number','date'];
-                                @endphp
-
-                                @foreach($fields as $item)
-                                    @if(in_array($item->type, $inputs))
+                                <div class="row">
+                                    <div class="col-md-6">
                                         <div class="contact-info mb-2">
-                                            <input type="{{ $item->type }}"
-                                                   class="form-control mb-0"
-                                                   name="{{ $item->name }}"
-                                                   value="{{ old($item->name) }}"
-                                                   placeholder="{{ __('labels.backend.general_settings.user_registration_settings.fields.' . $item->name) }}">
+                                            <input type="text" name="first_name" class="form-control mb-0" maxlength="191"
+                                                placeholder="{{ __('validation.attributes.frontend.first_name') }}">
+                                            <span id="first-name-error" class="text-danger"></span>
                                         </div>
-
-                                    @elseif($item->type == 'radio')
-                                        <div class="contact-info mb-2">
-                                            <label class="radio-inline mr-3 mb-0">
-                                                <input type="radio" name="{{ $item->name }}" value="male">
-                                                {{ __('validation.attributes.frontend.male') }}
-                                            </label>
-
-                                            <label class="radio-inline mr-3 mb-0">
-                                                <input type="radio" name="{{ $item->name }}" value="female">
-                                                {{ __('validation.attributes.frontend.female') }}
-                                            </label>
-
-                                            <label class="radio-inline mr-3 mb-0">
-                                                <input type="radio" name="{{ $item->name }}" value="other">
-                                                {{ __('validation.attributes.frontend.other') }}
-                                            </label>
-                                        </div>
-
-                                    @elseif($item->type == 'textarea')
-                                        <div class="contact-info mb-2">
-                                            <textarea class="form-control mb-0"
-                                                      name="{{ $item->name }}"
-                                                      placeholder="{{ __('labels.backend.general_settings.user_registration_settings.fields.' . $item->name) }}">{{ old($item->name) }}</textarea>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @endif
-
-                            <div class="contact-info mb-4 mt-3">
-                                <label class="font-weight-bold d-block mb-2">{{ __('auth_pages.login.captcha') }}</label>
-                                <div class="row align-items-center mb-2">
-                                    <div class="col-6 d-flex align-items-center" style="gap: 15px;">
-                                        <div style="border: 1px solid #ced4da; border-radius: 4px; padding: 2px; background: #fff;">
-                                            <img id="register-captcha-image" src="" alt="Captcha" style="border-radius: 3px; height: 60px; width: 180px; object-fit: cover;">
-                                        </div>
-                                        <button type="button" id="register-captcha-refresh" class="btn btn-outline-secondary btn-sm" title="Refresh Captcha" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M21 2v6h-6"></path>
-                                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                                                <path d="M3 22v-6h6"></path>
-                                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
-                                            </svg>
-                                        </button>
                                     </div>
-                                    <div class="col-6">
-                                        <input type="text" name="captcha" class="form-control form-control-lg mb-1" placeholder="Enter captcha" required style="font-size: 1.1rem; padding: 10px 15px;">
+                                    <div class="col-md-6">
+                                        <div class="contact-info mb-2">
+                                            <input type="text" name="last_name" class="form-control mb-0" maxlength="191"
+                                                placeholder="{{ __('validation.attributes.frontend.last_name') }}">
+                                            <span id="last-name-error" class="text-danger"></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <span id="register-captcha-error" class="text-danger d-block font-weight-bold"></span>
-                            </div>
+
+                                <div class="contact-info mb-2">
+                                    <input type="email" name="email" class="form-control mb-0" maxlength="191"
+                                        placeholder="{{ __('validation.attributes.frontend.email') }}">
+                                    <span id="email-error" class="text-danger"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="contact-info mb-2">
+                                            <input type="password" name="password" class="form-control mb-0"
+                                                placeholder="{{ __('validation.attributes.frontend.password') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="contact-info mb-2">
+                                            <input type="password" name="password_confirmation" class="form-control mb-0"
+                                                placeholder="{{ __('validation.attributes.frontend.password_confirmation') }}">
+                                            <span id="password-error" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic fields -->
+                                @if(config('registration_fields') != NULL)
+                                    @php
+                                        $fields = json_decode(config('registration_fields'));
+                                        $inputs = ['text', 'number', 'date'];
+                                    @endphp
+
+                                    @foreach($fields as $item)
+                                        @if(in_array($item->type, $inputs))
+                                            <div class="contact-info mb-2">
+                                                <input type="{{ $item->type }}" class="form-control mb-0" name="{{ $item->name }}"
+                                                    value="{{ old($item->name) }}"
+                                                    placeholder="{{ __('labels.backend.general_settings.user_registration_settings.fields.' . $item->name) }}">
+                                            </div>
+
+                                        @elseif($item->type == 'radio')
+                                            <div class="contact-info mb-2">
+                                                <label class="radio-inline mr-3 mb-0">
+                                                    <input type="radio" name="{{ $item->name }}" value="male">
+                                                    {{ __('validation.attributes.frontend.male') }}
+                                                </label>
+
+                                                <label class="radio-inline mr-3 mb-0">
+                                                    <input type="radio" name="{{ $item->name }}" value="female">
+                                                    {{ __('validation.attributes.frontend.female') }}
+                                                </label>
+
+                                                <label class="radio-inline mr-3 mb-0">
+                                                    <input type="radio" name="{{ $item->name }}" value="other">
+                                                    {{ __('validation.attributes.frontend.other') }}
+                                                </label>
+                                            </div>
+
+                                        @elseif($item->type == 'textarea')
+                                            <div class="contact-info mb-2">
+                                                <textarea class="form-control mb-0" name="{{ $item->name }}"
+                                                    placeholder="{{ __('labels.backend.general_settings.user_registration_settings.fields.' . $item->name) }}">{{ old($item->name) }}</textarea>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                @endif
+
+                                <div class="contact-info mb-4 mt-3">
+                                    <label
+                                        class="font-weight-bold d-block mb-2">{{ __('auth_pages.login.captcha') }}</label>
+                                    <div class="row align-items-center mb-2">
+                                        <div class="col-6 d-flex align-items-center" style="gap: 15px;">
+                                            <div
+                                                style="border: 1px solid #ced4da; border-radius: 4px; padding: 2px; background: #fff;">
+                                                <img id="register-captcha-image" src="" alt="Captcha"
+                                                    style="border-radius: 3px; height: 60px; width: 180px; object-fit: cover;">
+                                            </div>
+                                            <button type="button" id="register-captcha-refresh"
+                                                class="btn btn-outline-secondary btn-sm" title="Refresh Captcha"
+                                                style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 2v6h-6"></path>
+                                                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                                    <path d="M3 22v-6h6"></path>
+                                                    <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" name="captcha" class="form-control form-control-lg mb-1"
+                                                placeholder="Enter captcha" required
+                                                style="font-size: 1.1rem; padding: 10px 15px;">
+                                        </div>
+                                    </div>
+                                    <span id="register-captcha-error" class="text-danger d-block font-weight-bold"></span>
+                                </div>
 
 
 
@@ -564,7 +567,7 @@
                                 if (response.errors[gCaptcha]) {
                                     $('#login-captcha-error').html(response.errors[gCaptcha][0]);
                                 }
-                                
+
                                 if (response.errors.captcha) {
                                     $('#login-captcha-error').html(response.errors.captcha[0]);
                                     refreshCaptcha('login');
@@ -579,7 +582,7 @@
                         error: function (jqXHR) {
                             var response = $.parseJSON(jqXHR.responseText);
                             console.log(jqXHR)
-                            
+
                             $('#login-email-error').empty();
                             $('#login-password-error').empty();
                             $('#login-captcha-error').empty();
@@ -659,8 +662,8 @@
 
 
                                 const alertHtml = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-                                            ${'Registration is done successfully !'}
-                                        </div>`;
+                                                                ${'Registration is done successfully !'}
+                                                            </div>`;
 
 
                                 $('#registerForm').prepend(alertHtml);
