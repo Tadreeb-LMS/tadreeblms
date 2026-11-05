@@ -86,7 +86,9 @@
     <div class="card-body">
         <div class="row">  <div class="col-12 col-md-2"> </div>
         <div class="col-12 col-md-4">
-            <div class="form-control-div" for="first_name">{{ __('user_feedback.course_feedback.courses') }}</div>
+            <div class="form-control-div" for="first_name">{{ __('user_feedback.course_feedback.courses') }}
+                    <span class="text-danger">*</span>
+            </div>
 
             <div class="custom-select-wrapper mt-2">
                 <select name="course_id" class="form-control custom-select-box select2">
@@ -108,6 +110,7 @@
         <div class="col-12 col-md-4">
     <div class="form-control-div" for="questions">
         {{ __('user_feedback.course_feedback.feedback_questions') }}
+        <span class="text-danger">*</span>
     </div>
 
     <div class="custom-select-wrapper mt-2">
