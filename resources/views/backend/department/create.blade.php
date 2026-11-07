@@ -144,13 +144,30 @@
     </script>
 
 <script>
-     var nxt_url_val= '';
+    var nxt_url_val = '';
+    var isSubmitting = false;
 
-    $('.frm_submit').on('click', function (){
+    $('.frm_submit').on('click', function () {
         nxt_url_val = $(this).val();
     });
-    $(document).on('input', '#add-dep [required]', function () {
-        $(this).removeClass('is-invalid');
+
+    // Clear a field's validation error when its value becomes valid.
+    $(document).on('input change', '#add-dep [required]', function () {
+        var field = this;
+        var $field = $(field);
+
+        if (field.checkValidity()) {
+            $field.removeClass('is-invalid');
+
+            $field.siblings('.invalid-feedback').text(
+                $field.siblings('.invalid-feedback').data('required-message') || ''
+            );
+        }
+
+        // Recover the Save button if a previous validation attempt left it disabled.
+        if (!isSubmitting) {
+            $('#add-dep button[type="submit"]').prop('disabled', false);
+        }
     });
 
     $(document).on('submit', '#add-dep', function (e) {
@@ -158,49 +175,79 @@
 
         var form = this;
         var $form = $(form);
-        var hrefurl = $(location).attr("href");
-        var last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 19);
+        var $submitButton = $form.find('button[type="submit"]');
+
+        // Prevent duplicate requests while an AJAX request is running.
+        if (isSubmitting) {
+            return;
+        }
 
         $form.find('.is-invalid').removeClass('is-invalid');
+
         $form.find('.invalid-feedback[data-required-message]').each(function () {
             $(this).text($(this).data('required-message'));
         });
 
+        // Client-side validation.
         if (!form.checkValidity()) {
-            $form.find(':invalid').addClass('is-invalid').first().focus();
+            $form.find(':invalid')
+                .addClass('is-invalid')
+                .first()
+                .trigger('focus');
+
+            // A validation error must not permanently disable Save.
+            $submitButton.prop('disabled', false);
             return;
         }
 
-        // Sync CKEditor content back to textarea before serializing
+        // Sync CKEditor content before submitting.
         for (var instance in CKEDITOR.instances) {
             CKEDITOR.instances[instance].updateElement();
         }
+
+        var hrefurl = window.location.href;
+        var last_part = hrefurl.substr(hrefurl.lastIndexOf('/') + 19);
+
+        isSubmitting = true;
+        $submitButton.prop('disabled', true);
 
         $.ajax({
             type: 'POST',
             url: $form.attr('action'),
             data: $form.serialize(),
             dataType: 'json',
-            success: function () {
+
+            success: function (response) {
                 if (last_part == 'add_dep') {
-                    window.location.href = $("#user-assisment").val();
+                    window.location.href = $('#user-assisment').val();
                     return;
                 }
 
-                window.location.href = $("#feedback_index").val();
+                window.location.href = response.redirect || $('#feedback_index').val();
             },
+
             error: function (xhr) {
-                if (xhr.status !== 422 || !xhr.responseJSON || !xhr.responseJSON.errors) {
-                    return;
+                if (xhr.status === 422 &&
+                    xhr.responseJSON &&
+                    xhr.responseJSON.errors) {
+
+                    $.each(xhr.responseJSON.errors, function (field, messages) {
+                        var $field = $form.find('[name="' + field + '"]');
+
+                        $field.addClass('is-invalid');
+
+                        $field.siblings('.invalid-feedback')
+                            .text(messages[0]);
+                    });
+
+                    $form.find('.is-invalid').first().trigger('focus');
                 }
+            },
 
-                $.each(xhr.responseJSON.errors, function (field, messages) {
-                    var $field = $form.find('[name="' + field + '"]');
-                    $field.addClass('is-invalid');
-                    $field.siblings('.invalid-feedback').text(messages[0]);
-                });
-
-                $form.find('.is-invalid').first().focus();
+            complete: function () {
+                // Always restore the button after the request finishes.
+                isSubmitting = false;
+                $submitButton.prop('disabled', false);
             }
         });
     });
