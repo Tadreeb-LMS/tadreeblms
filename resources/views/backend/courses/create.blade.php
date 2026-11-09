@@ -247,7 +247,9 @@
                             @else
                                 <div class="row">
                                     <div class="col-md-8 col-12 form-group">
-                                        <div>{{ __('course_pages.admin_create.teachers') }}</div>
+                                        <div>{{ __('course_pages.admin_create.teachers') }}
+                                            <span class="text-danger">*</span>
+                                        </div>
                                         <div class="custom-select-wrapper mt-2">
                                             <select
                                                 name="teacher_id"
@@ -317,7 +319,9 @@
 
                         <div class="row">
                             <div class="col-md-8 col-12 form-group">
-                                <div>{{ __('course_pages.admin_create.category') }}</div>
+                                <div>{{ __('course_pages.admin_create.category') }}
+                                    <span class="text-danger">*</span>
+                                </div>
                                 <div class="custom-select-wrapper mt-2">
                                     <select name="category_id" id="course_category_id"
                                         class="form-control custom-select-box select2 js-example-placeholder-single"
