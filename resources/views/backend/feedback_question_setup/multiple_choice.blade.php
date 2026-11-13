@@ -5,13 +5,34 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-6 mt-3">
-        <label>Option</label>
-        <textarea class="form-control editor" rows="3" name="option" id="option" required="required"></textarea>
-        <button type="button" id="add_option" class="btn btn-primary pull-right mt-3">Add Option</button>
+    <div class="col-12 mt-3">
+        <label class="font-weight-bold">
+            Options <span class="text-danger">*</span>
+        </label>
+
+        <div class="input-group mt-2">
+            <input
+                type="text"
+                id="option"
+                class="form-control"
+                placeholder="Enter option text"
+            >
+
+            <div class="input-group-append">
+                <button
+                    type="button"
+                    id="add_option"
+                    class="btn btn-primary"
+                >
+                    <i class="fa fa-plus"></i>
+                    Add Option
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="col-6 " style="margin-top: 20px;">
-        <div id="option-area" class="pt-4"></div>
+
+    <div class="col-12 mt-3">
+        <div id="option-area"></div>
     </div>
 </div>
 <!-- <div class="row">
@@ -23,7 +44,6 @@
 <script src="{{asset('ckeditor/ckeditor.js')}}" type="text/javascript"></script>
 <script type="text/javascript">
     CKEDITOR.replace('question');
-    CKEDITOR.replace('option');
     CKEDITOR.replace('solution');
     CKEDITOR.replace('comment')
 </script>
