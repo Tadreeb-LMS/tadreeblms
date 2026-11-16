@@ -26,9 +26,25 @@
 
                     <div class="row">
                         <div class="col-12 col-lg-4 form-group">
-                            <label for="title" class="control-label">{{ trans('labels.backend.categories.fields.name') }} *</label>
-                            <input class="form-control" placeholder="{{ trans('labels.backend.categories.fields.name') }}" required name="name" type="text" value="{{ old('name') }}">
+                            <label for="name" class="control-label">
+                                {{ trans('labels.backend.categories.fields.name') }} *
+                            </label>
 
+                            <input
+                                id="name"
+                                class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                placeholder="{{ trans('labels.backend.categories.fields.name') }}"
+                                required
+                                name="name"
+                                type="text"
+                                value="{{ old('name') }}"
+                            >
+
+                            @error('name')
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
                         <div class="col-lg-3 col-md-3 form-group mt-4 d-flex align-items-center">
 
