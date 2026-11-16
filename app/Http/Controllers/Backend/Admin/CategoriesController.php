@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CategoriesController extends Controller
 {
@@ -181,26 +182,20 @@ class CategoriesController extends Controller
      */
     public function store(StoreCategoriesRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-        ]);
-
         if (!Gate::allows('category_create')) {
             return abort(401);
         }
-        $category = Category::where('slug', '=', Str::slug($request->name))->first();
-        if ($category == null) {
-            $category = new  Category();
-        }
+
+        $category = new Category();
         $category->name = $request->name;
         $category->slug = Str::slug($request->name);
         $category->icon = $request->icon;
         $category->save();
 
-        return redirect()->route('admin.categories.index')->withFlashSuccess(trans('alerts.backend.general.created'));
+        return redirect()
+            ->route('admin.categories.index')
+            ->withFlashSuccess(trans('alerts.backend.general.created'));
     }
-
-
     /**
      * Quickly create a category from the Create Course modal.
     */
@@ -209,22 +204,26 @@ class CategoriesController extends Controller
         if (!Gate::allows('category_create')) {
             return abort(401);
         }
+
         $data = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:191',
+                Rule::unique('categories', 'name')
+                    ->whereNull('deleted_at'),
             ],
+        ], [
+            'name.unique' => 'Category name already exists. Please enter a unique category name.',
         ]);
-        $slug = Str::slug($data['name']);
-        $category = Category::firstOrCreate(
-            [
-                'slug' => $slug,
-            ],
-            [
-                'name' => $data['name'],
-            ]
-        );
+
+        $name = trim($data['name']);
+
+        $category = new Category();
+        $category->name = $name;
+        $category->slug = Str::slug($name);
+        $category->save();
+
         return response()->json([
             'success' => true,
             'message' => 'Category created successfully.',
