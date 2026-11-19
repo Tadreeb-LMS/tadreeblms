@@ -182,6 +182,15 @@ $('#bulk-edit-btn').on('click', function () {
 $('#bulk-edit-form').on('submit', function (e) {
     e.preventDefault();
 
+    let department = $('select[name=department_id]').val();
+    let confirmed = $('select[name=confirmed]').val();
+    let role = $('select[name=role]').val();
+
+    if (!department && confirmed === '' && !role) {
+        alert('Please select at least one field to update.');
+        return;
+    }
+
     $.ajax({
         url: "{{ route('admin.auth.users.bulk.update') }}",
         method: "POST",

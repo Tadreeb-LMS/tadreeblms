@@ -57,6 +57,17 @@ class UserController extends Controller
 
 public function bulkUpdate(Request $request)
 {
+    $hasChanges = ($request->confirmed !== null && $request->confirmed !== '')
+        || !empty($request->department_id)
+        || !empty($request->role);
+
+    if (!$hasChanges) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Please select at least one field to update.',
+        ], 422);
+    }
+
     $users = User::whereIn('id', $request->user_ids)->get();
 
     foreach ($users as $user) {
