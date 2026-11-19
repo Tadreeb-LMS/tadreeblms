@@ -63,6 +63,23 @@
             white-space: nowrap;
         }
 
+        .assessment-fullscreen-btn {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 6px;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .assessment-fullscreen-btn:hover,
+        .assessment-fullscreen-btn:focus-visible {
+            background: rgba(255, 255, 255, 0.24);
+        }
+        .assessment-fullscreen-btn[hidden] {
+            display: none;
+        }
         .assessment-card {
             background: #fff;
             border: 1px solid #dfe7f3;
@@ -237,6 +254,7 @@
                         <p class="assessment-subtitle">Answer every question before submitting your assessment.</p>
                     </div>
                     <div class="assessment-meta">
+                        <button type="button" class="assessment-fullscreen-btn" id="assessment-fullscreen-toggle" aria-pressed="false" title="Enter fullscreen" hidden>&#x26F6; Fullscreen</button>
                         <span class="assessment-pill">{{ count($test_questions) }} Questions</span>
                         @if(!empty($assignment->duration))
                             <span class="assessment-pill">{{ $assignment->duration }} Minutes</span>
@@ -565,6 +583,49 @@
                 },
             });
         });
+    </script>
+    <script>
+        // assessment-fullscreen-toggle:start
+        (function () {
+            var btn = document.getElementById('assessment-fullscreen-toggle');
+            if (!btn) {
+                return;
+            }
+            var root = document.documentElement;
+            function fullscreenElement() {
+                return document.fullscreenElement || document.webkitFullscreenElement || null;
+            }
+            function isSupported() {
+                return !!(root.requestFullscreen || root.webkitRequestFullscreen) &&
+                    !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+            }
+            function render() {
+                var active = !!fullscreenElement();
+                btn.textContent = active ? 'Exit Fullscreen' : '\u26F6 Fullscreen';
+                btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                btn.title = active ? 'Exit fullscreen' : 'Enter fullscreen';
+            }
+            function toggle() {
+                var result;
+                if (fullscreenElement()) {
+                    result = document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen();
+                } else {
+                    result = root.requestFullscreen ? root.requestFullscreen() : root.webkitRequestFullscreen();
+                }
+                if (result && typeof result.catch === 'function') {
+                    result.catch(function () {});
+                }
+            }
+            if (!isSupported()) {
+                return;
+            }
+            btn.hidden = false;
+            btn.addEventListener('click', toggle);
+            document.addEventListener('fullscreenchange', render);
+            document.addEventListener('webkitfullscreenchange', render);
+            render();
+        })();
+        // assessment-fullscreen-toggle:end
     </script>
     <script type="text/javascript" src="{{ asset('assets/assessment/assessment.js') }}"></script>
 </body>
