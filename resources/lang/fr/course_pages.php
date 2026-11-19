@@ -1,6 +1,7 @@
 <?php
 
 return array(
+  'expired' => "L'inscription à ce cours a expiré.",
   'registration' => array(
     'title' => 'Enregistrement au cours',
     'enter_email' => 'Entrez votre adresse e-mail',

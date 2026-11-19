@@ -1,6 +1,7 @@
 <?php
 
 return array(
+  'expired' => 'انتهت صلاحية التسجيل في هذه الدورة.',
   'registration' => array(
     'title' => 'تسجيل المسار',
     'enter_email' => 'أدخل عنوان بريدك الإلكتروني',
