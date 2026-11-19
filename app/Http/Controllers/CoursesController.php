@@ -326,7 +326,7 @@ class CoursesController extends Controller
         if ($user->hasRole('student') && $course->isExpired()) {
             return redirect()
                 ->route('user.mycourses')
-                ->withFlashDanger(__('course_pages.expired') . '.');
+                ->withFlashDanger(__('course_pages.expired'));
         }
 
         $countries = DB::table('master_countries')->get();

@@ -545,7 +545,7 @@ class LessonsController extends Controller
         ) {
             return redirect()
                 ->route('user.mycourses')
-                ->withFlashDanger(__('course_pages.expired') . '.');
+                ->withFlashDanger(__('course_pages.expired'));
         }
         //dd("hi");
         $test_result = "";
@@ -949,7 +949,7 @@ class LessonsController extends Controller
         ) {
             return redirect()
                 ->route('user.mycourses')
-                ->withFlashDanger(__('course_pages.expired') . '.');
+                ->withFlashDanger(__('course_pages.expired'));
         }
         $logged_in_user_id = auth()->id();
         $normalized_slug = is_string($lesson_slug)
